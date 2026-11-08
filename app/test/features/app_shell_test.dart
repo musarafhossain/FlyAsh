@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
+import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/core/router/nav_items.dart';
 
 import '../helpers.dart';
@@ -193,4 +194,84 @@ void main() {
       );
     }
   }
+
+  group('desktop sidebar', () {
+    testWidgets('collapse button at the top, group captions, user + logout '
+        'at the bottom', (tester) async {
+      await openApp(tester, const Size(1440, 900));
+      for (final caption in ['DAILY WORK', 'BUSINESS', 'ADMIN']) {
+        expect(find.text(caption), findsOneWidget);
+      }
+      final toggleY = tester.getCenter(find.byTooltip('Collapse menu')).dy;
+      final logoutY = tester.getCenter(find.byTooltip('Log out')).dy;
+      final homeY = tester.getCenter(find.text('Home').first).dy;
+      expect(toggleY, lessThan(homeY), reason: 'collapse button on top');
+      expect(logoutY, greaterThan(800), reason: 'logout at the bottom');
+      expect(find.text('Test Owner'), findsOneWidget);
+
+      // Collapsed: icons only, but profile and logout stay reachable.
+      await tester.tap(find.byTooltip('Collapse menu'));
+      await tester.pumpAndSettle();
+      expect(find.text('DAILY WORK'), findsNothing);
+      expect(find.byTooltip('Log out'), findsOneWidget);
+      expect(find.byTooltip('My profile'), findsOneWidget);
+    });
+
+    testWidgets('user card opens My profile', (tester) async {
+      await openApp(tester, const Size(1440, 900));
+      await tester.tap(find.text('Test Owner'));
+      await tester.pumpAndSettle();
+      expect(
+        testContainer
+            .read(routerProvider)
+            .routeInformationProvider
+            .value
+            .uri
+            .path,
+        '/profile',
+      );
+    });
+
+    testWidgets('logout button asks first', (tester) async {
+      await openApp(tester, const Size(1440, 900));
+      await tester.tap(find.byTooltip('Log out'));
+      await tester.pumpAndSettle();
+      expect(find.text('Log out?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Log out'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sign in'), findsWidgets);
+    });
+
+    // A short laptop window (like 1536×738): the list scrolls, nothing
+    // overlaps or overflows, also mid-animation and in Bengali.
+    for (final locale in ['en', 'bn']) {
+      testWidgets('short window, $locale: no overflow while toggling', (
+        tester,
+      ) async {
+        setScreenSize(tester, const Size(1536, 738));
+        await tester.pumpWidget(
+          await testApp(
+            const FlyAshApp(),
+            prefs: {'app.locale': locale},
+            token: 'oat_test',
+            api: signedInRoutes(),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final toggle = find.byIcon(Icons.keyboard_double_arrow_left);
+        await tester.tap(toggle);
+        for (var i = 0; i < 12; i++) {
+          await tester.pump(const Duration(milliseconds: 20));
+          expect(tester.takeException(), isNull, reason: 'frame $i');
+        }
+        await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.keyboard_double_arrow_right));
+        for (var i = 0; i < 12; i++) {
+          await tester.pump(const Duration(milliseconds: 20));
+          expect(tester.takeException(), isNull, reason: 'frame $i');
+        }
+        await tester.pumpAndSettle();
+      });
+    }
+  });
 }

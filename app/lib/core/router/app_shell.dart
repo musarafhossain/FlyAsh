@@ -4,12 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/auth_controller.dart';
+import '../../features/settings/data/settings_repository_impl.dart';
 import '../config/env.dart';
 import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import '../theme/theme_controller.dart';
+import '../widgets/list_items.dart';
 import '../widgets/state_views.dart';
 import 'nav_items.dart';
 
@@ -285,17 +287,27 @@ class _AppDrawer extends StatelessWidget {
                 horizontal: Space.s3,
               ),
               children: [
-                for (var i = 0; i < kNavItems.length; i++)
-                  _MenuTile(
-                    item: kNavItems[i],
-                    selected: i == selected,
-                    onTap: () => onSelect(i),
-                  ),
+                for (final group in NavGroup.values) ...[
+                  _GroupCaption(navGroupLabel(context.l10n, group)),
+                  for (var i = 0; i < kNavItems.length; i++)
+                    if (kNavItems[i].group == group)
+                      _MenuTile(
+                        item: kNavItems[i],
+                        selected: i == selected,
+                        onTap: () => onSelect(i),
+                      ),
+                ],
               ],
             ),
           ),
+          Divider(height: 1, color: t.border),
           const Padding(
-            padding: EdgeInsets.fromLTRB(Space.s3, 0, Space.s3, Space.s3),
+            padding: EdgeInsets.fromLTRB(
+              Space.s3,
+              Space.s2,
+              Space.s3,
+              Space.s3,
+            ),
             child: _LogoutTile(),
           ),
         ],
@@ -325,6 +337,12 @@ class _ThemeToggle extends ConsumerWidget {
   }
 }
 
+/// Desktop sidebar (≥ 1024 px):
+///   top    — logo, app + factory name, collapse button
+///   middle — sections under group captions; selected = tinted pill with an
+///            accent bar, hover highlight
+///   bottom — the logged-in user (→ My profile) and Log out
+/// Collapsed it keeps only icons (with tooltips).
 class _Sidebar extends StatelessWidget {
   const _Sidebar({
     required this.selected,
@@ -338,95 +356,194 @@ class _Sidebar extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final VoidCallback onToggle;
 
+  static const double expandedWidth = 264;
+  static const double collapsedWidth = 80;
+
+  /// Below this width only icons fit (also while the sidebar animates).
+  static const double _minWidthForLabels = 200;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final l = context.l10n;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: collapsed ? 76 : 240,
+      curve: Curves.easeOutCubic,
+      width: collapsed ? collapsedWidth : expandedWidth,
       color: t.surface,
       child: SafeArea(
         right: false,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Space.s3,
-                Space.s4,
-                Space.s3,
-                Space.s3,
-              ),
-              // The name only shows when there is room (not mid-animation).
-              child: LayoutBuilder(
-                builder: (context, c) => Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/logo.png',
-                      width: 40,
-                      height: 40,
+        child: LayoutBuilder(
+          builder: (context, c) {
+            final compact = collapsed || c.maxWidth < _minWidthForLabels;
+            return Column(
+              children: [
+                _SidebarHeader(
+                  compact: compact,
+                  collapsed: collapsed,
+                  onToggle: onToggle,
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(
+                      Space.s3,
+                      0,
+                      Space.s3,
+                      Space.s3,
                     ),
-                    if (!collapsed && c.maxWidth >= 120) ...[
-                      const SizedBox(width: Space.s3),
-                      Expanded(
-                        child: Text(
-                          Env.appName,
-                          overflow: TextOverflow.clip,
-                          softWrap: false,
-                          style: AppTypography.h2.copyWith(
-                            color: t.textPrimary,
-                          ),
-                        ),
-                      ),
+                    children: [
+                      for (final group in NavGroup.values) ...[
+                        if (compact && group != NavGroup.values.first)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Space.s3,
+                              vertical: Space.s2,
+                            ),
+                            child: Divider(height: 1, color: t.border),
+                          )
+                        else if (!compact)
+                          _GroupCaption(navGroupLabel(l, group)),
+                        for (var i = 0; i < kNavItems.length; i++)
+                          if (kNavItems[i].group == group)
+                            _SidebarTile(
+                              item: kNavItems[i],
+                              selected: i == selected,
+                              compact: compact,
+                              onTap: () => onSelect(i),
+                            ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: Space.s3),
-                children: [
-                  for (var i = 0; i < kNavItems.length; i++)
-                    _MenuTile(
-                      item: kNavItems[i],
-                      selected: i == selected,
-                      compact: collapsed,
-                      onTap: () => onSelect(i),
-                    ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Space.s3),
-              child: _LogoutTile(compact: collapsed),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(Space.s3),
-              child: IconButton(
-                onPressed: onToggle,
-                tooltip: collapsed
-                    ? context.l10n.expandMenu
-                    : context.l10n.collapseMenu,
-                icon: Icon(
-                  collapsed
-                      ? Icons.keyboard_double_arrow_right
-                      : Icons.keyboard_double_arrow_left,
-                ),
-              ),
-            ),
-          ],
+                Divider(height: 1, color: t.border),
+                _SidebarFooter(compact: compact),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 }
 
-class _MenuTile extends StatelessWidget {
-  const _MenuTile({
+class _SidebarHeader extends ConsumerWidget {
+  const _SidebarHeader({
+    required this.compact,
+    required this.collapsed,
+    required this.onToggle,
+  });
+
+  final bool compact;
+  final bool collapsed;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = context.l10n;
+    final factoryName = ref.watch(factorySettingsProvider).value?.factoryName;
+
+    final logo = Container(
+      width: 44,
+      height: 44,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: Radii.mdAll,
+        border: Border.all(color: t.border),
+      ),
+      child: Image.asset('assets/images/logo.png'),
+    );
+    final toggle = IconButton(
+      onPressed: onToggle,
+      tooltip: collapsed ? l.expandMenu : l.collapseMenu,
+      style: IconButton.styleFrom(foregroundColor: t.textSecondary),
+      icon: Icon(
+        collapsed
+            ? Icons.keyboard_double_arrow_right
+            : Icons.keyboard_double_arrow_left,
+      ),
+    );
+
+    if (compact) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0, Space.s3, 0, Space.s1),
+        child: Column(
+          children: [
+            logo,
+            const SizedBox(height: Space.s1),
+            toggle,
+          ],
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Space.s4,
+        Space.s4,
+        Space.s2,
+        Space.s3,
+      ),
+      child: Row(
+        children: [
+          logo,
+          const SizedBox(width: Space.s3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  Env.appName,
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  softWrap: false,
+                  style: AppTypography.h2.copyWith(color: t.textPrimary),
+                ),
+                Text(
+                  factoryName ?? l.appTagline,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption.copyWith(color: t.textTertiary),
+                ),
+              ],
+            ),
+          ),
+          toggle,
+        ],
+      ),
+    );
+  }
+}
+
+/// Small upper-case group caption ("DAILY WORK").
+class _GroupCaption extends StatelessWidget {
+  const _GroupCaption(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(Space.s3, 14, Space.s3, 6),
+    child: Text(
+      text.toUpperCase(),
+      maxLines: 1,
+      overflow: TextOverflow.clip,
+      softWrap: false,
+      style: AppTypography.micro.copyWith(
+        color: context.tokens.textTertiary,
+        letterSpacing: 0.8,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  );
+}
+
+class _SidebarTile extends StatelessWidget {
+  const _SidebarTile({
     required this.item,
     required this.selected,
+    required this.compact,
     required this.onTap,
-    this.compact = false,
   });
 
   final NavItem item;
@@ -434,14 +551,222 @@ class _MenuTile extends StatelessWidget {
   final bool compact;
   final VoidCallback onTap;
 
-  /// Below this width only the icon fits (e.g. while the sidebar animates).
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final label = item.text(context.l10n);
+    final fg = selected ? t.onPrimaryContainer : t.textSecondary;
+
+    final tile = Material(
+      color: selected ? t.primaryContainer : Colors.transparent,
+      borderRadius: Radii.mdAll,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        hoverColor: selected ? Colors.transparent : t.surfaceVariant,
+        child: SizedBox(
+          height: 40,
+          child: Stack(
+            children: [
+              // Accent bar on the selected item
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 200),
+                left: 0,
+                top: selected ? 9 : 20,
+                bottom: selected ? 9 : 20,
+                child: Container(
+                  width: 3,
+                  decoration: BoxDecoration(
+                    color: selected ? t.primary : Colors.transparent,
+                    borderRadius: const BorderRadius.horizontal(
+                      right: Radius.circular(3),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Row(
+                  mainAxisAlignment: compact
+                      ? MainAxisAlignment.center
+                      : MainAxisAlignment.start,
+                  children: [
+                    if (!compact) const SizedBox(width: Space.s4),
+                    Icon(
+                      selected ? item.selectedIcon : item.icon,
+                      size: 22,
+                      color: selected ? t.primary : fg,
+                    ),
+                    if (!compact) ...[
+                      const SizedBox(width: Space.s3),
+                      Expanded(
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.body.copyWith(
+                            color: selected
+                                ? t.onPrimaryContainer
+                                : t.textPrimary,
+                            fontWeight: selected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Semantics(
+        selected: selected,
+        button: true,
+        label: compact ? label : null,
+        child: compact
+            ? Tooltip(
+                message: label,
+                preferBelow: false,
+                waitDuration: const Duration(milliseconds: 300),
+                child: tile,
+              )
+            : tile,
+      ),
+    );
+  }
+}
+
+/// The logged-in user (→ My profile) and the Log out button.
+class _SidebarFooter extends ConsumerWidget {
+  const _SidebarFooter({required this.compact});
+
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.tokens;
+    final l = context.l10n;
+    final user = ref.watch(authControllerProvider.select((s) => s.user));
+    final name = user?.name ?? l.myProfile;
+    void openProfile() => GoRouter.of(context).go('/profile');
+
+    final logout = IconButton(
+      onPressed: () => confirmLogout(context, ref),
+      tooltip: l.logout,
+      style: IconButton.styleFrom(foregroundColor: t.error),
+      icon: const Icon(Icons.logout),
+    );
+
+    if (compact) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: Space.s2),
+        child: Column(
+          children: [
+            Tooltip(
+              message: l.myProfile,
+              child: InkWell(
+                onTap: openProfile,
+                customBorder: const CircleBorder(),
+                child: InitialsAvatar(name, size: 40),
+              ),
+            ),
+            const SizedBox(height: Space.s2),
+            logout,
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(Space.s2),
+      child: Material(
+        color: t.surfaceVariant,
+        borderRadius: Radii.mdAll,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: openProfile,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Space.s3,
+              Space.s2,
+              Space.s1,
+              Space.s2,
+            ),
+            child: Row(
+              children: [
+                InitialsAvatar(name, size: 40),
+                const SizedBox(width: Space.s3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.bodyStrong.copyWith(
+                          color: t.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        user?.phone ?? l.viewProfile,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.caption.copyWith(
+                          color: t.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                logout,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Asks "Log out?" and logs out when confirmed.
+Future<void> confirmLogout(BuildContext context, WidgetRef ref) async {
+  final l = context.l10n;
+  final ok = await showConfirmDialog(
+    context,
+    title: l.logoutConfirmTitle,
+    message: l.logoutConfirmMessage,
+    confirmLabel: l.logout,
+    destructive: true,
+  );
+  if (ok) await ref.read(authControllerProvider.notifier).logout();
+}
+
+class _MenuTile extends StatelessWidget {
+  const _MenuTile({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final NavItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  /// Below this width only the icon fits (e.g. a very narrow drawer).
   static const _minWidthForLabel = 120.0;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) =>
-          _build(context, compact || constraints.maxWidth < _minWidthForLabel),
+          _build(context, constraints.maxWidth < _minWidthForLabel),
     );
   }
 
@@ -498,31 +823,20 @@ class _MenuTile extends StatelessWidget {
   }
 }
 
-/// "Log out" with a confirmation (drawer bottom and desktop sidebar).
+/// "Log out" with a confirmation (drawer bottom).
 class _LogoutTile extends ConsumerWidget {
-  const _LogoutTile({this.compact = false});
-
-  final bool compact;
+  const _LogoutTile();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = context.l10n;
 
-    Future<void> logout() async {
-      final ok = await showConfirmDialog(
-        context,
-        title: l.logoutConfirmTitle,
-        message: l.logoutConfirmMessage,
-        confirmLabel: l.logout,
-        destructive: true,
-      );
-      if (ok) await ref.read(authControllerProvider.notifier).logout();
-    }
+    Future<void> logout() => confirmLogout(context, ref);
 
     return LayoutBuilder(
       builder: (context, c) {
-        final iconOnly = compact || c.maxWidth < 120;
+        final iconOnly = c.maxWidth < 120;
         final tile = InkWell(
           onTap: logout,
           borderRadius: Radii.fullAll,

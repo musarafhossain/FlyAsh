@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 
+/// Groups shown as captions in the sidebar and the drawer.
+enum NavGroup { daily, business, admin }
+
 /// One section of the app. The order is the branch order of the router.
 class NavItem {
   const NavItem({
@@ -10,6 +13,7 @@ class NavItem {
     required this.icon,
     required this.selectedIcon,
     required this.step,
+    required this.group,
     this.primary = false,
   });
 
@@ -20,6 +24,8 @@ class NavItem {
 
   /// Plan step that builds the real screen (shown on placeholders).
   final String step;
+
+  final NavGroup group;
 
   /// Shown in the phone bottom bar / tablet rail (the rest live in the drawer).
   final bool primary;
@@ -49,6 +55,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.home_outlined,
     selectedIcon: Icons.home,
     step: 'F15',
+    group: NavGroup.daily,
     primary: true,
   ),
   NavItem(
@@ -57,6 +64,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.point_of_sale_outlined,
     selectedIcon: Icons.point_of_sale,
     step: 'F10',
+    group: NavGroup.daily,
     primary: true,
   ),
   NavItem(
@@ -65,6 +73,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.how_to_reg_outlined,
     selectedIcon: Icons.how_to_reg,
     step: 'F12',
+    group: NavGroup.daily,
     primary: true,
   ),
   NavItem(
@@ -73,6 +82,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.receipt_long_outlined,
     selectedIcon: Icons.receipt_long,
     step: 'F14',
+    group: NavGroup.daily,
     primary: true,
   ),
   NavItem(
@@ -81,6 +91,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.people_outline,
     selectedIcon: Icons.people,
     step: 'F9',
+    group: NavGroup.business,
   ),
   NavItem(
     path: '/products',
@@ -88,6 +99,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.inventory_2_outlined,
     selectedIcon: Icons.inventory_2,
     step: 'F8',
+    group: NavGroup.business,
   ),
   NavItem(
     path: '/labours',
@@ -95,6 +107,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.engineering_outlined,
     selectedIcon: Icons.engineering,
     step: 'F12',
+    group: NavGroup.business,
   ),
   NavItem(
     path: '/wages',
@@ -102,6 +115,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.payments_outlined,
     selectedIcon: Icons.payments,
     step: 'F13',
+    group: NavGroup.business,
   ),
   NavItem(
     path: '/reports',
@@ -109,6 +123,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.bar_chart_outlined,
     selectedIcon: Icons.bar_chart,
     step: 'F16',
+    group: NavGroup.business,
   ),
   NavItem(
     path: '/users',
@@ -116,6 +131,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.manage_accounts_outlined,
     selectedIcon: Icons.manage_accounts,
     step: 'F7',
+    group: NavGroup.admin,
   ),
   NavItem(
     path: '/settings',
@@ -123,6 +139,7 @@ const List<NavItem> kNavItems = [
     icon: Icons.settings_outlined,
     selectedIcon: Icons.settings,
     step: 'F7',
+    group: NavGroup.admin,
   ),
 ];
 
@@ -131,3 +148,10 @@ final List<int> kPrimaryBranches = [
   for (var i = 0; i < kNavItems.length; i++)
     if (kNavItems[i].primary) i,
 ];
+
+/// Caption of a group in the current language.
+String navGroupLabel(AppLocalizations l, NavGroup group) => switch (group) {
+  NavGroup.daily => l.navGroupDaily,
+  NavGroup.business => l.navGroupBusiness,
+  NavGroup.admin => l.navGroupAdmin,
+};

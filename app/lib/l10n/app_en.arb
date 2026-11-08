@@ -194,5 +194,8 @@
   "aboutApp": "About",
   "version": "Version",
   "buildNumber": "Build",
-  "server": "Server"
+  "server": "Server",
+  "navGroupDaily": "Daily work",
+  "navGroupBusiness": "Business",
+  "navGroupAdmin": "Admin"
 }

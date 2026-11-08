@@ -463,4 +463,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get server => 'Server';
+
+  @override
+  String get navGroupDaily => 'Daily work';
+
+  @override
+  String get navGroupBusiness => 'Business';
+
+  @override
+  String get navGroupAdmin => 'Admin';
 }

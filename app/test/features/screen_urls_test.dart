@@ -124,12 +124,13 @@ void main() {
       } else {
         await tester.tap(find.byTooltip('Menu'));
         await tester.pumpAndSettle();
-        await tester.tap(
-          find.descendant(
-            of: find.byType(Drawer),
-            matching: find.text(item.label),
-          ),
+        final entry = find.descendant(
+          of: find.byType(Drawer),
+          matching: find.text(item.label),
         );
+        await tester.ensureVisible(entry);
+        await tester.pumpAndSettle();
+        await tester.tap(entry);
       }
       await tester.pumpAndSettle();
       expect(shownUrl(), item.path, reason: item.label);

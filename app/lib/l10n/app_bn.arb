@@ -142,5 +142,8 @@
   "aboutApp": "অ্যাপ সম্পর্কে",
   "version": "ভার্সন",
   "buildNumber": "বিল্ড",
-  "server": "সার্ভার"
+  "server": "সার্ভার",
+  "navGroupDaily": "প্রতিদিনের কাজ",
+  "navGroupBusiness": "ব্যবসা",
+  "navGroupAdmin": "অ্যাডমিন"
 }

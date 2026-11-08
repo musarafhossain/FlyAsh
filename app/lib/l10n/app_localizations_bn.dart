@@ -462,4 +462,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get server => 'সার্ভার';
+
+  @override
+  String get navGroupDaily => 'প্রতিদিনের কাজ';
+
+  @override
+  String get navGroupBusiness => 'ব্যবসা';
+
+  @override
+  String get navGroupAdmin => 'অ্যাডমিন';
 }

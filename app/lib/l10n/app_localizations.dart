@@ -955,6 +955,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Server'**
   String get server;
+
+  /// No description provided for @navGroupDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily work'**
+  String get navGroupDaily;
+
+  /// No description provided for @navGroupBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get navGroupBusiness;
+
+  /// No description provided for @navGroupAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get navGroupAdmin;
 }
 
 class _AppLocalizationsDelegate
