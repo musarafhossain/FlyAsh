@@ -145,5 +145,7 @@
   "server": "সার্ভার",
   "navGroupDaily": "প্রতিদিনের কাজ",
   "navGroupBusiness": "ব্যবসা",
-  "navGroupAdmin": "অ্যাডমিন"
+  "navGroupAdmin": "অ্যাডমিন",
+  "account": "অ্যাকাউন্ট",
+  "moreAppearanceSettings": "চেহারার আরও সেটিংস"
 }

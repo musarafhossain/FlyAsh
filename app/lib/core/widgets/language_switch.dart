@@ -7,7 +7,10 @@ import '../l10n/locale_controller.dart';
 /// "EN / বাংলা" switch for the top-right corner (Login, splash, settings).
 /// Changing it switches the UI text and the API messages together.
 class LanguageSwitch extends ConsumerWidget {
-  const LanguageSwitch({super.key});
+  const LanguageSwitch({super.key, this.iconOnly = false});
+
+  /// Only the 文A icon (narrow app bars on phones).
+  final bool iconOnly;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,8 +38,10 @@ class LanguageSwitch extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.translate, size: 20),
-            const SizedBox(width: 6),
-            Text(code == 'bn' ? l.languageBengali : 'EN'),
+            if (!iconOnly) ...[
+              const SizedBox(width: 6),
+              Text(code == 'bn' ? l.languageBengali : 'EN'),
+            ],
           ],
         ),
       ),

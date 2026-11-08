@@ -12,7 +12,7 @@ import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import '../theme/theme_controller.dart';
 import '../widgets/list_items.dart';
-import '../widgets/state_views.dart';
+import 'app_bar_actions.dart';
 import 'nav_items.dart';
 
 /// Responsive app frame (04-UI-UX §11, 03-AppFlow §3):
@@ -733,19 +733,6 @@ class _SidebarFooter extends ConsumerWidget {
       ),
     );
   }
-}
-
-/// Asks "Log out?" and logs out when confirmed.
-Future<void> confirmLogout(BuildContext context, WidgetRef ref) async {
-  final l = context.l10n;
-  final ok = await showConfirmDialog(
-    context,
-    title: l.logoutConfirmTitle,
-    message: l.logoutConfirmMessage,
-    confirmLabel: l.logout,
-    destructive: true,
-  );
-  if (ok) await ref.read(authControllerProvider.notifier).logout();
 }
 
 class _MenuTile extends StatelessWidget {

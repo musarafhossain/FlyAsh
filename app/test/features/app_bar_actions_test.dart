@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:flyash/app.dart';
+import 'package:flyash/core/l10n/locale_controller.dart';
+import 'package:flyash/core/router/app_router.dart';
+import 'package:flyash/core/theme/app_colors.dart';
+import 'package:flyash/core/theme/theme_controller.dart';
+
+import '../helpers.dart';
+
+Future<void> openHome(WidgetTester tester, Size size) async {
+  setScreenSize(tester, size);
+  await tester.pumpWidget(
+    await testApp(
+      const FlyAshApp(),
+      prefs: {'theme.mode': 'light'},
+      token: 'oat_test',
+      api: signedInRoutes(),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+String currentPath() =>
+    testContainer.read(routerProvider).routeInformationProvider.value.uri.path;
+
+void main() {
+  for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {
+    testWidgets('app bar order at ${size.width.toInt()} px: '
+        'appearance, language, avatar', (tester) async {
+      await openHome(tester, size);
+      final appearance = tester.getCenter(find.byTooltip('Appearance')).dx;
+      final language = tester.getCenter(find.byTooltip('Language')).dx;
+      final avatar = tester.getCenter(find.byTooltip('Account')).dx;
+      expect(appearance, lessThan(language));
+      expect(language, lessThan(avatar));
+      expect(avatar, greaterThan(size.width - 80), reason: 'at the right');
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('avatar menu: name, Profile, Change password, Log out', (
+    tester,
+  ) async {
+    await openHome(tester, const Size(1440, 900));
+    await tester.tap(find.byTooltip('Account'));
+    await tester.pumpAndSettle();
+    expect(find.text('owner@test.com'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(MenuItemButton, 'My profile'));
+    await tester.pumpAndSettle();
+    expect(currentPath(), '/profile');
+
+    await tester.tap(find.byTooltip('Account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(MenuItemButton, 'Change password'));
+    await tester.pumpAndSettle();
+    expect(currentPath(), '/profile/password');
+  });
+
+  testWidgets('avatar menu: Log out asks first', (tester) async {
+    await openHome(tester, const Size(360, 800));
+    await tester.tap(find.byTooltip('Account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(MenuItemButton, 'Log out'));
+    await tester.pumpAndSettle();
+    expect(find.text('Log out?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Log out'));
+    await tester.pumpAndSettle();
+    expect(currentPath(), '/login');
+  });
+
+  testWidgets('appearance popover changes mode and color instantly', (
+    tester,
+  ) async {
+    await openHome(tester, const Size(360, 800));
+    await tester.tap(find.byTooltip('Appearance'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Dark'));
+    await tester.pumpAndSettle();
+    expect(testContainer.read(themeControllerProvider).mode, ThemeMode.dark);
+
+    await tester.tap(find.bySemanticsLabel('Emerald'));
+    await tester.pumpAndSettle();
+    expect(
+      testContainer.read(themeControllerProvider).accent,
+      AccentColor.emerald,
+    );
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('More appearance settings'));
+    await tester.pumpAndSettle();
+    expect(currentPath(), '/settings/appearance');
+  });
+
+  testWidgets('language button switches to Bengali', (tester) async {
+    await openHome(tester, const Size(1440, 900));
+    await tester.tap(find.byTooltip('Language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('বাংলা').last);
+    await tester.pumpAndSettle();
+    expect(testContainer.read(localeProvider), 'bn');
+    expect(find.byTooltip('চেহারা'), findsOneWidget);
+  });
+}

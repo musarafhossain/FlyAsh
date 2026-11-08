@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_shell.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -61,6 +62,7 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
       appBar: AppBar(
         leading: ShellMenuButton.maybe(context),
         title: Text(l.navUsers),
+        actions: const [AppBarActions()],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _open('/users/new'),

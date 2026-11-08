@@ -973,6 +973,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Admin'**
   String get navGroupAdmin;
+
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
+  /// No description provided for @moreAppearanceSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'More appearance settings'**
+  String get moreAppearanceSettings;
 }
 
 class _AppLocalizationsDelegate

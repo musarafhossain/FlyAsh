@@ -471,4 +471,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get navGroupAdmin => 'অ্যাডমিন';
+
+  @override
+  String get account => 'অ্যাকাউন্ট';
+
+  @override
+  String get moreAppearanceSettings => 'চেহারার আরও সেটিংস';
 }

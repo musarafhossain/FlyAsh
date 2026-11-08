@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_shell.dart';
 import '../../../../core/router/nav_items.dart';
@@ -18,6 +19,7 @@ class SectionPlaceholderPage extends StatelessWidget {
       appBar: AppBar(
         leading: ShellMenuButton.maybe(context),
         title: Text(item.text(context.l10n)),
+        actions: const [AppBarActions()],
       ),
       body: ListView(
         padding: const EdgeInsets.all(Space.s4),

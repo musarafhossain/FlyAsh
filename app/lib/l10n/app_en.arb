@@ -197,5 +197,7 @@
   "server": "Server",
   "navGroupDaily": "Daily work",
   "navGroupBusiness": "Business",
-  "navGroupAdmin": "Admin"
+  "navGroupAdmin": "Admin",
+  "account": "Account",
+  "moreAppearanceSettings": "More appearance settings"
 }

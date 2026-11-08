@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/l10n/locale_controller.dart';
 import '../../../../core/router/app_shell.dart';
@@ -46,6 +47,7 @@ class SettingsPage extends ConsumerWidget {
       appBar: AppBar(
         leading: ShellMenuButton.maybe(context),
         title: Text(l.navSettings),
+        actions: const [AppBarActions()],
       ),
       body: PageBody(
         maxWidth: 720,
