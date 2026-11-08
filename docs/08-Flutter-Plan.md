@@ -64,7 +64,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 
 ## Notes
 
-- **Android:** run `flutter doctor --android-licenses` once (answer `y`) before the first Android build.
+- **Android:** SDK licenses accepted; the first debug APK built on 2026-11-08.
 - **Live API tests** (backend running): `flutter test test/integration --dart-define=LIVE_API=true`. Each run makes 2 wrong-password attempts; the login limit is 5 per 15 minutes.
 - **Commands** always pass the API URL: `--dart-define=API_BASE_URL=...` (emulator: `http://10.0.2.2:3333/api/v1`, real phone: the PC's LAN IP).
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

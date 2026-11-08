@@ -124,6 +124,21 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('desktop sidebar: no overflow during collapse/expand animation', (
+    tester,
+  ) async {
+    await openApp(tester, const Size(1440, 900));
+    for (final tooltip in ['Collapse menu', 'Expand menu', 'Collapse menu']) {
+      await tester.tap(find.byTooltip(tooltip));
+      // Step through the 200 ms animation frame by frame.
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 20));
+        expect(tester.takeException(), isNull, reason: '$tooltip frame $i');
+      }
+      await tester.pumpAndSettle();
+    }
+  });
+
   for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {
     for (final mode in ['light', 'dark']) {
       testWidgets(

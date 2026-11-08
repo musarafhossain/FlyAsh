@@ -242,21 +242,30 @@ class _Sidebar extends StatelessWidget {
                 Space.s3,
                 Space.s3,
               ),
-              child: Row(
-                children: [
-                  Image.asset('assets/images/logo.png', width: 40, height: 40),
-                  if (!collapsed) ...[
-                    const SizedBox(width: Space.s3),
-                    Expanded(
-                      child: Text(
-                        Env.appName,
-                        overflow: TextOverflow.clip,
-                        softWrap: false,
-                        style: AppTypography.h2.copyWith(color: t.textPrimary),
-                      ),
+              // The name only shows when there is room (not mid-animation).
+              child: LayoutBuilder(
+                builder: (context, c) => Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: 40,
+                      height: 40,
                     ),
+                    if (!collapsed && c.maxWidth >= 120) ...[
+                      const SizedBox(width: Space.s3),
+                      Expanded(
+                        child: Text(
+                          Env.appName,
+                          overflow: TextOverflow.clip,
+                          softWrap: false,
+                          style: AppTypography.h2.copyWith(
+                            color: t.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
             Expanded(
@@ -305,8 +314,18 @@ class _MenuTile extends StatelessWidget {
   final bool compact;
   final VoidCallback onTap;
 
+  /// Below this width only the icon fits (e.g. while the sidebar animates).
+  static const _minWidthForLabel = 120.0;
+
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          _build(context, compact || constraints.maxWidth < _minWidthForLabel),
+    );
+  }
+
+  Widget _build(BuildContext context, bool compact) {
     final t = context.tokens;
     final fg = selected ? t.onPrimaryContainer : t.textSecondary;
     final tile = Material(
