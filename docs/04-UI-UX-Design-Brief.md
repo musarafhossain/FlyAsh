@@ -383,7 +383,7 @@ States: default, pressed, focused (ring), disabled (38% opacity), loading (spinn
 | Empty | Illustration (48–120 dp), `h3` title, one-line hint, primary action ("No sales yet · Create first sale") |
 | Error | Inline card with an `error` icon, a message and a "Retry" button |
 | Offline | Thin `warning` banner at the top: "Offline: changes will sync when connected". Unsynced records show a small cloud-off icon |
-| Success | Toast / snackbar at the bottom, 3 s, with an optional "Undo" |
+| Success | Toast / snackbar at the bottom, 3 s, with an optional "Undo". Phones: full width with side margins. Tablet/desktop (≥ 600 px): max **400 px** wide, centered. A new message replaces the visible one (no queue) |
 | Destructive confirm | Dialog: title, consequence text, Cancel (outline) + Delete (destructive) |
 | Badge | Red dot or count on the bell and nav icons |
 

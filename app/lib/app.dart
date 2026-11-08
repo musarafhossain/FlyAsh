@@ -39,7 +39,13 @@ class FlyAshApp extends ConsumerWidget {
         final scale = media.textScaler.scale(1) * settings.fontScale;
         return MediaQuery(
           data: media.copyWith(textScaler: TextScaler.linear(scale)),
-          child: child!,
+          child: Theme(
+            data: AppTheme.withResponsiveSnackBar(
+              Theme.of(context),
+              media.size.width,
+            ),
+            child: child!,
+          ),
         );
       },
     );

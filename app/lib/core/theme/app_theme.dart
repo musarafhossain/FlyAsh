@@ -7,6 +7,19 @@ import 'app_typography.dart';
 
 /// Builds the Material theme for one accent in one mode (10 combinations).
 abstract final class AppTheme {
+  /// Snackbar width on tablet/desktop (centered at the bottom). On phones it
+  /// spans the screen with side margins.
+  static const double snackBarMaxWidth = 400;
+
+  /// Narrows floating snackbars on wide screens (they otherwise stretch
+  /// across the whole window on desktop).
+  static ThemeData withResponsiveSnackBar(ThemeData theme, double screenWidth) {
+    if (screenWidth < Breakpoints.medium) return theme;
+    return theme.copyWith(
+      snackBarTheme: theme.snackBarTheme.copyWith(width: snackBarMaxWidth),
+    );
+  }
+
   static ThemeData build(AccentColor accent, Brightness brightness) {
     final t = AppTokens.of(accent, brightness);
     final textTheme = AppTypography.textTheme(t.textPrimary, t.textSecondary);
