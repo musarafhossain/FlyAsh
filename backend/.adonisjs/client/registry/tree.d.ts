@@ -6,6 +6,11 @@ export interface ApiDefinition {
     show: typeof routes['uploads.show']
     store: typeof routes['uploads.store']
   }
+  settings: {
+    appVersion: typeof routes['settings.app_version']
+    factory: typeof routes['settings.factory']
+    updateFactory: typeof routes['settings.update_factory']
+  }
   auth: {
     login: typeof routes['auth.login']
     logout: typeof routes['auth.logout']

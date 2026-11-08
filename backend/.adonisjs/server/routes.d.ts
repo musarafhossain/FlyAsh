@@ -5,6 +5,7 @@ type ParamValue = string | number | bigint | boolean
 export type ScannedRoutes = {
   ALL: {
     'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
+    'settings.app_version': { paramsTuple?: []; params?: {} }
     'auth.login': { paramsTuple?: []; params?: {} }
     'password_reset.forgot': { paramsTuple?: []; params?: {} }
     'password_reset.verify': { paramsTuple?: []; params?: {} }
@@ -73,9 +74,12 @@ export type ScannedRoutes = {
     'reports.wages': { paramsTuple?: []; params?: {} }
     'reports.net_profit': { paramsTuple?: []; params?: {} }
     'reports.collections': { paramsTuple?: []; params?: {} }
+    'settings.factory': { paramsTuple?: []; params?: {} }
+    'settings.update_factory': { paramsTuple?: []; params?: {} }
   }
   GET: {
     'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
+    'settings.app_version': { paramsTuple?: []; params?: {} }
     'auth.me': { paramsTuple?: []; params?: {} }
     'users.index': { paramsTuple?: []; params?: {} }
     'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -104,9 +108,11 @@ export type ScannedRoutes = {
     'reports.wages': { paramsTuple?: []; params?: {} }
     'reports.net_profit': { paramsTuple?: []; params?: {} }
     'reports.collections': { paramsTuple?: []; params?: {} }
+    'settings.factory': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
     'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
+    'settings.app_version': { paramsTuple?: []; params?: {} }
     'auth.me': { paramsTuple?: []; params?: {} }
     'users.index': { paramsTuple?: []; params?: {} }
     'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -135,6 +141,7 @@ export type ScannedRoutes = {
     'reports.wages': { paramsTuple?: []; params?: {} }
     'reports.net_profit': { paramsTuple?: []; params?: {} }
     'reports.collections': { paramsTuple?: []; params?: {} }
+    'settings.factory': { paramsTuple?: []; params?: {} }
   }
   POST: {
     'auth.login': { paramsTuple?: []; params?: {} }
@@ -168,6 +175,7 @@ export type ScannedRoutes = {
     'attendance.save': { paramsTuple?: []; params?: {} }
     'expenses.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.update_category': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'settings.update_factory': { paramsTuple?: []; params?: {} }
   }
   PATCH: {
     'users.status': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

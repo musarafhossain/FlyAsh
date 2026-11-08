@@ -21,6 +21,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/uploads_controller').default['show']>>>
     }
   }
+  'settings.app_version': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/app/version'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/setting').appVersionValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['appVersion']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['appVersion']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['appVersion']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'auth.login': {
     methods: ["POST"]
     pattern: '/api/v1/auth/login'
@@ -903,6 +916,32 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['collections']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['collections']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['collections']>>>
+    }
+  }
+  'settings.factory': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/settings/factory'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['factory']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['factory']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['factory']>>>
+    }
+  }
+  'settings.update_factory': {
+    methods: ["PUT"]
+    pattern: '/api/v1/settings/factory'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/setting').factorySettingsValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/setting').factorySettingsValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['updateFactory']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['updateFactory']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/settings_controller').default['updateFactory']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
 }

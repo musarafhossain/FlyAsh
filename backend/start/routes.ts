@@ -22,6 +22,7 @@ const WagesController = () => import('#controllers/wages_controller')
 const ExpensesController = () => import('#controllers/expenses_controller')
 const UploadsController = () => import('#controllers/uploads_controller')
 const ReportsController = () => import('#controllers/reports_controller')
+const SettingsController = () => import('#controllers/settings_controller')
 
 /** Every :id style param must be numeric. */
 router.where('id', router.matchers.number())
@@ -40,6 +41,7 @@ router
       await db.rawQuery('SELECT 1')
       return ok(response, { status: 'ok', db: 'ok', time: new Date().toISOString() }, 'Healthy')
     })
+    router.get('app/version', [SettingsController, 'appVersion'])
 
     router
       .group(() => {
@@ -142,6 +144,10 @@ router
         router.get('reports/wages', [ReportsController, 'wages'])
         router.get('reports/net-profit', [ReportsController, 'netProfit'])
         router.get('reports/collections', [ReportsController, 'collections'])
+
+        // Settings
+        router.get('settings/factory', [SettingsController, 'factory'])
+        router.put('settings/factory', [SettingsController, 'updateFactory'])
       })
       .use(middleware.auth())
   })

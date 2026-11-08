@@ -14,6 +14,12 @@ const routes = {
     tokens: [[0,"uploads"],[2,"*"]],
     types: placeholder as Registry['uploads.show']['types'],
   },
+  'settings.app_version': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/app/version',
+    tokens: [[0,"api"],[0,"v1"],[0,"app"],[0,"version"]],
+    types: placeholder as Registry['settings.app_version']['types'],
+  },
   'auth.login': {
     methods: ["POST"],
     pattern: '/api/v1/auth/login',
@@ -421,6 +427,18 @@ const routes = {
     pattern: '/api/v1/reports/collections',
     tokens: [[0,"api"],[0,"v1"],[0,"reports"],[0,"collections"]],
     types: placeholder as Registry['reports.collections']['types'],
+  },
+  'settings.factory': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/settings/factory',
+    tokens: [[0,"api"],[0,"v1"],[0,"settings"],[0,"factory"]],
+    types: placeholder as Registry['settings.factory']['types'],
+  },
+  'settings.update_factory': {
+    methods: ["PUT"],
+    pattern: '/api/v1/settings/factory',
+    tokens: [[0,"api"],[0,"v1"],[0,"settings"],[0,"factory"]],
+    types: placeholder as Registry['settings.update_factory']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 
