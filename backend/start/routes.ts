@@ -16,6 +16,9 @@ const UsersController = () => import('#controllers/users_controller')
 const ProductsController = () => import('#controllers/products_controller')
 const CustomersController = () => import('#controllers/customers_controller')
 const SalesController = () => import('#controllers/sales_controller')
+const LaboursController = () => import('#controllers/labours_controller')
+const AttendanceController = () => import('#controllers/attendance_controller')
+const WagesController = () => import('#controllers/wages_controller')
 
 /** Every :id style param must be numeric. */
 router.where('id', router.matchers.number())
@@ -90,6 +93,27 @@ router
         router
           .delete('sales/:id/payments/:paymentId', [SalesController, 'deletePayment'])
           .where('paymentId', router.matchers.number())
+
+        // Labours
+        router.get('labours', [LaboursController, 'index'])
+        router.post('labours', [LaboursController, 'store'])
+        router.get('labours/:id', [LaboursController, 'show'])
+        router.put('labours/:id', [LaboursController, 'update'])
+        router.patch('labours/:id/status', [LaboursController, 'status'])
+
+        // Attendance
+        router.get('attendance', [AttendanceController, 'show'])
+        router.put('attendance', [AttendanceController, 'save'])
+        router.get('labours/:id/attendance', [AttendanceController, 'labourMonth'])
+
+        // Wages & advances
+        router.get('wages', [WagesController, 'sheet'])
+        router.get('labours/:id/wages', [WagesController, 'labour'])
+        router.get('labours/:id/advances', [WagesController, 'advances'])
+        router.post('labours/:id/advances', [WagesController, 'storeAdvance'])
+        router.delete('advances/:id', [WagesController, 'destroyAdvance'])
+        router.post('labours/:id/wage-payments', [WagesController, 'storePayment'])
+        router.delete('wage-payments/:id', [WagesController, 'destroyPayment'])
       })
       .use(middleware.auth())
   })

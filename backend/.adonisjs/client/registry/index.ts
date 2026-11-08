@@ -230,6 +230,96 @@ const routes = {
     tokens: [[0,"api"],[0,"v1"],[0,"sales"],[1,"id"],[0,"payments"],[1,"paymentId"]],
     types: placeholder as Registry['sales.delete_payment']['types'],
   },
+  'labours.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/labours',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"]],
+    types: placeholder as Registry['labours.index']['types'],
+  },
+  'labours.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/labours',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"]],
+    types: placeholder as Registry['labours.store']['types'],
+  },
+  'labours.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/labours/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"],[1,"id"]],
+    types: placeholder as Registry['labours.show']['types'],
+  },
+  'labours.update': {
+    methods: ["PUT"],
+    pattern: '/api/v1/labours/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"],[1,"id"]],
+    types: placeholder as Registry['labours.update']['types'],
+  },
+  'labours.status': {
+    methods: ["PATCH"],
+    pattern: '/api/v1/labours/:id/status',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"],[1,"id"],[0,"status"]],
+    types: placeholder as Registry['labours.status']['types'],
+  },
+  'attendance.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/attendance',
+    tokens: [[0,"api"],[0,"v1"],[0,"attendance"]],
+    types: placeholder as Registry['attendance.show']['types'],
+  },
+  'attendance.save': {
+    methods: ["PUT"],
+    pattern: '/api/v1/attendance',
+    tokens: [[0,"api"],[0,"v1"],[0,"attendance"]],
+    types: placeholder as Registry['attendance.save']['types'],
+  },
+  'attendance.labour_month': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/labours/:id/attendance',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"],[1,"id"],[0,"attendance"]],
+    types: placeholder as Registry['attendance.labour_month']['types'],
+  },
+  'wages.sheet': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/wages',
+    tokens: [[0,"api"],[0,"v1"],[0,"wages"]],
+    types: placeholder as Registry['wages.sheet']['types'],
+  },
+  'wages.labour': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/labours/:id/wages',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"],[1,"id"],[0,"wages"]],
+    types: placeholder as Registry['wages.labour']['types'],
+  },
+  'wages.advances': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/labours/:id/advances',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"],[1,"id"],[0,"advances"]],
+    types: placeholder as Registry['wages.advances']['types'],
+  },
+  'wages.store_advance': {
+    methods: ["POST"],
+    pattern: '/api/v1/labours/:id/advances',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"],[1,"id"],[0,"advances"]],
+    types: placeholder as Registry['wages.store_advance']['types'],
+  },
+  'wages.destroy_advance': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/advances/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"advances"],[1,"id"]],
+    types: placeholder as Registry['wages.destroy_advance']['types'],
+  },
+  'wages.store_payment': {
+    methods: ["POST"],
+    pattern: '/api/v1/labours/:id/wage-payments',
+    tokens: [[0,"api"],[0,"v1"],[0,"labours"],[1,"id"],[0,"wage-payments"]],
+    types: placeholder as Registry['wages.store_payment']['types'],
+  },
+  'wages.destroy_payment': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/wage-payments/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"wage-payments"],[1,"id"]],
+    types: placeholder as Registry['wages.destroy_payment']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

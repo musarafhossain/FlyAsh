@@ -489,6 +489,201 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['deletePayment']>>>
     }
   }
+  'labours.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/labours'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/labour').listLaboursValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'labours.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/labours'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/labour').labourValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/labour').labourValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'labours.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/labours/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['show']>>>
+    }
+  }
+  'labours.update': {
+    methods: ["PUT"]
+    pattern: '/api/v1/labours/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/labour').labourValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/labour').labourValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'labours.status': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/labours/:id/status'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/labour').labourStatusValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/labour').labourStatusValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['status']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['status']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/labours_controller').default['status']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'attendance.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/attendance'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/labour').attendanceDayValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['show']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'attendance.save': {
+    methods: ["PUT"]
+    pattern: '/api/v1/attendance'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/labour').saveAttendanceValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/labour').saveAttendanceValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['save']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['save']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['save']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'attendance.labour_month': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/labours/:id/attendance'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/labour').monthValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['labourMonth']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['labourMonth']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/attendance_controller').default['labourMonth']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'wages.sheet': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/wages'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/labour').wageSheetValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['sheet']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['sheet']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['sheet']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'wages.labour': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/labours/:id/wages'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/labour').monthValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['labour']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['labour']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['labour']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'wages.advances': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/labours/:id/advances'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/sale').paginationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['advances']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['advances']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['advances']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'wages.store_advance': {
+    methods: ["POST"]
+    pattern: '/api/v1/labours/:id/advances'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/labour').advanceValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/labour').advanceValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['storeAdvance']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['storeAdvance']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['storeAdvance']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'wages.destroy_advance': {
+    methods: ["DELETE"]
+    pattern: '/api/v1/advances/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['destroyAdvance']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['destroyAdvance']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['destroyAdvance']>>>
+    }
+  }
+  'wages.store_payment': {
+    methods: ["POST"]
+    pattern: '/api/v1/labours/:id/wage-payments'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/labour').wagePaymentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/labour').wagePaymentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['storePayment']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['storePayment']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['storePayment']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'wages.destroy_payment': {
+    methods: ["DELETE"]
+    pattern: '/api/v1/wage-payments/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['destroyPayment']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['destroyPayment']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/wages_controller').default['destroyPayment']>>>
+    }
+  }
 }
 
 export namespace Route {

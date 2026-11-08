@@ -51,4 +51,25 @@ export interface ApiDefinition {
     addPayment: typeof routes['sales.add_payment']
     deletePayment: typeof routes['sales.delete_payment']
   }
+  labours: {
+    index: typeof routes['labours.index']
+    store: typeof routes['labours.store']
+    show: typeof routes['labours.show']
+    update: typeof routes['labours.update']
+    status: typeof routes['labours.status']
+  }
+  attendance: {
+    show: typeof routes['attendance.show']
+    save: typeof routes['attendance.save']
+    labourMonth: typeof routes['attendance.labour_month']
+  }
+  wages: {
+    sheet: typeof routes['wages.sheet']
+    labour: typeof routes['wages.labour']
+    advances: typeof routes['wages.advances']
+    storeAdvance: typeof routes['wages.store_advance']
+    destroyAdvance: typeof routes['wages.destroy_advance']
+    storePayment: typeof routes['wages.store_payment']
+    destroyPayment: typeof routes['wages.destroy_payment']
+  }
 }

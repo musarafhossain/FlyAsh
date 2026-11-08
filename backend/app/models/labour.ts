@@ -7,6 +7,9 @@ import LabourAdvance from '#models/labour_advance'
 import WagePayment from '#models/wage_payment'
 
 export default class Labour extends LabourSchema {
+  /** "labour" is treated as uncountable by the pluralizer, so set it explicitly. */
+  static table = 'labours'
+
   @hasMany(() => Attendance)
   declare attendances: HasMany<typeof Attendance>
 

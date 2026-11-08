@@ -4,10 +4,13 @@
  */
 
 export const controllers = {
+  Attendance: () => import('#controllers/attendance_controller'),
   Auth: () => import('#controllers/auth_controller'),
   Customers: () => import('#controllers/customers_controller'),
+  Labours: () => import('#controllers/labours_controller'),
   PasswordReset: () => import('#controllers/password_reset_controller'),
   Products: () => import('#controllers/products_controller'),
   Sales: () => import('#controllers/sales_controller'),
   Users: () => import('#controllers/users_controller'),
+  Wages: () => import('#controllers/wages_controller'),
 }
