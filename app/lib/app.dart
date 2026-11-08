@@ -2,20 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/env.dart';
+import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
-import 'features/splash/presentation/pages/splash_page.dart';
 
 /// Root widget: applies the saved theme (mode, accent, font size).
-/// The router (F4) and localization (F5) are added in later steps.
+/// Navigation: go_router (core/router). Localization is added in F5.
 class FlyAshApp extends ConsumerWidget {
   const FlyAshApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(themeControllerProvider);
+    final router = ref.watch(routerProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: router,
       title: Env.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.build(settings.accent, Brightness.light),
@@ -31,7 +33,6 @@ class FlyAshApp extends ConsumerWidget {
           child: child!,
         );
       },
-      home: const SplashPage(),
     );
   }
 }

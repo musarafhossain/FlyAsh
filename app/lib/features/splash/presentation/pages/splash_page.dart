@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/env.dart';
-import '../../../dev/presentation/pages/theme_gallery_page.dart';
-import '../../../dev/presentation/pages/widget_gallery_page.dart';
 import '../widgets/api_status_card.dart';
 
 /// Placeholder start screen for F0 (setup).
-/// F6 turns this into the real splash (theme, session and update checks).
+/// F6 turns this into the real splash (session and update checks → login or home).
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
@@ -48,25 +47,28 @@ class SplashPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const ApiStatusCard(),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: () => context.go('/home'),
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text('Open app'),
+                ),
                 if (kDebugMode) ...[
-                  const SizedBox(height: 16),
-                  TextButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ThemeGalleryPage(),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () => context.push('/dev/theme'),
+                        icon: const Icon(Icons.palette_outlined),
+                        label: const Text('Theme gallery'),
                       ),
-                    ),
-                    icon: const Icon(Icons.palette_outlined),
-                    label: const Text('Theme gallery'),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const WidgetGalleryPage(),
+                      TextButton.icon(
+                        onPressed: () => context.push('/dev/widgets'),
+                        icon: const Icon(Icons.widgets_outlined),
+                        label: const Text('Widget gallery'),
                       ),
-                    ),
-                    icon: const Icon(Icons.widgets_outlined),
-                    label: const Text('Widget gallery'),
+                    ],
                   ),
                 ],
               ],
