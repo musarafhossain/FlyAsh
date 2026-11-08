@@ -164,6 +164,72 @@ const routes = {
     tokens: [[0,"api"],[0,"v1"],[0,"customers"],[1,"id"]],
     types: placeholder as Registry['customers.destroy']['types'],
   },
+  'sales.by_customer': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/customers/:id/sales',
+    tokens: [[0,"api"],[0,"v1"],[0,"customers"],[1,"id"],[0,"sales"]],
+    types: placeholder as Registry['sales.by_customer']['types'],
+  },
+  'sales.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/sales',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"]],
+    types: placeholder as Registry['sales.index']['types'],
+  },
+  'sales.upcoming': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/sales/upcoming-deliveries',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"],[0,"upcoming-deliveries"]],
+    types: placeholder as Registry['sales.upcoming']['types'],
+  },
+  'sales.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/sales',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"]],
+    types: placeholder as Registry['sales.store']['types'],
+  },
+  'sales.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/sales/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"],[1,"id"]],
+    types: placeholder as Registry['sales.show']['types'],
+  },
+  'sales.update': {
+    methods: ["PUT"],
+    pattern: '/api/v1/sales/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"],[1,"id"]],
+    types: placeholder as Registry['sales.update']['types'],
+  },
+  'sales.destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/sales/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"],[1,"id"]],
+    types: placeholder as Registry['sales.destroy']['types'],
+  },
+  'sales.deliver': {
+    methods: ["POST"],
+    pattern: '/api/v1/sales/:id/deliver',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"],[1,"id"],[0,"deliver"]],
+    types: placeholder as Registry['sales.deliver']['types'],
+  },
+  'sales.cancel': {
+    methods: ["POST"],
+    pattern: '/api/v1/sales/:id/cancel',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"],[1,"id"],[0,"cancel"]],
+    types: placeholder as Registry['sales.cancel']['types'],
+  },
+  'sales.add_payment': {
+    methods: ["POST"],
+    pattern: '/api/v1/sales/:id/payments',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"],[1,"id"],[0,"payments"]],
+    types: placeholder as Registry['sales.add_payment']['types'],
+  },
+  'sales.delete_payment': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/sales/:id/payments/:paymentId',
+    tokens: [[0,"api"],[0,"v1"],[0,"sales"],[1,"id"],[0,"payments"],[1,"paymentId"]],
+    types: placeholder as Registry['sales.delete_payment']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

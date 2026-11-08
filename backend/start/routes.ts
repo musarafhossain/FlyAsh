@@ -15,6 +15,7 @@ const PasswordResetController = () => import('#controllers/password_reset_contro
 const UsersController = () => import('#controllers/users_controller')
 const ProductsController = () => import('#controllers/products_controller')
 const CustomersController = () => import('#controllers/customers_controller')
+const SalesController = () => import('#controllers/sales_controller')
 
 /** Every :id style param must be numeric. */
 router.where('id', router.matchers.number())
@@ -74,6 +75,21 @@ router
         router.put('customers/:id', [CustomersController, 'update'])
         router.patch('customers/:id/status', [CustomersController, 'status'])
         router.delete('customers/:id', [CustomersController, 'destroy'])
+        router.get('customers/:id/sales', [SalesController, 'byCustomer'])
+
+        // Sales
+        router.get('sales', [SalesController, 'index'])
+        router.get('sales/upcoming-deliveries', [SalesController, 'upcoming'])
+        router.post('sales', [SalesController, 'store'])
+        router.get('sales/:id', [SalesController, 'show'])
+        router.put('sales/:id', [SalesController, 'update'])
+        router.delete('sales/:id', [SalesController, 'destroy'])
+        router.post('sales/:id/deliver', [SalesController, 'deliver'])
+        router.post('sales/:id/cancel', [SalesController, 'cancel'])
+        router.post('sales/:id/payments', [SalesController, 'addPayment'])
+        router
+          .delete('sales/:id/payments/:paymentId', [SalesController, 'deletePayment'])
+          .where('paymentId', router.matchers.number())
       })
       .use(middleware.auth())
   })

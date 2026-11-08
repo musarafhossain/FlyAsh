@@ -20,7 +20,7 @@ export default class Sale extends SaleSchema {
   declare creator: BelongsTo<typeof User>
 
   /** Excludes soft-deleted sales. Use on every query. */
-  static active = scope((query) => {
+  static notDeleted = scope((query) => {
     query.whereNull('sales.deleted_at')
   })
 }

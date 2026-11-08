@@ -30,6 +30,17 @@ export type ScannedRoutes = {
     'customers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'customers.status': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'customers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.by_customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.index': { paramsTuple?: []; params?: {} }
+    'sales.upcoming': { paramsTuple?: []; params?: {} }
+    'sales.store': { paramsTuple?: []; params?: {} }
+    'sales.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.deliver': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.add_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.delete_payment': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'paymentId': ParamValue} }
   }
   GET: {
     'auth.me': { paramsTuple?: []; params?: {} }
@@ -39,6 +50,10 @@ export type ScannedRoutes = {
     'products.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'customers.index': { paramsTuple?: []; params?: {} }
     'customers.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.by_customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.index': { paramsTuple?: []; params?: {} }
+    'sales.upcoming': { paramsTuple?: []; params?: {} }
+    'sales.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
     'auth.me': { paramsTuple?: []; params?: {} }
@@ -48,6 +63,10 @@ export type ScannedRoutes = {
     'products.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'customers.index': { paramsTuple?: []; params?: {} }
     'customers.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.by_customer': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.index': { paramsTuple?: []; params?: {} }
+    'sales.upcoming': { paramsTuple?: []; params?: {} }
+    'sales.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
     'auth.login': { paramsTuple?: []; params?: {} }
@@ -58,6 +77,10 @@ export type ScannedRoutes = {
     'users.store': { paramsTuple?: []; params?: {} }
     'products.store': { paramsTuple?: []; params?: {} }
     'customers.store': { paramsTuple?: []; params?: {} }
+    'sales.store': { paramsTuple?: []; params?: {} }
+    'sales.deliver': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.add_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'auth.update_me': { paramsTuple?: []; params?: {} }
@@ -66,6 +89,7 @@ export type ScannedRoutes = {
     'users.reset_password': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'products.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'customers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PATCH: {
     'users.status': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -75,6 +99,8 @@ export type ScannedRoutes = {
   DELETE: {
     'products.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'customers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'sales.delete_payment': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'paymentId': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

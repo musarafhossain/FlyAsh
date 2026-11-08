@@ -38,4 +38,17 @@ export interface ApiDefinition {
     status: typeof routes['customers.status']
     destroy: typeof routes['customers.destroy']
   }
+  sales: {
+    byCustomer: typeof routes['sales.by_customer']
+    index: typeof routes['sales.index']
+    upcoming: typeof routes['sales.upcoming']
+    store: typeof routes['sales.store']
+    show: typeof routes['sales.show']
+    update: typeof routes['sales.update']
+    destroy: typeof routes['sales.destroy']
+    deliver: typeof routes['sales.deliver']
+    cancel: typeof routes['sales.cancel']
+    addPayment: typeof routes['sales.add_payment']
+    deletePayment: typeof routes['sales.delete_payment']
+  }
 }

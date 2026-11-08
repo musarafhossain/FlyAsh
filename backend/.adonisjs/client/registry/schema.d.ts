@@ -346,6 +346,149 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/customers_controller').default['destroy']>>>
     }
   }
+  'sales.by_customer': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/customers/:id/sales'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/sale').paginationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['byCustomer']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['byCustomer']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['byCustomer']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sales.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/sales'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/sale').listSalesValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sales.upcoming': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/sales/upcoming-deliveries'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/sale').paginationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['upcoming']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['upcoming']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['upcoming']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sales.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/sales'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/sale').createSaleValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/sale').createSaleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sales.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/sales/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['show']>>>
+    }
+  }
+  'sales.update': {
+    methods: ["PUT"]
+    pattern: '/api/v1/sales/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/sale').updateSaleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/sale').updateSaleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sales.destroy': {
+    methods: ["DELETE"]
+    pattern: '/api/v1/sales/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['destroy']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['destroy']>>>
+    }
+  }
+  'sales.deliver': {
+    methods: ["POST"]
+    pattern: '/api/v1/sales/:id/deliver'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/sale').deliverSaleValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/sale').deliverSaleValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['deliver']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['deliver']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['deliver']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sales.cancel': {
+    methods: ["POST"]
+    pattern: '/api/v1/sales/:id/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['cancel']>>>
+    }
+  }
+  'sales.add_payment': {
+    methods: ["POST"]
+    pattern: '/api/v1/sales/:id/payments'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/sale').salePaymentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/sale').salePaymentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['addPayment']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['addPayment']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['addPayment']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'sales.delete_payment': {
+    methods: ["DELETE"]
+    pattern: '/api/v1/sales/:id/payments/:paymentId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; paymentId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['deletePayment']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['deletePayment']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sales_controller').default['deletePayment']>>>
+    }
+  }
 }
 
 export namespace Route {

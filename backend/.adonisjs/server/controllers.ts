@@ -8,5 +8,6 @@ export const controllers = {
   Customers: () => import('#controllers/customers_controller'),
   PasswordReset: () => import('#controllers/password_reset_controller'),
   Products: () => import('#controllers/products_controller'),
+  Sales: () => import('#controllers/sales_controller'),
   Users: () => import('#controllers/users_controller'),
 }
