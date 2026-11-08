@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
 
+import '../fake_api.dart';
 import '../helpers.dart';
 
 Map<String, Object?> arb(String locale) =>
@@ -23,38 +24,41 @@ void main() {
     expect(en.difference(bn), isEmpty, reason: 'missing in bn');
   });
 
-  testWidgets(
-    'saved Bengali shows Bengali text on the splash and in navigation',
-    (tester) async {
-      setScreenSize(tester, const Size(360, 800));
-      await tester.pumpWidget(
-        await testApp(const FlyAshApp(), prefs: {'app.locale': 'bn'}),
-      );
-      await tester.pumpAndSettle();
+  testWidgets('saved Bengali shows Bengali navigation after login', (
+    tester,
+  ) async {
+    setScreenSize(tester, const Size(360, 800));
+    await tester.pumpWidget(
+      await testApp(
+        const FlyAshApp(),
+        prefs: {'app.locale': 'bn'},
+        token: 'oat_test',
+        api: signedInRoutes({
+          'GET /auth/me': (_) =>
+              (200, envelope(200, 'ok', {...sampleUser, 'locale': 'bn'}), {}),
+        }),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      expect(find.text('ইট কারখানার ব্যবস্থাপনা'), findsOneWidget);
-      await tester.tap(find.text('অ্যাপ খুলুন'));
-      await tester.pumpAndSettle();
-
-      for (final label in ['হোম', 'বিক্রি', 'হাজিরা', 'খরচ']) {
-        expect(find.text(label), findsWidgets, reason: label);
-      }
-    },
-  );
+    for (final label in ['হোম', 'বিক্রি', 'হাজিরা', 'খরচ']) {
+      expect(find.text(label), findsWidgets, reason: label);
+    }
+  });
 
   testWidgets('the language switch changes the UI immediately', (tester) async {
     setScreenSize(tester, const Size(800, 900));
     await tester.pumpWidget(await testApp(const FlyAshApp()));
     await tester.pumpAndSettle();
-    expect(find.text('Open app'), findsOneWidget);
+    expect(find.text('Sign in'), findsWidgets);
 
     await tester.tap(find.byTooltip('Language'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('বাংলা').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('অ্যাপ খুলুন'), findsOneWidget);
-    expect(find.text('Open app'), findsNothing);
+    expect(find.text('সাইন ইন'), findsWidgets);
+    expect(find.text('Sign in'), findsNothing);
   });
 
   // Bengali strings are longer; check every width with the menu open.
@@ -67,10 +71,13 @@ void main() {
         await testApp(
           const FlyAshApp(),
           prefs: {'app.locale': 'bn', 'theme.font_scale': 1.15},
+          token: 'oat_test',
+          api: signedInRoutes({
+            'GET /auth/me': (_) =>
+                (200, envelope(200, 'ok', {...sampleUser, 'locale': 'bn'}), {}),
+          }),
         ),
       );
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('অ্যাপ খুলুন'));
       await tester.pumpAndSettle();
       if (size.width < 1024) {
         await tester.tap(find.byTooltip('মেনু'));

@@ -15,26 +15,6 @@
   "menu": "Menu",
   "collapseMenu": "Collapse menu",
   "expandMenu": "Expand menu",
-  "openApp": "Open app",
-  "apiUrl": "API: {url}",
-  "@apiUrl": {
-    "placeholders": {
-      "url": {
-        "type": "String"
-      }
-    }
-  },
-  "serverTitle": "Server",
-  "serverConnected": "Connected · factory date {date}",
-  "@serverConnected": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "serverChecking": "Checking…",
-  "serverOnline": "Online",
   "serverUnreachable": "Cannot reach the server",
   "retry": "Retry",
   "cancel": "Cancel",
@@ -50,5 +30,55 @@
   "languageEnglish": "English",
   "languageBengali": "বাংলা",
   "networkError": "No internet connection",
-  "networkTimeout": "The server is taking too long. Please try again"
+  "networkTimeout": "The server is taking too long. Please try again",
+  "signIn": "Sign in",
+  "welcomeBack": "Welcome back",
+  "loginField": "Phone or email",
+  "passwordField": "Password",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "forgotPassword": "Forgot password?",
+  "fieldRequired": "This field is required",
+  "sessionEnded": "Your session ended. Please sign in again",
+  "forgotTitle": "Forgot password",
+  "forgotHint": "Enter the email linked to your account. We will send a 6-digit OTP.",
+  "emailField": "Email",
+  "invalidEmail": "Enter a valid email",
+  "sendOtp": "Send OTP",
+  "noEmailHint": "No email? Ask another user to reset your password.",
+  "verifyTitle": "Verify OTP",
+  "otpSentTo": "Enter the OTP sent to {email}",
+  "@otpSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "otpLabel": "6-digit OTP",
+  "verify": "Verify",
+  "resendIn": "Resend OTP in {seconds}s",
+  "@resendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "resendOtp": "Resend OTP",
+  "resetTitle": "Set new password",
+  "newPassword": "New password",
+  "confirmPassword": "Confirm password",
+  "passwordRule": "At least 6 characters",
+  "passwordsDontMatch": "Passwords do not match",
+  "resetPassword": "Reset password",
+  "cancelResetTitle": "Cancel password reset?",
+  "cancelResetMessage": "You will need a new OTP to start again.",
+  "keepGoing": "Continue",
+  "leave": "Leave",
+  "startAgain": "Start again",
+  "logout": "Log out",
+  "logoutConfirmTitle": "Log out?",
+  "logoutConfirmMessage": "You will need to sign in again on this device.",
+  "loading": "Loading…"
 }

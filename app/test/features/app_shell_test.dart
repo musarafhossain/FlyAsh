@@ -9,7 +9,7 @@ import '../helpers.dart';
 Finder appBarTitle(String title) =>
     find.descendant(of: find.byType(AppBar), matching: find.text(title));
 
-/// Starts the app and opens the shell (Home).
+/// Starts the app logged in; it opens on Home.
 Future<void> openApp(
   WidgetTester tester,
   Size size, {
@@ -17,10 +17,13 @@ Future<void> openApp(
 }) async {
   setScreenSize(tester, size);
   await tester.pumpWidget(
-    await testApp(const FlyAshApp(), prefs: {'theme.mode': mode}),
+    await testApp(
+      const FlyAshApp(),
+      prefs: {'theme.mode': mode},
+      token: 'oat_test',
+      api: signedInRoutes(),
+    ),
   );
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('Open app'));
   await tester.pumpAndSettle();
   expect(appBarTitle('Home'), findsOneWidget);
 }

@@ -188,42 +188,6 @@ abstract class AppLocalizations {
   /// **'Expand menu'**
   String get expandMenu;
 
-  /// No description provided for @openApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Open app'**
-  String get openApp;
-
-  /// No description provided for @apiUrl.
-  ///
-  /// In en, this message translates to:
-  /// **'API: {url}'**
-  String apiUrl(String url);
-
-  /// No description provided for @serverTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Server'**
-  String get serverTitle;
-
-  /// No description provided for @serverConnected.
-  ///
-  /// In en, this message translates to:
-  /// **'Connected · factory date {date}'**
-  String serverConnected(String date);
-
-  /// No description provided for @serverChecking.
-  ///
-  /// In en, this message translates to:
-  /// **'Checking…'**
-  String get serverChecking;
-
-  /// No description provided for @serverOnline.
-  ///
-  /// In en, this message translates to:
-  /// **'Online'**
-  String get serverOnline;
-
   /// No description provided for @serverUnreachable.
   ///
   /// In en, this message translates to:
@@ -277,6 +241,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The server is taking too long. Please try again'**
   String get networkTimeout;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signIn;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get welcomeBack;
+
+  /// No description provided for @loginField.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone or email'**
+  String get loginField;
+
+  /// No description provided for @passwordField.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordField;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get fieldRequired;
+
+  /// No description provided for @sessionEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session ended. Please sign in again'**
+  String get sessionEnded;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the email linked to your account. We will send a 6-digit OTP.'**
+  String get forgotHint;
+
+  /// No description provided for @emailField.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailField;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get invalidEmail;
+
+  /// No description provided for @sendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send OTP'**
+  String get sendOtp;
+
+  /// No description provided for @noEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No email? Ask another user to reset your password.'**
+  String get noEmailHint;
+
+  /// No description provided for @verifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify OTP'**
+  String get verifyTitle;
+
+  /// No description provided for @otpSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the OTP sent to {email}'**
+  String otpSentTo(String email);
+
+  /// No description provided for @otpLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit OTP'**
+  String get otpLabel;
+
+  /// No description provided for @verify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get verify;
+
+  /// No description provided for @resendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend OTP in {seconds}s'**
+  String resendIn(String seconds);
+
+  /// No description provided for @resendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend OTP'**
+  String get resendOtp;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get resetTitle;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPassword;
+
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPassword;
+
+  /// No description provided for @passwordRule.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 6 characters'**
+  String get passwordRule;
+
+  /// No description provided for @passwordsDontMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordsDontMatch;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPassword;
+
+  /// No description provided for @cancelResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel password reset?'**
+  String get cancelResetTitle;
+
+  /// No description provided for @cancelResetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need a new OTP to start again.'**
+  String get cancelResetMessage;
+
+  /// No description provided for @keepGoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get keepGoing;
+
+  /// No description provided for @leave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get leave;
+
+  /// No description provided for @startAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get startAgain;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logout;
+
+  /// No description provided for @logoutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get logoutConfirmTitle;
+
+  /// No description provided for @logoutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need to sign in again on this device.'**
+  String get logoutConfirmMessage;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get loading;
 }
 
 class _AppLocalizationsDelegate

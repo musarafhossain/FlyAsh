@@ -58,9 +58,11 @@ class BusinessDate extends Notifier<String> {
 
   void update(String? ymd) {
     final valid = ymd != null && RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(ymd);
-    if (!valid || ymd == state) return;
-    state = ymd;
-    ref.read(sharedPreferencesProvider).setString(_key, ymd);
+    if (!valid) return;
+    if (ymd != state) state = ymd;
+    // Cache even when it equals the device date, so the next start knows it.
+    final prefs = ref.read(sharedPreferencesProvider);
+    if (prefs.getString(_key) != ymd) prefs.setString(_key, ymd);
   }
 
   static String _deviceToday() {
