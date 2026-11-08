@@ -125,7 +125,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 | `/profile` · `/profile/edit` · `/profile/password` | My profile | |
 | `/settings` · `/settings/factory` · `/settings/appearance` · `/settings/language` · `/settings/about` | Settings | |
 
-**Redirect rule:** no token → any private route redirects to `/login`. A token present → `/login` and `/forgot-password*` redirect to `/home`.
+**Redirect rule:** while the session is checked → `/splash`. Signed out → any private route redirects to `/login?from=<page>`. Signed in → `/splash`, `/login` and `/forgot-password*` redirect to the `from` page (only internal, private pages) or `/home`. So a deep link such as `/sales/12` opens after login.
 
 ## 4. Dashboard (Home)
 

@@ -14,6 +14,13 @@ import '../../../../core/widgets/state_views.dart';
 import '../../data/auth_repository_impl.dart';
 import '../widgets/auth_layout.dart';
 
+/// Replaces any visible snackbar (messages must not queue up behind each other).
+void showMessage(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+}
+
 /// ① Email → the server emails a 6-digit OTP (03-AppFlow §2.2).
 class ForgotPasswordPage extends ConsumerStatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -48,9 +55,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
           .read(authRepositoryProvider)
           .forgotPassword(email);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      showMessage(context, message);
       unawaited(context.push('/forgot-password/verify', extra: email));
     } on ValidationFailure catch (f) {
       setState(() => _fieldError = f['email']);
@@ -176,9 +181,7 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
           .read(authRepositoryProvider)
           .forgotPassword(widget.email);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      showMessage(context, message);
       setState(() => _error = null);
       _startTimer();
     } on Failure catch (f) {
@@ -266,9 +269,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
             confirmation: _confirm.text,
           );
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      showMessage(context, message);
       context.go('/login');
     } on ValidationFailure catch (f) {
       setState(() => _fieldErrors = f.fieldErrors);

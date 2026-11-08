@@ -29,7 +29,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F3** ✅ | **Networking** | Dio client, `{ success, status_code, message, data }` parsing, errors, pagination helper, `Accept-Language` + token + `X-Business-Date` handling | F0 |
 | **F4** ✅ | **Routing & app shell** | go_router, bottom nav (phone) / rail (tablet) / sidebar (desktop), drawer, placeholder screens | F2 |
 | **F5** ✅ | **Localization & preferences** | English/Bengali ARB files, language + theme controller (cached locally, synced with `PUT /auth/preferences`) | F1, F3 |
-| F6 | Auth | Splash, Login, Forgot password (3 screens), logout, session expiry (401) | F3, F4, F5 |
+| **F6** ✅ | **Auth** | Splash, Login, Forgot password (3 screens), logout, session expiry (401) | F3, F4, F5 |
 | F7 | Profile, Users, Settings | My profile, change password, users list/add/edit, Settings (factory profile, appearance, language) | F6 |
 | F8 | Products | List, add/edit, activate/deactivate, delete | F6 |
 | F9 | Customers | List with dues, add/edit, detail with sales | F6 |
