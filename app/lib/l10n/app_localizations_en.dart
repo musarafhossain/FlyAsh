@@ -199,4 +199,268 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loading => 'Loading…';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get inactive => 'Inactive';
+
+  @override
+  String get never => 'Never';
+
+  @override
+  String get noResults => 'No results found';
+
+  @override
+  String showingCount(String shown, String total) {
+    return 'Showing $shown of $total';
+  }
+
+  @override
+  String get nameField => 'Name';
+
+  @override
+  String get phoneField => 'Phone';
+
+  @override
+  String get emailOptional => 'Email (optional)';
+
+  @override
+  String get addressField => 'Address';
+
+  @override
+  String get invalidPhone => 'Enter a 10-digit mobile number starting with 6–9';
+
+  @override
+  String get passwordTooLong => 'At most 64 characters';
+
+  @override
+  String get searchNamePhone => 'Search by name or phone';
+
+  @override
+  String get addUser => 'Add user';
+
+  @override
+  String get editUser => 'Edit user';
+
+  @override
+  String get userDetails => 'User details';
+
+  @override
+  String get usersEmptyTitle => 'Only you so far';
+
+  @override
+  String get usersEmptyMessage =>
+      'Add the people who will use FlyAsh with you. Everyone has the same access.';
+
+  @override
+  String lastLogin(String time) {
+    return 'Last login: $time';
+  }
+
+  @override
+  String get lastLoginColumn => 'Last login';
+
+  @override
+  String get userCreated => 'User added';
+
+  @override
+  String get userUpdated => 'User updated';
+
+  @override
+  String get emailForgotHint => 'Needed for Forgot password';
+
+  @override
+  String get noEmailHintUser =>
+      'Without an email this user cannot use Forgot password. You can reset their password here.';
+
+  @override
+  String resetPasswordFor(String name) {
+    return 'Reset password for $name';
+  }
+
+  @override
+  String get resetUserPasswordHint =>
+      'Set a new password. They will be logged out on all devices.';
+
+  @override
+  String get activate => 'Activate';
+
+  @override
+  String get deactivate => 'Deactivate';
+
+  @override
+  String activateUserTitle(String name) {
+    return 'Activate $name?';
+  }
+
+  @override
+  String deactivateUserTitle(String name) {
+    return 'Deactivate $name?';
+  }
+
+  @override
+  String get activateUserMessage => 'They will be able to log in again.';
+
+  @override
+  String get deactivateUserMessage =>
+      'They will be logged out everywhere and cannot log in until activated again.';
+
+  @override
+  String get myProfile => 'My profile';
+
+  @override
+  String get viewProfile => 'View profile';
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get profileUpdated => 'Profile updated';
+
+  @override
+  String get emailForgotHintSelf =>
+      'Add an email so you can reset a forgotten password yourself';
+
+  @override
+  String get noEmailHintSelf =>
+      'Add an email to be able to use Forgot password.';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get changePasswordHint =>
+      'Other devices will be logged out. This device stays logged in.';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get settingsAccount => 'Account';
+
+  @override
+  String get settingsFactory => 'Factory';
+
+  @override
+  String get settingsApp => 'App';
+
+  @override
+  String get factoryProfile => 'Factory profile';
+
+  @override
+  String get factoryName => 'Factory name';
+
+  @override
+  String get ownerName => 'Owner name';
+
+  @override
+  String get invoicePrefix => 'Invoice prefix';
+
+  @override
+  String get invoicePrefixHint => 'Used for new sale numbers, e.g. INV-0001';
+
+  @override
+  String get invoicePrefixRule => '1–10 characters: A–Z, 0–9 and -';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeMode => 'Theme mode';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get accentColor => 'Accent color';
+
+  @override
+  String get accentBlue => 'Blue';
+
+  @override
+  String get accentBrick => 'Brick';
+
+  @override
+  String get accentEmerald => 'Emerald';
+
+  @override
+  String get accentViolet => 'Violet';
+
+  @override
+  String get accentSlate => 'Slate';
+
+  @override
+  String get fontSize => 'Font size';
+
+  @override
+  String get fontSmall => 'Small';
+
+  @override
+  String get fontDefault => 'Default';
+
+  @override
+  String get fontLarge => 'Large';
+
+  @override
+  String get fontExtraLarge => 'Extra large';
+
+  @override
+  String get preview => 'Preview';
+
+  @override
+  String get previewHeroLabel => 'Today\'s sales';
+
+  @override
+  String get previewHeroCaption => '6 sales today';
+
+  @override
+  String get previewPaid => 'Paid';
+
+  @override
+  String get previewPartial => 'Partial';
+
+  @override
+  String get previewDue => 'Due';
+
+  @override
+  String get previewButton => 'New sale';
+
+  @override
+  String get resetToDefault => 'Reset to default';
+
+  @override
+  String get languageHint =>
+      'Changes the app text and server messages. Saved to your account.';
+
+  @override
+  String get aboutApp => 'About';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get buildNumber => 'Build';
+
+  @override
+  String get server => 'Server';
 }

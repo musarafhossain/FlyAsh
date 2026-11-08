@@ -9,6 +9,7 @@ import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
+import '../theme/theme_controller.dart';
 import '../widgets/state_views.dart';
 import 'nav_items.dart';
 
@@ -211,58 +212,69 @@ class _AppDrawer extends StatelessWidget {
             value: light
                 ? SystemUiOverlayStyle.light
                 : SystemUiOverlayStyle.dark,
-            child: Container(
-              width: double.infinity,
+            child: Material(
               color: headerBg,
-              padding: EdgeInsets.fromLTRB(
-                Space.s5,
-                MediaQuery.paddingOf(context).top + Space.s5,
-                Space.s5,
-                Space.s5,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(Space.s1),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      width: 40,
-                      height: 40,
-                    ),
+              child: InkWell(
+                // Header → My profile
+                onTap: () {
+                  Navigator.of(context).pop();
+                  GoRouter.of(context).go('/profile');
+                },
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    Space.s5,
+                    MediaQuery.paddingOf(context).top + Space.s5,
+                    Space.s3,
+                    Space.s5,
                   ),
-                  const SizedBox(width: Space.s3),
-                  Expanded(
-                    child: Consumer(
-                      builder: (context, ref, _) {
-                        final user = ref.watch(
-                          authControllerProvider.select((s) => s.user),
-                        );
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              Env.appName,
-                              style: AppTypography.h2.copyWith(color: headerFg),
-                            ),
-                            if (user != null)
-                              Text(
-                                '${user.name} · ${user.phone}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTypography.caption.copyWith(
-                                  color: headerFg,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(Space.s1),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          width: 40,
+                          height: 40,
+                        ),
+                      ),
+                      const SizedBox(width: Space.s3),
+                      Expanded(
+                        child: Consumer(
+                          builder: (context, ref, _) {
+                            final user = ref.watch(
+                              authControllerProvider.select((s) => s.user),
+                            );
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  Env.appName,
+                                  style: AppTypography.h2.copyWith(
+                                    color: headerFg,
+                                  ),
                                 ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
+                                if (user != null)
+                                  Text(
+                                    '${user.name} · ${user.phone}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTypography.caption.copyWith(
+                                      color: headerFg,
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                      _ThemeToggle(color: headerFg),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -288,6 +300,27 @@ class _AppDrawer extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Sun/moon button: switches Light ↔ Dark without opening Settings (§8.2.7).
+class _ThemeToggle extends ConsumerWidget {
+  const _ThemeToggle({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final l = context.l10n;
+    return IconButton(
+      tooltip: dark ? l.themeLight : l.themeDark,
+      color: color,
+      onPressed: () => ref
+          .read(themeControllerProvider.notifier)
+          .setMode(dark ? ThemeMode.light : ThemeMode.dark),
+      icon: Icon(dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
     );
   }
 }

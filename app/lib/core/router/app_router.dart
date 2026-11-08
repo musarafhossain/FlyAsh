@@ -10,6 +10,18 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dev/presentation/pages/section_placeholder_page.dart';
 import '../../features/dev/presentation/pages/theme_gallery_page.dart';
 import '../../features/dev/presentation/pages/widget_gallery_page.dart';
+import '../../features/profile/presentation/pages/change_password_page.dart';
+import '../../features/profile/presentation/pages/profile_edit_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/settings/presentation/pages/about_page.dart';
+import '../../features/settings/presentation/pages/appearance_page.dart';
+import '../../features/settings/presentation/pages/factory_profile_page.dart';
+import '../../features/settings/presentation/pages/language_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/auth/domain/app_user.dart';
+import '../../features/users/presentation/pages/user_detail_page.dart';
+import '../../features/users/presentation/pages/user_form_page.dart';
+import '../../features/users/presentation/pages/users_list_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import 'app_shell.dart';
 import 'nav_items.dart';
@@ -83,9 +95,13 @@ final routerProvider = Provider<GoRouter>((ref) {
   // previous URL for push() unless this is on.
   GoRouter.optionURLReflectsImperativeAPIs = true;
 
-  // Re-run the redirect whenever the auth state changes.
+  // Re-run the redirect when the login status changes (not when only the
+  // user's details change, which would rebuild the open pages).
   final refresh = ValueNotifier<int>(0);
-  ref.listen(authControllerProvider, (_, _) => refresh.value++);
+  ref.listen(
+    authControllerProvider.select((s) => s.status),
+    (_, _) => refresh.value++,
+  );
 
   final router = GoRouter(
     initialLocation: '/splash',
@@ -130,14 +146,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, shell) => AppShell(shell: shell),
         branches: [
           for (final item in kNavItems)
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: item.path,
-                  builder: (_, _) => SectionPlaceholderPage(item: item),
-                ),
-              ],
-            ),
+            StatefulShellBranch(routes: sectionRoutes(item)),
         ],
       ),
     ],
@@ -148,3 +157,68 @@ final routerProvider = Provider<GoRouter>((ref) {
   });
   return router;
 });
+
+/// The routes of one section (its own navigation stack in the shell).
+/// Sections without a real screen yet show a placeholder.
+List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
+  '/users' => [
+    GoRoute(
+      path: '/users',
+      builder: (_, _) => const UsersListPage(),
+      routes: [
+        GoRoute(path: 'new', builder: (_, _) => const UserFormPage()),
+        GoRoute(
+          path: ':id',
+          redirect: (_, state) =>
+              _intParam(state, 'id') == null ? '/users' : null,
+          builder: (_, state) =>
+              UserDetailPage(userId: _intParam(state, 'id')!),
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (_, state) => UserFormPage(
+                userId: _intParam(state, 'id'),
+                initial: state.extra is AppUser
+                    ? state.extra! as AppUser
+                    : null,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ],
+  '/settings' => [
+    GoRoute(
+      path: '/settings',
+      builder: (_, _) => const SettingsPage(),
+      routes: [
+        GoRoute(path: 'factory', builder: (_, _) => const FactoryProfilePage()),
+        GoRoute(path: 'appearance', builder: (_, _) => const AppearancePage()),
+        GoRoute(path: 'language', builder: (_, _) => const LanguagePage()),
+        GoRoute(path: 'about', builder: (_, _) => const AboutPage()),
+      ],
+    ),
+    // My profile lives in the Settings section (Settings stays selected).
+    GoRoute(
+      path: '/profile',
+      builder: (_, _) => const ProfilePage(),
+      routes: [
+        GoRoute(path: 'edit', builder: (_, _) => const ProfileEditPage()),
+        GoRoute(
+          path: 'password',
+          builder: (_, _) => const ChangePasswordPage(),
+        ),
+      ],
+    ),
+  ],
+  _ => [
+    GoRoute(
+      path: item.path,
+      builder: (_, _) => SectionPlaceholderPage(item: item),
+    ),
+  ],
+};
+
+int? _intParam(GoRouterState state, String name) =>
+    int.tryParse(state.pathParameters[name] ?? '');

@@ -84,6 +84,12 @@ class AuthController extends Notifier<AuthState> {
   /// After the user's own profile changes (F7).
   void updateUser(AppUser user) =>
       state = AuthState(AuthStatus.signedIn, user: user);
+
+  /// Loads the profile again (My profile screen). Throws a [Failure].
+  Future<void> reloadUser() async {
+    final user = await ref.read(authRepositoryProvider).me();
+    if (state.status == AuthStatus.signedIn) updateUser(user);
+  }
 }
 
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(

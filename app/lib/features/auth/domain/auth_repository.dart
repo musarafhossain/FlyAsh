@@ -28,4 +28,18 @@ abstract interface class AuthRepository {
     required String password,
     required String confirmation,
   });
+
+  /// PUT /auth/me -> the updated profile
+  Future<AppUser> updateMe({
+    required String name,
+    required String phone,
+    String? email,
+  });
+
+  /// PUT /auth/password -> message (other devices are logged out)
+  Future<String> changePassword({
+    required String currentPassword,
+    required String password,
+    required String confirmation,
+  });
 }

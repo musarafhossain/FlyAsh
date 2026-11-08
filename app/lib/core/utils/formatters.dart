@@ -54,6 +54,19 @@ abstract final class Fmt {
     return '${p[2].padLeft(2, '0')} ${_months[int.parse(p[1]) - 1]} ${p[0]}';
   }
 
+  /// API timestamp in UTC ("2026-11-08T14:55:46.000Z") -> device local time
+  /// "08 Nov 2026, 8:25 PM". Null/invalid -> "—".
+  static String dateTime(String? iso) {
+    final parsed = iso == null ? null : DateTime.tryParse(iso);
+    if (parsed == null) return '—';
+    final d = parsed.toLocal();
+    final hour = d.hour % 12 == 0 ? 12 : d.hour % 12;
+    final minute = d.minute.toString().padLeft(2, '0');
+    final ampm = d.hour < 12 ? 'AM' : 'PM';
+    final day = d.day.toString().padLeft(2, '0');
+    return '$day ${_months[d.month - 1]} ${d.year}, $hour:$minute $ampm';
+  }
+
   /// Initials for avatars: "Rahim Traders" → "RT", "kartik" → "KA".
   static String initials(String name) {
     final words = name

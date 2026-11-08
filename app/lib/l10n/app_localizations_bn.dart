@@ -197,4 +197,269 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get loading => 'লোড হচ্ছে…';
+
+  @override
+  String get save => 'সেভ করুন';
+
+  @override
+  String get edit => 'এডিট';
+
+  @override
+  String get clear => 'মুছুন';
+
+  @override
+  String get status => 'অবস্থা';
+
+  @override
+  String get active => 'সক্রিয়';
+
+  @override
+  String get inactive => 'নিষ্ক্রিয়';
+
+  @override
+  String get never => 'কখনো না';
+
+  @override
+  String get noResults => 'কিছু পাওয়া যায়নি';
+
+  @override
+  String showingCount(String shown, String total) {
+    return '$totalটির মধ্যে $shownটি দেখানো হচ্ছে';
+  }
+
+  @override
+  String get nameField => 'নাম';
+
+  @override
+  String get phoneField => 'ফোন';
+
+  @override
+  String get emailOptional => 'ইমেইল (ঐচ্ছিক)';
+
+  @override
+  String get addressField => 'ঠিকানা';
+
+  @override
+  String get invalidPhone => '6–9 দিয়ে শুরু হওয়া 10 সংখ্যার মোবাইল নম্বর দিন';
+
+  @override
+  String get passwordTooLong => 'সর্বোচ্চ 64 অক্ষর';
+
+  @override
+  String get searchNamePhone => 'নাম বা ফোন দিয়ে খুঁজুন';
+
+  @override
+  String get addUser => 'ইউজার যোগ করুন';
+
+  @override
+  String get editUser => 'ইউজার এডিট';
+
+  @override
+  String get userDetails => 'ইউজারের বিবরণ';
+
+  @override
+  String get usersEmptyTitle => 'এখন পর্যন্ত শুধু আপনি';
+
+  @override
+  String get usersEmptyMessage =>
+      'যাঁরা আপনার সাথে FlyAsh ব্যবহার করবেন তাঁদের যোগ করুন। সবার একই অ্যাক্সেস থাকবে।';
+
+  @override
+  String lastLogin(String time) {
+    return 'শেষ লগইন: $time';
+  }
+
+  @override
+  String get lastLoginColumn => 'শেষ লগইন';
+
+  @override
+  String get userCreated => 'ইউজার যোগ হয়েছে';
+
+  @override
+  String get userUpdated => 'ইউজার আপডেট হয়েছে';
+
+  @override
+  String get emailForgotHint => 'পাসওয়ার্ড ভুলে গেলে রিসেট করতে লাগবে';
+
+  @override
+  String get noEmailHintUser =>
+      'ইমেইল না থাকলে এই ইউজার “পাসওয়ার্ড ভুলে গেছেন” ব্যবহার করতে পারবেন না। আপনি এখান থেকে তাঁর পাসওয়ার্ড রিসেট করতে পারেন।';
+
+  @override
+  String resetPasswordFor(String name) {
+    return '$name-এর পাসওয়ার্ড রিসেট';
+  }
+
+  @override
+  String get resetUserPasswordHint =>
+      'নতুন পাসওয়ার্ড দিন। তাঁর সব ডিভাইস থেকে লগআউট হয়ে যাবে।';
+
+  @override
+  String get activate => 'সক্রিয় করুন';
+
+  @override
+  String get deactivate => 'নিষ্ক্রিয় করুন';
+
+  @override
+  String activateUserTitle(String name) {
+    return '$name-কে সক্রিয় করবেন?';
+  }
+
+  @override
+  String deactivateUserTitle(String name) {
+    return '$name-কে নিষ্ক্রিয় করবেন?';
+  }
+
+  @override
+  String get activateUserMessage => 'তিনি আবার লগইন করতে পারবেন।';
+
+  @override
+  String get deactivateUserMessage =>
+      'তাঁর সব ডিভাইস থেকে লগআউট হয়ে যাবে এবং আবার সক্রিয় না করা পর্যন্ত লগইন করতে পারবেন না।';
+
+  @override
+  String get myProfile => 'আমার প্রোফাইল';
+
+  @override
+  String get viewProfile => 'প্রোফাইল দেখুন';
+
+  @override
+  String get editProfile => 'প্রোফাইল এডিট';
+
+  @override
+  String get profileUpdated => 'প্রোফাইল আপডেট হয়েছে';
+
+  @override
+  String get emailForgotHintSelf =>
+      'ইমেইল দিলে পাসওয়ার্ড ভুলে গেলে নিজেই রিসেট করতে পারবেন';
+
+  @override
+  String get noEmailHintSelf =>
+      '“পাসওয়ার্ড ভুলে গেছেন” ব্যবহার করতে একটি ইমেইল যোগ করুন।';
+
+  @override
+  String get changePassword => 'পাসওয়ার্ড পরিবর্তন';
+
+  @override
+  String get changePasswordHint =>
+      'অন্য সব ডিভাইস থেকে লগআউট হবে। এই ডিভাইসে লগইন থাকবে।';
+
+  @override
+  String get currentPassword => 'বর্তমান পাসওয়ার্ড';
+
+  @override
+  String get settingsAccount => 'অ্যাকাউন্ট';
+
+  @override
+  String get settingsFactory => 'কারখানা';
+
+  @override
+  String get settingsApp => 'অ্যাপ';
+
+  @override
+  String get factoryProfile => 'কারখানার প্রোফাইল';
+
+  @override
+  String get factoryName => 'কারখানার নাম';
+
+  @override
+  String get ownerName => 'মালিকের নাম';
+
+  @override
+  String get invoicePrefix => 'ইনভয়েস প্রিফিক্স';
+
+  @override
+  String get invoicePrefixHint =>
+      'নতুন বিক্রির নম্বরে ব্যবহার হবে, যেমন INV-0001';
+
+  @override
+  String get invoicePrefixRule => '1–10 অক্ষর: A–Z, 0–9 এবং -';
+
+  @override
+  String get appearance => 'চেহারা';
+
+  @override
+  String get themeMode => 'থিম মোড';
+
+  @override
+  String get themeSystem => 'সিস্টেম';
+
+  @override
+  String get themeLight => 'লাইট';
+
+  @override
+  String get themeDark => 'ডার্ক';
+
+  @override
+  String get accentColor => 'থিমের রং';
+
+  @override
+  String get accentBlue => 'নীল';
+
+  @override
+  String get accentBrick => 'ইট-লাল';
+
+  @override
+  String get accentEmerald => 'সবুজ';
+
+  @override
+  String get accentViolet => 'বেগুনি';
+
+  @override
+  String get accentSlate => 'ধূসর';
+
+  @override
+  String get fontSize => 'লেখার আকার';
+
+  @override
+  String get fontSmall => 'ছোট';
+
+  @override
+  String get fontDefault => 'সাধারণ';
+
+  @override
+  String get fontLarge => 'বড়';
+
+  @override
+  String get fontExtraLarge => 'অনেক বড়';
+
+  @override
+  String get preview => 'প্রিভিউ';
+
+  @override
+  String get previewHeroLabel => 'আজকের বিক্রি';
+
+  @override
+  String get previewHeroCaption => 'আজ 6টি বিক্রি';
+
+  @override
+  String get previewPaid => 'পরিশোধিত';
+
+  @override
+  String get previewPartial => 'আংশিক';
+
+  @override
+  String get previewDue => 'বাকি';
+
+  @override
+  String get previewButton => 'নতুন বিক্রি';
+
+  @override
+  String get resetToDefault => 'আগের মতো করুন';
+
+  @override
+  String get languageHint =>
+      'অ্যাপের লেখা ও সার্ভারের বার্তা বদলাবে। আপনার অ্যাকাউন্টে সেভ থাকবে।';
+
+  @override
+  String get aboutApp => 'অ্যাপ সম্পর্কে';
+
+  @override
+  String get version => 'ভার্সন';
+
+  @override
+  String get buildNumber => 'বিল্ড';
+
+  @override
+  String get server => 'সার্ভার';
 }

@@ -10,3 +10,7 @@ final sharedPreferencesProvider = Provider<SharedPreferences>(
     'sharedPreferencesProvider must be overridden in main()',
   ),
 );
+
+/// Riverpod retry policy for the whole app: never retry by itself
+/// (a failed load shows an error with a Retry button instead).
+Duration? noRetry(int retryCount, Object error) => null;

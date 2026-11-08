@@ -463,6 +463,498 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading…'**
   String get loading;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @inactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get inactive;
+
+  /// No description provided for @never.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get never;
+
+  /// No description provided for @noResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResults;
+
+  /// No description provided for @showingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {shown} of {total}'**
+  String showingCount(String shown, String total);
+
+  /// No description provided for @nameField.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get nameField;
+
+  /// No description provided for @phoneField.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phoneField;
+
+  /// No description provided for @emailOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get emailOptional;
+
+  /// No description provided for @addressField.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get addressField;
+
+  /// No description provided for @invalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a 10-digit mobile number starting with 6–9'**
+  String get invalidPhone;
+
+  /// No description provided for @passwordTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'At most 64 characters'**
+  String get passwordTooLong;
+
+  /// No description provided for @searchNamePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or phone'**
+  String get searchNamePhone;
+
+  /// No description provided for @addUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Add user'**
+  String get addUser;
+
+  /// No description provided for @editUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit user'**
+  String get editUser;
+
+  /// No description provided for @userDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'User details'**
+  String get userDetails;
+
+  /// No description provided for @usersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you so far'**
+  String get usersEmptyTitle;
+
+  /// No description provided for @usersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the people who will use FlyAsh with you. Everyone has the same access.'**
+  String get usersEmptyMessage;
+
+  /// No description provided for @lastLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Last login: {time}'**
+  String lastLogin(String time);
+
+  /// No description provided for @lastLoginColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last login'**
+  String get lastLoginColumn;
+
+  /// No description provided for @userCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'User added'**
+  String get userCreated;
+
+  /// No description provided for @userUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'User updated'**
+  String get userUpdated;
+
+  /// No description provided for @emailForgotHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed for Forgot password'**
+  String get emailForgotHint;
+
+  /// No description provided for @noEmailHintUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Without an email this user cannot use Forgot password. You can reset their password here.'**
+  String get noEmailHintUser;
+
+  /// No description provided for @resetPasswordFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password for {name}'**
+  String resetPasswordFor(String name);
+
+  /// No description provided for @resetUserPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a new password. They will be logged out on all devices.'**
+  String get resetUserPasswordHint;
+
+  /// No description provided for @activate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get activate;
+
+  /// No description provided for @deactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get deactivate;
+
+  /// No description provided for @activateUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate {name}?'**
+  String activateUserTitle(String name);
+
+  /// No description provided for @deactivateUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate {name}?'**
+  String deactivateUserTitle(String name);
+
+  /// No description provided for @activateUserMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They will be able to log in again.'**
+  String get activateUserMessage;
+
+  /// No description provided for @deactivateUserMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They will be logged out everywhere and cannot log in until activated again.'**
+  String get deactivateUserMessage;
+
+  /// No description provided for @myProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'My profile'**
+  String get myProfile;
+
+  /// No description provided for @viewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get viewProfile;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get editProfile;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated'**
+  String get profileUpdated;
+
+  /// No description provided for @emailForgotHintSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an email so you can reset a forgotten password yourself'**
+  String get emailForgotHintSelf;
+
+  /// No description provided for @noEmailHintSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an email to be able to use Forgot password.'**
+  String get noEmailHintSelf;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get changePassword;
+
+  /// No description provided for @changePasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Other devices will be logged out. This device stays logged in.'**
+  String get changePasswordHint;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPassword;
+
+  /// No description provided for @settingsAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
+
+  /// No description provided for @settingsFactory.
+  ///
+  /// In en, this message translates to:
+  /// **'Factory'**
+  String get settingsFactory;
+
+  /// No description provided for @settingsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get settingsApp;
+
+  /// No description provided for @factoryProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Factory profile'**
+  String get factoryProfile;
+
+  /// No description provided for @factoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Factory name'**
+  String get factoryName;
+
+  /// No description provided for @ownerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner name'**
+  String get ownerName;
+
+  /// No description provided for @invoicePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice prefix'**
+  String get invoicePrefix;
+
+  /// No description provided for @invoicePrefixHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for new sale numbers, e.g. INV-0001'**
+  String get invoicePrefixHint;
+
+  /// No description provided for @invoicePrefixRule.
+  ///
+  /// In en, this message translates to:
+  /// **'1–10 characters: A–Z, 0–9 and -'**
+  String get invoicePrefixRule;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @themeMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme mode'**
+  String get themeMode;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @accentColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent color'**
+  String get accentColor;
+
+  /// No description provided for @accentBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get accentBlue;
+
+  /// No description provided for @accentBrick.
+  ///
+  /// In en, this message translates to:
+  /// **'Brick'**
+  String get accentBrick;
+
+  /// No description provided for @accentEmerald.
+  ///
+  /// In en, this message translates to:
+  /// **'Emerald'**
+  String get accentEmerald;
+
+  /// No description provided for @accentViolet.
+  ///
+  /// In en, this message translates to:
+  /// **'Violet'**
+  String get accentViolet;
+
+  /// No description provided for @accentSlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Slate'**
+  String get accentSlate;
+
+  /// No description provided for @fontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Font size'**
+  String get fontSize;
+
+  /// No description provided for @fontSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get fontSmall;
+
+  /// No description provided for @fontDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get fontDefault;
+
+  /// No description provided for @fontLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get fontLarge;
+
+  /// No description provided for @fontExtraLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra large'**
+  String get fontExtraLarge;
+
+  /// No description provided for @preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get preview;
+
+  /// No description provided for @previewHeroLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s sales'**
+  String get previewHeroLabel;
+
+  /// No description provided for @previewHeroCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'6 sales today'**
+  String get previewHeroCaption;
+
+  /// No description provided for @previewPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get previewPaid;
+
+  /// No description provided for @previewPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial'**
+  String get previewPartial;
+
+  /// No description provided for @previewDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get previewDue;
+
+  /// No description provided for @previewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'New sale'**
+  String get previewButton;
+
+  /// No description provided for @resetToDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get resetToDefault;
+
+  /// No description provided for @languageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes the app text and server messages. Saved to your account.'**
+  String get languageHint;
+
+  /// No description provided for @aboutApp.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutApp;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @buildNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Build'**
+  String get buildNumber;
+
+  /// No description provided for @server.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get server;
 }
 
 class _AppLocalizationsDelegate

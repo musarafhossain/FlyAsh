@@ -29,6 +29,8 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
+      // No automatic retries: screens show the error with a Retry button.
+      retry: noRetry,
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
         tokenStoreProvider.overrideWithValue(tokens),

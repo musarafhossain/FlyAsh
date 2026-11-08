@@ -74,5 +74,125 @@
   "logout": "Log out",
   "logoutConfirmTitle": "Log out?",
   "logoutConfirmMessage": "You will need to sign in again on this device.",
-  "loading": "Loading…"
+  "loading": "Loading…",
+  "save": "Save",
+  "edit": "Edit",
+  "clear": "Clear",
+  "status": "Status",
+  "active": "Active",
+  "inactive": "Inactive",
+  "never": "Never",
+  "noResults": "No results found",
+  "showingCount": "Showing {shown} of {total}",
+  "@showingCount": {
+    "placeholders": {
+      "shown": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "nameField": "Name",
+  "phoneField": "Phone",
+  "emailOptional": "Email (optional)",
+  "addressField": "Address",
+  "invalidPhone": "Enter a 10-digit mobile number starting with 6–9",
+  "passwordTooLong": "At most 64 characters",
+  "searchNamePhone": "Search by name or phone",
+  "addUser": "Add user",
+  "editUser": "Edit user",
+  "userDetails": "User details",
+  "usersEmptyTitle": "Only you so far",
+  "usersEmptyMessage": "Add the people who will use FlyAsh with you. Everyone has the same access.",
+  "lastLogin": "Last login: {time}",
+  "@lastLogin": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "lastLoginColumn": "Last login",
+  "userCreated": "User added",
+  "userUpdated": "User updated",
+  "emailForgotHint": "Needed for Forgot password",
+  "noEmailHintUser": "Without an email this user cannot use Forgot password. You can reset their password here.",
+  "resetPasswordFor": "Reset password for {name}",
+  "@resetPasswordFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "resetUserPasswordHint": "Set a new password. They will be logged out on all devices.",
+  "activate": "Activate",
+  "deactivate": "Deactivate",
+  "activateUserTitle": "Activate {name}?",
+  "@activateUserTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deactivateUserTitle": "Deactivate {name}?",
+  "@deactivateUserTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "activateUserMessage": "They will be able to log in again.",
+  "deactivateUserMessage": "They will be logged out everywhere and cannot log in until activated again.",
+  "myProfile": "My profile",
+  "viewProfile": "View profile",
+  "editProfile": "Edit profile",
+  "profileUpdated": "Profile updated",
+  "emailForgotHintSelf": "Add an email so you can reset a forgotten password yourself",
+  "noEmailHintSelf": "Add an email to be able to use Forgot password.",
+  "changePassword": "Change password",
+  "changePasswordHint": "Other devices will be logged out. This device stays logged in.",
+  "currentPassword": "Current password",
+  "settingsAccount": "Account",
+  "settingsFactory": "Factory",
+  "settingsApp": "App",
+  "factoryProfile": "Factory profile",
+  "factoryName": "Factory name",
+  "ownerName": "Owner name",
+  "invoicePrefix": "Invoice prefix",
+  "invoicePrefixHint": "Used for new sale numbers, e.g. INV-0001",
+  "invoicePrefixRule": "1–10 characters: A–Z, 0–9 and -",
+  "appearance": "Appearance",
+  "themeMode": "Theme mode",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "accentColor": "Accent color",
+  "accentBlue": "Blue",
+  "accentBrick": "Brick",
+  "accentEmerald": "Emerald",
+  "accentViolet": "Violet",
+  "accentSlate": "Slate",
+  "fontSize": "Font size",
+  "fontSmall": "Small",
+  "fontDefault": "Default",
+  "fontLarge": "Large",
+  "fontExtraLarge": "Extra large",
+  "preview": "Preview",
+  "previewHeroLabel": "Today's sales",
+  "previewHeroCaption": "6 sales today",
+  "previewPaid": "Paid",
+  "previewPartial": "Partial",
+  "previewDue": "Due",
+  "previewButton": "New sale",
+  "resetToDefault": "Reset to default",
+  "languageHint": "Changes the app text and server messages. Saved to your account.",
+  "aboutApp": "About",
+  "version": "Version",
+  "buildNumber": "Build",
+  "server": "Server"
 }

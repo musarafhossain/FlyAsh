@@ -15,6 +15,9 @@ import 'package:flyash/core/l10n/locale_controller.dart';
 import 'package:flyash/core/network/api_client.dart';
 import 'package:flyash/core/network/api_response.dart';
 import 'package:flyash/core/network/session.dart';
+import 'package:flyash/features/auth/data/auth_repository_impl.dart';
+import 'package:flyash/features/settings/data/settings_repository_impl.dart';
+import 'package:flyash/features/users/data/users_repository_impl.dart';
 
 const live = bool.fromEnvironment('LIVE_API');
 const login = String.fromEnvironment('LIVE_LOGIN', defaultValue: '9876543210');
@@ -135,5 +138,62 @@ void main() {
       throwsA(isA<UnauthorizedFailure>()),
     );
     expect(c.read(sessionExpiredProvider), 1);
+  }, skip: !live);
+
+  // F7 repositories against the real API. Nothing is changed: saves send
+  // the same values back, and the wrong-password call is rejected.
+  test('F7: profile, users and factory repositories', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final auth = c.read(authRepositoryProvider);
+    final users = c.read(usersRepositoryProvider);
+    final settings = c.read(settingsRepositoryProvider);
+
+    final me = await auth.me();
+    expect(me.lastLoginAt, isNotNull);
+    final same = await auth.updateMe(
+      name: me.name,
+      phone: me.phone,
+      email: me.email,
+    );
+    expect(same.name, me.name);
+
+    await expectLater(
+      auth.changePassword(
+        currentPassword: 'definitely-wrong',
+        password: 'newpass1',
+        confirmation: 'newpass1',
+      ),
+      throwsA(
+        isA<ValidationFailure>().having(
+          (f) => f['current_password'],
+          'field',
+          isNotNull,
+        ),
+      ),
+    );
+
+    final page = await users.list();
+    expect(page.items.map((u) => u.id), isNot(contains(me.id)));
+    if (page.items.isNotEmpty) {
+      final other = await users.get(page.items.first.id);
+      expect(other.phone, page.items.first.phone);
+    }
+    await expectLater(
+      users.get(me.id),
+      throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 400)),
+    );
+
+    final factory = await settings.getFactory();
+    final (saved, message) = await settings.saveFactory(factory);
+    expect(saved.invoicePrefix, factory.invoicePrefix);
+    expect(message, isNotEmpty);
+
+    await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);
 }

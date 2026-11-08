@@ -56,6 +56,7 @@ Future<Widget> testApp(
   await tokens.load();
 
   testContainer = ProviderContainer(
+    retry: noRetry,
     overrides: [
       sharedPreferencesProvider.overrideWithValue(instance),
       tokenStoreProvider.overrideWithValue(tokens),

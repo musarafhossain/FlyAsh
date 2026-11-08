@@ -81,6 +81,38 @@ class AuthRepositoryImpl implements AuthRepository {
     );
     return res.message;
   }
+
+  @override
+  Future<AppUser> updateMe({
+    required String name,
+    required String phone,
+    String? email,
+  }) async {
+    final res = await _api.put(
+      '/auth/me',
+      body: {'name': name.trim(), 'phone': phone.trim(), 'email': email},
+      parse: (d) => AppUser.fromJson(d as Json),
+    );
+    return res.data;
+  }
+
+  @override
+  Future<String> changePassword({
+    required String currentPassword,
+    required String password,
+    required String confirmation,
+  }) async {
+    final res = await _api.put(
+      '/auth/password',
+      body: {
+        'current_password': currentPassword,
+        'password': password,
+        'password_confirmation': confirmation,
+      },
+      parse: (d) => d,
+    );
+    return res.message;
+  }
 }
 
 final authRepositoryProvider = Provider<AuthRepository>(

@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_controller.dart';
+import '../../../settings/presentation/widgets/accent_swatch.dart';
 
 /// Debug-only screen to check the theme in every combination
 /// (5 accents × light/dark × font sizes) and at every screen width.
@@ -62,8 +63,9 @@ class ThemeGalleryPage extends ConsumerWidget {
                         runSpacing: Space.s3,
                         children: [
                           for (final accent in AccentColor.values)
-                            _AccentSwatch(
+                            AccentSwatch(
                               accent: accent,
+                              label: accent.label,
                               selected: settings.accent == accent,
                               onTap: () => controller.setAccent(accent),
                             ),
@@ -319,74 +321,6 @@ class _Section extends StatelessWidget {
           const SizedBox(height: Space.s2),
           child,
         ],
-      ),
-    );
-  }
-}
-
-class _AccentSwatch extends StatelessWidget {
-  const _AccentSwatch({
-    required this.accent,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final AccentColor accent;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = AppColors.accent(
-      accent,
-      Theme.of(context).brightness,
-    ).primary;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: accent.label,
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: Radii.mdAll,
-        child: SizedBox(
-          width: 76,
-          child: Column(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: selected
-                        ? context.tokens.textPrimary
-                        : Colors.transparent,
-                    width: 3,
-                  ),
-                ),
-                child: selected
-                    ? Icon(
-                        Icons.check,
-                        color: AppColors.accent(
-                          accent,
-                          Theme.of(context).brightness,
-                        ).onPrimary,
-                      )
-                    : null,
-              ),
-              const SizedBox(height: Space.s1),
-              Text(
-                accent.label.split(' ').last,
-                style: AppTypography.caption.copyWith(
-                  color: context.tokens.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

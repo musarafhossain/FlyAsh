@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_shell.dart';
@@ -30,24 +28,6 @@ class SectionPlaceholderPage extends StatelessWidget {
             title: item.text(context.l10n),
             message: context.l10n.placeholderStep(item.step),
           ),
-          if (kDebugMode && item.path == '/settings')
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: Space.s3,
-              runSpacing: Space.s3,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () => context.push('/dev/theme'),
-                  icon: const Icon(Icons.palette_outlined),
-                  label: const Text('Theme gallery'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () => context.push('/dev/widgets'),
-                  icon: const Icon(Icons.widgets_outlined),
-                  label: const Text('Widget gallery'),
-                ),
-              ],
-            ),
         ],
       ),
     );

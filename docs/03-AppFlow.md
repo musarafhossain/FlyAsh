@@ -276,7 +276,10 @@ Users list (current user hidden) ─ search ─ FAB → Add user form (name, pho
 User detail ─ Edit · Reset password (sheet: new + confirm) · Deactivate / Activate (confirm)
 Empty list → "Only you so far · Add user"
 
-My Profile (Settings or drawer header tap)
+Desktop: the list is a table (name, phone, email, last login, status); phone/tablet: cards.
+Last login is shown in the device's local time.
+
+My Profile (Settings or drawer header tap; the drawer also has a sun/moon Light ↔ Dark toggle)
  ├─ Edit profile (name, phone, email) → PUT /auth/me
  └─ Change password (current, new, confirm) → PUT /auth/password → toast "Password changed. Other devices were logged out"
 ```

@@ -10,16 +10,10 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/form_fields.dart';
+import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../data/auth_repository_impl.dart';
 import '../widgets/auth_layout.dart';
-
-/// Replaces any visible snackbar (messages must not queue up behind each other).
-void showMessage(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
-}
 
 /// ① Email → the server emails a 6-digit OTP (03-AppFlow §2.2).
 class ForgotPasswordPage extends ConsumerStatefulWidget {
