@@ -18,9 +18,14 @@ Future<void> main() async {
 
   // Loaded before the first frame so the saved theme is used immediately.
   final prefs = await SharedPreferences.getInstance();
-  // Token in memory before the first request.
+  // Token in memory before the first request. Never let storage block the
+  // first frame: on a slow or broken store the app starts logged out.
   final tokens = TokenStore(const FlutterSecureStorage());
-  await tokens.load();
+  try {
+    await tokens.load().timeout(const Duration(seconds: 3));
+  } catch (e) {
+    debugPrint('Token storage unavailable, starting logged out: $e');
+  }
 
   runApp(
     ProviderScope(
