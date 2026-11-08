@@ -63,6 +63,7 @@ All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory
 | phone | VARCHAR(15) | no | | **unique**, 10 digits, login id |
 | email | VARCHAR(150) | yes | NULL | **unique**, login id + OTP reset |
 | password | VARCHAR(255) | no | | scrypt hash |
+| locale | VARCHAR(5) | no | 'en' | `en` · `bn`. Language for emails and API messages (when no `Accept-Language` header) |
 | is_active | TINYINT(1) | no | 1 | |
 | last_login_at | DATETIME | yes | NULL | |
 | created_by | INT UNSIGNED FK → users.id | yes | NULL | NULL for the first user |
@@ -366,6 +367,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 | `GET /auth/me` | — | `User` |
 | `PUT /auth/me` | `{ name, phone, email? }` | `User` |
 | `PUT /auth/password` | `{ current_password, password, password_confirmation }` | `null` |
+| `PUT /auth/locale` | `{ locale }` (`en` \| `bn`) | `User` |
 | `POST /auth/logout` | — | `null` |
 | `POST /auth/forgot-password` | `{ email }` | `null` |
 | `POST /auth/verify-otp` | `{ email, otp }` | `{ reset_token }` |
@@ -374,7 +376,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 ```jsonc
 // User
 { "id": 1, "name": "Rahim Sheikh", "phone": "9876543210", "email": "rahim@gmail.com",
-  "is_active": true, "last_login_at": "2026-11-08T05:10:00.000Z", "created_at": "2026-11-01T04:00:00.000Z" }
+  "locale": "en", "is_active": true, "last_login_at": "2026-11-08T05:10:00.000Z", "created_at": "2026-11-01T04:00:00.000Z" }
 ```
 
 ### 5.2 Users
@@ -382,7 +384,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 | Endpoint | Request body | `data` |
 |---|---|---|
 | `GET /users?page&limit&search&active` | — | Paginated `User` (excludes the current user) |
-| `POST /users` | `{ name, phone, email?, password }` | `User` |
+| `POST /users` | `{ name, phone, email?, password, locale? }` | `User` |
 | `GET /users/:id` · `PUT /users/:id` | `{ name, phone, email? }` | `User` |
 | `PATCH /users/:id/status` | `{ is_active }` | `User` |
 | `PUT /users/:id/password` | `{ password, password_confirmation }` | `null` |

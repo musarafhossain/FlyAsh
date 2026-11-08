@@ -64,3 +64,54 @@ test.group('Localization (Accept-Language)', (group) => {
     response.assertBodyContains({ message: 'Unauthorized' })
   })
 })
+
+test.group('User locale', (group) => {
+  group.each.setup(() => testUtils.db().withGlobalTransaction())
+
+  test('PUT /auth/locale saves the language and answers in it', async ({ client, assert }) => {
+    const user = await createUser()
+    const response = await client.put(`${API}/auth/locale`).loginAs(user).json({ locale: 'bn' })
+
+    response.assertStatus(200)
+    assert.equal(response.body().message, 'ভাষা বদলানো হয়েছে')
+    assert.equal(response.body().data.locale, 'bn')
+    response.assertHeader('content-language', 'bn')
+
+    await user.refresh()
+    assert.equal(user.locale, 'bn')
+  })
+
+  test('invalid locale is rejected', async ({ client }) => {
+    const user = await createUser()
+    const response = await client.put(`${API}/auth/locale`).loginAs(user).json({ locale: 'fr' })
+    response.assertStatus(422)
+  })
+
+  test("without Accept-Language the user's saved language is used", async ({ client, assert }) => {
+    const user = await createUser()
+    user.locale = 'bn'
+    await user.save()
+
+    const saved = await client.get(`${API}/auth/me`).loginAs(user)
+    assert.equal(saved.body().message, 'প্রোফাইল পাওয়া গেছে')
+
+    // The header still wins when it is sent
+    const header = await client.get(`${API}/auth/me`).header('Accept-Language', 'en').loginAs(user)
+    assert.equal(header.body().message, 'Profile fetched successfully')
+  })
+
+  test('new users get en by default, or the given locale', async ({ client, assert }) => {
+    const me = await createUser()
+    const plain = await client
+      .post(`${API}/users`)
+      .loginAs(me)
+      .json({ name: 'Default Locale', phone: '9811100001', password: 'secret123' })
+    assert.equal(plain.body().data.locale, 'en')
+
+    const bengali = await client
+      .post(`${API}/users`)
+      .loginAs(me)
+      .json({ name: 'Bengali User', phone: '9811100002', password: 'secret123', locale: 'bn' })
+    assert.equal(bengali.body().data.locale, 'bn')
+  })
+})

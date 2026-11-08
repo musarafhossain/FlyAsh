@@ -28,6 +28,7 @@ flowchart TD
 ```
 
 - Theme and language load **before** the first frame (no flash).
+- After login (and on `/auth/me`), the app switches to the user's saved `locale` if it differs from the device setting, so the language follows the user to every device.
 - The version check never blocks launch for more than 3 s. If it times out, the app continues.
 - "Later" on an optional update hides the dialog until the next launch.
 
@@ -282,7 +283,7 @@ Settings
  ├─ My profile → §10
  ├─ Factory profile → name, owner name, phone, email, address, invoice prefix → PUT /settings/factory
  ├─ Appearance → mode, accent, font size (applied instantly, saved locally)
- ├─ Language → English / বাংলা (applied instantly, saved locally)
+ ├─ Language → English / বাংলা (applied instantly, saved locally and to the account with PUT /auth/locale)
  ├─ About & Updates → app version + build → "Check for updates" → §12
  └─ Log out → §2.3
 ```

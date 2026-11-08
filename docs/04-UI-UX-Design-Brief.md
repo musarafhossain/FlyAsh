@@ -482,7 +482,7 @@ Drawer / More:
 
 **Localization**
 
-- Languages at launch: **English** and **বাংলা (Bengali)**. The language is switchable in Settings and on the Login screen, independent of the theme.
+- Languages at launch: **English** and **বাংলা (Bengali)**. The language is switchable in Settings and on the Login screen, independent of the theme. Once logged in, the choice is saved to the user's account.
 - All strings live in resource files. No text inside images.
 - Plan for Bengali strings being about 20–30% longer: buttons grow in width, and labels wrap to 2 lines rather than truncating.
 - Number display: Latin digits by default, with an optional Bengali digits (০১২৩…) setting. *(To be confirmed.)*
@@ -497,6 +497,7 @@ Drawer / More:
 | Currency | **₹ INR**, Indian grouping (`₹1,00,000`) |
 | Users | **Multiple users, all equal (no roles).** No sign-up: the first user is created on the server, and users add other users |
 | Theme sync | Per device (saved locally) |
+| Language sync | Saved to the user's account (`users.locale`), so it follows the user to every device |
 | Factory branding | The factory name from Settings and a **static logo bundled in the app** appear in the app header and on receipts. No images are uploaded or stored on the server |
 | Offline | Online only in v1. Offline entry in Phase 2 |
 | Bengali digits | Not in v1 (Latin digits) |

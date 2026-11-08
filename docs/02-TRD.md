@@ -68,7 +68,7 @@ FlyAsh/
 - Base URL: `https://api.<domain>/api/v1` (dev: `http://localhost:3333/api/v1`)
 - JSON request and response bodies, `snake_case` keys
 - Auth header: `Authorization: Bearer <token>`
-- Language header: `Accept-Language: en` (default) or `bn`. Every `message` (success, errors, validation errors and field names) comes back in that language, with a `Content-Language` header. Translations live in `backend/resources/lang/{en,bn}/messages.json` and `validator.json`; code uses message keys (`sales.saved`), never raw text
+- Language header: `Accept-Language: en` (default) or `bn`. Every `message` (success, errors, validation errors and field names) comes back in that language, with a `Content-Language` header. Without the header, authenticated requests use the user's saved language (`users.locale`), and public requests use English. The app sends the header from its language setting and saves the choice with `PUT /auth/locale`. Translations live in `backend/resources/lang/{en,bn}/messages.json` and `validator.json`; code uses message keys (`sales.saved`), never raw text
 - Dates `YYYY-MM-DD`; timestamps ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`)
 - Money is sent and returned as **strings with 2 decimals** (`"28500.00"`), so no precision is lost in JSON. Flutter parses it with a decimal type.
 
@@ -156,6 +156,7 @@ All endpoints require auth except the ones marked 🌐.
 | | `POST /auth/logout` | Revoke the current token |
 | | `GET /auth/me` · `PUT /auth/me` | View / edit my profile |
 | | `PUT /auth/password` | Change my password |
+| | `PUT /auth/locale` | Save my language (`en` \| `bn`) |
 | **Users** | `GET /users` | List (search, `active`), paginated. **Excludes the logged-in user** |
 | | `POST /users` · `GET/PUT /users/:id` | Add / view / edit another user |
 | | `PATCH /users/:id/status` | Activate / deactivate another user |
@@ -302,7 +303,7 @@ Stored totals (`total`, `paid_amount`, `due_amount`, `profit`) are kept on the `
   3. **Set new password:** `POST /auth/reset-password { reset_token, password, password_confirmation }`. The server checks the signature, expiry and purpose with `encryption.verifier.unsign(token, 'password_reset')`, then checks that the `otp_id` row still exists with `verified_at` set and belongs to `user_id`. This makes the token **single use**. The server then sets the new password, deletes the OTP row and **all** of the user's access tokens, and returns `200`. The app goes to Login. An invalid, expired or used token returns `400` "Reset link expired, please start again".
   4. Limits (`@adonisjs/limiter`): forgot-password 3 per 15 minutes per email + IP, verify-otp 10 per 15 minutes per IP, reset-password 10 per 15 minutes per IP. The app shows a 60-second "Resend OTP" countdown.
   5. The app keeps `reset_token` **in memory only** (passed to the next screen as a route argument, never saved to storage).
-  6. Email is sent with **`@adonisjs/mail`** over SMTP (Gmail with an App Password, or any SMTP provider). The template contains the factory name, the OTP, "valid for 10 minutes" and "ignore this email if you did not ask for it", in English + Bengali.
+  6. Email is sent with **`@adonisjs/mail`** over SMTP (Gmail with an App Password, or any SMTP provider). The template contains the factory name, the OTP, "valid for 10 minutes" and "ignore this email if you did not ask for it", written in the user's saved language (`users.locale`).
   7. In development `MAIL_MAILER=log` prints the email (and OTP) to the console, so no real email is needed.
 - Passwords hashed with **scrypt** (the Adonis default).
 - **Users:** there are no roles, and every authenticated user can call every endpoint. There is no sign-up endpoint. The first user is created with `node ace user:create`, and a forgotten password can be reset on the server with `node ace user:reset-password <phone>`.

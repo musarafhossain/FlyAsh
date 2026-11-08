@@ -46,6 +46,7 @@ export default class UsersController {
       phone: data.phone,
       email: data.email ?? null,
       password: data.password,
+      locale: data.locale ?? 'en',
       isActive: true,
       createdBy: auth.getUserOrFail().id,
     })

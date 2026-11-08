@@ -88,7 +88,8 @@
       "owner_name": "owner name",
       "invoice_prefix": "invoice prefix",
       "platform": "platform",
-      "build": "build number"
+      "build": "build number",
+      "locale": "language"
     }
   }
 }

@@ -234,7 +234,7 @@ All reports take a date range (Today / This week / This month / Last month / Thi
 |---|---|---|
 | SET-1 | **Factory profile:** factory name, owner name, phone, email, address, invoice prefix. Used in receipts and the app header. The **logo is a static image bundled in the app** (no image upload or storage on the server) | P0 |
 | SET-2 | **Appearance:** theme mode (Light / Dark / System), 5 accent colors, font size. Saved on the device (see 04-UI-UX §8) | P0 |
-| SET-3 | **Language:** English / বাংলা | P1 |
+| SET-3 | **Language:** English / বাংলা. The choice is **saved to the user's account** (`users.locale`), so it follows the user to every device, and the server sends emails and messages in that language | P1 |
 | SET-4 | **Change password**, **Logout** | P0 |
 | SET-5 | **App lock** on/off (biometric) | P2 |
 | SET-6 | **About:** app version, check for updates | P0 |
@@ -263,6 +263,7 @@ All users have the same access. There are no roles.
 | Phone | ✅ | 10 digits, unique. Used to log in |
 | Email | — | Unique if given. Can also be used to log in. **Needed for "Forgot password" by email OTP**; the form shows a hint when it is left empty |
 | Password | ✅ | Min 6 characters, stored **hashed** (never readable) |
+| Language | auto | `en` (default) or `bn`. Changed by the user in Settings → Language |
 | Status | auto | Active / Inactive (default Active) |
 | Last login | auto | Updated on every successful login |
 | Created by | auto | The user who added this user (empty for the first user) |
@@ -271,7 +272,7 @@ All users have the same access. There are no roles.
 | ID | Requirement | Priority |
 |---|---|---|
 | USER-1 | User list with search, showing name, phone, status (*Active* / *Inactive*) and last login. **The logged-in user is not shown in this list**; they manage their own details in **My Profile** (AUTH-7, AUTH-4) | P0 |
-| USER-2 | **Add user:** name, phone, email, password. The new user can log in right away | P0 |
+| USER-2 | **Add user:** name, phone, email, password, language (optional, default English). The new user can log in right away | P0 |
 | USER-3 | Edit another user's name, phone and email | P0 |
 | USER-4 | **Reset password** for another user (sets a new password and logs that user out of all devices) | P0 |
 | USER-5 | **Deactivate / activate** another user. A deactivated user is logged out of all devices and cannot log in. Users are never deleted, so `created_by` history stays | P0 |

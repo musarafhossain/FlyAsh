@@ -57,6 +57,9 @@ export const monthRule = () =>
     .trim()
     .regex(/^\d{4}-(0[1-9]|1[0-2])$/)
 
+/** App / message language */
+export const localeRule = () => vine.enum(['en', 'bn'] as const)
+
 export const paymentMethodRule = () => vine.enum(['cash', 'upi', 'bank', 'other'] as const)
 
 /** page / limit / search for every list endpoint */

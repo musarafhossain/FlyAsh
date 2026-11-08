@@ -370,7 +370,7 @@ export class SalePaymentSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'createdBy', 'email', 'id', 'isActive', 'lastLoginAt', 'name', 'password', 'phone', 'updatedAt'] as const
+  static $columns = ['createdAt', 'createdBy', 'email', 'id', 'isActive', 'lastLoginAt', 'locale', 'name', 'password', 'phone', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -384,6 +384,8 @@ export class UserSchema extends BaseModel {
   declare isActive: boolean
   @column.dateTime()
   declare lastLoginAt: DateTime | null
+  @column()
+  declare locale: string
   @column()
   declare name: string
   @column({ serializeAs: null })

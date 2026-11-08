@@ -64,6 +64,7 @@ router
         router.get('auth/me', [AuthController, 'me'])
         router.put('auth/me', [AuthController, 'updateMe'])
         router.put('auth/password', [AuthController, 'changePassword'])
+        router.put('auth/locale', [AuthController, 'updateLocale'])
 
         // Users (other users only)
         router.get('users', [UsersController, 'index'])

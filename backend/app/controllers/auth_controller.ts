@@ -5,7 +5,13 @@ import User from '#models/user'
 import AppError from '#exceptions/app_error'
 import { ok } from '#helpers/api_response'
 import { loginLimiter } from '#start/limiter'
-import { changePasswordValidator, loginValidator, profileValidator } from '#validators/auth'
+import {
+  changePasswordValidator,
+  localeValidator,
+  loginValidator,
+  profileValidator,
+} from '#validators/auth'
+import i18nManager from '@adonisjs/i18n/services/main'
 
 export default class AuthController {
   /**
@@ -60,6 +66,23 @@ export default class AuthController {
     await user.save()
 
     return ok(response, user, 'auth.profile_updated')
+  }
+
+  /**
+   * PUT /auth/locale { locale }: save my language (en | bn). It is used for
+   * emails and for API messages when the request has no Accept-Language.
+   */
+  async updateLocale(ctx: HttpContext) {
+    const user = ctx.auth.getUserOrFail()
+    const { locale } = await ctx.request.validateUsing(localeValidator)
+
+    user.locale = locale
+    await user.save()
+
+    // Answer in the newly chosen language
+    ctx.i18n = i18nManager.locale(locale)
+    ctx.response.header('Content-Language', locale)
+    return ok(ctx.response, user, 'auth.locale_updated')
   }
 
   /**

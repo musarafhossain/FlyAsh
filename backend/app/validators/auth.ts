@@ -1,5 +1,5 @@
 import vine from '@vinejs/vine'
-import { emailRule, nameRule, passwordRule, phoneRule } from '#validators/rules'
+import { emailRule, localeRule, nameRule, passwordRule, phoneRule } from '#validators/rules'
 
 /**
  * Unique check on the users table that ignores the user being edited
@@ -23,6 +23,10 @@ export const profileValidator = vine.create({
   name: nameRule(),
   phone: phoneRule().unique(uniqueUser('phone')),
   email: emailRule().unique(uniqueUser('email')).nullable().optional(),
+})
+
+export const localeValidator = vine.create({
+  locale: localeRule(),
 })
 
 export const changePasswordValidator = vine.create({

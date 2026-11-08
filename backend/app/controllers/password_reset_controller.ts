@@ -51,7 +51,7 @@ export default class PasswordResetController {
 
       try {
         const factory = await FactorySetting.current()
-        await MailService.sendPasswordResetOtp(email, otp, factory.factoryName)
+        await MailService.sendPasswordResetOtp(email, otp, factory.factoryName, user.locale)
       } catch (error) {
         logger.error({ err: error }, 'Failed to send password reset OTP email')
       }

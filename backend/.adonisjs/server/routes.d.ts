@@ -13,6 +13,7 @@ export type ScannedRoutes = {
     'auth.me': { paramsTuple?: []; params?: {} }
     'auth.update_me': { paramsTuple?: []; params?: {} }
     'auth.change_password': { paramsTuple?: []; params?: {} }
+    'auth.update_locale': { paramsTuple?: []; params?: {} }
     'users.index': { paramsTuple?: []; params?: {} }
     'users.store': { paramsTuple?: []; params?: {} }
     'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -161,6 +162,7 @@ export type ScannedRoutes = {
   PUT: {
     'auth.update_me': { paramsTuple?: []; params?: {} }
     'auth.change_password': { paramsTuple?: []; params?: {} }
+    'auth.update_locale': { paramsTuple?: []; params?: {} }
     'users.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'users.reset_password': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'products.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

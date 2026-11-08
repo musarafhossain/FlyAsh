@@ -6,7 +6,7 @@ import type { CommandOptions } from '@adonisjs/core/types/ace'
  * has no sign-up screen).
  *
  *   node ace user:create
- *   node ace user:create --name="Rahim" --phone=9876543210 --email=a@b.com --password=secret123
+ *   node ace user:create --name="Rahim" --phone=9876543210 --email=a@b.com --password=secret123 --locale=bn
  */
 export default class UserCreate extends BaseCommand {
   static commandName = 'user:create'
@@ -24,6 +24,9 @@ export default class UserCreate extends BaseCommand {
 
   @flags.string({ description: 'Password (min 6 characters)' })
   declare password?: string
+
+  @flags.string({ description: 'Language: en (default) or bn' })
+  declare locale?: string
 
   async run() {
     const { default: User } = await import('#models/user')
@@ -59,6 +62,12 @@ export default class UserCreate extends BaseCommand {
       this.exitCode = 1
       return
     }
+    const locale = this.locale ?? 'en'
+    if (!['en', 'bn'].includes(locale)) {
+      this.logger.error('Locale must be en or bn')
+      this.exitCode = 1
+      return
+    }
     const cleanEmail = email?.trim().toLowerCase() || null
     if (cleanEmail && (await User.findBy('email', cleanEmail))) {
       this.logger.error(`A user with email ${cleanEmail} already exists`)
@@ -71,6 +80,7 @@ export default class UserCreate extends BaseCommand {
       phone: phone.trim(),
       email: cleanEmail,
       password,
+      locale,
       isActive: true,
       createdBy: null,
     })
