@@ -814,6 +814,97 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/uploads_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'reports.dashboard': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/dashboard'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['dashboard']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['dashboard']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['dashboard']>>>
+    }
+  }
+  'reports.sales': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/reports/sales'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['sales']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['sales']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['sales']>>>
+    }
+  }
+  'reports.dues': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/reports/dues'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/report').duesReportValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['dues']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['dues']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['dues']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'reports.expenses': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/reports/expenses'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['expenses']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['expenses']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['expenses']>>>
+    }
+  }
+  'reports.wages': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/reports/wages'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/report').reportMonthValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['wages']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['wages']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['wages']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'reports.net_profit': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/reports/net-profit'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['netProfit']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['netProfit']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['netProfit']>>>
+    }
+  }
+  'reports.collections': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/reports/collections'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['collections']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['collections']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/reports_controller').default['collections']>>>
+    }
+  }
 }
 
 export namespace Route {

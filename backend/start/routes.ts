@@ -21,6 +21,7 @@ const AttendanceController = () => import('#controllers/attendance_controller')
 const WagesController = () => import('#controllers/wages_controller')
 const ExpensesController = () => import('#controllers/expenses_controller')
 const UploadsController = () => import('#controllers/uploads_controller')
+const ReportsController = () => import('#controllers/reports_controller')
 
 /** Every :id style param must be numeric. */
 router.where('id', router.matchers.number())
@@ -132,6 +133,15 @@ router
 
         // Uploads
         router.post('uploads', [UploadsController, 'store'])
+
+        // Dashboard & reports
+        router.get('dashboard', [ReportsController, 'dashboard'])
+        router.get('reports/sales', [ReportsController, 'sales'])
+        router.get('reports/dues', [ReportsController, 'dues'])
+        router.get('reports/expenses', [ReportsController, 'expenses'])
+        router.get('reports/wages', [ReportsController, 'wages'])
+        router.get('reports/net-profit', [ReportsController, 'netProfit'])
+        router.get('reports/collections', [ReportsController, 'collections'])
       })
       .use(middleware.auth())
   })

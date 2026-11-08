@@ -66,6 +66,13 @@ export type ScannedRoutes = {
     'expenses.store_category': { paramsTuple?: []; params?: {} }
     'expenses.update_category': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'uploads.store': { paramsTuple?: []; params?: {} }
+    'reports.dashboard': { paramsTuple?: []; params?: {} }
+    'reports.sales': { paramsTuple?: []; params?: {} }
+    'reports.dues': { paramsTuple?: []; params?: {} }
+    'reports.expenses': { paramsTuple?: []; params?: {} }
+    'reports.wages': { paramsTuple?: []; params?: {} }
+    'reports.net_profit': { paramsTuple?: []; params?: {} }
+    'reports.collections': { paramsTuple?: []; params?: {} }
   }
   GET: {
     'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
@@ -90,6 +97,13 @@ export type ScannedRoutes = {
     'expenses.index': { paramsTuple?: []; params?: {} }
     'expenses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.categories': { paramsTuple?: []; params?: {} }
+    'reports.dashboard': { paramsTuple?: []; params?: {} }
+    'reports.sales': { paramsTuple?: []; params?: {} }
+    'reports.dues': { paramsTuple?: []; params?: {} }
+    'reports.expenses': { paramsTuple?: []; params?: {} }
+    'reports.wages': { paramsTuple?: []; params?: {} }
+    'reports.net_profit': { paramsTuple?: []; params?: {} }
+    'reports.collections': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
     'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
@@ -114,6 +128,13 @@ export type ScannedRoutes = {
     'expenses.index': { paramsTuple?: []; params?: {} }
     'expenses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.categories': { paramsTuple?: []; params?: {} }
+    'reports.dashboard': { paramsTuple?: []; params?: {} }
+    'reports.sales': { paramsTuple?: []; params?: {} }
+    'reports.dues': { paramsTuple?: []; params?: {} }
+    'reports.expenses': { paramsTuple?: []; params?: {} }
+    'reports.wages': { paramsTuple?: []; params?: {} }
+    'reports.net_profit': { paramsTuple?: []; params?: {} }
+    'reports.collections': { paramsTuple?: []; params?: {} }
   }
   POST: {
     'auth.login': { paramsTuple?: []; params?: {} }

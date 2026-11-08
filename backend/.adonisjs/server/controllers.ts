@@ -11,6 +11,7 @@ export const controllers = {
   Labours: () => import('#controllers/labours_controller'),
   PasswordReset: () => import('#controllers/password_reset_controller'),
   Products: () => import('#controllers/products_controller'),
+  Reports: () => import('#controllers/reports_controller'),
   Sales: () => import('#controllers/sales_controller'),
   Uploads: () => import('#controllers/uploads_controller'),
   Users: () => import('#controllers/users_controller'),

@@ -86,4 +86,13 @@ export interface ApiDefinition {
     storeCategory: typeof routes['expenses.store_category']
     updateCategory: typeof routes['expenses.update_category']
   }
+  reports: {
+    dashboard: typeof routes['reports.dashboard']
+    sales: typeof routes['reports.sales']
+    dues: typeof routes['reports.dues']
+    expenses: typeof routes['reports.expenses']
+    wages: typeof routes['reports.wages']
+    netProfit: typeof routes['reports.net_profit']
+    collections: typeof routes['reports.collections']
+  }
 }

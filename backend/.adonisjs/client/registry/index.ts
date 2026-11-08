@@ -380,6 +380,48 @@ const routes = {
     tokens: [[0,"api"],[0,"v1"],[0,"uploads"]],
     types: placeholder as Registry['uploads.store']['types'],
   },
+  'reports.dashboard': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/dashboard',
+    tokens: [[0,"api"],[0,"v1"],[0,"dashboard"]],
+    types: placeholder as Registry['reports.dashboard']['types'],
+  },
+  'reports.sales': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/reports/sales',
+    tokens: [[0,"api"],[0,"v1"],[0,"reports"],[0,"sales"]],
+    types: placeholder as Registry['reports.sales']['types'],
+  },
+  'reports.dues': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/reports/dues',
+    tokens: [[0,"api"],[0,"v1"],[0,"reports"],[0,"dues"]],
+    types: placeholder as Registry['reports.dues']['types'],
+  },
+  'reports.expenses': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/reports/expenses',
+    tokens: [[0,"api"],[0,"v1"],[0,"reports"],[0,"expenses"]],
+    types: placeholder as Registry['reports.expenses']['types'],
+  },
+  'reports.wages': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/reports/wages',
+    tokens: [[0,"api"],[0,"v1"],[0,"reports"],[0,"wages"]],
+    types: placeholder as Registry['reports.wages']['types'],
+  },
+  'reports.net_profit': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/reports/net-profit',
+    tokens: [[0,"api"],[0,"v1"],[0,"reports"],[0,"net-profit"]],
+    types: placeholder as Registry['reports.net_profit']['types'],
+  },
+  'reports.collections': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/reports/collections',
+    tokens: [[0,"api"],[0,"v1"],[0,"reports"],[0,"collections"]],
+    types: placeholder as Registry['reports.collections']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }
