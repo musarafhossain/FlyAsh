@@ -1,5 +1,13 @@
 import vine from '@vinejs/vine'
-import { emailRule, localeRule, nameRule, passwordRule, phoneRule } from '#validators/rules'
+import {
+  accentColorRule,
+  emailRule,
+  localeRule,
+  nameRule,
+  passwordRule,
+  phoneRule,
+  themeModeRule,
+} from '#validators/rules'
 
 /**
  * Unique check on the users table that ignores the user being edited
@@ -25,8 +33,11 @@ export const profileValidator = vine.create({
   email: emailRule().unique(uniqueUser('email')).nullable().optional(),
 })
 
-export const localeValidator = vine.create({
-  locale: localeRule(),
+/** Only the fields sent are changed */
+export const preferencesValidator = vine.create({
+  locale: localeRule().optional(),
+  theme_mode: themeModeRule().optional(),
+  accent_color: accentColorRule().optional(),
 })
 
 export const changePasswordValidator = vine.create({

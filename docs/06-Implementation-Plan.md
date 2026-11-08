@@ -79,7 +79,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 
 ### Step 3 · Flutter foundation
 - [ ] Folder structure from TRD §7.1. Packages from TRD §7.2. `build_runner` set up
-- [ ] **Theme:** tokens, 5 accents × light/dark, `ThemeController` (saved and loaded before `runApp`), font scale, Inter + Hind Siliguri bundled
+- [ ] **Theme:** tokens, 5 accents × light/dark, `ThemeController` (cached locally and loaded before `runApp`, synced with `PUT /auth/preferences`), font scale, Inter + Hind Siliguri bundled
 - [ ] **Core widgets** (04-UI-UX §9): AppBar variants, HeroCard, KpiChip, QuickActionTile, SearchBar, StatusPill, SegmentedTabs, PeriodSelector, ProgressRing, LineItemSummaryCard, buttons, inputs (money, stepper, date), EmptyState, ErrorState, Skeleton, ConfirmDialog
 - [ ] **Widget gallery** page (debug only) showing every widget in all 10 theme combinations
 - [ ] **Network:** Dio client, auth interceptor, `ApiResponse<T>`, `Paginated<T>`, `Failure` mapping, `Result<T>`

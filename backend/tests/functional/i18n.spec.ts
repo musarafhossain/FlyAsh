@@ -65,15 +65,28 @@ test.group('Localization (Accept-Language)', (group) => {
   })
 })
 
-test.group('User locale', (group) => {
+test.group('User preferences (language and theme)', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('PUT /auth/locale saves the language and answers in it', async ({ client, assert }) => {
+  test('new users get the defaults', async ({ client, assert }) => {
     const user = await createUser()
-    const response = await client.put(`${API}/auth/locale`).loginAs(user).json({ locale: 'bn' })
+    const me = await client.get(`${API}/auth/me`).loginAs(user)
+    assert.containsSubset(me.body().data, {
+      locale: 'en',
+      theme_mode: 'system',
+      accent_color: 'blue',
+    })
+  })
+
+  test('saving the language answers in the new language', async ({ client, assert }) => {
+    const user = await createUser()
+    const response = await client
+      .put(`${API}/auth/preferences`)
+      .loginAs(user)
+      .json({ locale: 'bn' })
 
     response.assertStatus(200)
-    assert.equal(response.body().message, 'ভাষা বদলানো হয়েছে')
+    assert.equal(response.body().message, 'পছন্দ সেভ হয়েছে')
     assert.equal(response.body().data.locale, 'bn')
     response.assertHeader('content-language', 'bn')
 
@@ -81,10 +94,37 @@ test.group('User locale', (group) => {
     assert.equal(user.locale, 'bn')
   })
 
-  test('invalid locale is rejected', async ({ client }) => {
+  test('saving theme mode and color changes only the fields sent', async ({ client, assert }) => {
     const user = await createUser()
-    const response = await client.put(`${API}/auth/locale`).loginAs(user).json({ locale: 'fr' })
+
+    const dark = await client
+      .put(`${API}/auth/preferences`)
+      .loginAs(user)
+      .json({ theme_mode: 'dark', accent_color: 'emerald' })
+    assert.containsSubset(dark.body().data, {
+      locale: 'en',
+      theme_mode: 'dark',
+      accent_color: 'emerald',
+    })
+
+    const colorOnly = await client
+      .put(`${API}/auth/preferences`)
+      .loginAs(user)
+      .json({ accent_color: 'brick' })
+    assert.containsSubset(colorOnly.body().data, { theme_mode: 'dark', accent_color: 'brick' })
+  })
+
+  test('invalid values are rejected', async ({ client, assert }) => {
+    const user = await createUser()
+    const response = await client
+      .put(`${API}/auth/preferences`)
+      .loginAs(user)
+      .json({ locale: 'fr', theme_mode: 'blue', accent_color: 'pink' })
     response.assertStatus(422)
+    assert.sameMembers(
+      response.body().data.errors.map((e: any) => e.field),
+      ['locale', 'theme_mode', 'accent_color']
+    )
   })
 
   test("without Accept-Language the user's saved language is used", async ({ client, assert }) => {

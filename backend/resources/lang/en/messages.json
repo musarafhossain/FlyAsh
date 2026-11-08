@@ -22,7 +22,7 @@
     "logged_out": "Logged out successfully",
     "profile_fetched": "Profile fetched successfully",
     "profile_updated": "Profile updated successfully",
-    "locale_updated": "Language updated",
+    "preferences_updated": "Preferences saved",
     "password_changed": "Password changed. Other devices were logged out",
     "current_password_incorrect": "Current password is incorrect",
     "otp_sent": "If this email is registered, an OTP has been sent",

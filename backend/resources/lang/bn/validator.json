@@ -89,7 +89,9 @@
       "invoice_prefix": "রসিদের প্রিফিক্স",
       "platform": "প্ল্যাটফর্ম",
       "build": "বিল্ড নম্বর",
-      "locale": "ভাষা"
+      "locale": "ভাষা",
+      "theme_mode": "থিম মোড",
+      "accent_color": "থিম কালার"
     }
   }
 }

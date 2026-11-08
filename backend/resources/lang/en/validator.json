@@ -89,7 +89,9 @@
       "invoice_prefix": "invoice prefix",
       "platform": "platform",
       "build": "build number",
-      "locale": "language"
+      "locale": "language",
+      "theme_mode": "theme mode",
+      "accent_color": "theme color"
     }
   }
 }

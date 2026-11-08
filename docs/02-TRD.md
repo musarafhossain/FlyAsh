@@ -68,7 +68,7 @@ FlyAsh/
 - Base URL: `https://api.<domain>/api/v1` (dev: `http://localhost:3333/api/v1`)
 - JSON request and response bodies, `snake_case` keys
 - Auth header: `Authorization: Bearer <token>`
-- Language header: `Accept-Language: en` (default) or `bn`. Every `message` (success, errors, validation errors and field names) comes back in that language, with a `Content-Language` header. Without the header, authenticated requests use the user's saved language (`users.locale`), and public requests use English. The app sends the header from its language setting and saves the choice with `PUT /auth/locale`. Translations live in `backend/resources/lang/{en,bn}/messages.json` and `validator.json`; code uses message keys (`sales.saved`), never raw text
+- Language header: `Accept-Language: en` (default) or `bn`. Every `message` (success, errors, validation errors and field names) comes back in that language, with a `Content-Language` header. Without the header, authenticated requests use the user's saved language (`users.locale`), and public requests use English. The app sends the header from its language setting and saves the choice with `PUT /auth/preferences`. Translations live in `backend/resources/lang/{en,bn}/messages.json` and `validator.json`; code uses message keys (`sales.saved`), never raw text
 - Dates `YYYY-MM-DD`; timestamps ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`)
 - Money is sent and returned as **strings with 2 decimals** (`"28500.00"`), so no precision is lost in JSON. Flutter parses it with a decimal type.
 
@@ -156,7 +156,7 @@ All endpoints require auth except the ones marked 🌐.
 | | `POST /auth/logout` | Revoke the current token |
 | | `GET /auth/me` · `PUT /auth/me` | View / edit my profile |
 | | `PUT /auth/password` | Change my password |
-| | `PUT /auth/locale` | Save my language (`en` \| `bn`) |
+| | `PUT /auth/preferences` | Save my language, theme mode and theme color (only the fields sent) |
 | **Users** | `GET /users` | List (search, `active`), paginated. **Excludes the logged-in user** |
 | | `POST /users` · `GET/PUT /users/:id` | Add / view / edit another user |
 | | `PATCH /users/:id/status` | Activate / deactivate another user |
@@ -474,7 +474,8 @@ One reusable `PaginatedListView<T>` widget + a `PaginatedNotifier<T>` base class
 
 Implements 04-UI-UX §5–§8:
 - `AppTokens` as a `ThemeExtension` holding all semantic colors. There are 10 combinations (5 accents × light/dark).
-- `ThemeController` (Riverpod) holds `themeMode`, `accent` and `fontScale`, saves them in `shared_preferences`, and loads them **before `runApp`** so there is no flash of the wrong theme.
+- `ThemeController` (Riverpod) holds `themeMode`, `accent` and `fontScale`, caches them in `shared_preferences`, and loads them **before `runApp`** so there is no flash of the wrong theme.
+- **Theme mode and accent are saved to the account** (`users.theme_mode`, `users.accent_color`) with `PUT /auth/preferences` when changed. After login and on `/auth/me`, the app applies the account values and updates the local cache, so the theme follows the user to every device. Font size stays local.
 - Widgets use `context.tokens.xxx` only. No hard-coded colors.
 
 ### 7.6 Localization and formatting

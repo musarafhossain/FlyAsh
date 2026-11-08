@@ -7,7 +7,7 @@ import { ok } from '#helpers/api_response'
 import { loginLimiter } from '#start/limiter'
 import {
   changePasswordValidator,
-  localeValidator,
+  preferencesValidator,
   loginValidator,
   profileValidator,
 } from '#validators/auth'
@@ -69,20 +69,27 @@ export default class AuthController {
   }
 
   /**
-   * PUT /auth/locale { locale }: save my language (en | bn). It is used for
-   * emails and for API messages when the request has no Accept-Language.
+   * PUT /auth/preferences { locale?, theme_mode?, accent_color? }
+   * Saves my language and appearance to the account, so they follow me to
+   * every device. Only the fields sent are changed.
+   * The locale is also used for emails and for API messages when a request
+   * has no Accept-Language header.
    */
-  async updateLocale(ctx: HttpContext) {
+  async updatePreferences(ctx: HttpContext) {
     const user = ctx.auth.getUserOrFail()
-    const { locale } = await ctx.request.validateUsing(localeValidator)
+    const data = await ctx.request.validateUsing(preferencesValidator)
 
-    user.locale = locale
+    if (data.locale) user.locale = data.locale
+    if (data.theme_mode) user.themeMode = data.theme_mode
+    if (data.accent_color) user.accentColor = data.accent_color
     await user.save()
 
     // Answer in the newly chosen language
-    ctx.i18n = i18nManager.locale(locale)
-    ctx.response.header('Content-Language', locale)
-    return ok(ctx.response, user, 'auth.locale_updated')
+    if (data.locale) {
+      ctx.i18n = i18nManager.locale(data.locale)
+      ctx.response.header('Content-Language', data.locale)
+    }
+    return ok(ctx.response, user, 'auth.preferences_updated')
   }
 
   /**

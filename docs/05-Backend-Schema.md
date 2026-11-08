@@ -64,6 +64,8 @@ All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory
 | email | VARCHAR(150) | yes | NULL | **unique**, login id + OTP reset |
 | password | VARCHAR(255) | no | | scrypt hash |
 | locale | VARCHAR(5) | no | 'en' | `en` · `bn`. Language for emails and API messages (when no `Accept-Language` header) |
+| theme_mode | VARCHAR(10) | no | 'system' | `system` · `light` · `dark` |
+| accent_color | VARCHAR(20) | no | 'blue' | `blue` · `brick` · `emerald` · `violet` · `slate` (04-UI-UX §5.2) |
 | is_active | TINYINT(1) | no | 1 | |
 | last_login_at | DATETIME | yes | NULL | |
 | created_by | INT UNSIGNED FK → users.id | yes | NULL | NULL for the first user |
@@ -367,7 +369,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 | `GET /auth/me` | — | `User` |
 | `PUT /auth/me` | `{ name, phone, email? }` | `User` |
 | `PUT /auth/password` | `{ current_password, password, password_confirmation }` | `null` |
-| `PUT /auth/locale` | `{ locale }` (`en` \| `bn`) | `User` |
+| `PUT /auth/preferences` | `{ locale?, theme_mode?, accent_color? }` (only the fields sent change) | `User` |
 | `POST /auth/logout` | — | `null` |
 | `POST /auth/forgot-password` | `{ email }` | `null` |
 | `POST /auth/verify-otp` | `{ email, otp }` | `{ reset_token }` |
@@ -376,7 +378,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 ```jsonc
 // User
 { "id": 1, "name": "Rahim Sheikh", "phone": "9876543210", "email": "rahim@gmail.com",
-  "locale": "en", "is_active": true, "last_login_at": "2026-11-08T05:10:00.000Z", "created_at": "2026-11-01T04:00:00.000Z" }
+  "locale": "en", "theme_mode": "system", "accent_color": "blue", "is_active": true, "last_login_at": "2026-11-08T05:10:00.000Z", "created_at": "2026-11-01T04:00:00.000Z" }
 ```
 
 ### 5.2 Users

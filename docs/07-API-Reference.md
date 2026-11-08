@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Document** | Complete REST API reference (every endpoint, payload and response case) |
-| **Version** | 1.2 (English/Bengali messages, user language) |
+| **Version** | 1.3 (English/Bengali messages, user language and theme preferences) |
 | **Date** | 2026-11-08 |
 | **Source** | Every response below was captured from the running API (`backend/`); long lists are shortened to 2 items |
 | **Related docs** | 02-TRD §4 (API standards) · 05-Backend-Schema (tables, calculations) |
@@ -141,7 +141,7 @@ These apply to **every** authenticated endpoint and are not repeated below:
 
 ### 1.6 Localization (English / Bengali)
 
-Send `Accept-Language: bn` to get every `message` (success, business errors, validation errors and field names) in Bengali, or `en` for English. Without the header, authenticated requests use the saved user language (`users.locale`, see `PUT /auth/locale`) and public requests use English. Any other language falls back to English. The response has a `Content-Language: en|bn` header. Only the text changes: keys, `field` names in `errors`, numbers and amounts stay the same (Latin digits).
+Send `Accept-Language: bn` to get every `message` (success, business errors, validation errors and field names) in Bengali, or `en` for English. Without the header, authenticated requests use the saved user language (`users.locale`, see `PUT /auth/preferences`) and public requests use English. Any other language falls back to English. The response has a `Content-Language: en|bn` header. Only the text changes: keys, `field` names in `errors`, numbers and amounts stay the same (Latin digits).
 
 The examples in this document are in English. Bengali examples:
 
@@ -233,7 +233,7 @@ The examples in this document are in English. Bengali examples:
 | 5 | `GET` | [`/auth/me`](#get-authme) | 🔒 | My profile |
 | 6 | `PUT` | [`/auth/me`](#put-authme) | 🔒 | Edit my profile |
 | 7 | `PUT` | [`/auth/password`](#put-authpassword) | 🔒 | Change my password |
-| 8 | `PUT` | [`/auth/locale`](#put-authlocale) | 🔒 | Save my language |
+| 8 | `PUT` | [`/auth/preferences`](#put-authpreferences) | 🔒 | Save my language and theme |
 | 9 | `POST` | [`/auth/forgot-password`](#post-authforgot-password) | 🌐 | ① Send OTP |
 | 10 | `POST` | [`/auth/verify-otp`](#post-authverify-otp) | 🌐 | ② Verify OTP |
 | 11 | `POST` | [`/auth/reset-password`](#post-authreset-password) | 🌐 | ③ Set new password |
@@ -325,7 +325,7 @@ Returns `200` when the API and the database are reachable.
   "data": {
     "status": "ok",
     "db": "ok",
-    "time": "2026-11-08T14:52:23.728Z"
+    "time": "2026-11-08T14:55:47.920Z"
   }
 }
 ```
@@ -450,17 +450,19 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Login successful",
   "data": {
-    "token": "oat_MTA.eU9MSzVWWEZiMG9PaWtITFp1Wlo4Q3ZzNEU1UEdIVkhFaUl4TkZGbDI4MjQyNzUyMjg",
+    "token": "oat_MTI.ZE9BM3J5azhpVDJ6RHRKOUVyeEpBaVdOVzhMUTZiZWswMzJNTnowNTE0MjYwMTg1ODQ",
     "user": {
       "id": 1,
       "name": "Test Owner",
       "phone": "9876543210",
       "email": "owner@test.com",
       "locale": "en",
+      "theme_mode": "system",
+      "accent_color": "blue",
       "is_active": true,
-      "last_login_at": "2026-11-08T14:52:22.230Z",
+      "last_login_at": "2026-11-08T14:55:46.446Z",
       "created_at": "2026-11-08T14:18:17.000Z",
-      "updated_at": "2026-11-08T14:52:22.230Z"
+      "updated_at": "2026-11-08T14:55:46.447Z"
     }
   }
 }
@@ -584,10 +586,12 @@ Revokes the current token only (other devices stay logged in).
     "phone": "9876543210",
     "email": "owner@test.com",
     "locale": "en",
+    "theme_mode": "system",
+    "accent_color": "blue",
     "is_active": true,
-    "last_login_at": "2026-11-08T14:52:22.000Z",
+    "last_login_at": "2026-11-08T14:55:46.000Z",
     "created_at": "2026-11-08T14:18:17.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z"
+    "updated_at": "2026-11-08T14:55:46.000Z"
   }
 }
 ```
@@ -656,10 +660,12 @@ Content-Type: application/json
     "phone": "9876543210",
     "email": "owner@test.com",
     "locale": "en",
+    "theme_mode": "system",
+    "accent_color": "blue",
     "is_active": true,
-    "last_login_at": "2026-11-08T14:52:22.000Z",
+    "last_login_at": "2026-11-08T14:55:46.000Z",
     "created_at": "2026-11-08T14:18:17.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z"
+    "updated_at": "2026-11-08T14:55:46.000Z"
   }
 }
 ```
@@ -806,59 +812,89 @@ Content-Type: application/json
 
 ---
 
-### PUT /auth/locale
+### PUT /auth/preferences
 
-**Save my language** · 🔒 Bearer token
+**Save my language and theme** · 🔒 Bearer token
 
-Saves the user's language (`users.locale`). It follows the user to every device, is used for emails, and for API messages when a request has no `Accept-Language` header. The response is already in the new language.
+Saves the language and appearance to the account (`users.locale`, `users.theme_mode`, `users.accent_color`), so they follow the user to every device. Only the fields sent are changed. The locale is also used for emails and for API messages when a request has no `Accept-Language` header; when `locale` changes, the response is already in the new language.
 
 **Request body**
 
 | Field | Type | Required | Rules / notes |
 |---|---|---|---|
-| `locale` | enum | yes | `en` · `bn` |
+| `locale` | enum | no | `en` · `bn` |
+| `theme_mode` | enum | no | `system` · `light` · `dark` |
+| `accent_color` | enum | no | `blue` · `brick` · `emerald` · `violet` · `slate` |
 
 **Example request**
 
 ```http
-PUT /api/v1/auth/locale
+PUT /api/v1/auth/preferences
 Content-Type: application/json
 
 {
-  "locale": "bn"
+  "theme_mode": "dark",
+  "accent_color": "emerald"
 }
 ```
 
 **Responses**
 
-✅ **200 OK** · Saved (answer in Bengali)
+✅ **200 OK** · Theme mode and color saved
 
 ```json
 {
   "success": true,
   "status_code": 200,
-  "message": "ভাষা বদলানো হয়েছে",
+  "message": "Preferences saved",
+  "data": {
+    "id": 1,
+    "name": "Test Owner",
+    "phone": "9876543210",
+    "email": "owner@test.com",
+    "locale": "en",
+    "theme_mode": "dark",
+    "accent_color": "emerald",
+    "is_active": true,
+    "last_login_at": "2026-11-08T14:55:46.000Z",
+    "created_at": "2026-11-08T14:18:17.000Z",
+    "updated_at": "2026-11-08T14:55:46.537Z"
+  }
+}
+```
+
+✅ **200 OK** · Language saved (answer in Bengali)
+
+```json
+{
+  "success": true,
+  "status_code": 200,
+  "message": "পছন্দ সেভ হয়েছে",
   "data": {
     "id": 1,
     "name": "Test Owner",
     "phone": "9876543210",
     "email": "owner@test.com",
     "locale": "bn",
+    "theme_mode": "dark",
+    "accent_color": "emerald",
     "is_active": true,
-    "last_login_at": "2026-11-08T14:52:22.000Z",
+    "last_login_at": "2026-11-08T14:55:46.000Z",
     "created_at": "2026-11-08T14:18:17.000Z",
-    "updated_at": "2026-11-08T14:52:22.327Z"
+    "updated_at": "2026-11-08T14:55:46.543Z"
   }
 }
 ```
 
-❌ **422 Validation failed** · Unsupported language
+❌ **422 Validation failed** · Invalid values
 
 <details><summary>Request body</summary>
 
 ```json
 {
-  "locale": "fr"
+  "locale": "fr",
+  "theme_mode": "blue",
+  "accent_color": "pink"
 }
 ```
 
@@ -874,6 +910,14 @@ Content-Type: application/json
       {
         "field": "locale",
         "message": "The selected language is invalid"
+      },
+      {
+        "field": "theme_mode",
+        "message": "The selected theme mode is invalid"
+      },
+      {
+        "field": "accent_color",
+        "message": "The selected theme color is invalid"
       }
     ]
   }
@@ -973,7 +1017,7 @@ Content-Type: application/json
 
 {
   "email": "owner@test.com",
-  "otp": "516662"
+  "otp": "485493"
 }
 ```
 
@@ -987,7 +1031,7 @@ Content-Type: application/json
   "status_code": 200,
   "message": "OTP verified",
   "data": {
-    "reset_token": "eyJtZXNzYWdlIjp7InVzZXJfaWQiOjEsIm90cF9pZCI6Nn0sInB1cnBvc2UiOiJwYXNzd29yZF9yZXNldCIsImV4cGlyeURhdGUiOiIyMDI2LTExLTA4VDE1OjAyOjIyLjU4N1oifQ.5xQ5ed38q3w5WGOVMzeuyQEwGnvhQ1gn-CUh8cSRyz8"
+    "reset_token": "eyJtZXNzYWdlIjp7InVzZXJfaWQiOjEsIm90cF9pZCI6N30sInB1cnBvc2UiOiJwYXNzd29yZF9yZXNldCIsImV4cGlyeURhdGUiOiIyMDI2LTExLTA4VDE1OjA1OjQ2Ljc3OVoifQ.NCoKEyfV5cyEd2WBTIp3DOwN-1XWutKYv7gybOizeRs"
   }
 }
 ```
@@ -1101,7 +1145,7 @@ POST /api/v1/auth/reset-password
 Content-Type: application/json
 
 {
-  "reset_token": "eyJtZXNzYWdlIjp7InVzZXJfaWQiOjEsIm90cF9pZCI6Nn0sInB1cnBvc2UiOiJwYXNzd29yZF9yZXNldCIsImV4cGlyeURhdGUiOiIyMDI2LTExLTA4VDE1OjAyOjIyLjU4N1oifQ.5xQ5ed38q3w5WGOVMzeuyQEwGnvhQ1gn-CUh8cSRyz8",
+  "reset_token": "eyJtZXNzYWdlIjp7InVzZXJfaWQiOjEsIm90cF9pZCI6N30sInB1cnBvc2UiOiJwYXNzd29yZF9yZXNldCIsImV4cGlyeURhdGUiOiIyMDI2LTExLTA4VDE1OjA1OjQ2Ljc3OVoifQ.NCoKEyfV5cyEd2WBTIp3DOwN-1XWutKYv7gybOizeRs",
   "password": "secret123",
   "password_confirmation": "secret123"
 }
@@ -1180,15 +1224,17 @@ GET /api/v1/users?page=1&limit=20&search=Mun
   "data": {
     "items": [
       {
-        "id": 5,
+        "id": 6,
         "name": "Munshi Kalam",
-        "phone": "9000054267",
-        "email": "munshi542673@test.com",
+        "phone": "9000074686",
+        "email": "munshi746864@test.com",
         "locale": "bn",
+        "theme_mode": "system",
+        "accent_color": "blue",
         "is_active": true,
         "last_login_at": null,
-        "created_at": "2026-11-08T14:52:22.000Z",
-        "updated_at": "2026-11-08T14:52:22.000Z"
+        "created_at": "2026-11-08T14:55:46.000Z",
+        "updated_at": "2026-11-08T14:55:46.000Z"
       },
       {
         "id": 2,
@@ -1196,6 +1242,8 @@ GET /api/v1/users?page=1&limit=20&search=Mun
         "phone": "9000069860",
         "email": null,
         "locale": "en",
+        "theme_mode": "system",
+        "accent_color": "blue",
         "is_active": true,
         "last_login_at": null,
         "created_at": "2026-11-08T14:21:38.000Z",
@@ -1204,7 +1252,7 @@ GET /api/v1/users?page=1&limit=20&search=Mun
     ],
     "page": 1,
     "limit": 20,
-    "total": 4,
+    "total": 5,
     "last_page": 1
   }
 }
@@ -1233,8 +1281,8 @@ Content-Type: application/json
 
 {
   "name": "Munshi Kalam",
-  "phone": "9000054267",
-  "email": "munshi542673@test.com",
+  "phone": "9000074686",
+  "email": "munshi746864@test.com",
   "password": "secret123",
   "locale": "bn"
 }
@@ -1250,15 +1298,17 @@ Content-Type: application/json
   "status_code": 201,
   "message": "User created successfully",
   "data": {
-    "id": 5,
+    "id": 6,
     "name": "Munshi Kalam",
-    "phone": "9000054267",
-    "email": "munshi542673@test.com",
+    "phone": "9000074686",
+    "email": "munshi746864@test.com",
     "locale": "bn",
+    "theme_mode": "system",
+    "accent_color": "blue",
     "is_active": true,
     "last_login_at": null,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z"
+    "created_at": "2026-11-08T14:55:46.000Z",
+    "updated_at": "2026-11-08T14:55:46.000Z"
   }
 }
 ```
@@ -1313,15 +1363,17 @@ Content-Type: application/json
   "status_code": 200,
   "message": "User fetched successfully",
   "data": {
-    "id": 5,
+    "id": 6,
     "name": "Munshi Kalam",
-    "phone": "9000054267",
-    "email": "munshi542673@test.com",
+    "phone": "9000074686",
+    "email": "munshi746864@test.com",
     "locale": "bn",
+    "theme_mode": "system",
+    "accent_color": "blue",
     "is_active": true,
     "last_login_at": null,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z"
+    "created_at": "2026-11-08T14:55:46.000Z",
+    "updated_at": "2026-11-08T14:55:46.000Z"
   }
 }
 ```
@@ -1365,12 +1417,12 @@ Content-Type: application/json
 **Example request**
 
 ```http
-PUT /api/v1/users/5
+PUT /api/v1/users/6
 Content-Type: application/json
 
 {
   "name": "Munshi Kalam Sheikh",
-  "phone": "9000054267",
+  "phone": "9000074686",
   "email": null
 }
 ```
@@ -1385,15 +1437,17 @@ Content-Type: application/json
   "status_code": 200,
   "message": "User updated successfully",
   "data": {
-    "id": 5,
+    "id": 6,
     "name": "Munshi Kalam Sheikh",
-    "phone": "9000054267",
+    "phone": "9000074686",
     "email": null,
     "locale": "bn",
+    "theme_mode": "system",
+    "accent_color": "blue",
     "is_active": true,
     "last_login_at": null,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.757Z"
+    "created_at": "2026-11-08T14:55:46.000Z",
+    "updated_at": "2026-11-08T14:55:46.947Z"
   }
 }
 ```
@@ -1415,7 +1469,7 @@ Deactivating logs the user out of all devices.
 **Example request**
 
 ```http
-PATCH /api/v1/users/5/status
+PATCH /api/v1/users/6/status
 Content-Type: application/json
 
 {
@@ -1433,15 +1487,17 @@ Content-Type: application/json
   "status_code": 200,
   "message": "User deactivated",
   "data": {
-    "id": 5,
+    "id": 6,
     "name": "Munshi Kalam Sheikh",
-    "phone": "9000054267",
+    "phone": "9000074686",
     "email": null,
     "locale": "bn",
+    "theme_mode": "system",
+    "accent_color": "blue",
     "is_active": false,
     "last_login_at": null,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.764Z"
+    "created_at": "2026-11-08T14:55:46.000Z",
+    "updated_at": "2026-11-08T14:55:46.955Z"
   }
 }
 ```
@@ -1454,15 +1510,17 @@ Content-Type: application/json
   "status_code": 200,
   "message": "User activated",
   "data": {
-    "id": 5,
+    "id": 6,
     "name": "Munshi Kalam Sheikh",
-    "phone": "9000054267",
+    "phone": "9000074686",
     "email": null,
     "locale": "bn",
+    "theme_mode": "system",
+    "accent_color": "blue",
     "is_active": true,
     "last_login_at": null,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.770Z"
+    "created_at": "2026-11-08T14:55:46.000Z",
+    "updated_at": "2026-11-08T14:55:46.961Z"
   }
 }
 ```
@@ -1485,7 +1543,7 @@ Logs that user out of all devices.
 **Example request**
 
 ```http
-PUT /api/v1/users/5/password
+PUT /api/v1/users/6/password
 Content-Type: application/json
 
 {
@@ -1544,16 +1602,16 @@ GET /api/v1/products?page=1&limit=20&search=Brick&active=true
   "data": {
     "items": [
       {
-        "id": 9,
-        "name": "Fly Ash Brick 10x5x3 542673",
+        "id": 10,
+        "name": "Fly Ash Brick 10x5x3 746864",
         "unit": "piece",
         "unit_label": null,
         "default_cost": "4.50",
         "default_price": "7.00",
         "notes": "Premium size",
         "is_active": true,
-        "created_at": "2026-11-08T14:52:22.000Z",
-        "updated_at": "2026-11-08T14:52:22.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "margin": "2.50"
       },
       {
@@ -1602,7 +1660,7 @@ POST /api/v1/products
 Content-Type: application/json
 
 {
-  "name": "Fly Ash Brick 10x5x3 542673",
+  "name": "Fly Ash Brick 10x5x3 746864",
   "unit": "piece",
   "default_cost": 4.5,
   "default_price": "7.00",
@@ -1620,16 +1678,16 @@ Content-Type: application/json
   "status_code": 201,
   "message": "Product created successfully",
   "data": {
-    "id": 9,
-    "name": "Fly Ash Brick 10x5x3 542673",
+    "id": 10,
+    "name": "Fly Ash Brick 10x5x3 746864",
     "unit": "piece",
     "unit_label": null,
     "default_cost": "4.50",
     "default_price": "7.00",
     "notes": "Premium size",
     "is_active": true,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "margin": "2.50"
   }
 }
@@ -1694,16 +1752,16 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Product fetched successfully",
   "data": {
-    "id": 9,
-    "name": "Fly Ash Brick 10x5x3 542673",
+    "id": 10,
+    "name": "Fly Ash Brick 10x5x3 746864",
     "unit": "piece",
     "unit_label": null,
     "default_cost": "4.50",
     "default_price": "7.00",
     "notes": "Premium size",
     "is_active": true,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "margin": "2.50"
   }
 }
@@ -1720,11 +1778,11 @@ Same body as create. Old sales keep their price snapshot.
 **Example request**
 
 ```http
-PUT /api/v1/products/9
+PUT /api/v1/products/10
 Content-Type: application/json
 
 {
-  "name": "Fly Ash Brick 10x5x3 542673",
+  "name": "Fly Ash Brick 10x5x3 746864",
   "unit": "thousand",
   "default_cost": 4500,
   "default_price": 7000
@@ -1741,16 +1799,16 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Product updated successfully",
   "data": {
-    "id": 9,
-    "name": "Fly Ash Brick 10x5x3 542673",
+    "id": 10,
+    "name": "Fly Ash Brick 10x5x3 746864",
     "unit": "thousand",
     "unit_label": null,
     "default_cost": "4500.00",
     "default_price": "7000.00",
     "notes": null,
     "is_active": true,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "margin": "2500.00"
   }
 }
@@ -1773,7 +1831,7 @@ Inactive products are hidden from the sale form but stay in old sales.
 **Example request**
 
 ```http
-PATCH /api/v1/products/9/status
+PATCH /api/v1/products/10/status
 Content-Type: application/json
 
 {
@@ -1791,16 +1849,16 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Product deactivated",
   "data": {
-    "id": 9,
-    "name": "Fly Ash Brick 10x5x3 542673",
+    "id": 10,
+    "name": "Fly Ash Brick 10x5x3 746864",
     "unit": "thousand",
     "unit_label": null,
     "default_cost": "4500.00",
     "default_price": "7000.00",
     "notes": null,
     "is_active": false,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.883Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.073Z",
     "margin": "2500.00"
   }
 }
@@ -1885,9 +1943,9 @@ GET /api/v1/customers?page=1&limit=20&search=Traders
         "is_active": true,
         "created_at": "2026-11-08T14:18:10.000Z",
         "updated_at": "2026-11-08T14:18:10.000Z",
-        "total_sales": "181500.00",
-        "total_paid": "90000.00",
-        "total_due": "91500.00"
+        "total_sales": "222000.00",
+        "total_paid": "100000.00",
+        "total_due": "122000.00"
       },
       {
         "id": 5,
@@ -1927,9 +1985,9 @@ GET /api/v1/customers?page=1&limit=20&search=Traders
         "is_active": true,
         "created_at": "2026-11-08T14:18:10.000Z",
         "updated_at": "2026-11-08T14:18:10.000Z",
-        "total_sales": "181500.00",
-        "total_paid": "90000.00",
-        "total_due": "91500.00"
+        "total_sales": "222000.00",
+        "total_paid": "100000.00",
+        "total_due": "122000.00"
       },
       {
         "id": 29,
@@ -1946,7 +2004,7 @@ GET /api/v1/customers?page=1&limit=20&search=Traders
     ],
     "page": 1,
     "limit": 2,
-    "total": 27,
+    "total": 28,
     "last_page": 14
   }
 }
@@ -1974,7 +2032,7 @@ Content-Type: application/json
 
 {
   "name": "Habib Enterprise",
-  "phone": "9754267311",
+  "phone": "9774686411",
   "address": "Barasat, North 24 Pgs"
 }
 ```
@@ -1989,13 +2047,13 @@ Content-Type: application/json
   "status_code": 201,
   "message": "Customer created successfully",
   "data": {
-    "id": 40,
+    "id": 43,
     "name": "Habib Enterprise",
-    "phone": "9754267311",
+    "phone": "9774686411",
     "address": "Barasat, North 24 Pgs",
     "is_active": true,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "total_sales": "0.00",
     "total_paid": "0.00",
     "total_due": "0.00"
@@ -2010,7 +2068,7 @@ Content-Type: application/json
 ```json
 {
   "name": "Someone",
-  "phone": "9754267311"
+  "phone": "9774686411"
 }
 ```
 
@@ -2028,7 +2086,7 @@ Content-Type: application/json
         "message": "This phone belongs to Habib Enterprise"
       }
     ],
-    "existing_customer_id": 40
+    "existing_customer_id": 43
   }
 }
 ```
@@ -2089,9 +2147,9 @@ Content-Type: application/json
     "is_active": true,
     "created_at": "2026-11-08T14:18:10.000Z",
     "updated_at": "2026-11-08T14:18:10.000Z",
-    "total_sales": "181500.00",
-    "total_paid": "90000.00",
-    "total_due": "91500.00"
+    "total_sales": "222000.00",
+    "total_paid": "100000.00",
+    "total_due": "122000.00"
   }
 }
 ```
@@ -2107,12 +2165,12 @@ Same body as create.
 **Example request**
 
 ```http
-PUT /api/v1/customers/40
+PUT /api/v1/customers/43
 Content-Type: application/json
 
 {
   "name": "Habib Enterprise",
-  "phone": "9754267311",
+  "phone": "9774686411",
   "address": "Habra"
 }
 ```
@@ -2127,13 +2185,13 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Customer updated successfully",
   "data": {
-    "id": 40,
+    "id": 43,
     "name": "Habib Enterprise",
-    "phone": "9754267311",
+    "phone": "9774686411",
     "address": "Habra",
     "is_active": true,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "total_sales": "0.00",
     "total_paid": "0.00",
     "total_due": "0.00"
@@ -2156,7 +2214,7 @@ Content-Type: application/json
 **Example request**
 
 ```http
-PATCH /api/v1/customers/40/status
+PATCH /api/v1/customers/43/status
 Content-Type: application/json
 
 {
@@ -2174,13 +2232,13 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Customer deactivated",
   "data": {
-    "id": 40,
+    "id": 43,
     "name": "Habib Enterprise",
-    "phone": "9754267311",
+    "phone": "9774686411",
     "address": "Habra",
     "is_active": false,
-    "created_at": "2026-11-08T14:52:22.000Z",
-    "updated_at": "2026-11-08T14:52:22.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "total_sales": "0.00",
     "total_paid": "0.00",
     "total_due": "0.00"
@@ -2251,6 +2309,35 @@ GET /api/v1/customers/1/sales?page=1&limit=2
   "data": {
     "items": [
       {
+        "id": 98,
+        "invoice_no": "INV-000098",
+        "type": "instant",
+        "status": "delivered",
+        "customer_id": 1,
+        "sale_date": "2026-11-08",
+        "delivery_date": null,
+        "delivered_date": "2026-11-08",
+        "delivery_address": null,
+        "subtotal": "39000.00",
+        "transport_charge": "1500.00",
+        "discount": "0.00",
+        "total": "40500.00",
+        "total_cost": "25200.00",
+        "profit": "15300.00",
+        "paid_amount": "10000.00",
+        "due_amount": "30500.00",
+        "payment_status": "partial",
+        "notes": "Quantity increased",
+        "cancelled_at": null,
+        "created_at": "2026-11-08T14:52:23.000Z",
+        "updated_at": "2026-11-08T14:52:23.000Z",
+        "customer": {
+          "id": 1,
+          "name": "Rahim Biswas Traders",
+          "phone": "9830000000"
+        }
+      },
+      {
         "id": 92,
         "invoice_no": "INV-000092",
         "type": "instant",
@@ -2278,41 +2365,12 @@ GET /api/v1/customers/1/sales?page=1&limit=2
           "name": "Rahim Biswas Traders",
           "phone": "9830000000"
         }
-      },
-      {
-        "id": 86,
-        "invoice_no": "INV-000086",
-        "type": "instant",
-        "status": "delivered",
-        "customer_id": 1,
-        "sale_date": "2026-11-08",
-        "delivery_date": null,
-        "delivered_date": "2026-11-08",
-        "delivery_address": null,
-        "subtotal": "39000.00",
-        "transport_charge": "1500.00",
-        "discount": "0.00",
-        "total": "40500.00",
-        "total_cost": "25200.00",
-        "profit": "15300.00",
-        "paid_amount": "10000.00",
-        "due_amount": "30500.00",
-        "payment_status": "partial",
-        "notes": "Quantity increased",
-        "cancelled_at": null,
-        "created_at": "2026-11-08T14:22:18.000Z",
-        "updated_at": "2026-11-08T14:22:18.000Z",
-        "customer": {
-          "id": 1,
-          "name": "Rahim Biswas Traders",
-          "phone": "9830000000"
-        }
       }
     ],
     "page": 1,
     "limit": 2,
-    "total": 4,
-    "last_page": 2
+    "total": 5,
+    "last_page": 3
   }
 }
 ```
@@ -2361,11 +2419,11 @@ GET /api/v1/sales?page=1&limit=2
   "data": {
     "items": [
       {
-        "id": 99,
-        "invoice_no": "INV-000099",
+        "id": 105,
+        "invoice_no": "INV-000105",
         "type": "booking",
         "status": "booked",
-        "customer_id": 42,
+        "customer_id": 45,
         "sale_date": "2026-11-08",
         "delivery_date": "2026-11-15",
         "delivered_date": null,
@@ -2381,17 +2439,17 @@ GET /api/v1/sales?page=1&limit=2
         "payment_status": "partial",
         "notes": null,
         "cancelled_at": null,
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "customer": {
-          "id": 42,
+          "id": 45,
           "name": "Nazrul Islam",
-          "phone": "9554267333"
+          "phone": "9574686433"
         }
       },
       {
-        "id": 98,
-        "invoice_no": "INV-000098",
+        "id": 104,
+        "invoice_no": "INV-000104",
         "type": "instant",
         "status": "delivered",
         "customer_id": 1,
@@ -2410,8 +2468,8 @@ GET /api/v1/sales?page=1&limit=2
         "payment_status": "partial",
         "notes": "Deliver before noon",
         "cancelled_at": null,
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "customer": {
           "id": 1,
           "name": "Rahim Biswas Traders",
@@ -2421,8 +2479,8 @@ GET /api/v1/sales?page=1&limit=2
     ],
     "page": 1,
     "limit": 2,
-    "total": 88,
-    "last_page": 44
+    "total": 90,
+    "last_page": 45
   }
 }
 ```
@@ -2437,8 +2495,8 @@ GET /api/v1/sales?page=1&limit=2
   "data": {
     "items": [
       {
-        "id": 98,
-        "invoice_no": "INV-000098",
+        "id": 104,
+        "invoice_no": "INV-000104",
         "type": "instant",
         "status": "delivered",
         "customer_id": 1,
@@ -2457,8 +2515,8 @@ GET /api/v1/sales?page=1&limit=2
         "payment_status": "partial",
         "notes": "Deliver before noon",
         "cancelled_at": null,
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "customer": {
           "id": 1,
           "name": "Rahim Biswas Traders",
@@ -2466,8 +2524,8 @@ GET /api/v1/sales?page=1&limit=2
         }
       },
       {
-        "id": 92,
-        "invoice_no": "INV-000092",
+        "id": 98,
+        "invoice_no": "INV-000098",
         "type": "instant",
         "status": "delivered",
         "customer_id": 1,
@@ -2486,8 +2544,8 @@ GET /api/v1/sales?page=1&limit=2
         "payment_status": "partial",
         "notes": "Quantity increased",
         "cancelled_at": null,
-        "created_at": "2026-11-08T14:47:49.000Z",
-        "updated_at": "2026-11-08T14:47:50.000Z",
+        "created_at": "2026-11-08T14:52:23.000Z",
+        "updated_at": "2026-11-08T14:52:23.000Z",
         "customer": {
           "id": 1,
           "name": "Rahim Biswas Traders",
@@ -2497,8 +2555,8 @@ GET /api/v1/sales?page=1&limit=2
     ],
     "page": 1,
     "limit": 2,
-    "total": 4,
-    "last_page": 2
+    "total": 5,
+    "last_page": 3
   }
 }
 ```
@@ -2570,8 +2628,8 @@ Content-Type: application/json
   "status_code": 201,
   "message": "Sale saved successfully",
   "data": {
-    "id": 98,
-    "invoice_no": "INV-000098",
+    "id": 104,
+    "invoice_no": "INV-000104",
     "type": "instant",
     "status": "delivered",
     "customer_id": 1,
@@ -2590,8 +2648,8 @@ Content-Type: application/json
     "payment_status": "partial",
     "notes": "Deliver before noon",
     "cancelled_at": null,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "customer": {
       "id": 1,
       "name": "Rahim Biswas Traders",
@@ -2600,8 +2658,8 @@ Content-Type: application/json
     },
     "items": [
       {
-        "id": 133,
-        "sale_id": 98,
+        "id": 142,
+        "sale_id": 104,
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
         "unit": "piece",
@@ -2610,12 +2668,12 @@ Content-Type: application/json
         "unit_price": "6.50",
         "line_cost": "21000.00",
         "line_total": "32500.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       },
       {
-        "id": 134,
-        "sale_id": 98,
+        "id": 143,
+        "sale_id": 104,
         "product_id": 3,
         "product_name": "Hollow Block 16×8×8",
         "unit": "piece",
@@ -2624,8 +2682,8 @@ Content-Type: application/json
         "unit_price": "45.00",
         "line_cost": "2800.00",
         "line_total": "4500.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       }
     ],
     "created_by": {
@@ -2634,14 +2692,14 @@ Content-Type: application/json
     },
     "payments": [
       {
-        "id": 85,
-        "sale_id": 98,
+        "id": 90,
+        "sale_id": 104,
         "amount": "10000.00",
         "payment_date": "2026-11-08",
         "method": "upi",
         "note": "Paid on spot",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -2660,11 +2718,11 @@ Content-Type: application/json
   "status_code": 201,
   "message": "Sale saved successfully",
   "data": {
-    "id": 99,
-    "invoice_no": "INV-000099",
+    "id": 105,
+    "invoice_no": "INV-000105",
     "type": "booking",
     "status": "booked",
-    "customer_id": 42,
+    "customer_id": 45,
     "sale_date": "2026-11-08",
     "delivery_date": "2026-11-15",
     "delivered_date": null,
@@ -2680,18 +2738,18 @@ Content-Type: application/json
     "payment_status": "partial",
     "notes": null,
     "cancelled_at": null,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "customer": {
-      "id": 42,
+      "id": 45,
       "name": "Nazrul Islam",
-      "phone": "9554267333",
+      "phone": "9574686433",
       "address": "Bongaon"
     },
     "items": [
       {
-        "id": 135,
-        "sale_id": 99,
+        "id": 144,
+        "sale_id": 105,
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
         "unit": "piece",
@@ -2700,8 +2758,8 @@ Content-Type: application/json
         "unit_price": "6.50",
         "line_cost": "12600.00",
         "line_total": "19500.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       }
     ],
     "created_by": {
@@ -2710,14 +2768,14 @@ Content-Type: application/json
     },
     "payments": [
       {
-        "id": 86,
-        "sale_id": 99,
+        "id": 91,
+        "sale_id": 105,
         "amount": "5000.00",
         "payment_date": "2026-11-08",
         "method": "cash",
         "note": "Advance",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -2809,7 +2867,7 @@ Content-Type: application/json
   "type": "instant",
   "new_customer": {
     "name": "X",
-    "phone": "9754267311"
+    "phone": "9774686411"
   },
   "items": [
     {
@@ -2834,7 +2892,7 @@ Content-Type: application/json
         "message": "This phone belongs to Habib Enterprise"
       }
     ],
-    "existing_customer_id": 40
+    "existing_customer_id": 43
   }
 }
 ```
@@ -2952,8 +3010,8 @@ Full sale with `customer`, `items`, `payments` (each with `created_by`) and `cre
   "status_code": 200,
   "message": "Sale fetched successfully",
   "data": {
-    "id": 98,
-    "invoice_no": "INV-000098",
+    "id": 104,
+    "invoice_no": "INV-000104",
     "type": "instant",
     "status": "delivered",
     "customer_id": 1,
@@ -2972,8 +3030,8 @@ Full sale with `customer`, `items`, `payments` (each with `created_by`) and `cre
     "payment_status": "partial",
     "notes": "Deliver before noon",
     "cancelled_at": null,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "customer": {
       "id": 1,
       "name": "Rahim Biswas Traders",
@@ -2982,8 +3040,8 @@ Full sale with `customer`, `items`, `payments` (each with `created_by`) and `cre
     },
     "items": [
       {
-        "id": 133,
-        "sale_id": 98,
+        "id": 142,
+        "sale_id": 104,
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
         "unit": "piece",
@@ -2992,12 +3050,12 @@ Full sale with `customer`, `items`, `payments` (each with `created_by`) and `cre
         "unit_price": "6.50",
         "line_cost": "21000.00",
         "line_total": "32500.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       },
       {
-        "id": 134,
-        "sale_id": 98,
+        "id": 143,
+        "sale_id": 104,
         "product_id": 3,
         "product_name": "Hollow Block 16×8×8",
         "unit": "piece",
@@ -3006,8 +3064,8 @@ Full sale with `customer`, `items`, `payments` (each with `created_by`) and `cre
         "unit_price": "45.00",
         "line_cost": "2800.00",
         "line_total": "4500.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       }
     ],
     "created_by": {
@@ -3016,14 +3074,14 @@ Full sale with `customer`, `items`, `payments` (each with `created_by`) and `cre
     },
     "payments": [
       {
-        "id": 85,
-        "sale_id": 98,
+        "id": 90,
+        "sale_id": 104,
         "amount": "10000.00",
         "payment_date": "2026-11-08",
         "method": "upi",
         "note": "Paid on spot",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -3056,7 +3114,7 @@ Same body as create **without** `type` and `payment`. Items are replaced and tot
 **Example request**
 
 ```http
-PUT /api/v1/sales/98
+PUT /api/v1/sales/104
 Content-Type: application/json
 
 {
@@ -3083,8 +3141,8 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Sale updated successfully",
   "data": {
-    "id": 98,
-    "invoice_no": "INV-000098",
+    "id": 104,
+    "invoice_no": "INV-000104",
     "type": "instant",
     "status": "delivered",
     "customer_id": 1,
@@ -3103,8 +3161,8 @@ Content-Type: application/json
     "payment_status": "partial",
     "notes": "Quantity increased",
     "cancelled_at": null,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "customer": {
       "id": 1,
       "name": "Rahim Biswas Traders",
@@ -3113,8 +3171,8 @@ Content-Type: application/json
     },
     "items": [
       {
-        "id": 138,
-        "sale_id": 98,
+        "id": 147,
+        "sale_id": 104,
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
         "unit": "piece",
@@ -3123,8 +3181,8 @@ Content-Type: application/json
         "unit_price": "6.50",
         "line_cost": "25200.00",
         "line_total": "39000.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       }
     ],
     "created_by": {
@@ -3133,14 +3191,14 @@ Content-Type: application/json
     },
     "payments": [
       {
-        "id": 85,
-        "sale_id": 98,
+        "id": 90,
+        "sale_id": 104,
         "amount": "10000.00",
         "payment_date": "2026-11-08",
         "method": "upi",
         "note": "Paid on spot",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -3241,7 +3299,7 @@ Soft delete: removed from lists, totals and reports.
 **Example request**
 
 ```http
-POST /api/v1/sales/99/deliver
+POST /api/v1/sales/105/deliver
 Content-Type: application/json
 
 {
@@ -3259,11 +3317,11 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Marked as delivered",
   "data": {
-    "id": 99,
-    "invoice_no": "INV-000099",
+    "id": 105,
+    "invoice_no": "INV-000105",
     "type": "booking",
     "status": "delivered",
-    "customer_id": 42,
+    "customer_id": 45,
     "sale_date": "2026-11-08",
     "delivery_date": "2026-11-15",
     "delivered_date": "2026-11-08",
@@ -3279,18 +3337,18 @@ Content-Type: application/json
     "payment_status": "partial",
     "notes": null,
     "cancelled_at": null,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "customer": {
-      "id": 42,
+      "id": 45,
       "name": "Nazrul Islam",
-      "phone": "9554267333",
+      "phone": "9574686433",
       "address": "Bongaon"
     },
     "items": [
       {
-        "id": 135,
-        "sale_id": 99,
+        "id": 144,
+        "sale_id": 105,
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
         "unit": "piece",
@@ -3299,8 +3357,8 @@ Content-Type: application/json
         "unit_price": "6.50",
         "line_cost": "12600.00",
         "line_total": "19500.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       }
     ],
     "created_by": {
@@ -3309,14 +3367,14 @@ Content-Type: application/json
     },
     "payments": [
       {
-        "id": 86,
-        "sale_id": 99,
+        "id": 91,
+        "sale_id": 105,
         "amount": "5000.00",
         "payment_date": "2026-11-08",
         "method": "cash",
         "note": "Advance",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -3364,8 +3422,8 @@ Only `booked` sales without payments.
   "status_code": 200,
   "message": "Booking cancelled",
   "data": {
-    "id": 102,
-    "invoice_no": "INV-000102",
+    "id": 108,
+    "invoice_no": "INV-000108",
     "type": "booking",
     "status": "cancelled",
     "customer_id": 1,
@@ -3383,9 +3441,9 @@ Only `booked` sales without payments.
     "due_amount": "650.00",
     "payment_status": "due",
     "notes": null,
-    "cancelled_at": "2026-11-08T14:52:23.000Z",
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "cancelled_at": "2026-11-08T14:55:47.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "customer": {
       "id": 1,
       "name": "Rahim Biswas Traders",
@@ -3394,8 +3452,8 @@ Only `booked` sales without payments.
     },
     "items": [
       {
-        "id": 140,
-        "sale_id": 102,
+        "id": 149,
+        "sale_id": 108,
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
         "unit": "piece",
@@ -3404,8 +3462,8 @@ Only `booked` sales without payments.
         "unit_price": "6.50",
         "line_cost": "420.00",
         "line_total": "650.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       }
     ],
     "payments": [],
@@ -3448,7 +3506,7 @@ Returns the updated sale.
 **Example request**
 
 ```http
-POST /api/v1/sales/98/payments
+POST /api/v1/sales/104/payments
 Content-Type: application/json
 
 {
@@ -3469,8 +3527,8 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Payment added",
   "data": {
-    "id": 98,
-    "invoice_no": "INV-000098",
+    "id": 104,
+    "invoice_no": "INV-000104",
     "type": "instant",
     "status": "delivered",
     "customer_id": 1,
@@ -3489,8 +3547,8 @@ Content-Type: application/json
     "payment_status": "partial",
     "notes": "Quantity increased",
     "cancelled_at": null,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "customer": {
       "id": 1,
       "name": "Rahim Biswas Traders",
@@ -3499,8 +3557,8 @@ Content-Type: application/json
     },
     "items": [
       {
-        "id": 138,
-        "sale_id": 98,
+        "id": 147,
+        "sale_id": 104,
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
         "unit": "piece",
@@ -3509,8 +3567,8 @@ Content-Type: application/json
         "unit_price": "6.50",
         "line_cost": "25200.00",
         "line_total": "39000.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       }
     ],
     "created_by": {
@@ -3519,28 +3577,28 @@ Content-Type: application/json
     },
     "payments": [
       {
-        "id": 85,
-        "sale_id": 98,
+        "id": 90,
+        "sale_id": 104,
         "amount": "10000.00",
         "payment_date": "2026-11-08",
         "method": "upi",
         "note": "Paid on spot",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
         }
       },
       {
-        "id": 88,
-        "sale_id": 98,
+        "id": 93,
+        "sale_id": 104,
         "amount": "5000.00",
         "payment_date": "2026-11-08",
         "method": "cash",
         "note": "2nd instalment",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -3590,8 +3648,8 @@ Returns the updated sale.
   "status_code": 200,
   "message": "Payment removed",
   "data": {
-    "id": 98,
-    "invoice_no": "INV-000098",
+    "id": 104,
+    "invoice_no": "INV-000104",
     "type": "instant",
     "status": "delivered",
     "customer_id": 1,
@@ -3610,8 +3668,8 @@ Returns the updated sale.
     "payment_status": "partial",
     "notes": "Quantity increased",
     "cancelled_at": null,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "customer": {
       "id": 1,
       "name": "Rahim Biswas Traders",
@@ -3620,8 +3678,8 @@ Returns the updated sale.
     },
     "items": [
       {
-        "id": 138,
-        "sale_id": 98,
+        "id": 147,
+        "sale_id": 104,
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
         "unit": "piece",
@@ -3630,8 +3688,8 @@ Returns the updated sale.
         "unit_price": "6.50",
         "line_cost": "25200.00",
         "line_total": "39000.00",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z"
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z"
       }
     ],
     "created_by": {
@@ -3640,14 +3698,14 @@ Returns the updated sale.
     },
     "payments": [
       {
-        "id": 85,
-        "sale_id": 98,
+        "id": 90,
+        "sale_id": 104,
         "amount": "10000.00",
         "payment_date": "2026-11-08",
         "method": "upi",
         "note": "Paid on spot",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -3826,8 +3884,8 @@ GET /api/v1/labours?page=1&limit=2&active=true
     ],
     "page": 1,
     "limit": 2,
-    "total": 16,
-    "last_page": 8
+    "total": 17,
+    "last_page": 9
   }
 }
 ```
@@ -3857,7 +3915,7 @@ Content-Type: application/json
 
 {
   "name": "Motiur Rahaman",
-  "phone": "9354267344",
+  "phone": "9374686444",
   "address": "Habra",
   "wage_type": "daily",
   "wage_amount": 500,
@@ -3875,17 +3933,17 @@ Content-Type: application/json
   "status_code": 201,
   "message": "Labour added successfully",
   "data": {
-    "id": 16,
+    "id": 17,
     "name": "Motiur Rahaman",
-    "phone": "9354267344",
+    "phone": "9374686444",
     "address": "Habra",
     "wage_type": "daily",
     "wage_amount": "500.00",
     "joining_date": "2026-10-01",
     "left_date": null,
     "is_active": true,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "today_status": null
   }
 }
@@ -3945,17 +4003,17 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Labour fetched successfully",
   "data": {
-    "id": 16,
+    "id": 17,
     "name": "Motiur Rahaman",
-    "phone": "9354267344",
+    "phone": "9374686444",
     "address": "Habra",
     "wage_type": "daily",
     "wage_amount": "500.00",
     "joining_date": "2026-10-01",
     "left_date": null,
     "is_active": true,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "today_status": null
   }
 }
@@ -3972,7 +4030,7 @@ Same body as create. A new wage applies to attendance saved from now on; past da
 **Example request**
 
 ```http
-PUT /api/v1/labours/16
+PUT /api/v1/labours/17
 Content-Type: application/json
 
 {
@@ -3993,7 +4051,7 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Labour updated successfully",
   "data": {
-    "id": 16,
+    "id": 17,
     "name": "Motiur Rahaman",
     "phone": null,
     "address": null,
@@ -4002,8 +4060,8 @@ Content-Type: application/json
     "joining_date": "2026-10-01",
     "left_date": null,
     "is_active": true,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "today_status": null
   }
 }
@@ -4027,7 +4085,7 @@ Deactivating sets `left_date`; the labour disappears from attendance after that 
 **Example request**
 
 ```http
-PATCH /api/v1/labours/16/status
+PATCH /api/v1/labours/17/status
 Content-Type: application/json
 
 {
@@ -4046,7 +4104,7 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Labour deactivated",
   "data": {
-    "id": 16,
+    "id": 17,
     "name": "Motiur Rahaman",
     "phone": null,
     "address": null,
@@ -4055,8 +4113,8 @@ Content-Type: application/json
     "joining_date": "2026-10-01",
     "left_date": "2026-11-08",
     "is_active": false,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "today_status": null
   }
 }
@@ -4070,7 +4128,7 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Labour activated",
   "data": {
-    "id": 16,
+    "id": 17,
     "name": "Motiur Rahaman",
     "phone": null,
     "address": null,
@@ -4079,8 +4137,8 @@ Content-Type: application/json
     "joining_date": "2026-10-01",
     "left_date": null,
     "is_active": true,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "today_status": null
   }
 }
@@ -4142,8 +4200,8 @@ GET /api/v1/attendance?date=2026-11-07
   "data": {
     "date": "2026-11-07",
     "summary": {
-      "total": 16,
-      "present": 13,
+      "total": 17,
+      "present": 14,
       "half_day": 1,
       "absent": 0,
       "not_marked": 2
@@ -4195,7 +4253,7 @@ Content-Type: application/json
   "date": "2026-11-07",
   "records": [
     {
-      "labour_id": 16,
+      "labour_id": 17,
       "status": "present"
     },
     {
@@ -4222,8 +4280,8 @@ Content-Type: application/json
   "data": {
     "date": "2026-11-07",
     "summary": {
-      "total": 16,
-      "present": 14,
+      "total": 17,
+      "present": 15,
       "half_day": 1,
       "absent": 0,
       "not_marked": 1
@@ -4286,7 +4344,7 @@ Content-Type: application/json
   "date": "2026-09-01",
   "records": [
     {
-      "labour_id": 16,
+      "labour_id": 17,
       "status": "present"
     }
   ]
@@ -4299,7 +4357,7 @@ Content-Type: application/json
 {
   "success": false,
   "status_code": 400,
-  "message": "Labour(s) 16 were not employed on 2026-09-01",
+  "message": "Labour(s) 17 were not employed on 2026-09-01",
   "data": null
 }
 ```
@@ -4319,7 +4377,7 @@ Content-Type: application/json
 **Example request**
 
 ```http
-GET /api/v1/labours/16/attendance?month=2026-11
+GET /api/v1/labours/17/attendance?month=2026-11
 ```
 
 **Responses**
@@ -4332,7 +4390,7 @@ GET /api/v1/labours/16/attendance?month=2026-11
   "status_code": 200,
   "message": "Attendance fetched successfully",
   "data": {
-    "labour_id": 16,
+    "labour_id": 17,
     "month": "2026-11",
     "days": [
       {
@@ -4428,8 +4486,8 @@ GET /api/v1/wages?month=2026-10&page=1&limit=2
     ],
     "page": 1,
     "limit": 2,
-    "total": 16,
-    "last_page": 8,
+    "total": 17,
+    "last_page": 9,
     "month": "2026-10",
     "totals": {
       "earned": "155062.91",
@@ -4512,15 +4570,15 @@ GET /api/v1/labours/1/wages?month=2026-10
     ],
     "payments": [
       {
-        "id": 4,
+        "id": 5,
         "labour_id": 1,
         "wage_month": "2026-10-01",
         "amount": "5000.00",
         "payment_date": "2026-11-01",
         "method": "cash",
         "note": "October wages",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -4562,13 +4620,13 @@ GET /api/v1/labours/1/advances?page=1&limit=2
   "data": {
     "items": [
       {
-        "id": 14,
+        "id": 15,
         "labour_id": 1,
         "amount": "1000.00",
         "advance_date": "2026-11-05",
         "note": "Medical",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "created_by": {
           "id": 1,
           "name": "Test Owner"
@@ -4634,9 +4692,9 @@ Content-Type: application/json
     "amount": "1000.00",
     "advance_date": "2026-11-05",
     "note": "Medical",
-    "created_at": "2026-11-08T14:52:23.402Z",
-    "updated_at": "2026-11-08T14:52:23.402Z",
-    "id": 14,
+    "created_at": "2026-11-08T14:55:47.603Z",
+    "updated_at": "2026-11-08T14:55:47.603Z",
+    "id": 15,
     "created_by": {
       "id": 1,
       "name": "Test Owner"
@@ -4746,9 +4804,9 @@ Content-Type: application/json
     "payment_date": "2026-11-01",
     "method": "cash",
     "note": "October wages",
-    "created_at": "2026-11-08T14:52:23.420Z",
-    "updated_at": "2026-11-08T14:52:23.420Z",
-    "id": 4,
+    "created_at": "2026-11-08T14:55:47.620Z",
+    "updated_at": "2026-11-08T14:55:47.620Z",
+    "id": 5,
     "created_by": {
       "id": 1,
       "name": "Test Owner"
@@ -4848,13 +4906,13 @@ GET /api/v1/expenses?from=2026-11-01&to=2026-11-30&page=1&limit=2
   "data": {
     "items": [
       {
-        "id": 54,
+        "id": 55,
         "expense_category_id": 1,
         "expense_date": "2026-11-08",
         "amount": "850.00",
         "note": "Tiffin for 15 labours",
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "category": {
           "id": 1,
           "name": "Labour Tiffin",
@@ -4929,13 +4987,13 @@ Content-Type: application/json
   "status_code": 201,
   "message": "Expense added",
   "data": {
-    "id": 54,
+    "id": 55,
     "expense_category_id": 1,
     "expense_date": "2026-11-08",
     "amount": "850.00",
     "note": "Tiffin for 15 labours",
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "category": {
       "id": 1,
       "name": "Labour Tiffin",
@@ -5003,13 +5061,13 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Expense fetched successfully",
   "data": {
-    "id": 54,
+    "id": 55,
     "expense_category_id": 1,
     "expense_date": "2026-11-08",
     "amount": "850.00",
     "note": "Tiffin for 15 labours",
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "category": {
       "id": 1,
       "name": "Labour Tiffin",
@@ -5034,7 +5092,7 @@ Same body as create (`expense_date` keeps its value when omitted).
 **Example request**
 
 ```http
-PUT /api/v1/expenses/54
+PUT /api/v1/expenses/55
 Content-Type: application/json
 
 {
@@ -5054,21 +5112,21 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Expense updated",
   "data": {
-    "id": 54,
+    "id": 55,
     "expense_category_id": 1,
     "expense_date": "2026-11-08",
     "amount": "900.00",
     "note": "Tiffin + tea",
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z",
-    "created_by": {
-      "id": 1,
-      "name": "Test Owner"
-    },
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z",
     "category": {
       "id": 1,
       "name": "Labour Tiffin",
       "icon": "utensils"
+    },
+    "created_by": {
+      "id": 1,
+      "name": "Test Owner"
     }
   }
 }
@@ -5167,7 +5225,7 @@ POST /api/v1/expense-categories
 Content-Type: application/json
 
 {
-  "name": "Gate Pass 542673",
+  "name": "Gate Pass 746864",
   "icon": "ticket"
 }
 ```
@@ -5182,13 +5240,13 @@ Content-Type: application/json
   "status_code": 201,
   "message": "Category created",
   "data": {
-    "id": 10,
-    "name": "Gate Pass 542673",
+    "id": 11,
+    "name": "Gate Pass 746864",
     "icon": "ticket",
     "is_active": true,
-    "sort_order": 10,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.000Z"
+    "sort_order": 11,
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.000Z"
   }
 }
 ```
@@ -5232,11 +5290,11 @@ Same body as create. Categories are never deleted; deactivate instead.
 **Example request**
 
 ```http
-PUT /api/v1/expense-categories/10
+PUT /api/v1/expense-categories/11
 Content-Type: application/json
 
 {
-  "name": "Gate Pass 542673",
+  "name": "Gate Pass 746864",
   "is_active": false
 }
 ```
@@ -5251,13 +5309,13 @@ Content-Type: application/json
   "status_code": 200,
   "message": "Category updated",
   "data": {
-    "id": 10,
-    "name": "Gate Pass 542673",
+    "id": 11,
+    "name": "Gate Pass 746864",
     "icon": "ticket",
     "is_active": false,
-    "sort_order": 10,
-    "created_at": "2026-11-08T14:52:23.000Z",
-    "updated_at": "2026-11-08T14:52:23.491Z"
+    "sort_order": 11,
+    "created_at": "2026-11-08T14:55:47.000Z",
+    "updated_at": "2026-11-08T14:55:47.687Z"
   }
 }
 ```
@@ -5286,23 +5344,23 @@ Every home-screen number in one call. `recent_sales` = last 5 sales.
   "data": {
     "date": "2026-11-08",
     "today_sales": {
-      "amount": "253800.00",
-      "count": 9
+      "amount": "313800.00",
+      "count": 11
     },
-    "today_profit": "94200.00",
-    "total_due": "783316.00",
+    "today_profit": "116400.00",
+    "total_due": "828316.00",
     "deliveries_today": 0,
     "overdue_deliveries": 2,
     "present_today": 0,
-    "labours_total": 16,
+    "labours_total": 17,
     "month_expenses": "12900.00",
     "recent_sales": [
       {
-        "id": 99,
-        "invoice_no": "INV-000099",
+        "id": 105,
+        "invoice_no": "INV-000105",
         "type": "booking",
         "status": "delivered",
-        "customer_id": 42,
+        "customer_id": 45,
         "sale_date": "2026-11-08",
         "delivery_date": "2026-11-15",
         "delivered_date": "2026-11-08",
@@ -5318,17 +5376,17 @@ Every home-screen number in one call. `recent_sales` = last 5 sales.
         "payment_status": "partial",
         "notes": null,
         "cancelled_at": null,
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "customer": {
-          "id": 42,
+          "id": 45,
           "name": "Nazrul Islam",
-          "phone": "9554267333"
+          "phone": "9574686433"
         }
       },
       {
-        "id": 98,
-        "invoice_no": "INV-000098",
+        "id": 104,
+        "invoice_no": "INV-000104",
         "type": "instant",
         "status": "delivered",
         "customer_id": 1,
@@ -5347,8 +5405,8 @@ Every home-screen number in one call. `recent_sales` = last 5 sales.
         "payment_status": "partial",
         "notes": "Quantity increased",
         "cancelled_at": null,
-        "created_at": "2026-11-08T14:52:23.000Z",
-        "updated_at": "2026-11-08T14:52:23.000Z",
+        "created_at": "2026-11-08T14:55:47.000Z",
+        "updated_at": "2026-11-08T14:55:47.000Z",
         "customer": {
           "id": 1,
           "name": "Rahim Biswas Traders",
@@ -5391,17 +5449,17 @@ GET /api/v1/reports/sales?from=2026-11-01&to=2026-11-08
   "data": {
     "from": "2026-11-01",
     "to": "2026-11-08",
-    "count": 17,
-    "amount": "535660.00",
-    "cost": "338952.00",
-    "profit": "196708.00",
+    "count": 19,
+    "amount": "595660.00",
+    "cost": "376752.00",
+    "profit": "218908.00",
     "by_product": [
       {
         "product_id": 1,
         "product_name": "Fly Ash Brick 9×4×3",
-        "quantity": "53000.00",
-        "amount": "344500.00",
-        "profit": "121900.00"
+        "quantity": "62000.00",
+        "amount": "403000.00",
+        "profit": "142600.00"
       },
       {
         "product_id": 2,
@@ -5481,9 +5539,9 @@ GET /api/v1/reports/dues?page=1&limit=2
         "customer_id": 1,
         "name": "Rahim Biswas Traders",
         "phone": "9830000000",
-        "total_due": "122000.00",
+        "total_due": "152500.00",
         "oldest_due_date": "2026-11-08",
-        "sales_count": 4
+        "sales_count": 5
       },
       {
         "customer_id": 29,
@@ -5496,9 +5554,9 @@ GET /api/v1/reports/dues?page=1&limit=2
     ],
     "page": 1,
     "limit": 2,
-    "total": 28,
-    "last_page": 14,
-    "grand_total": "783316.00"
+    "total": 29,
+    "last_page": 15,
+    "grand_total": "828316.00"
   }
 }
 ```
@@ -5661,10 +5719,10 @@ GET /api/v1/reports/net-profit?from=2026-10-01&to=2026-11-08
   "data": {
     "from": "2026-10-01",
     "to": "2026-11-08",
-    "sales_profit": "635442.00",
+    "sales_profit": "657642.00",
     "expenses": "68700.00",
-    "wages": "191562.91",
-    "net_profit": "375179.09",
+    "wages": "192112.91",
+    "net_profit": "396829.09",
     "monthly": [
       {
         "month": "2026-10",
@@ -5675,10 +5733,10 @@ GET /api/v1/reports/net-profit?from=2026-10-01&to=2026-11-08
       },
       {
         "month": "2026-11",
-        "sales_profit": "196708.00",
+        "sales_profit": "218908.00",
         "expenses": "12900.00",
-        "wages": "36500.00",
-        "net_profit": "147308.00"
+        "wages": "37050.00",
+        "net_profit": "168958.00"
       }
     ]
   }
@@ -5718,11 +5776,11 @@ GET /api/v1/reports/collections?from=2026-11-01&to=2026-11-08
   "data": {
     "from": "2026-11-01",
     "to": "2026-11-08",
-    "total": "276284.00",
+    "total": "291284.00",
     "by_method": [
       {
         "method": "cash",
-        "amount": "147804.00"
+        "amount": "152804.00"
       },
       {
         "method": "bank",

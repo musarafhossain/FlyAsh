@@ -265,7 +265,7 @@ The reference is almost flat. We use **level 0** (border only) for list cards, *
 
 1. **Theme mode:** `System` (default) follows the OS setting and updates live when the OS changes. `Light` and `Dark` override it.
 2. **Accent color:** default is **Royal Blue**. Tapping a swatch applies it **instantly** with no confirm and no restart.
-3. **Persistence:** the choice is saved **on the device** (it is not a per-company setting), so each user on each device keeps their own preference. It is restored before the first frame so there is no flash of the wrong theme. *(Whether to also sync it to the user's account is an open question, see section 14.)*
+3. **Persistence:** theme mode and accent color are **saved to the user's account** (`PUT /auth/preferences` → `users.theme_mode`, `users.accent_color`), so each user sees their own theme on every device. A local copy is cached and restored before the first frame so there is no flash of the wrong theme; after login the account values replace the cache. Font size is saved on the device only. Before login (splash, login screens) the last cached theme is used.
 4. **Scope:** the theme applies to the whole app, including the splash, the logo color, charts, the status bar and navigation bar colors, and the system-UI icon brightness.
 5. **Splash before preferences load:** use the saved theme if it is cached, otherwise Royal Blue / System.
 6. **Printed and PDF output** (invoices, challans, reports) always uses **light mode with the factory's brand color**, not the user's app theme.
@@ -496,7 +496,7 @@ Drawer / More:
 | Platforms | **Android + Web + Windows** in v1 (iOS/macOS in Phase 2) |
 | Currency | **₹ INR**, Indian grouping (`₹1,00,000`) |
 | Users | **Multiple users, all equal (no roles).** No sign-up: the first user is created on the server, and users add other users |
-| Theme sync | Per device (saved locally) |
+| Theme sync | Theme mode and accent color saved to the user's account (`users.theme_mode`, `users.accent_color`); font size per device |
 | Language sync | Saved to the user's account (`users.locale`), so it follows the user to every device |
 | Factory branding | The factory name from Settings and a **static logo bundled in the app** appear in the app header and on receipts. No images are uploaded or stored on the server |
 | Offline | Online only in v1. Offline entry in Phase 2 |

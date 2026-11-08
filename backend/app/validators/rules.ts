@@ -60,6 +60,13 @@ export const monthRule = () =>
 /** App / message language */
 export const localeRule = () => vine.enum(['en', 'bn'] as const)
 
+/** Light / dark mode; system follows the device setting */
+export const themeModeRule = () => vine.enum(['system', 'light', 'dark'] as const)
+
+/** The 5 accent color themes (04-UI-UX §5.2) */
+export const accentColorRule = () =>
+  vine.enum(['blue', 'brick', 'emerald', 'violet', 'slate'] as const)
+
 export const paymentMethodRule = () => vine.enum(['cash', 'upi', 'bank', 'other'] as const)
 
 /** page / limit / search for every list endpoint */

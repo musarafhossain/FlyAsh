@@ -370,8 +370,10 @@ export class SalePaymentSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'createdBy', 'email', 'id', 'isActive', 'lastLoginAt', 'locale', 'name', 'password', 'phone', 'updatedAt'] as const
+  static $columns = ['accentColor', 'createdAt', 'createdBy', 'email', 'id', 'isActive', 'lastLoginAt', 'locale', 'name', 'password', 'phone', 'themeMode', 'updatedAt'] as const
   $columns = UserSchema.$columns
+  @column()
+  declare accentColor: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
@@ -392,6 +394,8 @@ export class UserSchema extends BaseModel {
   declare password: string
   @column()
   declare phone: string
+  @column()
+  declare themeMode: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
