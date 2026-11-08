@@ -48,7 +48,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 ### Step 0 · Project setup
 - [ ] `git init` in `F:\FlyAsh`, `.gitignore` (node_modules, build, .env, .dart_tool …), first commit with `docs/`
 - [ ] XAMPP: start MySQL (MariaDB), create the DB `flyash` with `utf8mb4_unicode_ci`
-- [ ] Create the Adonis API project in `backend/` (API starter, Lucid with MySQL driver, auth with access tokens, VineJS)
+- [ ] Create the Adonis API project in `backend/` (AdonisJS 7 API starter on Node 24, Lucid with mysql2, auth with access tokens, VineJS)
 - [ ] Create the Flutter project in `app/` (`--platforms=android,web,windows`, org `com.flyash`)
 - [ ] `.env.example` for the backend, `README.md` per project with run commands
 

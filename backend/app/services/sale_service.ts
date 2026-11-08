@@ -46,7 +46,7 @@ export type PaymentInput = {
 export default class SaleService {
   static async create(
     input: SaleInput & { type: 'instant' | 'booking'; payment?: Omit<PaymentInput, 'payment_date'> },
-    userId: number
+    userId: number | null
   ) {
     return db.transaction(async (trx) => {
       const saleDate = input.sale_date ?? today()
@@ -97,7 +97,7 @@ export default class SaleService {
     })
   }
 
-  static async update(sale: Sale, input: SaleInput, userId: number) {
+  static async update(sale: Sale, input: SaleInput, userId: number | null) {
     if (sale.status === 'cancelled') {
       throw new AppError('A cancelled sale cannot be edited')
     }
@@ -129,7 +129,7 @@ export default class SaleService {
     })
   }
 
-  static async addPayment(sale: Sale, input: PaymentInput, userId: number) {
+  static async addPayment(sale: Sale, input: PaymentInput, userId: number | null) {
     if (sale.status === 'cancelled') {
       throw new AppError('Cannot add a payment to a cancelled sale')
     }
@@ -269,7 +269,7 @@ export default class SaleService {
   /**
    * Uses customer_id, or creates new_customer inline (phone must be free).
    */
-  private static async resolveCustomer(input: SaleInput, userId: number, trx: Trx) {
+  private static async resolveCustomer(input: SaleInput, userId: number | null, trx: Trx) {
     if (input.customer_id) return input.customer_id
 
     if (!input.new_customer) {

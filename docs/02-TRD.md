@@ -18,7 +18,7 @@
 |---|---|
 | Frontend | **Flutter** (latest stable, Dart 3), one codebase for **Android, Web and Windows** |
 | State management / DI | **flutter_riverpod** |
-| Backend | **AdonisJS** (latest stable major, TypeScript) on **Node.js LTS** |
+| Backend | **AdonisJS 7** (TypeScript) on **Node.js 24 LTS** |
 | ORM / validation / auth | Lucid ORM · VineJS · `@adonisjs/auth` access tokens |
 | Email | `@adonisjs/mail` over SMTP (password reset OTP) |
 | Database | **MariaDB**: XAMPP's bundled MariaDB in development, MariaDB 11.4 LTS in production |
@@ -167,6 +167,7 @@ All endpoints require auth except the ones marked 🌐.
 | | `PATCH /products/:id/status` | Activate / deactivate |
 | **Customers** | `GET /customers` | List (search, `has_due=true`), paginated, each with `total_due` |
 | | `POST /customers` · `GET/PUT/DELETE /customers/:id` | CRUD (delete only if no sales) |
+| | `PATCH /customers/:id/status` | Activate / deactivate |
 | | `GET /customers/:id/sales` | That customer's sales, paginated |
 | **Sales** | `GET /sales` | List (search, type, status, from, to), paginated |
 | | `POST /sales` | Create (customer_id **or** new_customer, items[], charges, initial payment) |
@@ -195,7 +196,8 @@ All endpoints require auth except the ones marked 🌐.
 | | `GET /reports/net-profit?from&to` | Profit − expenses − wages, monthly series |
 | | `GET /reports/collections?from&to` | Payments by date and method |
 | **Settings** | `GET/PUT /settings/factory` | Factory profile |
-| **Uploads** | `POST /uploads` (multipart `file`) | Upload an image → `{ path, url }`, used for bill photos and the logo |
+| **Uploads** | `POST /uploads` (multipart `file`, `folder=expenses\|logo`) | Upload an image → `{ path, url }`, used for bill photos and the logo |
+| | 🌐 `GET /uploads/*` (outside `/api/v1`) | Serves uploaded files in development (Nginx serves them in production) |
 
 Full request and response fields are defined in **05-Backend-Schema**.
 
@@ -308,7 +310,7 @@ Stored totals (`total`, `paid_amount`, `due_amount`, `profit`) are kept on the `
 - Passwords hashed with **scrypt** (the Adonis default).
 - **Users:** there are no roles, and every authenticated user can call every endpoint. There is no sign-up endpoint. The first user is created with `node ace user:create`, and a forgotten password can be reset on the server with `node ace user:reset-password <phone>`.
 - Deactivating a user or resetting their password **deletes all of their access tokens**, so they are logged out everywhere. The auth middleware also rejects tokens of inactive users.
-- `created_by` is filled from `auth.user` automatically (a Lucid `beforeCreate` hook) on sales, payments, expenses, advances, wage payments and attendance.
+- `created_by` is set explicitly from `auth.user` in controllers and services on sales, payments, expenses, advances, wage payments and attendance.
 - `@adonisjs/limiter`: 5 login attempts per 15 minutes per IP + phone.
 - CORS limited to the web app's domain (plus localhost in dev).
 - Uploads: images only (jpg/png/webp), max 5 MB, renamed with a random UUID.
@@ -348,7 +350,7 @@ Full tables, columns and indexes are in **05-Backend-Schema**. Conventions:
 | Convention | Rule |
 |---|---|
 | Charset | `utf8mb4` / `utf8mb4_unicode_ci` (Bengali text) |
-| Primary keys | `id BIGINT UNSIGNED AUTO_INCREMENT` |
+| Primary keys | `id INT UNSIGNED AUTO_INCREMENT` |
 | Names | `snake_case`, plural table names |
 | Timestamps | `created_at`, `updated_at` on every table |
 | **Money** | `DECIMAL(12,2)`, never FLOAT/DOUBLE |

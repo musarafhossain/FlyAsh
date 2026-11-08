@@ -95,10 +95,17 @@ export default class WageService {
     }
   }
 
-  /** Total wages earned between two dates (for net profit). */
+  /**
+   * Total wages earned between two dates (for net profit). Rounded per
+   * labour, the same way as the wage sheet, so the two always match.
+   */
   static async earnedBetween(from: string, to: string): Promise<number> {
     const rows = await Attendance.query().whereBetween('date', [from, to])
-    return Math.round(rows.reduce((sum, row) => sum + earnedPaise(row), 0))
+    const perLabour = new Map<number, number>()
+    for (const row of rows) {
+      perLabour.set(row.labourId, (perLabour.get(row.labourId) ?? 0) + earnedPaise(row))
+    }
+    return [...perLabour.values()].reduce((sum, value) => sum + Math.round(value), 0)
   }
 
   private static async rowsFor(labours: Labour[], month: string): Promise<WageRow[]> {
