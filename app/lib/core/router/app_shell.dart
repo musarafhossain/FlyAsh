@@ -563,7 +563,10 @@ class _SidebarTile extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        hoverColor: selected ? Colors.transparent : t.surfaceVariant,
+        // One translucent hover tint for both states. (Switching the hover
+        // color to Colors.transparent on select painted the tile black: the
+        // highlight keeps its opacity and takes the new color's RGB.)
+        hoverColor: t.textPrimary.withValues(alpha: 0.06),
         child: SizedBox(
           height: 40,
           child: Stack(

@@ -1,9 +1,16 @@
+import 'dart:ui' as ui;
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
 import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/core/router/nav_items.dart';
+import 'package:flyash/core/theme/app_colors.dart';
+import 'package:flyash/core/theme/app_tokens.dart';
+import 'package:flyash/core/theme/theme_controller.dart';
 
 import '../helpers.dart';
 
@@ -274,4 +281,67 @@ void main() {
       });
     }
   });
+
+  // Bug: clicking a sidebar item with the mouse painted it black while the
+  // pointer stayed on it. Reads the real rendered pixels after a mouse click.
+  for (final dark in [false, true]) {
+    testWidgets('mouse click keeps the selected item tinted, not black '
+        '(${dark ? 'dark' : 'light'})', (tester) async {
+      setScreenSize(tester, const Size(1440, 900));
+      final key = GlobalKey();
+      await tester.pumpWidget(
+        await testApp(
+          RepaintBoundary(key: key, child: const FlyAshApp()),
+          prefs: {'theme.mode': dark ? 'dark' : 'light'},
+          token: 'oat_test',
+          api: signedInRoutes(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // The account's saved theme is applied at login, so set it after.
+      await testContainer
+          .read(themeControllerProvider.notifier)
+          .setMode(dark ? ThemeMode.dark : ThemeMode.light);
+      await tester.pumpAndSettle();
+
+      // An empty part of the "Sales" row (right of the label).
+      final spot = Offset(220, tester.getCenter(find.text('Sales').first).dy);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(spot);
+      await tester.pumpAndSettle();
+      await mouse.down(spot);
+      await tester.pump(const Duration(milliseconds: 50));
+      await mouse.up();
+      await tester.pumpAndSettle();
+      expect(appBarTitle('Sales'), findsOneWidget);
+
+      final pixel = await tester.runAsync(() async {
+        final boundary =
+            key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+        final image = await boundary.toImage();
+        final bytes = (await image.toByteData(
+          format: ui.ImageByteFormat.rawRgba,
+        ))!;
+        final i = (spot.dy.round() * image.width + spot.dx.round()) * 4;
+        return Color.fromARGB(
+          255,
+          bytes.getUint8(i),
+          bytes.getUint8(i + 1),
+          bytes.getUint8(i + 2),
+        );
+      });
+
+      // Close to the selected tint (primaryContainer), far from black.
+      final expected = AppTokens.of(
+        AccentColor.blue,
+        dark ? Brightness.dark : Brightness.light,
+      ).primaryContainer;
+      double diff(Color a, Color b) =>
+          ((a.r - b.r).abs() + (a.g - b.g).abs() + (a.b - b.b).abs()) * 255;
+      expect(diff(pixel!, expected), lessThan(40), reason: 'pixel $pixel');
+      expect(diff(pixel, const Color(0xFF000000)), greaterThan(60));
+    });
+  }
 }
