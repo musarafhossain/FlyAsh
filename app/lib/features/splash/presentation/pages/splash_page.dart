@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/config/env.dart';
+import '../../../dev/presentation/pages/theme_gallery_page.dart';
 
 /// Placeholder start screen for F0 (setup).
 /// F6 turns this into the real splash (theme, session and update checks).
@@ -42,6 +44,18 @@ class SplashPage extends StatelessWidget {
                   style: textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
+                if (kDebugMode) ...[
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ThemeGalleryPage(),
+                      ),
+                    ),
+                    icon: const Icon(Icons.palette_outlined),
+                    label: const Text('Theme gallery'),
+                  ),
+                ],
               ],
             ),
           ),

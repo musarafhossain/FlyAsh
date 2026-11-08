@@ -9,6 +9,14 @@
 
 The app is built **one small step at a time**. Each step ends with a working app, a quick check on Web and Windows (Android once the SDK licenses are accepted), and a git commit. The next step starts only after the current one is reviewed.
 
+**Definition of done for every step**
+
+1. `flutter analyze` and `flutter test` pass.
+2. Checked on Web and Windows (Android once the SDK licenses are accepted).
+3. **Responsive:** checked at **360 px** (small phone), **800 px** (tablet) and **1440 px** (desktop) wide, following 04-UI-UX §11 (bottom nav / rail / sidebar, cards on phones, tables on desktop, forms max 560 px wide). No overflow, no horizontal scroll.
+4. Checked in **light and dark** mode and at least 2 accent colors.
+5. Committed to git.
+
 ---
 
 ## Steps
@@ -16,7 +24,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | # | Step | Result you can see | Depends on |
 |---|---|---|---|
 | **F0** ✅ | **Setup** | Empty app with the FlyAsh logo runs on Web and Windows; folders, packages, app icon, run commands | — |
-| F1 | Theme & design tokens | 5 accents × light/dark, fonts (Inter + Hind Siliguri), a debug "gallery" screen to switch themes | F0 |
+| **F1** ✅ | **Theme & design tokens** | 5 accents × light/dark, fonts (Inter + Hind Siliguri), a debug "gallery" screen to switch themes | F0 |
 | F2 | Core widgets | Hero card, KPI chip, status pill, buttons, inputs, empty/error/loading states in the gallery | F1 |
 | F3 | Networking | Dio client, `{ success, status_code, message, data }` parsing, errors, pagination helper, `Accept-Language` + token + `X-Business-Date` handling | F0 |
 | F4 | Routing & app shell | go_router, bottom nav (phone) / rail (tablet) / sidebar (desktop), drawer, placeholder screens | F2 |
