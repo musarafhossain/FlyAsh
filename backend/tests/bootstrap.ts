@@ -6,6 +6,13 @@ import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import { dbAssertions } from '@adonisjs/lucid/plugins/db'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { authApiClient } from '@adonisjs/auth/plugins/api_client'
+import emitter from '@adonisjs/core/services/emitter'
+
+/**
+ * Every message key used by the code must exist in resources/lang.
+ * Missing translations found while the tests run fail the test run.
+ */
+const missingTranslations = new Set<string>()
 
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
@@ -31,8 +38,23 @@ export const plugins: Config['plugins'] = [
  * The teardown functions are executed after all the tests
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [() => testUtils.db().migrate()],
-  teardown: [],
+  setup: [
+    () => testUtils.db().migrate(),
+    () => {
+      emitter.on('i18n:missing:translation', ({ locale, identifier }: any) => {
+        missingTranslations.add(`${locale}: ${identifier}`)
+      })
+    },
+  ],
+  teardown: [
+    () => {
+      if (missingTranslations.size > 0) {
+        // Not thrown: throwing here would stop the app from shutting down
+        console.error(`\nMissing translations:\n  ${[...missingTranslations].join('\n  ')}\n`)
+        process.exitCode = 1
+      }
+    },
+  ],
 }
 
 /**

@@ -41,7 +41,7 @@ export default class CustomersController {
     }
 
     const customers = await query.paginate(page, limit)
-    return paginated(response, customers, 'Customers fetched successfully', {
+    return paginated(response, customers, 'customers.list', {
       map: (customer) => customer.toResponse(),
     })
   }
@@ -58,11 +58,11 @@ export default class CustomersController {
       createdBy: auth.getUserOrFail().id,
     })
 
-    return created(response, await this.find(customer.id), 'Customer created successfully')
+    return created(response, await this.find(customer.id), 'customers.created')
   }
 
   async show({ params, response }: HttpContext) {
-    return ok(response, await this.find(params.id), 'Customer fetched successfully')
+    return ok(response, await this.find(params.id), 'customers.fetched')
   }
 
   async update({ params, request, response }: HttpContext) {
@@ -73,7 +73,7 @@ export default class CustomersController {
     customer.merge({ name: data.name, phone: data.phone, address: data.address ?? null })
     await customer.save()
 
-    return ok(response, await this.find(customer.id), 'Customer updated successfully')
+    return ok(response, await this.find(customer.id), 'customers.updated')
   }
 
   async status({ params, request, response }: HttpContext) {
@@ -84,7 +84,7 @@ export default class CustomersController {
     return ok(
       response,
       await this.find(customer.id),
-      isActive ? 'Customer activated' : 'Customer deactivated'
+      isActive ? 'customers.activated' : 'customers.deactivated'
     )
   }
 
@@ -94,10 +94,10 @@ export default class CustomersController {
   async destroy({ params, response }: HttpContext) {
     const customer = await Customer.findOrFail(params.id)
     if (await Sale.findBy('customer_id', customer.id)) {
-      throw new AppError('Customer has sales. Deactivate them instead', 409)
+      throw new AppError('customers.has_sales', 409)
     }
     await customer.delete()
-    return ok(response, null, 'Customer deleted successfully')
+    return ok(response, null, 'customers.deleted')
   }
 
   private async find(id: number | string) {

@@ -1,0 +1,142 @@
+{
+  "common": {
+    "success": "Success",
+    "created": "Created successfully",
+    "healthy": "Healthy"
+  },
+  "errors": {
+    "validation_failed": "Validation failed",
+    "not_found": "Record not found",
+    "route_not_found": "Route not found",
+    "unauthorized": "Unauthorized",
+    "account_deactivated": "Your account is deactivated",
+    "invalid_credentials": "Invalid phone/email or password",
+    "too_many_attempts": "Too many attempts. Try again in {minutes} minute(s)",
+    "duplicate": "Duplicate record",
+    "in_use": "This record is in use and cannot be deleted",
+    "bad_request": "Bad request",
+    "server": "Something went wrong. Please try again"
+  },
+  "auth": {
+    "login_success": "Login successful",
+    "logged_out": "Logged out successfully",
+    "profile_fetched": "Profile fetched successfully",
+    "profile_updated": "Profile updated successfully",
+    "password_changed": "Password changed. Other devices were logged out",
+    "current_password_incorrect": "Current password is incorrect",
+    "otp_sent": "If this email is registered, an OTP has been sent",
+    "otp_invalid": "OTP is invalid or expired. Please request a new OTP",
+    "otp_too_many": "Too many wrong attempts. Please request a new OTP",
+    "otp_wrong": "Wrong OTP. {triesLeft} tries left",
+    "otp_verified": "OTP verified",
+    "reset_expired": "Reset session expired. Please start again",
+    "password_reset_done": "Password changed. Please log in"
+  },
+  "users": {
+    "list": "Users fetched successfully",
+    "created": "User created successfully",
+    "fetched": "User fetched successfully",
+    "updated": "User updated successfully",
+    "activated": "User activated",
+    "deactivated": "User deactivated",
+    "password_reset": "Password reset. The user was logged out of all devices",
+    "use_profile": "Use My Profile to change your own details"
+  },
+  "products": {
+    "list": "Products fetched successfully",
+    "created": "Product created successfully",
+    "fetched": "Product fetched successfully",
+    "updated": "Product updated successfully",
+    "activated": "Product activated",
+    "deactivated": "Product deactivated",
+    "deleted": "Product deleted successfully",
+    "used_in_sales": "Product is used in sales. Deactivate it instead"
+  },
+  "customers": {
+    "list": "Customers fetched successfully",
+    "created": "Customer created successfully",
+    "fetched": "Customer fetched successfully",
+    "updated": "Customer updated successfully",
+    "activated": "Customer activated",
+    "deactivated": "Customer deactivated",
+    "deleted": "Customer deleted successfully",
+    "has_sales": "Customer has sales. Deactivate them instead",
+    "phone_taken": "This phone belongs to {name}",
+    "sales_list": "Customer sales fetched successfully"
+  },
+  "sales": {
+    "list": "Sales fetched successfully",
+    "upcoming": "Upcoming deliveries fetched successfully",
+    "saved": "Sale saved successfully",
+    "fetched": "Sale fetched successfully",
+    "updated": "Sale updated successfully",
+    "deleted": "Sale deleted successfully",
+    "delivered": "Marked as delivered",
+    "cancelled": "Booking cancelled",
+    "payment_added": "Payment added",
+    "payment_removed": "Payment removed",
+    "cancelled_not_editable": "A cancelled sale cannot be edited",
+    "payment_on_cancelled": "Cannot add a payment to a cancelled sale",
+    "payment_over_due": "Payment cannot be more than the due amount (₹{due})",
+    "payment_before_sale": "Payment date cannot be before the sale date",
+    "deliver_only_booked": "Only a booked sale can be marked as delivered",
+    "delivered_before_booking": "Delivered date cannot be before the booking date",
+    "cancel_only_booked": "Only a booked sale can be cancelled",
+    "cancel_has_payments": "This booking has payments. Remove them first (refund), then cancel",
+    "discount_too_big": "Discount cannot be more than subtotal + transport charge",
+    "payments_over_total": "Payments (₹{paid}) cannot be more than the total (₹{total})",
+    "select_customer": "Select a customer or add a new one",
+    "delivery_date_required": "Delivery date is required for a booking",
+    "delivery_before_sale": "Delivery date cannot be before the sale date"
+  },
+  "labours": {
+    "list": "Labours fetched successfully",
+    "created": "Labour added successfully",
+    "fetched": "Labour fetched successfully",
+    "updated": "Labour updated successfully",
+    "activated": "Labour activated",
+    "deactivated": "Labour deactivated",
+    "joining_after_leaving": "Joining date cannot be after the leaving date",
+    "leaving_before_joining": "Leaving date cannot be before the joining date"
+  },
+  "attendance": {
+    "fetched": "Attendance fetched successfully",
+    "saved": "Attendance saved for {date}",
+    "not_employed": "Labour(s) {ids} were not employed on {date}"
+  },
+  "wages": {
+    "sheet": "Wage sheet fetched successfully",
+    "detail": "Wage detail fetched successfully",
+    "advances": "Advances fetched successfully",
+    "advance_recorded": "Advance recorded",
+    "advance_deleted": "Advance deleted",
+    "payment_recorded": "Wage payment recorded",
+    "payment_deleted": "Wage payment deleted"
+  },
+  "expenses": {
+    "list": "Expenses fetched successfully",
+    "created": "Expense added",
+    "fetched": "Expense fetched successfully",
+    "updated": "Expense updated",
+    "deleted": "Expense deleted",
+    "categories": "Categories fetched successfully",
+    "category_created": "Category created",
+    "category_updated": "Category updated"
+  },
+  "reports": {
+    "dashboard": "Dashboard fetched successfully",
+    "sales": "Sales report fetched successfully",
+    "dues": "Dues report fetched successfully",
+    "expenses": "Expense report fetched successfully",
+    "wages": "Wage report fetched successfully",
+    "net_profit": "Net profit report fetched successfully",
+    "collections": "Collection report fetched successfully",
+    "bad_range": "From date must be on or before the to date"
+  },
+  "settings": {
+    "factory_fetched": "Factory profile fetched successfully",
+    "factory_updated": "Factory profile updated",
+    "version_fetched": "Version info fetched",
+    "no_release": "No release published yet"
+  }
+}

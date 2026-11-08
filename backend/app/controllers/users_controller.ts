@@ -35,7 +35,7 @@ export default class UsersController {
       .orderBy('name', 'asc')
       .paginate(page, limit)
 
-    return paginated(response, users, 'Users fetched successfully')
+    return paginated(response, users, 'users.list')
   }
 
   async store({ auth, request, response }: HttpContext) {
@@ -50,12 +50,12 @@ export default class UsersController {
       createdBy: auth.getUserOrFail().id,
     })
 
-    return created(response, await User.findOrFail(user.id), 'User created successfully')
+    return created(response, await User.findOrFail(user.id), 'users.created')
   }
 
   async show({ auth, params, response }: HttpContext) {
     const user = await this.findOther(auth, params.id)
-    return ok(response, user, 'User fetched successfully')
+    return ok(response, user, 'users.fetched')
   }
 
   async update({ auth, params, request, response }: HttpContext) {
@@ -65,7 +65,7 @@ export default class UsersController {
     user.merge({ name: data.name, phone: data.phone, email: data.email ?? null })
     await user.save()
 
-    return ok(response, user, 'User updated successfully')
+    return ok(response, user, 'users.updated')
   }
 
   /**
@@ -79,7 +79,7 @@ export default class UsersController {
     await user.save()
     if (!isActive) await User.revokeTokens(user)
 
-    return ok(response, user, isActive ? 'User activated' : 'User deactivated')
+    return ok(response, user, isActive ? 'users.activated' : 'users.deactivated')
   }
 
   /**
@@ -93,12 +93,12 @@ export default class UsersController {
     await user.save()
     await User.revokeTokens(user)
 
-    return ok(response, null, 'Password reset. The user was logged out of all devices')
+    return ok(response, null, 'users.password_reset')
   }
 
   private async findOther(auth: HttpContext['auth'], id: string | number) {
     if (Number(id) === auth.getUserOrFail().id) {
-      throw new AppError('Use My Profile to change your own details')
+      throw new AppError('users.use_profile')
     }
     return User.findOrFail(id)
   }

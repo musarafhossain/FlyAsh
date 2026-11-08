@@ -39,10 +39,12 @@ export default class Customer extends CustomerSchema {
       .if(exceptId, (q) => q.whereNot('id', exceptId!))
       .first()
     if (existing) {
-      throw new AppError('Validation failed', 422, {
-        errors: [{ field, message: `This phone belongs to ${existing.name}` }],
-        existing_customer_id: existing.id,
-      })
+      throw AppError.validation(
+        field,
+        'customers.phone_taken',
+        { name: existing.name },
+        { existing_customer_id: existing.id }
+      )
     }
   }
 

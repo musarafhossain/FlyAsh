@@ -102,7 +102,7 @@ export default class SaleService {
 
   static async update(sale: Sale, input: SaleInput, userId: number | null) {
     if (sale.status === 'cancelled') {
-      throw new AppError('A cancelled sale cannot be edited')
+      throw new AppError('sales.cancelled_not_editable')
     }
 
     return db.transaction(async (trx) => {
@@ -138,14 +138,14 @@ export default class SaleService {
 
   static async addPayment(sale: Sale, input: PaymentInput, userId: number | null) {
     if (sale.status === 'cancelled') {
-      throw new AppError('Cannot add a payment to a cancelled sale')
+      throw new AppError('sales.payment_on_cancelled')
     }
     if (toPaise(input.amount) > toPaise(sale.dueAmount)) {
-      throw new AppError(`Payment cannot be more than the due amount (₹${sale.dueAmount})`)
+      throw new AppError('sales.payment_over_due', 400, null, { due: sale.dueAmount })
     }
     const paymentDate = input.payment_date ?? today()
     if (paymentDate < sale.saleDate) {
-      throw new AppError('Payment date cannot be before the sale date')
+      throw new AppError('sales.payment_before_sale')
     }
 
     await db.transaction(async (trx) => {
@@ -179,10 +179,10 @@ export default class SaleService {
 
   static async deliver(sale: Sale, deliveredDate = today()) {
     if (sale.status !== 'booked') {
-      throw new AppError('Only a booked sale can be marked as delivered')
+      throw new AppError('sales.deliver_only_booked')
     }
     if (deliveredDate < sale.saleDate) {
-      throw new AppError('Delivered date cannot be before the booking date')
+      throw new AppError('sales.delivered_before_booking')
     }
     sale.merge({ status: 'delivered', deliveredDate })
     await sale.save()
@@ -190,10 +190,10 @@ export default class SaleService {
 
   static async cancel(sale: Sale) {
     if (sale.status !== 'booked') {
-      throw new AppError('Only a booked sale can be cancelled')
+      throw new AppError('sales.cancel_only_booked')
     }
     if (toPaise(sale.paidAmount) > 0) {
-      throw new AppError('This booking has payments. Remove them first (refund), then cancel')
+      throw new AppError('sales.cancel_has_payments')
     }
     sale.merge({ status: 'cancelled', cancelledAt: DateTime.now() })
     await sale.save()
@@ -217,12 +217,13 @@ export default class SaleService {
     const paid = payments.reduce((sum, payment) => sum + toPaise(payment.amount), 0)
 
     if (total < 0) {
-      throw new AppError('Discount cannot be more than subtotal + transport charge')
+      throw new AppError('sales.discount_too_big')
     }
     if (paid > total) {
-      throw new AppError(
-        `Payments (₹${fromPaise(paid)}) cannot be more than the total (₹${fromPaise(total)})`
-      )
+      throw new AppError('sales.payments_over_total', 400, null, {
+        paid: fromPaise(paid),
+        total: fromPaise(total),
+      })
     }
 
     const due = total - paid
@@ -280,9 +281,7 @@ export default class SaleService {
     if (input.customer_id) return input.customer_id
 
     if (!input.new_customer) {
-      throw new AppError('Validation failed', 422, {
-        errors: [{ field: 'customer_id', message: 'Select a customer or add a new one' }],
-      })
+      throw AppError.validation('customer_id', 'sales.select_customer')
     }
 
     await Customer.assertPhoneFree(input.new_customer.phone, undefined, 'new_customer.phone')
@@ -302,16 +301,10 @@ export default class SaleService {
   private static assertDeliveryDate(isBooking: boolean, saleDate: string, deliveryDate?: string) {
     if (!isBooking) return
     if (!deliveryDate) {
-      throw new AppError('Validation failed', 422, {
-        errors: [{ field: 'delivery_date', message: 'Delivery date is required for a booking' }],
-      })
+      throw AppError.validation('delivery_date', 'sales.delivery_date_required')
     }
     if (deliveryDate < saleDate) {
-      throw new AppError('Validation failed', 422, {
-        errors: [
-          { field: 'delivery_date', message: 'Delivery date cannot be before the sale date' },
-        ],
-      })
+      throw AppError.validation('delivery_date', 'sales.delivery_before_sale')
     }
   }
 }

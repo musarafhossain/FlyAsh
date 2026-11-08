@@ -35,7 +35,11 @@ router
     */
     router.get('health', async ({ response }) => {
       await db.rawQuery('SELECT 1')
-      return ok(response, { status: 'ok', db: 'ok', time: new Date().toISOString() }, 'Healthy')
+      return ok(
+        response,
+        { status: 'ok', db: 'ok', time: new Date().toISOString() },
+        'common.healthy'
+      )
     })
     router.get('app/version', [SettingsController, 'appVersion'])
 

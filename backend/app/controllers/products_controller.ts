@@ -27,7 +27,7 @@ export default class ProductsController {
       .orderBy('name', 'asc')
       .paginate(page, limit)
 
-    return paginated(response, products, 'Products fetched successfully')
+    return paginated(response, products, 'products.list')
   }
 
   async store({ auth, request, response }: HttpContext) {
@@ -38,11 +38,11 @@ export default class ProductsController {
       createdBy: auth.getUserOrFail().id,
     })
     await product.refresh()
-    return created(response, product, 'Product created successfully')
+    return created(response, product, 'products.created')
   }
 
   async show({ params, response }: HttpContext) {
-    return ok(response, await Product.findOrFail(params.id), 'Product fetched successfully')
+    return ok(response, await Product.findOrFail(params.id), 'products.fetched')
   }
 
   async update({ params, request, response }: HttpContext) {
@@ -51,7 +51,7 @@ export default class ProductsController {
     product.merge(this.fields(data))
     await product.save()
     await product.refresh()
-    return ok(response, product, 'Product updated successfully')
+    return ok(response, product, 'products.updated')
   }
 
   async status({ params, request, response }: HttpContext) {
@@ -59,7 +59,7 @@ export default class ProductsController {
     const { is_active: isActive } = await request.validateUsing(productStatusValidator)
     product.isActive = isActive
     await product.save()
-    return ok(response, product, isActive ? 'Product activated' : 'Product deactivated')
+    return ok(response, product, isActive ? 'products.activated' : 'products.deactivated')
   }
 
   /**
@@ -68,10 +68,10 @@ export default class ProductsController {
   async destroy({ params, response }: HttpContext) {
     const product = await Product.findOrFail(params.id)
     if (await SaleItem.findBy('product_id', product.id)) {
-      throw new AppError('Product is used in sales. Deactivate it instead', 409)
+      throw new AppError('products.used_in_sales', 409)
     }
     await product.delete()
-    return ok(response, null, 'Product deleted successfully')
+    return ok(response, null, 'products.deleted')
   }
 
   private fields(data: {

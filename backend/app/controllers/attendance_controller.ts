@@ -15,7 +15,7 @@ export default class AttendanceController {
    */
   async show({ request, response }: HttpContext) {
     const { date = today() } = await request.validateUsing(attendanceDayValidator)
-    return ok(response, await this.day(date), 'Attendance fetched successfully')
+    return ok(response, await this.day(date), 'attendance.fetched')
   }
 
   /**
@@ -33,7 +33,7 @@ export default class AttendanceController {
 
     const invalid = ids.filter((id) => !byId.has(id))
     if (invalid.length > 0) {
-      throw new AppError(`Labour(s) ${invalid.join(', ')} were not employed on ${date}`)
+      throw new AppError('attendance.not_employed', 400, null, { ids: invalid.join(', '), date })
     }
 
     await db.transaction(async (trx) => {
@@ -68,7 +68,7 @@ export default class AttendanceController {
       }
     })
 
-    return ok(response, await this.day(date), `Attendance saved for ${date}`)
+    return ok(response, await this.day(date), 'attendance.saved', 200, { date })
   }
 
   /**
@@ -102,7 +102,7 @@ export default class AttendanceController {
           absent: rows.filter((r) => r.status === 'absent').length,
         },
       },
-      'Attendance fetched successfully'
+      'attendance.fetched'
     )
   }
 

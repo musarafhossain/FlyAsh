@@ -20,7 +20,7 @@ export default class AuthController {
     if (error) throw error
 
     if (!user.isActive) {
-      throw new AppError('Your account is deactivated')
+      throw new AppError('errors.account_deactivated')
     }
 
     user.lastLoginAt = DateTime.now()
@@ -28,7 +28,7 @@ export default class AuthController {
 
     const token = await User.accessTokens.create(user, ['*'], { name: deviceName })
 
-    return ok(response, { token: token.value!.release(), user }, 'Login successful')
+    return ok(response, { token: token.value!.release(), user }, 'auth.login_success')
   }
 
   /**
@@ -39,14 +39,14 @@ export default class AuthController {
     if (user.currentAccessToken) {
       await User.accessTokens.delete(user, user.currentAccessToken.identifier)
     }
-    return ok(response, null, 'Logged out successfully')
+    return ok(response, null, 'auth.logged_out')
   }
 
   /**
    * GET /auth/me
    */
   async me({ auth, response }: HttpContext) {
-    return ok(response, auth.getUserOrFail(), 'Profile fetched successfully')
+    return ok(response, auth.getUserOrFail(), 'auth.profile_fetched')
   }
 
   /**
@@ -59,7 +59,7 @@ export default class AuthController {
     user.merge({ name: data.name, phone: data.phone, email: data.email ?? null })
     await user.save()
 
-    return ok(response, user, 'Profile updated successfully')
+    return ok(response, user, 'auth.profile_updated')
   }
 
   /**
@@ -71,15 +71,13 @@ export default class AuthController {
       await request.validateUsing(changePasswordValidator)
 
     if (!(await hash.verify(user.password, currentPassword))) {
-      throw new AppError('Validation failed', 422, {
-        errors: [{ field: 'current_password', message: 'Current password is incorrect' }],
-      })
+      throw AppError.validation('current_password', 'auth.current_password_incorrect')
     }
 
     user.password = password
     await user.save()
     await User.revokeTokens(user, user.currentAccessToken?.identifier)
 
-    return ok(response, null, 'Password changed. Other devices were logged out')
+    return ok(response, null, 'auth.password_changed')
   }
 }

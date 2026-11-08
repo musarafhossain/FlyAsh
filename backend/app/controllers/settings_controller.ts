@@ -6,7 +6,7 @@ import { appVersionValidator, factorySettingsValidator } from '#validators/setti
 
 export default class SettingsController {
   async factory({ response }: HttpContext) {
-    return ok(response, await FactorySetting.current(), 'Factory profile fetched successfully')
+    return ok(response, await FactorySetting.current(), 'settings.factory_fetched')
   }
 
   /**
@@ -27,7 +27,7 @@ export default class SettingsController {
     })
     await settings.save()
 
-    return ok(response, settings, 'Factory profile updated')
+    return ok(response, settings, 'settings.factory_updated')
   }
 
   /**
@@ -53,7 +53,7 @@ export default class SettingsController {
           download_url: null,
           release_notes: null,
         },
-        'No release published yet'
+        'settings.no_release'
       )
     }
 
@@ -68,7 +68,7 @@ export default class SettingsController {
         download_url: latest.downloadUrl,
         release_notes: latest.releaseNotes,
       },
-      'Version info fetched'
+      'settings.version_fetched'
     )
   }
 }

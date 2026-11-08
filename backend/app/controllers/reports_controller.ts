@@ -9,58 +9,44 @@ import { duesReportValidator, rangeValidator, reportMonthValidator } from '#vali
 
 export default class ReportsController {
   async dashboard({ response }: HttpContext) {
-    return ok(response, await DashboardService.get(), 'Dashboard fetched successfully')
+    return ok(response, await DashboardService.get(), 'reports.dashboard')
   }
 
   async sales({ request, response }: HttpContext) {
     const { from, to } = await this.range(request)
-    return ok(response, await ReportService.sales(from, to), 'Sales report fetched successfully')
+    return ok(response, await ReportService.sales(from, to), 'reports.sales')
   }
 
   async dues({ request, response }: HttpContext) {
     const { page = 1, limit = DEFAULT_LIMIT } = await request.validateUsing(duesReportValidator)
-    return ok(response, await ReportService.dues(page, limit), 'Dues report fetched successfully')
+    return ok(response, await ReportService.dues(page, limit), 'reports.dues')
   }
 
   async expenses({ request, response }: HttpContext) {
     const { from, to } = await this.range(request)
-    return ok(
-      response,
-      await ReportService.expenses(from, to),
-      'Expense report fetched successfully'
-    )
+    return ok(response, await ReportService.expenses(from, to), 'reports.expenses')
   }
 
   async wages({ request, response }: HttpContext) {
     const { month = currentMonth() } = await request.validateUsing(reportMonthValidator)
-    return ok(response, await ReportService.wages(month), 'Wage report fetched successfully')
+    return ok(response, await ReportService.wages(month), 'reports.wages')
   }
 
   async netProfit({ request, response }: HttpContext) {
     const { from, to } = await this.range(request)
-    return ok(
-      response,
-      await ReportService.netProfit(from, to),
-      'Net profit report fetched successfully'
-    )
+    return ok(response, await ReportService.netProfit(from, to), 'reports.net_profit')
   }
 
   async collections({ request, response }: HttpContext) {
     const { from, to } = await this.range(request)
-    return ok(
-      response,
-      await ReportService.collections(from, to),
-      'Collection report fetched successfully'
-    )
+    return ok(response, await ReportService.collections(from, to), 'reports.collections')
   }
 
   /** from/to default to the current month (1st → today). */
   private async range(request: HttpContext['request']) {
     const { from = startOfMonth(), to = today() } = await request.validateUsing(rangeValidator)
     if (from > to) {
-      throw new AppError('Validation failed', 422, {
-        errors: [{ field: 'from', message: 'From date must be on or before the to date' }],
-      })
+      throw AppError.validation('from', 'reports.bad_range')
     }
     return { from, to }
   }

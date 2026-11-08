@@ -57,7 +57,7 @@ export default class PasswordResetController {
       }
     }
 
-    return ok(response, null, 'If this email is registered, an OTP has been sent')
+    return ok(response, null, 'auth.otp_sent')
   }
 
   /**
@@ -77,7 +77,7 @@ export default class PasswordResetController {
       : null
 
     if (!user || !record) {
-      throw new AppError('OTP is invalid or expired. Please request a new OTP')
+      throw new AppError('auth.otp_invalid')
     }
 
     if (!(await hash.verify(record.otpHash, otp))) {
@@ -86,11 +86,16 @@ export default class PasswordResetController {
 
       if (triesLeft <= 0) {
         await record.delete()
-        throw new AppError('Too many wrong attempts. Please request a new OTP')
+        throw new AppError('auth.otp_too_many')
       }
 
       await record.save()
-      throw new AppError(`Wrong OTP. ${triesLeft} tries left`, 400, { tries_left: triesLeft })
+      throw new AppError(
+        'auth.otp_wrong',
+        400,
+        { tries_left: triesLeft },
+        { triesLeft: String(triesLeft) }
+      )
     }
 
     record.verifiedAt = DateTime.now()
@@ -104,7 +109,7 @@ export default class PasswordResetController {
         TOKEN_PURPOSE
       )
 
-    return ok(response, { reset_token: resetToken }, 'OTP verified')
+    return ok(response, { reset_token: resetToken }, 'auth.otp_verified')
   }
 
   /**
@@ -129,7 +134,7 @@ export default class PasswordResetController {
     const user = record ? await User.find(record.userId) : null
 
     if (!payload || !record || !user || !user.isActive) {
-      throw new AppError('Reset session expired. Please start again')
+      throw new AppError('auth.reset_expired')
     }
 
     user.password = password
@@ -137,6 +142,6 @@ export default class PasswordResetController {
     await record.delete()
     await User.revokeTokens(user)
 
-    return ok(response, null, 'Password changed. Please log in')
+    return ok(response, null, 'auth.password_reset_done')
   }
 }

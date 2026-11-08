@@ -37,7 +37,7 @@ export default class ExpensesController {
       .sum('amount as total')
       .first()
 
-    return paginated(response, expenses, 'Expenses fetched successfully', {
+    return paginated(response, expenses, 'expenses.list', {
       extra: { period_total: money(totalRow?.total) },
     })
   }
@@ -51,11 +51,11 @@ export default class ExpensesController {
       note: data.note ?? null,
       createdBy: auth.getUserOrFail().id,
     })
-    return created(response, await this.find(expense.id), 'Expense added')
+    return created(response, await this.find(expense.id), 'expenses.created')
   }
 
   async show({ params, response }: HttpContext) {
-    return ok(response, await this.find(params.id), 'Expense fetched successfully')
+    return ok(response, await this.find(params.id), 'expenses.fetched')
   }
 
   async update({ params, request, response }: HttpContext) {
@@ -68,13 +68,13 @@ export default class ExpensesController {
       note: data.note ?? null,
     })
     await expense.save()
-    return ok(response, await this.find(expense.id), 'Expense updated')
+    return ok(response, await this.find(expense.id), 'expenses.updated')
   }
 
   async destroy({ params, response }: HttpContext) {
     const expense = await Expense.findOrFail(params.id)
     await expense.delete()
-    return ok(response, null, 'Expense deleted')
+    return ok(response, null, 'expenses.deleted')
   }
 
   /**
@@ -86,7 +86,7 @@ export default class ExpensesController {
       .if(active !== undefined, (q) => q.where('is_active', active!))
       .orderBy('sort_order', 'asc')
       .orderBy('name', 'asc')
-    return ok(response, categories, 'Categories fetched successfully')
+    return ok(response, categories, 'expenses.categories')
   }
 
   async storeCategory({ request, response }: HttpContext) {
@@ -99,7 +99,7 @@ export default class ExpensesController {
       sortOrder: data.sort_order ?? Number(maxOrder?.max ?? 0) + 1,
     })
     await category.refresh()
-    return created(response, category, 'Category created')
+    return created(response, category, 'expenses.category_created')
   }
 
   async updateCategory({ params, request, response }: HttpContext) {
@@ -114,7 +114,7 @@ export default class ExpensesController {
       sortOrder: data.sort_order ?? category.sortOrder,
     })
     await category.save()
-    return ok(response, category, 'Category updated')
+    return ok(response, category, 'expenses.category_updated')
   }
 
   private applyFilters<Q extends { where: any; if: any }>(query: Q, filters: Filters): Q {

@@ -46,7 +46,7 @@ export default class WagesController {
         total: rows.length,
         lastPage,
       },
-      'Wage sheet fetched successfully',
+      'wages.sheet',
       {
         extra: {
           month,
@@ -67,7 +67,7 @@ export default class WagesController {
   async labour({ params, request, response }: HttpContext) {
     const labour = await Labour.findOrFail(params.id)
     const { month = currentMonth() } = await request.validateUsing(monthValidator)
-    return ok(response, await WageService.detail(labour, month), 'Wage detail fetched successfully')
+    return ok(response, await WageService.detail(labour, month), 'wages.detail')
   }
 
   /**
@@ -82,7 +82,7 @@ export default class WagesController {
       .orderBy('advance_date', 'desc')
       .orderBy('id', 'desc')
       .paginate(page, limit)
-    return paginated(response, advances, 'Advances fetched successfully')
+    return paginated(response, advances, 'wages.advances')
   }
 
   async storeAdvance({ auth, params, request, response }: HttpContext) {
@@ -96,13 +96,13 @@ export default class WagesController {
       createdBy: auth.getUserOrFail().id,
     })
     await advance.load('creator', (q) => q.select('id', 'name'))
-    return created(response, advance, 'Advance recorded')
+    return created(response, advance, 'wages.advance_recorded')
   }
 
   async destroyAdvance({ params, response }: HttpContext) {
     const advance = await LabourAdvance.findOrFail(params.id)
     await advance.delete()
-    return ok(response, null, 'Advance deleted')
+    return ok(response, null, 'wages.advance_deleted')
   }
 
   async storePayment({ auth, params, request, response }: HttpContext) {
@@ -118,12 +118,12 @@ export default class WagesController {
       createdBy: auth.getUserOrFail().id,
     })
     await payment.load('creator', (q) => q.select('id', 'name'))
-    return created(response, payment, 'Wage payment recorded')
+    return created(response, payment, 'wages.payment_recorded')
   }
 
   async destroyPayment({ params, response }: HttpContext) {
     const payment = await WagePayment.findOrFail(params.id)
     await payment.delete()
-    return ok(response, null, 'Wage payment deleted')
+    return ok(response, null, 'wages.payment_deleted')
   }
 }

@@ -56,7 +56,7 @@ export default class SalesController {
       .orderBy('sales.id', 'desc')
       .paginate(page, limit)
 
-    return paginated(response, sales, 'Sales fetched successfully')
+    return paginated(response, sales, 'sales.list')
   }
 
   /**
@@ -71,7 +71,7 @@ export default class SalesController {
       .paginate(page, limit)
 
     const now = today()
-    return paginated(response, sales, 'Upcoming deliveries fetched successfully', {
+    return paginated(response, sales, 'sales.upcoming', {
       map: (sale) => ({ ...sale.serialize(), is_overdue: (sale.deliveryDate ?? now) < now }),
     })
   }
@@ -87,56 +87,56 @@ export default class SalesController {
       .orderBy('sales.sale_date', 'desc')
       .orderBy('sales.id', 'desc')
       .paginate(page, limit)
-    return paginated(response, sales, 'Customer sales fetched successfully')
+    return paginated(response, sales, 'customers.sales_list')
   }
 
   async store({ auth, request, response }: HttpContext) {
     const data = await request.validateUsing(createSaleValidator)
     const id = await SaleService.create(data, auth.getUserOrFail().id)
-    return created(response, await this.detail(id), 'Sale saved successfully')
+    return created(response, await this.detail(id), 'sales.saved')
   }
 
   async show({ params, response }: HttpContext) {
-    return ok(response, await this.detail(params.id), 'Sale fetched successfully')
+    return ok(response, await this.detail(params.id), 'sales.fetched')
   }
 
   async update({ auth, params, request, response }: HttpContext) {
     const sale = await this.find(params.id)
     const data = await request.validateUsing(updateSaleValidator)
     await SaleService.update(sale, data, auth.getUserOrFail().id)
-    return ok(response, await this.detail(sale.id), 'Sale updated successfully')
+    return ok(response, await this.detail(sale.id), 'sales.updated')
   }
 
   async destroy({ params, response }: HttpContext) {
     const sale = await this.find(params.id)
     await SaleService.softDelete(sale)
-    return ok(response, null, 'Sale deleted successfully')
+    return ok(response, null, 'sales.deleted')
   }
 
   async deliver({ params, request, response }: HttpContext) {
     const sale = await this.find(params.id)
     const { delivered_date: deliveredDate } = await request.validateUsing(deliverSaleValidator)
     await SaleService.deliver(sale, deliveredDate)
-    return ok(response, await this.detail(sale.id), 'Marked as delivered')
+    return ok(response, await this.detail(sale.id), 'sales.delivered')
   }
 
   async cancel({ params, response }: HttpContext) {
     const sale = await this.find(params.id)
     await SaleService.cancel(sale)
-    return ok(response, await this.detail(sale.id), 'Booking cancelled')
+    return ok(response, await this.detail(sale.id), 'sales.cancelled')
   }
 
   async addPayment({ auth, params, request, response }: HttpContext) {
     const sale = await this.find(params.id)
     const data = await request.validateUsing(salePaymentValidator)
     await SaleService.addPayment(sale, data, auth.getUserOrFail().id)
-    return ok(response, await this.detail(sale.id), 'Payment added')
+    return ok(response, await this.detail(sale.id), 'sales.payment_added')
   }
 
   async deletePayment({ params, response }: HttpContext) {
     const sale = await this.find(params.id)
     await SaleService.deletePayment(sale, Number(params.paymentId))
-    return ok(response, await this.detail(sale.id), 'Payment removed')
+    return ok(response, await this.detail(sale.id), 'sales.payment_removed')
   }
 
   /** Base list query: not deleted, with the customer's id/name/phone. */

@@ -17,7 +17,7 @@ export default class AuthMiddleware {
     await ctx.auth.authenticateUsing(options.guards)
 
     if (!ctx.auth.user?.isActive) {
-      throw new AppError('Your account is deactivated', 401)
+      throw new AppError('errors.account_deactivated', 401)
     }
 
     return next()

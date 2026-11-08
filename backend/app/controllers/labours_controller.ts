@@ -29,7 +29,7 @@ export default class LaboursController {
       .orderBy('name', 'asc')
       .paginate(page, limit)
 
-    return paginated(response, labours, 'Labours fetched successfully', {
+    return paginated(response, labours, 'labours.list', {
       map: (labour) => labour.toResponse(),
     })
   }
@@ -47,11 +47,11 @@ export default class LaboursController {
       isActive: true,
       createdBy: auth.getUserOrFail().id,
     })
-    return created(response, await this.find(labour.id), 'Labour added successfully')
+    return created(response, await this.find(labour.id), 'labours.created')
   }
 
   async show({ params, response }: HttpContext) {
-    return ok(response, await this.find(params.id), 'Labour fetched successfully')
+    return ok(response, await this.find(params.id), 'labours.fetched')
   }
 
   /**
@@ -64,7 +64,7 @@ export default class LaboursController {
 
     const joiningDate = data.joining_date ?? labour.joiningDate
     if (labour.leftDate && joiningDate > labour.leftDate) {
-      throw new AppError('Joining date cannot be after the leaving date')
+      throw new AppError('labours.joining_after_leaving')
     }
 
     labour.merge({
@@ -76,7 +76,7 @@ export default class LaboursController {
       joiningDate,
     })
     await labour.save()
-    return ok(response, await this.find(labour.id), 'Labour updated successfully')
+    return ok(response, await this.find(labour.id), 'labours.updated')
   }
 
   /**
@@ -92,7 +92,7 @@ export default class LaboursController {
     } else {
       const date = leftDate ?? today()
       if (date < labour.joiningDate) {
-        throw new AppError('Leaving date cannot be before the joining date')
+        throw new AppError('labours.leaving_before_joining')
       }
       labour.merge({ isActive: false, leftDate: date })
     }
@@ -101,7 +101,7 @@ export default class LaboursController {
     return ok(
       response,
       await this.find(labour.id),
-      isActive ? 'Labour activated' : 'Labour deactivated'
+      isActive ? 'labours.activated' : 'labours.deactivated'
     )
   }
 
