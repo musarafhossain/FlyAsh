@@ -79,17 +79,21 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 
 ```
 ┌──────────────────────────────────────────┐
+│ ☰  Section title                         │   ← app bar: ☰ opens the drawer
+├──────────────────────────────────────────┤
 │  (screen content)                        │
 ├──────────────────────────────────────────┤
-│  Home │ Sales │ Attendance │ Expenses │ More │   ← phone: bottom nav
+│   Home │ Sales │ Attendance │ Expenses    │   ← phone: bottom nav (4 items)
 └──────────────────────────────────────────┘
-More → opens the side drawer:
+☰ (app bar, left) → opens the side drawer:
   Dashboard · Sales · Upcoming Deliveries · Customers · Products
   Labours · Attendance · Wages · Expenses · Reports · Users · Settings
   [Need help?]  ·  Log out
 ```
 
-- **Tablet (≥ 600 dp):** navigation rail with the same 5 items. **Desktop/Web (≥ 1024 dp):** a persistent sidebar with the full drawer list.
+- **Tablet (≥ 600 dp):** navigation rail with the same 4 items; ☰ in the app bar opens the drawer. **Desktop/Web (≥ 1024 dp):** a persistent, collapsible sidebar with every section (no ☰).
+- When a drawer section (Customers, Reports …) is open, no bottom/rail item is highlighted.
+- Web URLs have no `#`: `/expenses`, `/sales/12` (path URL strategy; Nginx serves `index.html` for unknown paths).
 - Each bottom tab keeps its own navigation stack (go_router `StatefulShellRoute`).
 - Android back button: pops the stack. On the root of a tab it goes to Home, and on Home it asks "Press back again to exit".
 

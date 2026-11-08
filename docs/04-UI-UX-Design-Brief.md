@@ -389,8 +389,8 @@ States: default, pressed, focused (ring), disabled (38% opacity), loading (spinn
 
 ### 9.16 Navigation components
 
-- **Bottom navigation** (phone): 5 items, 24 dp icons with `micro` labels. Active: filled icon, `primary` color, and a `primaryContainer` pill behind the icon. Inactive: `textTertiary`. Height 64 plus the safe area.
-- **Side drawer** (opened from More or by swiping): header block (`primary` background in light mode, `primaryContainer` in dark) with avatar 48, name, role › and the theme toggle. Then the module menu list (icon 20 + `body`); the active item gets a `primaryContainer` pill. A **"Need help? Contact support"** card sits at the bottom, with **Log Out** in `error`.
+- **Bottom navigation** (phone): 4 items (Home, Sales, Attendance, Expenses), 24 dp icons with `micro` labels. Active: filled icon, `primary` color, and a `primaryContainer` pill behind the icon. Inactive: `textTertiary`. Height 64 plus the safe area.
+- **Side drawer** (opened from the ☰ button on the left of the app bar, or by swiping): header block (`primary` background in light mode, `primaryContainer` in dark) with avatar 48, name, role › and the theme toggle. Then the module menu list (icon 20 + `body`); the active item gets a `primaryContainer` pill. A **"Need help? Contact support"** card sits at the bottom, with **Log Out** in `error`.
 - **Navigation rail** (tablet ≥ 600 dp) and **persistent sidebar** (desktop ≥ 1024 dp) replace the bottom nav and drawer.
 
 ---
@@ -402,9 +402,9 @@ States: default, pressed, focused (ring), disabled (38% opacity), loading (spinn
 ### 10.1 Navigation map
 
 ```
-Bottom nav:  Home │ Sales │ Attendance │ Expenses │ More (drawer)
+Bottom nav:  Home │ Sales │ Attendance │ Expenses      (☰ in the app bar opens the drawer)
 
-Drawer / More:
+Drawer (☰):
   Dashboard · Sales · Upcoming Deliveries · Customers · Products
   Labours · Attendance · Wages & Advances · Expenses · Reports
   Users

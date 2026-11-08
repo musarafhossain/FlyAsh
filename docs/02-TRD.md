@@ -573,7 +573,7 @@ Notes: XAMPP usually ships an older MariaDB (10.4). The schema uses only feature
 | Domains | `api.<domain>` → Adonis, `app.<domain>` → Flutter web build |
 | Backend deploy | `git pull` → `npm ci` → `node ace build` → `cd build && npm ci --omit=dev` → `node ace migration:run --force` → `pm2 reload flyash-api` |
 | Web deploy | `flutter build web --release --dart-define=API_BASE_URL=https://api.<domain>/api/v1` → copy `build/web` to `/var/www/flyash/web` |
-| Nginx | Reverse proxy to `127.0.0.1:3333`, `client_max_body_size 10M`, gzip, static `/downloads`, SPA fallback for web |
+| Nginx | Reverse proxy to `127.0.0.1:3333`, `client_max_body_size 10M`, gzip, static `/downloads`, SPA fallback for web (`try_files $uri $uri/ /index.html`, required because the app uses clean URLs without `#`) |
 | SSL | `certbot --nginx` for both domains, auto-renew |
 | Firewall | UFW: allow 22, 80, 443 only. MariaDB listens on localhost only |
 | DB user | A dedicated `flyash` user with rights on the `flyash` DB only (not root) |

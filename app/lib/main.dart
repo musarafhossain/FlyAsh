@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
@@ -10,6 +11,8 @@ import 'core/config/preferences.dart';
 import 'core/network/session.dart';
 
 Future<void> main() async {
+  // Web: clean URLs (/expenses instead of /#/expenses). No effect on other platforms.
+  usePathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
   _registerFontLicenses();
 

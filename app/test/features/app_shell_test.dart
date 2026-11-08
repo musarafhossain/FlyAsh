@@ -27,43 +27,55 @@ Future<void> openApp(
 
 void main() {
   group('phone (360 px)', () {
-    testWidgets('bottom bar with 4 sections + More; More opens the drawer', (
-      tester,
-    ) async {
-      await openApp(tester, const Size(360, 800));
+    testWidgets(
+      'bottom bar with 4 sections; the app bar menu opens the drawer',
+      (tester) async {
+        await openApp(tester, const Size(360, 800));
 
-      expect(find.byType(NavigationBar), findsOneWidget);
-      expect(find.byType(NavigationDestination), findsNWidgets(5));
-      expect(find.byType(NavigationRail), findsNothing);
+        expect(find.byType(NavigationBar), findsOneWidget);
+        expect(find.byType(NavigationDestination), findsNWidgets(4));
+        expect(find.text('More'), findsNothing);
+        expect(find.byType(NavigationRail), findsNothing);
 
-      await tester.tap(
-        find.descendant(
-          of: find.byType(NavigationBar),
-          matching: find.text('Sales'),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(appBarTitle('Sales'), findsOneWidget);
+        await tester.tap(
+          find.descendant(
+            of: find.byType(NavigationBar),
+            matching: find.text('Sales'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(appBarTitle('Sales'), findsOneWidget);
 
-      await tester.tap(find.text('More'));
-      await tester.pumpAndSettle();
-      expect(find.byType(Drawer), findsOneWidget);
+        await tester.tap(find.byTooltip('Menu'));
+        await tester.pumpAndSettle();
+        expect(find.byType(Drawer), findsOneWidget);
 
-      await tester.tap(
-        find.descendant(
-          of: find.byType(Drawer),
-          matching: find.text('Customers'),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(appBarTitle('Customers'), findsOneWidget);
-      expect(find.byType(Drawer), findsNothing);
-      expect(
-        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-        4,
-        reason: 'More is highlighted',
-      );
-    });
+        await tester.tap(
+          find.descendant(
+            of: find.byType(Drawer),
+            matching: find.text('Customers'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(appBarTitle('Customers'), findsOneWidget);
+        expect(find.byType(Drawer), findsNothing);
+        // A drawer section is open: no bottom item looks selected.
+        expect(
+          find.byIcon(Icons.home),
+          findsNothing,
+          reason: 'Home not filled',
+        );
+        final barTheme = tester.widget<NavigationBarTheme>(
+          find
+              .ancestor(
+                of: find.byType(NavigationBar),
+                matching: find.byType(NavigationBarTheme),
+              )
+              .first,
+        );
+        expect(barTheme.data.indicatorColor, Colors.transparent);
+      },
+    );
 
     testWidgets('Android back on a section goes Home', (tester) async {
       await openApp(tester, const Size(360, 800));
@@ -97,6 +109,25 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(appBarTitle('Attendance'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Menu'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(of: find.byType(Drawer), matching: find.text('Products')),
+    );
+    await tester.pumpAndSettle();
+    expect(appBarTitle('Products'), findsOneWidget);
+    expect(
+      tester.widget<NavigationRail>(find.byType(NavigationRail)).selectedIndex,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<NavigationRail>(find.byType(NavigationRail))
+          .destinations
+          .length,
+      4,
+    );
   });
 
   testWidgets('desktop (1440 px): sidebar with every section, collapsible', (
@@ -105,6 +136,11 @@ void main() {
     await openApp(tester, const Size(1440, 900));
     expect(find.byType(NavigationBar), findsNothing);
     expect(find.byType(NavigationRail), findsNothing);
+    expect(
+      find.byTooltip('Menu'),
+      findsNothing,
+      reason: 'sidebar is always visible',
+    );
     for (final item in kNavItems) {
       expect(find.text(item.label), findsWidgets, reason: item.label);
     }
@@ -146,7 +182,7 @@ void main() {
         (tester) async {
           await openApp(tester, size, mode: mode);
           if (size.width < 1024) {
-            await tester.tap(find.text('More'));
+            await tester.tap(find.byTooltip('Menu'));
             await tester.pumpAndSettle();
           }
           expect(tester.takeException(), isNull);

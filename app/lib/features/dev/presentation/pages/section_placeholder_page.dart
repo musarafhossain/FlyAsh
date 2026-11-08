@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_shell.dart';
 import '../../../../core/router/nav_items.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/state_views.dart';
@@ -15,7 +16,10 @@ class SectionPlaceholderPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(item.label)),
+      appBar: AppBar(
+        leading: ShellMenuButton.maybe(context),
+        title: Text(item.label),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(Space.s4),
         children: [

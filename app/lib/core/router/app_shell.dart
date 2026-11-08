@@ -71,18 +71,21 @@ class _AppShellState extends State<AppShell> {
 
     final primary = kPrimaryBranches;
     final selectedPrimary = primary.indexOf(_index);
-    // "More" is selected when the current section lives in the drawer.
-    final selected = selectedPrimary >= 0 ? selectedPrimary : primary.length;
-    void onTap(int i) => i < primary.length ? _go(primary[i]) : _openDrawer();
+    // A drawer section (Customers, Reports …) is open: no bottom/rail item is selected.
+    final inDrawerSection = selectedPrimary < 0;
+    void onTap(int i) => _go(primary[i]);
+
+    final drawer = _AppDrawer(selected: _index, onSelect: _go);
+    final scoped = ShellScope(openDrawer: _openDrawer, child: body);
 
     if (width >= Breakpoints.medium) {
       return Scaffold(
         key: _scaffoldKey,
-        drawer: _AppDrawer(selected: _index, onSelect: _go),
+        drawer: drawer,
         body: Row(
           children: [
             NavigationRail(
-              selectedIndex: selected,
+              selectedIndex: inDrawerSection ? null : selectedPrimary,
               onDestinationSelected: onTap,
               labelType: NavigationRailLabelType.all,
               leading: Padding(
@@ -100,38 +103,87 @@ class _AppShellState extends State<AppShell> {
                     selectedIcon: Icon(kNavItems[i].selectedIcon),
                     label: Text(kNavItems[i].label),
                   ),
-                const NavigationRailDestination(
-                  icon: Icon(Icons.menu),
-                  label: Text('More'),
-                ),
               ],
             ),
             VerticalDivider(width: 1, color: context.tokens.border),
-            Expanded(child: body),
+            Expanded(child: scoped),
           ],
         ),
       );
     }
 
+    // NavigationBar always needs a selected index; when a drawer section is
+    // open the selection is drawn as unselected.
+    final t = context.tokens;
+    final bar = NavigationBar(
+      selectedIndex: inDrawerSection ? 0 : selectedPrimary,
+      onDestinationSelected: onTap,
+      destinations: [
+        for (final i in primary)
+          NavigationDestination(
+            icon: Icon(kNavItems[i].icon),
+            selectedIcon: Icon(
+              inDrawerSection ? kNavItems[i].icon : kNavItems[i].selectedIcon,
+            ),
+            label: kNavItems[i].label,
+          ),
+      ],
+    );
+
     return Scaffold(
       key: _scaffoldKey,
-      drawer: _AppDrawer(selected: _index, onSelect: _go),
-      body: body,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selected,
-        onDestinationSelected: onTap,
-        destinations: [
-          for (final i in primary)
-            NavigationDestination(
-              icon: Icon(kNavItems[i].icon),
-              selectedIcon: Icon(kNavItems[i].selectedIcon),
-              label: kNavItems[i].label,
-            ),
-          const NavigationDestination(icon: Icon(Icons.menu), label: 'More'),
-        ],
-      ),
+      drawer: drawer,
+      body: scoped,
+      bottomNavigationBar: inDrawerSection
+          ? NavigationBarTheme(
+              data: NavigationBarTheme.of(context).copyWith(
+                indicatorColor: Colors.transparent,
+                iconTheme: WidgetStatePropertyAll(
+                  IconThemeData(color: t.textSecondary),
+                ),
+                labelTextStyle: WidgetStatePropertyAll(
+                  AppTypography.micro.copyWith(color: t.textSecondary),
+                ),
+              ),
+              child: bar,
+            )
+          : bar,
     );
   }
+}
+
+/// Gives screens inside the shell access to the drawer (phone/tablet only).
+class ShellScope extends InheritedWidget {
+  const ShellScope({super.key, required this.openDrawer, required super.child});
+
+  final VoidCallback openDrawer;
+
+  static ShellScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ShellScope>();
+
+  @override
+  bool updateShouldNotify(ShellScope oldWidget) => false;
+}
+
+/// ☰ button for the app bar's left side. Shows only where there is a
+/// drawer (phone/tablet); on desktop the sidebar is always visible.
+/// Usage: `AppBar(leading: ShellMenuButton.maybe(context))`.
+class ShellMenuButton extends StatelessWidget {
+  const ShellMenuButton({super.key, required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  static Widget? maybe(BuildContext context) {
+    final scope = ShellScope.maybeOf(context);
+    return scope == null ? null : ShellMenuButton(onPressed: scope.openDrawer);
+  }
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    onPressed: onPressed,
+    tooltip: 'Menu',
+    icon: const Icon(Icons.menu),
+  );
 }
 
 class _AppDrawer extends StatelessWidget {
