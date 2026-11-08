@@ -78,6 +78,11 @@ String? authRedirect(AuthState auth, Uri uri) {
 /// App routes (03-AppFlow §3.2). Every section is a branch of one
 /// StatefulShellRoute, so each keeps its own navigation stack.
 final routerProvider = Provider<GoRouter>((ref) {
+  // Every screen shows its own address in the browser, also screens opened
+  // with push() (forgot password, OTP, new password …). go_router keeps the
+  // previous URL for push() unless this is on.
+  GoRouter.optionURLReflectsImperativeAPIs = true;
+
   // Re-run the redirect whenever the auth state changes.
   final refresh = ValueNotifier<int>(0);
   ref.listen(authControllerProvider, (_, _) => refresh.value++);

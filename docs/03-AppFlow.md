@@ -94,6 +94,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 - **Tablet (≥ 600 dp):** navigation rail with the same 4 items; ☰ in the app bar opens the drawer. **Desktop/Web (≥ 1024 dp):** a persistent, collapsible sidebar with every section (no ☰).
 - When a drawer section (Customers, Reports …) is open, no bottom/rail item is highlighted.
 - Web URLs have no `#`: `/expenses`, `/sales/12` (path URL strategy; Nginx serves `index.html` for unknown paths).
+- **Every screen has its own URL**, also screens opened with `push()` (forgot password, OTP, new password, galleries) — `GoRouter.optionURLReflectsImperativeAPIs = true`. Private values (email, reset token) travel in `extra`, never in the URL; refreshing `/forgot-password/verify` or `/reset` returns to `/forgot-password`.
 - Each bottom tab keeps its own navigation stack (go_router `StatefulShellRoute`).
 - Android back button: pops the stack. On the root of a tab it goes to Home, and on Home it asks "Press back again to exit".
 
