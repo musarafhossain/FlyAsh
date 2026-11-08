@@ -1,14 +1,6 @@
 import vine from '@vinejs/vine'
 import { dateRule, paginationRules, pastDateRule, positiveMoneyRule } from '#validators/rules'
 
-/** A path returned by POST /uploads, e.g. "expenses/2026/11/<uuid>.jpg" */
-export const uploadPathRule = () =>
-  vine
-    .string()
-    .trim()
-    .maxLength(255)
-    .regex(/^(expenses|logo)\/\d{4}\/\d{2}\/[\w-]+\.(jpg|jpeg|png|webp)$/)
-
 export const listExpensesValidator = vine.create({
   ...paginationRules,
   from: dateRule().optional(),
@@ -25,7 +17,6 @@ export const expenseValidator = vine.create({
   expense_date: pastDateRule().optional(),
   amount: positiveMoneyRule(),
   note: vine.string().trim().maxLength(500).nullable().optional(),
-  bill_photo_path: uploadPathRule().nullable().optional(),
 })
 
 export const listCategoriesValidator = vine.create({
@@ -48,8 +39,4 @@ export const categoryValidator = vine.create({
   icon: vine.string().trim().maxLength(30).nullable().optional(),
   is_active: vine.boolean().optional(),
   sort_order: vine.number().withoutDecimals().min(0).max(9999).optional(),
-})
-
-export const uploadValidator = vine.create({
-  folder: vine.enum(['expenses', 'logo'] as const),
 })

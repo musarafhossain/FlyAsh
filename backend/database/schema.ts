@@ -8,18 +8,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class AppVersionSchema extends BaseModel {
-  static $columns = [
-    'buildNumber',
-    'createdAt',
-    'downloadUrl',
-    'id',
-    'isActive',
-    'minSupportedBuild',
-    'platform',
-    'releaseNotes',
-    'updatedAt',
-    'versionName',
-  ] as const
+  static $columns = ['buildNumber', 'createdAt', 'downloadUrl', 'id', 'isActive', 'minSupportedBuild', 'platform', 'releaseNotes', 'updatedAt', 'versionName'] as const
   $columns = AppVersionSchema.$columns
   @column()
   declare buildNumber: number
@@ -44,17 +33,7 @@ export class AppVersionSchema extends BaseModel {
 }
 
 export class AttendanceSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'createdBy',
-    'date',
-    'id',
-    'labourId',
-    'status',
-    'updatedAt',
-    'wageAmount',
-    'wageType',
-  ] as const
+  static $columns = ['createdAt', 'createdBy', 'date', 'id', 'labourId', 'status', 'updatedAt', 'wageAmount', 'wageType'] as const
   $columns = AttendanceSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -77,18 +56,7 @@ export class AttendanceSchema extends BaseModel {
 }
 
 export class AuthAccessTokenSchema extends BaseModel {
-  static $columns = [
-    'abilities',
-    'createdAt',
-    'expiresAt',
-    'hash',
-    'id',
-    'lastUsedAt',
-    'name',
-    'tokenableId',
-    'type',
-    'updatedAt',
-  ] as const
+  static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
   $columns = AuthAccessTokenSchema.$columns
   @column()
   declare abilities: string
@@ -113,16 +81,7 @@ export class AuthAccessTokenSchema extends BaseModel {
 }
 
 export class CustomerSchema extends BaseModel {
-  static $columns = [
-    'address',
-    'createdAt',
-    'createdBy',
-    'id',
-    'isActive',
-    'name',
-    'phone',
-    'updatedAt',
-  ] as const
+  static $columns = ['address', 'createdAt', 'createdBy', 'id', 'isActive', 'name', 'phone', 'updatedAt'] as const
   $columns = CustomerSchema.$columns
   @column()
   declare address: string | null
@@ -143,22 +102,10 @@ export class CustomerSchema extends BaseModel {
 }
 
 export class ExpenseSchema extends BaseModel {
-  static $columns = [
-    'amount',
-    'billPhotoPath',
-    'createdAt',
-    'createdBy',
-    'expenseCategoryId',
-    'expenseDate',
-    'id',
-    'note',
-    'updatedAt',
-  ] as const
+  static $columns = ['amount', 'createdAt', 'createdBy', 'expenseCategoryId', 'expenseDate', 'id', 'note', 'updatedAt'] as const
   $columns = ExpenseSchema.$columns
   @column()
   declare amount: string
-  @column()
-  declare billPhotoPath: string | null
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
@@ -176,15 +123,7 @@ export class ExpenseSchema extends BaseModel {
 }
 
 export class ExpenseCategorySchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'icon',
-    'id',
-    'isActive',
-    'name',
-    'sortOrder',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'icon', 'id', 'isActive', 'name', 'sortOrder', 'updatedAt'] as const
   $columns = ExpenseCategorySchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -203,19 +142,7 @@ export class ExpenseCategorySchema extends BaseModel {
 }
 
 export class FactorySettingSchema extends BaseModel {
-  static $columns = [
-    'address',
-    'createdAt',
-    'email',
-    'factoryName',
-    'id',
-    'invoicePrefix',
-    'logoPath',
-    'ownerName',
-    'phone',
-    'updatedAt',
-    'updatedBy',
-  ] as const
+  static $columns = ['address', 'createdAt', 'email', 'factoryName', 'id', 'invoicePrefix', 'ownerName', 'phone', 'updatedAt', 'updatedBy'] as const
   $columns = FactorySettingSchema.$columns
   @column()
   declare address: string | null
@@ -230,8 +157,6 @@ export class FactorySettingSchema extends BaseModel {
   @column()
   declare invoicePrefix: string
   @column()
-  declare logoPath: string | null
-  @column()
   declare ownerName: string | null
   @column()
   declare phone: string | null
@@ -242,20 +167,7 @@ export class FactorySettingSchema extends BaseModel {
 }
 
 export class LabourSchema extends BaseModel {
-  static $columns = [
-    'address',
-    'createdAt',
-    'createdBy',
-    'id',
-    'isActive',
-    'joiningDate',
-    'leftDate',
-    'name',
-    'phone',
-    'updatedAt',
-    'wageAmount',
-    'wageType',
-  ] as const
+  static $columns = ['address', 'createdAt', 'createdBy', 'id', 'isActive', 'joiningDate', 'leftDate', 'name', 'phone', 'updatedAt', 'wageAmount', 'wageType'] as const
   $columns = LabourSchema.$columns
   @column()
   declare address: string | null
@@ -284,16 +196,7 @@ export class LabourSchema extends BaseModel {
 }
 
 export class LabourAdvanceSchema extends BaseModel {
-  static $columns = [
-    'advanceDate',
-    'amount',
-    'createdAt',
-    'createdBy',
-    'id',
-    'labourId',
-    'note',
-    'updatedAt',
-  ] as const
+  static $columns = ['advanceDate', 'amount', 'createdAt', 'createdBy', 'id', 'labourId', 'note', 'updatedAt'] as const
   $columns = LabourAdvanceSchema.$columns
   @column()
   declare advanceDate: string
@@ -314,16 +217,7 @@ export class LabourAdvanceSchema extends BaseModel {
 }
 
 export class PasswordResetOtpSchema extends BaseModel {
-  static $columns = [
-    'attempts',
-    'createdAt',
-    'expiresAt',
-    'id',
-    'otpHash',
-    'updatedAt',
-    'userId',
-    'verifiedAt',
-  ] as const
+  static $columns = ['attempts', 'createdAt', 'expiresAt', 'id', 'otpHash', 'updatedAt', 'userId', 'verifiedAt'] as const
   $columns = PasswordResetOtpSchema.$columns
   @column()
   declare attempts: number
@@ -344,19 +238,7 @@ export class PasswordResetOtpSchema extends BaseModel {
 }
 
 export class ProductSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'createdBy',
-    'defaultCost',
-    'defaultPrice',
-    'id',
-    'isActive',
-    'name',
-    'notes',
-    'unit',
-    'unitLabel',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'createdBy', 'defaultCost', 'defaultPrice', 'id', 'isActive', 'name', 'notes', 'unit', 'unitLabel', 'updatedAt'] as const
   $columns = ProductSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -383,32 +265,7 @@ export class ProductSchema extends BaseModel {
 }
 
 export class SaleSchema extends BaseModel {
-  static $columns = [
-    'cancelledAt',
-    'createdAt',
-    'createdBy',
-    'customerId',
-    'deletedAt',
-    'deliveredDate',
-    'deliveryAddress',
-    'deliveryDate',
-    'discount',
-    'dueAmount',
-    'id',
-    'invoiceNo',
-    'notes',
-    'paidAmount',
-    'paymentStatus',
-    'profit',
-    'saleDate',
-    'status',
-    'subtotal',
-    'total',
-    'totalCost',
-    'transportCharge',
-    'type',
-    'updatedAt',
-  ] as const
+  static $columns = ['cancelledAt', 'createdAt', 'createdBy', 'customerId', 'deletedAt', 'deliveredDate', 'deliveryAddress', 'deliveryDate', 'discount', 'dueAmount', 'id', 'invoiceNo', 'notes', 'paidAmount', 'paymentStatus', 'profit', 'saleDate', 'status', 'subtotal', 'total', 'totalCost', 'transportCharge', 'type', 'updatedAt'] as const
   $columns = SaleSchema.$columns
   @column.dateTime()
   declare cancelledAt: DateTime | null
@@ -461,20 +318,7 @@ export class SaleSchema extends BaseModel {
 }
 
 export class SaleItemSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'id',
-    'lineCost',
-    'lineTotal',
-    'productId',
-    'productName',
-    'quantity',
-    'saleId',
-    'unit',
-    'unitCost',
-    'unitPrice',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'id', 'lineCost', 'lineTotal', 'productId', 'productName', 'quantity', 'saleId', 'unit', 'unitCost', 'unitPrice', 'updatedAt'] as const
   $columns = SaleItemSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -503,17 +347,7 @@ export class SaleItemSchema extends BaseModel {
 }
 
 export class SalePaymentSchema extends BaseModel {
-  static $columns = [
-    'amount',
-    'createdAt',
-    'createdBy',
-    'id',
-    'method',
-    'note',
-    'paymentDate',
-    'saleId',
-    'updatedAt',
-  ] as const
+  static $columns = ['amount', 'createdAt', 'createdBy', 'id', 'method', 'note', 'paymentDate', 'saleId', 'updatedAt'] as const
   $columns = SalePaymentSchema.$columns
   @column()
   declare amount: string
@@ -536,18 +370,7 @@ export class SalePaymentSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'createdBy',
-    'email',
-    'id',
-    'isActive',
-    'lastLoginAt',
-    'name',
-    'password',
-    'phone',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'createdBy', 'email', 'id', 'isActive', 'lastLoginAt', 'name', 'password', 'phone', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -572,18 +395,7 @@ export class UserSchema extends BaseModel {
 }
 
 export class WagePaymentSchema extends BaseModel {
-  static $columns = [
-    'amount',
-    'createdAt',
-    'createdBy',
-    'id',
-    'labourId',
-    'method',
-    'note',
-    'paymentDate',
-    'updatedAt',
-    'wageMonth',
-  ] as const
+  static $columns = ['amount', 'createdAt', 'createdBy', 'id', 'labourId', 'method', 'note', 'paymentDate', 'updatedAt', 'wageMonth'] as const
   $columns = WagePaymentSchema.$columns
   @column()
   declare amount: string

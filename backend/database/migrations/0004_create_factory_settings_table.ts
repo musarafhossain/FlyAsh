@@ -11,7 +11,6 @@ export default class extends BaseSchema {
       table.string('phone', 15).nullable()
       table.string('email', 150).nullable()
       table.string('address', 500).nullable()
-      table.string('logo_path').nullable()
       table.string('invoice_prefix', 10).notNullable().defaultTo('INV-')
       table.integer('updated_by').unsigned().nullable().references('id').inTable('users')
       table.dateTime('created_at').notNullable()

@@ -14,7 +14,6 @@ export const controllers = {
   Reports: () => import('#controllers/reports_controller'),
   Sales: () => import('#controllers/sales_controller'),
   Settings: () => import('#controllers/settings_controller'),
-  Uploads: () => import('#controllers/uploads_controller'),
   Users: () => import('#controllers/users_controller'),
   Wages: () => import('#controllers/wages_controller'),
 }

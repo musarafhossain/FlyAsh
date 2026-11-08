@@ -45,7 +45,6 @@ Exact versions are pinned in `pubspec.yaml` / `package.json` when the projects a
 └──────────────┬────────────────┘
                ▼
        AdonisJS API (PM2)
-       storage/uploads (bill photos, logo)
 ```
 
 - All business calculations (totals, profit, dues, wages, net profit) run **on the server**. The app only displays them.
@@ -196,8 +195,6 @@ All endpoints require auth except the ones marked 🌐.
 | | `GET /reports/net-profit?from&to` | Profit − expenses − wages, monthly series |
 | | `GET /reports/collections?from&to` | Payments by date and method |
 | **Settings** | `GET/PUT /settings/factory` | Factory profile |
-| **Uploads** | `POST /uploads` (multipart `file`, `folder=expenses\|logo`) | Upload an image → `{ path, url }`, used for bill photos and the logo |
-| | 🌐 `GET /uploads/*` (outside `/api/v1`) | Serves uploaded files in development (Nginx serves them in production) |
 
 Full request and response fields are defined in **05-Backend-Schema**.
 
@@ -222,7 +219,6 @@ backend/
 │   ├── migrations/
 │   └── seeders/         → expense categories, (dev) sample data
 ├── start/routes.ts      → all routes under /api/v1
-├── storage/uploads/
 └── tests/               → Japa tests for the services
 ```
 
@@ -313,7 +309,7 @@ Stored totals (`total`, `paid_amount`, `due_amount`, `profit`) are kept on the `
 - `created_by` is set explicitly from `auth.user` in controllers and services on sales, payments, expenses, advances, wage payments and attendance.
 - `@adonisjs/limiter`: 5 login attempts per 15 minutes per IP + phone.
 - CORS limited to the web app's domain (plus localhost in dev).
-- Uploads: images only (jpg/png/webp), max 5 MB, renamed with a random UUID.
+- **No file uploads:** the app stores no images on the server. The factory logo is a static asset in the Flutter app.
 - All queries go through Lucid (parameterized), so there is no raw SQL string building.
 
 ### 5.5 Configuration (`.env`)
@@ -331,7 +327,6 @@ DB_USER=root
 DB_PASSWORD=
 DB_DATABASE=flyash
 CORS_ORIGIN=http://localhost:5000
-UPLOADS_URL=http://localhost:3333/uploads
 MAIL_MAILER=log            # smtp in production
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -436,7 +431,6 @@ features/customers/
 | PDF / print / share | `pdf`, `printing`, `share_plus` |
 | Excel export | `excel` |
 | Charts | `fl_chart` |
-| Images | `image_picker`, `cached_network_image` |
 | Fonts | `google_fonts` (Inter, Hind Siliguri), bundled as assets for offline use |
 | Links (call / WhatsApp) | `url_launcher` |
 | App version | `package_info_plus` |
@@ -465,7 +459,7 @@ class Paginated<T> {
 ```
 
 - Errors become a `Failure` (`network`, `unauthorized`, `validation(fieldErrors)`, `server(message)`). Forms show field errors under the matching input.
-- Timeouts: connect 10 s, receive 20 s (upload 60 s).
+- Timeouts: connect 10 s, receive 20 s (APK/EXE update downloads have no receive timeout).
 
 ### 7.4 Pagination in lists
 
@@ -496,7 +490,7 @@ Receipt PDFs and report exports are generated **in the app** (`pdf` / `excel`) f
 | Platform | Notes |
 |---|---|
 | Android | minSdk 26, internet permission, `REQUEST_INSTALL_PACKAGES` (for in-app update), FileProvider for the APK |
-| Web | Built with `flutter build web`. `image_picker` uses the browser file picker. Secure storage falls back to browser storage |
+| Web | Built with `flutter build web`. Secure storage falls back to browser storage |
 | Windows | `flutter build windows`, packaged with **Inno Setup** into `FlyAsh-Setup-<version>.exe` |
 
 ## 8. App Update System
@@ -561,11 +555,11 @@ Notes: XAMPP usually ships an older MariaDB (10.4). The schema uses only feature
 | Domains | `api.<domain>` → Adonis, `app.<domain>` → Flutter web build |
 | Backend deploy | `git pull` → `npm ci` → `node ace build` → `cd build && npm ci --omit=dev` → `node ace migration:run --force` → `pm2 reload flyash-api` |
 | Web deploy | `flutter build web --release --dart-define=API_BASE_URL=https://api.<domain>/api/v1` → copy `build/web` to `/var/www/flyash/web` |
-| Nginx | Reverse proxy to `127.0.0.1:3333`, `client_max_body_size 10M`, gzip, static `/uploads` and `/downloads`, SPA fallback for web |
+| Nginx | Reverse proxy to `127.0.0.1:3333`, `client_max_body_size 10M`, gzip, static `/downloads`, SPA fallback for web |
 | SSL | `certbot --nginx` for both domains, auto-renew |
 | Firewall | UFW: allow 22, 80, 443 only. MariaDB listens on localhost only |
 | DB user | A dedicated `flyash` user with rights on the `flyash` DB only (not root) |
-| **Backups** | Nightly cron: `mysqldump` + gzip of the DB and `storage/uploads` → `/var/backups/flyash`, keeping 30 days. Optional weekly copy off the server |
+| **Backups** | Nightly cron: `mysqldump` + gzip of the DB → `/var/backups/flyash`, keeping 30 days. Optional weekly copy off the server |
 | Logs | PM2 logs with logrotate. Adonis logger (pino) at `info` in prod |
 | Process | PM2 `ecosystem.config.cjs`, `pm2 startup` so the API restarts after a reboot |
 

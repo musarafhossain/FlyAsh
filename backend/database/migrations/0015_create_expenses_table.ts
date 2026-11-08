@@ -15,7 +15,6 @@ export default class extends BaseSchema {
       table.date('expense_date').notNullable().index()
       table.decimal('amount', 12, 2).notNullable()
       table.string('note', 500).nullable()
-      table.string('bill_photo_path').nullable()
       table.integer('created_by').unsigned().nullable().references('id').inTable('users')
       table.dateTime('created_at').notNullable()
       table.dateTime('updated_at').notNullable()

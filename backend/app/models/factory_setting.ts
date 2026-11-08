@@ -1,18 +1,17 @@
 import { FactorySettingSchema } from '#database/schema'
-import { computed } from '@adonisjs/lucid/orm'
-import { uploadUrl } from '#helpers/uploads'
 
 /**
  * Single-row table (id = 1) holding the factory profile.
+ * The logo is a static asset bundled in the app.
  */
 export default class FactorySetting extends FactorySettingSchema {
-  @computed({ serializeAs: 'logo_url' })
-  get logoUrl() {
-    return uploadUrl(this.logoPath)
-  }
-
   /** Returns the settings row, creating it with defaults if missing. */
   static async current() {
-    return this.firstOrCreate({ id: 1 }, { id: 1 })
+    const existing = await this.find(1)
+    if (existing) return existing
+
+    const created = await this.create({ id: 1 })
+    await created.refresh() // load the column defaults (factory name, invoice prefix)
+    return created
   }
 }

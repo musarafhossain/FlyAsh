@@ -73,7 +73,7 @@ The app supports **multiple users with equal access** (no roles). There is no si
 | Labours | Name, phone, address, wage type (daily/monthly) and amount |
 | Attendance | Toggle-based attendance for any date (defaults to today) |
 | Wages and Advances | Automatic monthly wage calculation, advances, wage payments |
-| Expenses | Extra expenses with categories and an optional bill photo |
+| Expenses | Extra expenses with categories |
 | Reports | Sales, dues, expenses, wages, net profit, with PDF/Excel export |
 | Settings | Factory profile, appearance (theme), language, password |
 | App Update | In-app update check and install for Android, Windows and Web |
@@ -166,7 +166,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | SALE-11 | Each sale gets an automatic **invoice number** (`INV-000001`, sequential) | P0 |
 | SALE-12 | Sale list with filters: date range (Today / This week / This month / Custom), type (Instant / Booking), status (Paid / Partial / Due / Booked / Cancelled), and search (customer name, phone, invoice no.). Paginated | P0 |
 | SALE-13 | Sale detail: customer, items, totals, profit, payments, status and actions (Add payment · Mark delivered · Cancel · Edit · Share receipt) | P0 |
-| SALE-14 | **Receipt PDF** with the factory name, logo, address and phone, invoice no., customer, items, totals, paid and due. Share via WhatsApp or other apps, print, or save | P1 |
+| SALE-14 | **Receipt PDF** with the factory logo (static, bundled in the app), name, address and phone, invoice no., customer, items, totals, paid and due. Share via WhatsApp or other apps, print, or save | P1 |
 | SALE-15 | Edit a sale (items, prices, charges, notes). Totals and status are recalculated | P0 |
 | SALE-16 | Delete a sale, with confirmation (soft delete, removed from all reports) | P1 |
 | SALE-17 | Notes field | P1 |
@@ -208,7 +208,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 
 | ID | Requirement | Priority |
 |---|---|---|
-| EXP-1 | Expense fields: **date** (default today), **category** (required), **amount** ₹ (required), **note**, **bill photo** (optional) | P0 |
+| EXP-1 | Expense fields: **date** (default today), **category** (required), **amount** ₹ (required), **note** | P0 |
 | EXP-2 | Default categories: **Labour Tiffin · Machine Repair · Diesel / Fuel · Electricity Bill · Transport · Others** | P0 |
 | EXP-3 | The owner can add, rename and deactivate categories. A category in use cannot be deleted | P1 |
 | EXP-4 | Expense list with date range and category filters, showing the total for the filtered period. Paginated | P0 |
@@ -232,7 +232,7 @@ All reports take a date range (Today / This week / This month / Last month / Thi
 
 | ID | Requirement | Priority |
 |---|---|---|
-| SET-1 | **Factory profile:** factory name, owner name, phone, address, logo. Used in receipts and the app header | P0 |
+| SET-1 | **Factory profile:** factory name, owner name, phone, email, address, invoice prefix. Used in receipts and the app header. The **logo is a static image bundled in the app** (no image upload or storage on the server) | P0 |
 | SET-2 | **Appearance:** theme mode (Light / Dark / System), 5 accent colors, font size. Saved on the device (see 04-UI-UX §8) | P0 |
 | SET-3 | **Language:** English / বাংলা | P1 |
 | SET-4 | **Change password**, **Logout** | P0 |

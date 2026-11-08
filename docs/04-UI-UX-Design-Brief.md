@@ -370,7 +370,7 @@ States: default, pressed, focused (ring), disabled (38% opacity), loading (spinn
 - Text field: label above (`label`), field height 48, `surface` with a `border` (or `surfaceVariant` fill), `radius.md`. Focus: 2 dp `primary` border. Error: `error` border and helper text below.
 - **Number stepper** (− value +) for brick counts, bags and trips, with large ± targets (48 dp).
 - **Quick-fill chips** under number fields (for example "1,000 · 2,000 · 5,000").
-- Dropdown / searchable select (bottom sheet on mobile), date picker, toggle switch, radio cards, a photo/attachment picker (challan or bill photo), and an amount field with the currency prefix.
+- Dropdown / searchable select (bottom sheet on mobile), date picker, toggle switch, radio cards, and an amount field with the currency prefix.
 - Required fields are marked with `*`. Validate on blur and on submit; never block typing.
 - The keyboard type matches the field (numeric for quantities and phone numbers).
 
@@ -430,7 +430,7 @@ Drawer / More:
 | **Labours** | Search. Row: avatar, name, wage ("₹500 / day" or "₹15,000 / month"), today's status pill. Form: name, phone, address, wage type toggle, amount, joining date |
 | **Attendance** | Adapted from the reference: date selector (‹ Today, 08 Nov ›, future dates disabled) → ring (present / total) → tiles Present · Half Day · Absent · Not marked → "Mark all present" → list with a **3-state segmented toggle per labour** (P / H / A, 48 dp targets) → sticky "Save attendance" |
 | **Wages** | Month selector → hero card (total earned this month) → summary strip (Advances · Paid · Balance) → list per labour: days worked, earned, balance, pill (*Paid / Partial / Due*). Detail: calculation breakdown card (worked days × rate, − advances, − paid = balance), "Give advance" and "Pay wage" buttons |
-| **Expenses** | Period selector → total hero → category chips (filter) → expense rows (category icon, note, date, ₹) → FAB "Add expense". Form: date, category select (+ new), amount, note, bill photo |
+| **Expenses** | Period selector → total hero → category chips (filter) → expense rows (category icon, note, date, ₹) → FAB "Add expense". Form: date, category select (+ new), amount, note |
 | **Reports** | Tiles grid: Sales · Dues · Expenses · Wages · **Net Profit** · Collections. Each opens a period selector + chart + table + export (PDF / Excel) |
 | **Users** | Search. Row: initials avatar, name, phone, last login, pill (*Active* `success` / *Inactive* `neutral`). **The logged-in user is not listed.** FAB "Add user". Form: name, phone, email, password (on create only). Detail actions: Edit · Reset password · Deactivate/Activate. Empty state: "Only you so far · Add user" |
 | **My Profile** | Avatar with initials, name, phone, email, last login → "Edit profile" (name, phone, email) and "Change password" (old + new + confirm) |
@@ -497,7 +497,7 @@ Drawer / More:
 | Currency | **₹ INR**, Indian grouping (`₹1,00,000`) |
 | Users | **Multiple users, all equal (no roles).** No sign-up: the first user is created on the server, and users add other users |
 | Theme sync | Per device (saved locally) |
-| Factory branding | The factory name and logo from Settings appear in the app header and on receipts |
+| Factory branding | The factory name from Settings and a **static logo bundled in the app** appear in the app header and on receipts. No images are uploaded or stored on the server |
 | Offline | Online only in v1. Offline entry in Phase 2 |
 | Bengali digits | Not in v1 (Latin digits) |
 

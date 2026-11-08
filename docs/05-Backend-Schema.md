@@ -106,7 +106,6 @@ The row is deleted after a successful reset, so the reset token is single use. O
 | phone | VARCHAR(15) | yes | NULL | |
 | email | VARCHAR(150) | yes | NULL | |
 | address | VARCHAR(500) | yes | NULL | |
-| logo_path | VARCHAR(255) | yes | NULL | Relative path in `storage/uploads` |
 | invoice_prefix | VARCHAR(10) | no | 'INV-' | |
 | updated_by | INT UNSIGNED FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
@@ -281,7 +280,6 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 | expense_date | DATE | no | | index |
 | amount | DECIMAL(12,2) | no | | > 0 |
 | note | VARCHAR(500) | yes | NULL | |
-| bill_photo_path | VARCHAR(255) | yes | NULL | Relative path in `storage/uploads` |
 | created_by | INT UNSIGNED FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
@@ -513,7 +511,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 | Endpoint | Request body | `data` |
 |---|---|---|
 | `GET /expenses?page&limit&from&to&category_id` | — | Paginated `Expense` + `period_total` |
-| `POST /expenses` · `PUT /expenses/:id` | `{ expense_category_id, expense_date, amount, note?, bill_photo_path? }` | `Expense` |
+| `POST /expenses` · `PUT /expenses/:id` | `{ expense_category_id, expense_date, amount, note? }` | `Expense` |
 | `GET /expenses/:id` · `DELETE /expenses/:id` | — | `Expense` / `null` |
 | `GET /expense-categories?active` | — | `ExpenseCategory[]` (not paginated, small list) |
 | `POST /expense-categories` · `PUT /expense-categories/:id` | `{ name, icon?, is_active? }` | `ExpenseCategory` |
@@ -522,7 +520,6 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 // Expense
 { "id": 40, "expense_date": "2026-11-08", "amount": "850.00", "note": "Tiffin for 15 labours",
   "category": { "id": 1, "name": "Labour Tiffin", "icon": "utensils" },
-  "bill_photo_url": "https://api.<domain>/uploads/2026/11/3f2a….jpg",
   "created_by": { "id": 1, "name": "Rahim Sheikh" } }
 ```
 
@@ -549,12 +546,11 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 | `GET /reports/net-profit?from&to` | `{ sales_profit, expenses, wages, net_profit, monthly: [{ month, sales_profit, expenses, wages, net_profit }] }` |
 | `GET /reports/collections?from&to` | `{ total, by_method: [{ method, amount }], daily: [{ date, amount }] }` |
 
-### 5.10 Settings, uploads, app version
+### 5.10 Settings, app version
 
 | Endpoint | Request body | `data` |
 |---|---|---|
-| `GET /settings/factory` · `PUT /settings/factory` | `{ factory_name, owner_name?, phone?, email?, address?, logo_path?, invoice_prefix }` | `{ …fields, logo_url }` |
-| `POST /uploads` (multipart `file`, `folder=expenses\|logo`) | — | `{ path: "2026/11/3f2a….jpg", url }` |
+| `GET /settings/factory` · `PUT /settings/factory` | `{ factory_name, owner_name?, phone?, email?, address?, invoice_prefix? }` | `{ …fields }` |
 | 🌐 `GET /app/version?platform&build` | — | `{ latest_version, latest_build, update_available, force_update, download_url, release_notes }` |
 | 🌐 `GET /health` | — | `{ status: "ok", db: "ok", time }` |
 

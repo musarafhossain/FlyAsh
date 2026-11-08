@@ -31,7 +31,7 @@
 | 8 | Sales extras: payments, bookings, receipt PDF | 7 | M |
 | 9 | Labours & attendance | 3 | M |
 | 10 | Wages & advances | 9 | M |
-| 11 | Expenses & uploads | 3 | M |
+| 11 | Expenses | 3 | M |
 | 12 | Dashboard | 7, 9, 11 | S |
 | 13 | Reports & export | 8, 10, 11 | M |
 | 14 | Settings, factory profile, localization | 4 | M |
@@ -116,7 +116,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 ### Step 8 · Sales extras
 - [ ] API: payments add / delete, `deliver`, `cancel` (blocked with payments), `upcoming-deliveries`
 - [ ] App: add payment sheet, mark delivered, cancel, upcoming deliveries screen
-- [ ] Receipt PDF (factory header + logo, items, totals, paid, due) → share / print / save
+- [ ] Receipt PDF (factory header + static logo, items, totals, paid, due) → share / print / save
 - [ ] Tests: status transitions, the overpayment block, booking revenue counted on the delivered date
 
 ### Step 9 · Labours & attendance
@@ -128,9 +128,9 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] App: wage sheet, labour wage detail, give advance, pay wage, delete entries
 - [ ] Tests: daily vs monthly, half day, a mid-month wage change (snapshot), advances and balance status
 
-### Step 11 · Expenses & uploads
-- [ ] API: `POST /uploads` (image type and size checks, UUID names, `/uploads` static), expense categories, expenses CRUD + `period_total`
-- [ ] App: expense list (period, category chips, total), form with category sheet and bill photo (camera / gallery / file picker on web and Windows), manage categories
+### Step 11 · Expenses
+- [ ] API: expense categories, expenses CRUD + `period_total`
+- [ ] App: expense list (period, category chips, total), form with category sheet, manage categories
 
 ### Step 12 · Dashboard
 - [ ] API: `DashboardService` → `GET /dashboard` (05 §5.8)
@@ -142,7 +142,8 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] Test: net profit = sales profit − expenses − wages on sample data
 
 ### Step 14 · Settings, factory profile, localization
-- [ ] API: `GET/PUT /settings/factory` (logo via `/uploads`)
+- [ ] API: `GET/PUT /settings/factory`
+- [ ] App: add the static logo (provided later) to `assets/` and use it in the header, splash and receipts
 - [ ] App: settings screen, factory profile, Appearance (04-UI-UX §8.1 with live preview), language switch
 - [ ] Translate all strings to Bengali (`app_bn.arb`), and check layouts with long Bengali text and 1.3× font
 
@@ -167,7 +168,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] DB user `flyash`, production `.env` (SMTP with a Gmail App Password, `MAIL_MAILER=smtp`)
 - [ ] Deploy the API (`node ace build`, migrations, `pm2 start`), `node ace user:create` for the first real user
 - [ ] Deploy the web build to `app.<domain>`, set up `/downloads`
-- [ ] Nightly backup cron (DB + uploads, 30 days) **and one test restore**
+- [ ] Nightly backup cron (DB, 30 days) **and one test restore**
 - [ ] Release v1.0.0+1: APK + Windows installer → `/downloads`, `node ace app:release` for android / windows / web
 - [ ] Install on the owner's devices and walk through a real day (sales, attendance, expense)
 

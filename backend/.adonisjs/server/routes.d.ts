@@ -4,7 +4,6 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
-    'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'settings.app_version': { paramsTuple?: []; params?: {} }
     'auth.login': { paramsTuple?: []; params?: {} }
     'password_reset.forgot': { paramsTuple?: []; params?: {} }
@@ -66,7 +65,6 @@ export type ScannedRoutes = {
     'expenses.categories': { paramsTuple?: []; params?: {} }
     'expenses.store_category': { paramsTuple?: []; params?: {} }
     'expenses.update_category': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'uploads.store': { paramsTuple?: []; params?: {} }
     'reports.dashboard': { paramsTuple?: []; params?: {} }
     'reports.sales': { paramsTuple?: []; params?: {} }
     'reports.dues': { paramsTuple?: []; params?: {} }
@@ -78,7 +76,6 @@ export type ScannedRoutes = {
     'settings.update_factory': { paramsTuple?: []; params?: {} }
   }
   GET: {
-    'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'settings.app_version': { paramsTuple?: []; params?: {} }
     'auth.me': { paramsTuple?: []; params?: {} }
     'users.index': { paramsTuple?: []; params?: {} }
@@ -111,7 +108,6 @@ export type ScannedRoutes = {
     'settings.factory': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
-    'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'settings.app_version': { paramsTuple?: []; params?: {} }
     'auth.me': { paramsTuple?: []; params?: {} }
     'users.index': { paramsTuple?: []; params?: {} }
@@ -161,7 +157,6 @@ export type ScannedRoutes = {
     'wages.store_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.store': { paramsTuple?: []; params?: {} }
     'expenses.store_category': { paramsTuple?: []; params?: {} }
-    'uploads.store': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'auth.update_me': { paramsTuple?: []; params?: {} }

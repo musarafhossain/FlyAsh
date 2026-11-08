@@ -22,7 +22,6 @@ export default class SettingsController {
       phone: data.phone ?? null,
       email: data.email ?? null,
       address: data.address ?? null,
-      logoPath: data.logo_path ?? null,
       invoicePrefix: data.invoice_prefix ?? settings.invoicePrefix,
       updatedBy: auth.getUserOrFail().id,
     })

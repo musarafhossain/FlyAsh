@@ -1,6 +1,5 @@
 import vine from '@vinejs/vine'
 import { emailRule, phoneRule } from '#validators/rules'
-import { uploadPathRule } from '#validators/expense'
 
 export const factorySettingsValidator = vine.create({
   factory_name: vine.string().trim().minLength(1).maxLength(150),
@@ -8,7 +7,6 @@ export const factorySettingsValidator = vine.create({
   phone: phoneRule().nullable().optional(),
   email: emailRule().nullable().optional(),
   address: vine.string().trim().maxLength(500).nullable().optional(),
-  logo_path: uploadPathRule().nullable().optional(),
   invoice_prefix: vine
     .string()
     .trim()

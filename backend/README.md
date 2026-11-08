@@ -54,7 +54,7 @@ app/
   services/      business logic: sales, wages, reports, dashboard, mail
   models/        Lucid models (columns come from database/schema.ts)
   validators/    VineJS schemas (rules.ts holds the shared rules)
-  helpers/       api_response (envelope), money (paise maths), dates (IST), uploads
+  helpers/       api_response (envelope), money (paise maths), dates (IST)
   exceptions/    handler.ts maps every error to the envelope; AppError for business rules
 commands/        user:create, user:reset-password, app:release
 database/        migrations, seeders, generated schema.ts (do not edit by hand)

@@ -10,8 +10,6 @@ node_modules/
 backend/build/
 backend/tmp/
 backend/.env
-backend/storage/uploads/*
-!backend/storage/uploads/.gitkeep
 *.log
 
 # Flutter

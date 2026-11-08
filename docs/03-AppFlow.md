@@ -248,8 +248,7 @@ Wages (month selector) → GET /wages?month
 ```
 Expenses list (period selector + category chips) → GET /expenses
  ├─ Header: period total
- ├─ FAB → Expense form: date, category (sheet with "+ New category"), amount, note, bill photo
- │        photo → camera / gallery → POST /uploads → keep path → Save → POST /expenses
+ ├─ FAB → Expense form: date, category (sheet with "+ New category"), amount, note → Save → POST /expenses
  └─ Row → Expense form (edit) · ⋮ Delete
 Categories: from the category sheet → "Manage categories" → rename / deactivate / add
 ```
@@ -281,7 +280,7 @@ My Profile (Settings or drawer header tap)
 ```
 Settings
  ├─ My profile → §10
- ├─ Factory profile → name, owner name, phone, email, address, logo (upload), invoice prefix → PUT /settings/factory
+ ├─ Factory profile → name, owner name, phone, email, address, invoice prefix → PUT /settings/factory
  ├─ Appearance → mode, accent, font size (applied instantly, saved locally)
  ├─ Language → English / বাংলা (applied instantly, saved locally)
  ├─ About & Updates → app version + build → "Check for updates" → §12

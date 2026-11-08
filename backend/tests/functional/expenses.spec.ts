@@ -1,15 +1,7 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
-import { rm } from 'node:fs/promises'
 import ExpenseCategory from '#models/expense_category'
 import { API, createUser } from '#tests/helpers'
-import { uploadsPath } from '#helpers/uploads'
-
-/** 1×1 transparent PNG */
-const PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-  'base64'
-)
 
 test.group('Expenses', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
@@ -58,7 +50,6 @@ test.group('Expenses', (group) => {
       amount: '850.00',
       category: { id: tiffin.id, name: 'Tiffin T' },
       created_by: { id: user.id },
-      bill_photo_url: null,
     })
 
     await client.post(`${API}/expenses`).loginAs(user).json({
@@ -95,38 +86,5 @@ test.group('Expenses', (group) => {
 
     const deleted = await client.delete(`${API}/expenses/${id}`).loginAs(user)
     deleted.assertStatus(200)
-  })
-
-  test('upload a bill photo, attach it and download it', async ({ client, assert }) => {
-    const user = await createUser()
-    const upload = await client
-      .post(`${API}/uploads`)
-      .loginAs(user)
-      .field('folder', 'expenses')
-      .file('file', PNG, { filename: 'bill.png' })
-    upload.assertStatus(201)
-    const { path, url } = upload.body().data
-    assert.match(path, /^expenses\/\d{4}\/\d{2}\/[\w-]+\.png$/)
-    assert.isTrue(url.endsWith(`/uploads/${path}`))
-
-    const category = await ExpenseCategory.create({ name: 'Photo T', isActive: true, sortOrder: 1 })
-    const expense = await client.post(`${API}/expenses`).loginAs(user).json({
-      expense_category_id: category.id,
-      amount: 100,
-      bill_photo_path: path,
-    })
-    assert.equal(expense.body().data.bill_photo_url, url)
-
-    const download = await client.get(`/uploads/${path}`)
-    download.assertStatus(200)
-
-    const badType = await client
-      .post(`${API}/uploads`)
-      .loginAs(user)
-      .field('folder', 'expenses')
-      .file('file', Buffer.from('hello'), { filename: 'note.txt' })
-    badType.assertStatus(422)
-
-    await rm(uploadsPath(path), { force: true })
   })
 })

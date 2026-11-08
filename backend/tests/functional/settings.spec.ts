@@ -16,7 +16,7 @@ test.group('Settings', (group) => {
 
     const read = await client.get(`${API}/settings/factory`).loginAs(user)
     read.assertStatus(200)
-    assert.property(read.body().data, 'logo_url')
+    assert.property(read.body().data, 'factory_name')
 
     const updated = await client.put(`${API}/settings/factory`).loginAs(user).json({
       factory_name: 'Maa Tara Fly Ash Bricks',

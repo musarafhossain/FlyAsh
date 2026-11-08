@@ -2,10 +2,6 @@
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
-  uploads: {
-    show: typeof routes['uploads.show']
-    store: typeof routes['uploads.store']
-  }
   settings: {
     appVersion: typeof routes['settings.app_version']
     factory: typeof routes['settings.factory']

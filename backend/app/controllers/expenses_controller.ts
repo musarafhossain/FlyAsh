@@ -49,7 +49,6 @@ export default class ExpensesController {
       expenseDate: data.expense_date ?? today(),
       amount: money(data.amount),
       note: data.note ?? null,
-      billPhotoPath: data.bill_photo_path ?? null,
       createdBy: auth.getUserOrFail().id,
     })
     return created(response, await this.find(expense.id), 'Expense added')
@@ -67,7 +66,6 @@ export default class ExpensesController {
       expenseDate: data.expense_date ?? expense.expenseDate,
       amount: money(data.amount),
       note: data.note ?? null,
-      billPhotoPath: data.bill_photo_path ?? null,
     })
     await expense.save()
     return ok(response, await this.find(expense.id), 'Expense updated')

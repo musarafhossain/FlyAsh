@@ -8,19 +8,6 @@ import type { routes } from './index.ts'
 export type ParamValue = string | number | bigint | boolean
 
 export interface Registry {
-  'uploads.show': {
-    methods: ["GET","HEAD"]
-    pattern: '/uploads/*'
-    types: {
-      body: {}
-      paramsTuple: [ParamValue]
-      params: { '*': ParamValue[] }
-      query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/uploads_controller').default['show']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/uploads_controller').default['show']>>>
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/uploads_controller').default['show']>>>
-    }
-  }
   'settings.app_version': {
     methods: ["GET","HEAD"]
     pattern: '/api/v1/app/version'
@@ -812,19 +799,6 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/expenses_controller').default['updateCategory']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/expenses_controller').default['updateCategory']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/expenses_controller').default['updateCategory']>>> | { status: 422; response: { errors: SimpleError[] } }
-    }
-  }
-  'uploads.store': {
-    methods: ["POST"]
-    pattern: '/api/v1/uploads'
-    types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/expense').uploadValidator)>>
-      paramsTuple: []
-      params: {}
-      query: ExtractQuery<InferInput<(typeof import('#validators/expense').uploadValidator)>>
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/uploads_controller').default['store']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/uploads_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
-      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/uploads_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'reports.dashboard': {

@@ -20,7 +20,6 @@ const LaboursController = () => import('#controllers/labours_controller')
 const AttendanceController = () => import('#controllers/attendance_controller')
 const WagesController = () => import('#controllers/wages_controller')
 const ExpensesController = () => import('#controllers/expenses_controller')
-const UploadsController = () => import('#controllers/uploads_controller')
 const ReportsController = () => import('#controllers/reports_controller')
 const SettingsController = () => import('#controllers/settings_controller')
 
@@ -28,9 +27,6 @@ const SettingsController = () => import('#controllers/settings_controller')
 router.where('id', router.matchers.number())
 
 router.get('/', ({ response }) => ok(response, { name: 'FlyAsh API' }))
-
-/** Uploaded files (served by Nginx in production) */
-router.get('/uploads/*', [UploadsController, 'show'])
 
 router
   .group(() => {
@@ -134,9 +130,6 @@ router
         router.get('expense-categories', [ExpensesController, 'categories'])
         router.post('expense-categories', [ExpensesController, 'storeCategory'])
         router.put('expense-categories/:id', [ExpensesController, 'updateCategory'])
-
-        // Uploads
-        router.post('uploads', [UploadsController, 'store'])
 
         // Dashboard & reports
         router.get('dashboard', [ReportsController, 'dashboard'])

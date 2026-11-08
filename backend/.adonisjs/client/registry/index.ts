@@ -8,12 +8,6 @@ export type { Route, Path } from './schema.d.ts'
 const placeholder: any = {}
 
 const routes = {
-  'uploads.show': {
-    methods: ["GET","HEAD"],
-    pattern: '/uploads/*',
-    tokens: [[0,"uploads"],[2,"*"]],
-    types: placeholder as Registry['uploads.show']['types'],
-  },
   'settings.app_version': {
     methods: ["GET","HEAD"],
     pattern: '/api/v1/app/version',
@@ -379,12 +373,6 @@ const routes = {
     pattern: '/api/v1/expense-categories/:id',
     tokens: [[0,"api"],[0,"v1"],[0,"expense-categories"],[1,"id"]],
     types: placeholder as Registry['expenses.update_category']['types'],
-  },
-  'uploads.store': {
-    methods: ["POST"],
-    pattern: '/api/v1/uploads',
-    tokens: [[0,"api"],[0,"v1"],[0,"uploads"]],
-    types: placeholder as Registry['uploads.store']['types'],
   },
   'reports.dashboard': {
     methods: ["GET","HEAD"],
