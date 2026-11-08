@@ -338,11 +338,11 @@ abstract class AppLocalizations {
   /// **'Verify OTP'**
   String get verifyTitle;
 
-  /// No description provided for @otpSentTo.
+  /// No description provided for @otpSentHint.
   ///
   /// In en, this message translates to:
-  /// **'Enter the OTP sent to {email}'**
-  String otpSentTo(String email);
+  /// **'We sent a 6-digit OTP to this email. Enter it below.'**
+  String get otpSentHint;
 
   /// No description provided for @otpLabel.
   ///
@@ -359,7 +359,7 @@ abstract class AppLocalizations {
   /// No description provided for @changeEmail.
   ///
   /// In en, this message translates to:
-  /// **'Wrong email? Change it'**
+  /// **'Change'**
   String get changeEmail;
 
   /// No description provided for @resendIn.

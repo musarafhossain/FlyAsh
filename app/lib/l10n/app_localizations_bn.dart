@@ -114,7 +114,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get forgotHint =>
-      'আপনার অ্যাকাউন্টের ইমেইল দিন। আমরা ৬ সংখ্যার একটি OTP পাঠাব।';
+      'আপনার অ্যাকাউন্টের ইমেইল দিন। আমরা 6 সংখ্যার একটি OTP পাঠাব।';
 
   @override
   String get emailField => 'ইমেইল';
@@ -133,18 +133,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get verifyTitle => 'OTP যাচাই';
 
   @override
-  String otpSentTo(String email) {
-    return '$email-এ পাঠানো OTP দিন';
-  }
+  String get otpSentHint =>
+      'এই ইমেইলে 6 সংখ্যার একটি OTP পাঠানো হয়েছে। নিচে লিখুন।';
 
   @override
-  String get otpLabel => '৬ সংখ্যার OTP';
+  String get otpLabel => '6 সংখ্যার OTP';
 
   @override
   String get verify => 'যাচাই করুন';
 
   @override
-  String get changeEmail => 'ইমেইল ভুল? বদলান';
+  String get changeEmail => 'বদলান';
 
   @override
   String resendIn(String seconds) {

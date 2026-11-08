@@ -62,7 +62,7 @@ flowchart LR
 | Screen | Behaviour |
 |---|---|
 | ① Email | Validate the email format → send → always show "If this email is registered, an OTP has been sent" → go to ② (the email is passed along) |
-| ② Verify OTP | Shows the **full email** so a typo is easy to spot, with **"Wrong email? Change it"** → back to ① with the email filled in. 6 boxes, auto-submit on the 6th digit. Wrong → "Wrong OTP · N tries left". 60 s resend countdown |
+| ② Verify OTP | Shows the **full email in its own card with a "Change" button** next to it → back to ① with the email filled in, so a typo is easy to spot and fix. 6 boxes, auto-submit on the 6th digit. Wrong → "Wrong OTP · N tries left". 60 s resend countdown |
 | ③ New Password | The `reset_token` is held in memory only (route argument). New + confirm. Back → confirm "Cancel password reset?" → Login |
 
 ### 2.3 Logout

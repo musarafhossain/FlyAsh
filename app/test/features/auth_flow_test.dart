@@ -275,7 +275,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Send OTP'));
       await tester.pumpAndSettle();
       expect(find.text('Verify OTP'), findsOneWidget);
-      expect(find.text('Enter the OTP sent to owner@test.com'), findsOneWidget);
+      expect(find.text('owner@test.com'), findsOneWidget);
       expect(find.text('Resend OTP in 60s'), findsOneWidget);
 
       await tester.enterText(find.byKey(const Key('otp-input')), '000000');
@@ -311,9 +311,9 @@ void main() {
       await tester.enterText(find.byType(TextFormField), 'ownr@test.com');
       await tester.tap(find.widgetWithText(FilledButton, 'Send OTP'));
       await tester.pumpAndSettle();
-      expect(find.text('Enter the OTP sent to ownr@test.com'), findsOneWidget);
+      expect(find.text('ownr@test.com'), findsOneWidget);
 
-      await tester.tap(find.text('Wrong email? Change it'));
+      await tester.tap(find.widgetWithText(TextButton, 'Change'));
       await tester.pumpAndSettle();
       expect(find.text('Forgot password'), findsOneWidget);
       expect(
@@ -324,7 +324,7 @@ void main() {
       await tester.enterText(find.byType(TextFormField), 'owner@test.com');
       await tester.tap(find.widgetWithText(FilledButton, 'Send OTP'));
       await tester.pumpAndSettle();
-      expect(find.text('Enter the OTP sent to owner@test.com'), findsOneWidget);
+      expect(find.text('owner@test.com'), findsOneWidget);
 
       final sentTo = requests
           .where((r) => r.path == '/auth/forgot-password')

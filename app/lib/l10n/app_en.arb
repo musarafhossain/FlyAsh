@@ -47,17 +47,10 @@
   "sendOtp": "Send OTP",
   "noEmailHint": "No email? Ask another user to reset your password.",
   "verifyTitle": "Verify OTP",
-  "otpSentTo": "Enter the OTP sent to {email}",
-  "@otpSentTo": {
-    "placeholders": {
-      "email": {
-        "type": "String"
-      }
-    }
-  },
+  "otpSentHint": "We sent a 6-digit OTP to this email. Enter it below.",
   "otpLabel": "6-digit OTP",
   "verify": "Verify",
-  "changeEmail": "Wrong email? Change it",
+  "changeEmail": "Change",
   "resendIn": "Resend OTP in {seconds}s",
   "@resendIn": {
     "placeholders": {

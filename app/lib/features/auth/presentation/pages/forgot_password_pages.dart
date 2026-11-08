@@ -206,21 +206,16 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
     final l = context.l10n;
     return AuthLayout(
       title: l.verifyTitle,
-      // The full email is shown so a typo is easy to spot.
-      subtitle: l.otpSentTo(widget.email),
+      subtitle: l.otpSentHint,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // The full email, clearly visible, with a Change button next to it,
+          // so a wrong email is easy to spot and fix.
+          _EmailCard(email: widget.email, onChange: _changeEmail),
+          const SizedBox(height: Space.s5),
           OtpField(controller: _otp, onCompleted: _verify, errorText: _error),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: _changeEmail,
-              icon: const Icon(Icons.edit_outlined, size: 18),
-              label: Text(l.changeEmail),
-            ),
-          ),
-          const SizedBox(height: Space.s4),
+          const SizedBox(height: Space.s5),
           BusyButton(
             label: l.verify,
             busy: _busy,
@@ -239,6 +234,52 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
                     ),
                   )
                 : TextButton(onPressed: _resend, child: Text(l.resendOtp)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The email the OTP was sent to, with a "Change" button.
+class _EmailCard extends StatelessWidget {
+  const _EmailCard({required this.email, required this.onChange});
+
+  final String email;
+  final VoidCallback onChange;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = context.l10n;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        Space.s4,
+        Space.s2,
+        Space.s2,
+        Space.s2,
+      ),
+      decoration: BoxDecoration(
+        color: t.surfaceVariant,
+        borderRadius: Radii.mdAll,
+        border: Border.all(color: t.border),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.mail_outline, size: 20, color: t.textSecondary),
+          const SizedBox(width: Space.s3),
+          Expanded(
+            child: Text(
+              email,
+              key: const Key('otp-email'),
+              style: AppTypography.title.copyWith(color: t.textPrimary),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          TextButton.icon(
+            onPressed: onChange,
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: Text(l.changeEmail),
           ),
         ],
       ),

@@ -134,9 +134,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verifyTitle => 'Verify OTP';
 
   @override
-  String otpSentTo(String email) {
-    return 'Enter the OTP sent to $email';
-  }
+  String get otpSentHint =>
+      'We sent a 6-digit OTP to this email. Enter it below.';
 
   @override
   String get otpLabel => '6-digit OTP';
@@ -145,7 +144,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verify => 'Verify';
 
   @override
-  String get changeEmail => 'Wrong email? Change it';
+  String get changeEmail => 'Change';
 
   @override
   String resendIn(String seconds) {
