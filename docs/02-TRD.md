@@ -69,7 +69,7 @@ FlyAsh/
 - JSON request and response bodies, `snake_case` keys
 - Auth header: `Authorization: Bearer <token>`
 - Language header: `Accept-Language: en` (default) or `bn`. Every `message` (success, errors, validation errors and field names) comes back in that language, with a `Content-Language` header. Without the header, authenticated requests use the user's saved language (`users.locale`), and public requests use English. The app sends the header from its language setting and saves the choice with `PUT /auth/preferences`. Translations live in `backend/resources/lang/{en,bn}/messages.json` and `validator.json`; code uses message keys (`sales.saved`), never raw text
-- Dates `YYYY-MM-DD`; timestamps ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`)
+- Dates `YYYY-MM-DD`; timestamps ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`). See §4.3 for the rules
 - Money is sent and returned as **strings with 2 decimals** (`"28500.00"`), so no precision is lost in JSON. Flutter parses it with a decimal type.
 
 ### 4.2 Response format (every endpoint)
@@ -134,14 +134,28 @@ FlyAsh/
 
 Status codes used: `200` OK · `201` Created · `400` Bad request / business rule failed · `401` Not logged in · `404` Not found · `409` Conflict (for example, deleting a used product) · `422` Validation · `429` Too many attempts · `500` Server error.
 
-### 4.3 Pagination, search and filters
+### 4.3 Dates and time
+
+There are two kinds of time values, and they follow different rules:
+
+| Kind | Examples | Format | Stored | In the app |
+|---|---|---|---|---|
+| **Timestamp** (when something happened) | `created_at`, `updated_at`, `last_login_at`, `cancelled_at` | ISO-8601 UTC: `2026-11-08T14:22:18.000Z` | `DATETIME` in UTC | `DateTime.parse(v).toLocal()` → shown in the **device** timezone |
+| **Business date** (which day it counts for) | `sale_date`, `delivery_date`, `delivered_date`, `payment_date`, `date` (attendance), `expense_date`, `advance_date`, `joining_date`, `left_date`, `wage_month` | `YYYY-MM-DD` (months: `YYYY-MM`) | `DATE`, no timezone | Shown **as is**. Never call `toLocal()` / `toUtc()` on it |
+
+- **"Today" is the factory's day** (`APP_TIMEZONE`, default `Asia/Kolkata`), not the server's UTC day and not the viewer's device day. It changes at midnight IST.
+- **Reports, dashboard and wages use business dates only**, so every viewer sees the same numbers wherever they are, and a sale at 11:59 PM never moves to the next day.
+- Every response carries `X-Business-Date: 2026-11-08` and `X-Business-Timezone: Asia/Kolkata` (also exposed to the web app through CORS). The app stores the latest value and uses it, **not the device clock**, as the default date for forms, filters and "today" presets. A device in another timezone then never picks a date the server treats as the future.
+- "Not in the future" checks (sale, payment, attendance, expense dates) compare against the factory's today.
+
+### 4.4 Pagination, search and filters
 
 - Query params: `page` (default `1`), `limit` (default `20`, max `100`)
 - Search: `search=<text>`
 - Filters: plain params, for example `status=due&type=booking&from=2026-11-01&to=2026-11-30`
 - Sorting: a sensible default per list (newest first). Optional `sort=name&order=asc` only where the UI needs it.
 
-### 4.4 Endpoints (v1)
+### 4.5 Endpoints (v1)
 
 All endpoints require auth except the ones marked 🌐.
 
@@ -482,7 +496,8 @@ Implements 04-UI-UX §5–§8:
 
 - ARB files for English and Bengali (`flutter gen-l10n`).
 - Money: `NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0)` in lists and 2 decimals on receipts → `₹1,00,000`.
-- Dates: `dd MMM yyyy`, plus "Today" / "Yesterday".
+- Dates: `dd MMM yyyy`, plus "Today" / "Yesterday" (compared with the factory date from `X-Business-Date`, see §4.3).
+- A `BusinessDate` provider keeps the latest `X-Business-Date` (read by a Dio interceptor) and is the only source of "today" in the app. Timestamps are converted with `toLocal()`; business dates are never converted.
 
 ### 7.7 Receipts and exports
 

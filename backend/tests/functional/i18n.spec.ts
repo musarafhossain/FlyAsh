@@ -155,3 +155,14 @@ test.group('User preferences (language and theme)', (group) => {
     assert.equal(bengali.body().data.locale, 'bn')
   })
 })
+
+test.group('Business date headers', () => {
+  test('every response tells the factory date and timezone', async ({ client, assert }) => {
+    const response = await client.get(`${API}/health`)
+    assert.match(response.header('x-business-date') ?? '', /^\d{4}-\d{2}-\d{2}$/)
+    response.assertHeader('x-business-timezone', 'Asia/Kolkata')
+
+    const notFound = await client.get(`${API}/nope`)
+    assert.match(notFound.header('x-business-date') ?? '', /^\d{4}-\d{2}-\d{2}$/)
+  })
+})

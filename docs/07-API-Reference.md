@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Document** | Complete REST API reference (every endpoint, payload and response case) |
-| **Version** | 1.3 (English/Bengali messages, user language and theme preferences) |
+| **Version** | 1.4 (adds dates and time rules, factory date headers) |
 | **Date** | 2026-11-08 |
 | **Source** | Every response below was captured from the running API (`backend/`); long lists are shortened to 2 items |
 | **Related docs** | 02-TRD §4 (API standards) · 05-Backend-Schema (tables, calculations) |
@@ -20,8 +20,9 @@
 | Language | `Accept-Language: en` (default) or `bn` (Bengali) on every request. See §1.6 |
 | Keys | `snake_case` |
 | Money | String with 2 decimals in responses (`"1500.00"`). Requests accept a number or a numeric string (`1500`, `"1500.50"`) |
-| Dates | `YYYY-MM-DD` (business dates, factory timezone IST). Months: `YYYY-MM` |
-| Timestamps | ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`) |
+| Business dates | `YYYY-MM-DD` (months `YYYY-MM`), no timezone. Show as is. See §1.7 |
+| Timestamps | ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`). Show in the device timezone. See §1.7 |
+| Factory date headers | Every response: `X-Business-Date: 2026-11-08`, `X-Business-Timezone: Asia/Kolkata` |
 | Booleans in query strings | `true` / `false` (also `1` / `0`) |
 | IDs | Positive integers. A non-numeric `:id` returns `404 Route not found` |
 
@@ -218,6 +219,25 @@ The examples in this document are in English. Bengali examples:
     "last_page": 5
   }
 }
+```
+
+### 1.7 Dates and time
+
+| Kind | Fields | Format | How the app shows it |
+|---|---|---|---|
+| **Timestamp** (when it happened) | `created_at`, `updated_at`, `last_login_at`, `cancelled_at` | `2026-11-08T14:22:18.000Z` (UTC) | Convert to the **device** timezone (`toLocal()`) |
+| **Business date** (which day it counts for) | `sale_date`, `delivery_date`, `delivered_date`, `payment_date`, `date`, `expense_date`, `advance_date`, `joining_date`, `left_date`, `wage_month` | `2026-11-08` / `2026-11` | Show **as is**. Never convert to another timezone |
+
+- **Today = the factory day** (`Asia/Kolkata`), which changes at midnight IST. All "today" defaults on the server (sale date, payment date, attendance date, expense date, report ranges) and all "cannot be a future date" checks use it.
+- **Every response** has `X-Business-Date` (the factory date) and `X-Business-Timezone`. Use `X-Business-Date` as the app default "today" instead of the device clock, so a phone in another timezone never sends a date the server rejects as future.
+- **Reports, the dashboard and wages are based on business dates**, so the numbers are the same for every viewer in every timezone.
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Content-Language: en
+X-Business-Date: 2026-11-08
+X-Business-Timezone: Asia/Kolkata
 ```
 
 ---

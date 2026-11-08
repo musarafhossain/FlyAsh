@@ -18,7 +18,7 @@
 | Names | `snake_case`, plural tables, FK = `<singular>_id` |
 | Money | `DECIMAL(12,2)`, never FLOAT. Max ₹9,99,99,99,999.99 |
 | Quantity | `DECIMAL(12,2)` |
-| Dates | `DATE` for business dates (sale date, attendance date …) in factory local time (IST) |
+| Dates | `DATE` for business dates (sale date, attendance date …) in factory local time (IST), returned as `YYYY-MM-DD` strings (never timezone-converted; see 02-TRD §4.3) |
 | Timestamps | `created_at`, `updated_at` as `DATETIME`, stored in **UTC** |
 | Enums | `VARCHAR(20)` + validation in VineJS (easier to change than MariaDB `ENUM`) |
 | Booleans | `TINYINT(1)` (`is_active`) |

@@ -326,4 +326,4 @@ flowchart TD
 | Destructive actions | Always a confirm dialog with a red action button |
 | Double submit | The Save button shows a spinner and is disabled until the response arrives |
 | Money input | Numeric keyboard, ₹ prefix, Indian grouping while typing |
-| Dates | Default today. Future dates are blocked where the PRD says so |
+| Dates | Default = the factory's today from the `X-Business-Date` header (not the device clock). Future dates are blocked where the PRD says so. Timestamps (`created_at` …) are shown in the device timezone; business dates (`sale_date` …) are shown as is |
