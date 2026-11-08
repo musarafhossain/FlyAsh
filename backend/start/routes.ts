@@ -6,15 +6,58 @@
 
 import router from '@adonisjs/core/services/router'
 import db from '@adonisjs/lucid/services/db'
+import { middleware } from '#start/kernel'
+import { forgotPasswordThrottle, otpThrottle } from '#start/limiter'
 import { ok } from '#helpers/api_response'
+
+const AuthController = () => import('#controllers/auth_controller')
+const PasswordResetController = () => import('#controllers/password_reset_controller')
+const UsersController = () => import('#controllers/users_controller')
 
 router.get('/', ({ response }) => ok(response, { name: 'FlyAsh API' }))
 
 router
   .group(() => {
+    /*
+    | Public
+    */
     router.get('health', async ({ response }) => {
       await db.rawQuery('SELECT 1')
       return ok(response, { status: 'ok', db: 'ok', time: new Date().toISOString() }, 'Healthy')
     })
+
+    router
+      .group(() => {
+        router.post('login', [AuthController, 'login'])
+        router.post('forgot-password', [PasswordResetController, 'forgot']).use(forgotPasswordThrottle)
+        router.post('verify-otp', [PasswordResetController, 'verify']).use(otpThrottle)
+        router.post('reset-password', [PasswordResetController, 'reset']).use(otpThrottle)
+      })
+      .prefix('auth')
+
+    /*
+    | Authenticated
+    */
+    router
+      .group(() => {
+        // Auth & profile
+        router.post('auth/logout', [AuthController, 'logout'])
+        router.get('auth/me', [AuthController, 'me'])
+        router.put('auth/me', [AuthController, 'updateMe'])
+        router.put('auth/password', [AuthController, 'changePassword'])
+
+        // Users
+        router.get('users', [UsersController, 'index'])
+        router.post('users', [UsersController, 'store'])
+        router.get('users/:id', [UsersController, 'show']).where('id', router.matchers.number())
+        router.put('users/:id', [UsersController, 'update']).where('id', router.matchers.number())
+        router
+          .patch('users/:id/status', [UsersController, 'status'])
+          .where('id', router.matchers.number())
+        router
+          .put('users/:id/password', [UsersController, 'resetPassword'])
+          .where('id', router.matchers.number())
+      })
+      .use(middleware.auth())
   })
   .prefix('/api/v1')

@@ -3,4 +3,8 @@
  * DO NOT EDIT manually
  */
 
-export const controllers = {}
+export const controllers = {
+  Auth: () => import('#controllers/auth_controller'),
+  PasswordReset: () => import('#controllers/password_reset_controller'),
+  Users: () => import('#controllers/users_controller'),
+}

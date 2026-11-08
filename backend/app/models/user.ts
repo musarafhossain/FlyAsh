@@ -14,4 +14,16 @@ export default class User extends compose(
 ) {
   static accessTokens = DbAccessTokensProvider.forModel(User)
   declare currentAccessToken?: AccessToken
+
+  /**
+   * Logs the user out of every device, optionally keeping one token
+   * (the current device).
+   */
+  static async revokeTokens(user: User, exceptTokenId?: string | number | BigInt) {
+    const tokens = await User.accessTokens.all(user)
+    for (const token of tokens) {
+      if (exceptTokenId !== undefined && String(token.identifier) === String(exceptTokenId)) continue
+      await User.accessTokens.delete(user, token.identifier)
+    }
+  }
 }

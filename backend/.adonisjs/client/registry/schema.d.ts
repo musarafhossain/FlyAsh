@@ -8,7 +8,188 @@ import type { routes } from './index.ts'
 export type ParamValue = string | number | bigint | boolean
 
 export interface Registry {
-
+  'auth.login': {
+    methods: ["POST"]
+    pattern: '/api/v1/auth/login'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/auth').loginValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/auth').loginValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['login']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['login']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['login']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'password_reset.forgot': {
+    methods: ["POST"]
+    pattern: '/api/v1/auth/forgot-password'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/auth').forgotPasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/auth').forgotPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['forgot']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['forgot']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['forgot']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'password_reset.verify': {
+    methods: ["POST"]
+    pattern: '/api/v1/auth/verify-otp'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/auth').verifyOtpValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/auth').verifyOtpValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['verify']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['verify']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['verify']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'password_reset.reset': {
+    methods: ["POST"]
+    pattern: '/api/v1/auth/reset-password'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/auth').resetPasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/auth').resetPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['reset']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['reset']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/password_reset_controller').default['reset']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'auth.logout': {
+    methods: ["POST"]
+    pattern: '/api/v1/auth/logout'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['logout']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['logout']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['logout']>>>
+    }
+  }
+  'auth.me': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/auth/me'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['me']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['me']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['me']>>>
+    }
+  }
+  'auth.update_me': {
+    methods: ["PUT"]
+    pattern: '/api/v1/auth/me'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/auth').profileValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/auth').profileValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['updateMe']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['updateMe']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['updateMe']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'auth.change_password': {
+    methods: ["PUT"]
+    pattern: '/api/v1/auth/password'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/auth').changePasswordValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/auth').changePasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['changePassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['changePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/auth_controller').default['changePassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'users.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/users'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: ExtractQueryForGet<InferInput<(typeof import('#validators/user').listUsersValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/users_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/users_controller').default['index']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'users.store': {
+    methods: ["POST"]
+    pattern: '/api/v1/users'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').createUserValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').createUserValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/users_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/users_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'users.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/api/v1/users/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/users_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/users_controller').default['show']>>>
+    }
+  }
+  'users.update': {
+    methods: ["PUT"]
+    pattern: '/api/v1/users/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').updateUserValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').updateUserValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/users_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/users_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'users.status': {
+    methods: ["PATCH"]
+    pattern: '/api/v1/users/:id/status'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').userStatusValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').userStatusValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/users_controller').default['status']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['status']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/users_controller').default['status']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'users.reset_password': {
+    methods: ["PUT"]
+    pattern: '/api/v1/users/:id/password'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').resetUserPasswordValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').resetUserPasswordValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/users_controller').default['resetPassword']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/users_controller').default['resetPassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/users_controller').default['resetPassword']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }
 
 export namespace Route {

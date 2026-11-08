@@ -1,0 +1,85 @@
+import type { HttpContext } from '@adonisjs/core/http'
+import hash from '@adonisjs/core/services/hash'
+import { DateTime } from 'luxon'
+import User from '#models/user'
+import AppError from '#exceptions/app_error'
+import { ok } from '#helpers/api_response'
+import { loginLimiter } from '#start/limiter'
+import { changePasswordValidator, loginValidator, profileValidator } from '#validators/auth'
+
+export default class AuthController {
+  /**
+   * POST /auth/login → { token, user }
+   */
+  async login({ request, response }: HttpContext) {
+    const { login, password, device_name: deviceName } = await request.validateUsing(loginValidator)
+
+    const [error, user] = await loginLimiter.penalize(`login_${request.ip()}_${login}`, () =>
+      User.verifyCredentials(login, password)
+    )
+    if (error) throw error
+
+    if (!user.isActive) {
+      throw new AppError('Your account is deactivated')
+    }
+
+    user.lastLoginAt = DateTime.now()
+    await user.save()
+
+    const token = await User.accessTokens.create(user, ['*'], { name: deviceName })
+
+    return ok(response, { token: token.value!.release(), user }, 'Login successful')
+  }
+
+  /**
+   * POST /auth/logout: revokes the current token only.
+   */
+  async logout({ auth, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    if (user.currentAccessToken) {
+      await User.accessTokens.delete(user, user.currentAccessToken.identifier)
+    }
+    return ok(response, null, 'Logged out successfully')
+  }
+
+  /**
+   * GET /auth/me
+   */
+  async me({ auth, response }: HttpContext) {
+    return ok(response, auth.getUserOrFail(), 'Profile fetched successfully')
+  }
+
+  /**
+   * PUT /auth/me: edit my own name, phone, email.
+   */
+  async updateMe({ auth, request, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const data = await request.validateUsing(profileValidator, { meta: { userId: user.id } })
+
+    user.merge({ name: data.name, phone: data.phone, email: data.email ?? null })
+    await user.save()
+
+    return ok(response, user, 'Profile updated successfully')
+  }
+
+  /**
+   * PUT /auth/password: change my password. Other devices are logged out.
+   */
+  async changePassword({ auth, request, response }: HttpContext) {
+    const user = auth.getUserOrFail()
+    const { current_password: currentPassword, password } =
+      await request.validateUsing(changePasswordValidator)
+
+    if (!(await hash.verify(user.password, currentPassword))) {
+      throw new AppError('Validation failed', 422, {
+        errors: [{ field: 'current_password', message: 'Current password is incorrect' }],
+      })
+    }
+
+    user.password = password
+    await user.save()
+    await User.revokeTokens(user, user.currentAccessToken?.identifier)
+
+    return ok(response, null, 'Password changed. Other devices were logged out')
+  }
+}
