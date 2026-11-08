@@ -13,6 +13,11 @@ import { ok } from '#helpers/api_response'
 const AuthController = () => import('#controllers/auth_controller')
 const PasswordResetController = () => import('#controllers/password_reset_controller')
 const UsersController = () => import('#controllers/users_controller')
+const ProductsController = () => import('#controllers/products_controller')
+const CustomersController = () => import('#controllers/customers_controller')
+
+/** Every :id style param must be numeric. */
+router.where('id', router.matchers.number())
 
 router.get('/', ({ response }) => ok(response, { name: 'FlyAsh API' }))
 
@@ -46,17 +51,29 @@ router
         router.put('auth/me', [AuthController, 'updateMe'])
         router.put('auth/password', [AuthController, 'changePassword'])
 
-        // Users
+        // Users (other users only)
         router.get('users', [UsersController, 'index'])
         router.post('users', [UsersController, 'store'])
-        router.get('users/:id', [UsersController, 'show']).where('id', router.matchers.number())
-        router.put('users/:id', [UsersController, 'update']).where('id', router.matchers.number())
-        router
-          .patch('users/:id/status', [UsersController, 'status'])
-          .where('id', router.matchers.number())
-        router
-          .put('users/:id/password', [UsersController, 'resetPassword'])
-          .where('id', router.matchers.number())
+        router.get('users/:id', [UsersController, 'show'])
+        router.put('users/:id', [UsersController, 'update'])
+        router.patch('users/:id/status', [UsersController, 'status'])
+        router.put('users/:id/password', [UsersController, 'resetPassword'])
+
+        // Products
+        router.get('products', [ProductsController, 'index'])
+        router.post('products', [ProductsController, 'store'])
+        router.get('products/:id', [ProductsController, 'show'])
+        router.put('products/:id', [ProductsController, 'update'])
+        router.patch('products/:id/status', [ProductsController, 'status'])
+        router.delete('products/:id', [ProductsController, 'destroy'])
+
+        // Customers
+        router.get('customers', [CustomersController, 'index'])
+        router.post('customers', [CustomersController, 'store'])
+        router.get('customers/:id', [CustomersController, 'show'])
+        router.put('customers/:id', [CustomersController, 'update'])
+        router.patch('customers/:id/status', [CustomersController, 'status'])
+        router.delete('customers/:id', [CustomersController, 'destroy'])
       })
       .use(middleware.auth())
   })

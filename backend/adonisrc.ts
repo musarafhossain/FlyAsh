@@ -1,6 +1,5 @@
 import { indexEntities } from '@adonisjs/core/generators'
 import { defineConfig } from '@adonisjs/core/app'
-import { generateRegistry } from '@tuyau/core/hooks'
 
 export default defineConfig({
   /*
@@ -110,7 +109,6 @@ export default defineConfig({
       indexEntities({
         transformers: { enabled: false },
       }),
-      generateRegistry(),
     ],
   },
 })

@@ -23,7 +23,7 @@ export default class UsersController {
     const users = await User.query()
       .whereNot('id', auth.getUserOrFail().id)
       .if(search, (query) => {
-        query.where((q) => q.whereLike('name', `%${search}%`).orWhereLike('phone', `%${search}%`))
+        query.where((q) => q.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`))
       })
       .if(active !== undefined, (query) => query.where('is_active', active!))
       .orderBy('name', 'asc')

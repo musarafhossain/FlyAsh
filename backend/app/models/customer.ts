@@ -5,6 +5,7 @@ import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import db from '@adonisjs/lucid/services/db'
 import Sale from '#models/sale'
 import { money } from '#helpers/money'
+import AppError from '#exceptions/app_error'
 
 export default class Customer extends CustomerSchema {
   @hasMany(() => Sale)
@@ -26,6 +27,23 @@ export default class Customer extends CustomerSchema {
       .select(sum('total', 'total_sales'))
       .select(sum('paid_amount', 'total_paid'))
       .select(sum('due_amount', 'total_due'))
+  }
+
+  /**
+   * Phone numbers are unique. Throws a 422 that also carries the existing
+   * customer's id, so the app can offer "Use this customer".
+   */
+  static async assertPhoneFree(phone: string, exceptId?: number, field = 'phone') {
+    const existing = await Customer.query()
+      .where('phone', phone)
+      .if(exceptId, (q) => q.whereNot('id', exceptId!))
+      .first()
+    if (existing) {
+      throw new AppError('Validation failed', 422, {
+        errors: [{ field, message: `This phone belongs to ${existing.name}` }],
+        existing_customer_id: existing.id,
+      })
+    }
   }
 
   /** API shape: model fields + totals (when loaded with withTotals). */

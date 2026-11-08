@@ -22,4 +22,20 @@ export interface ApiDefinition {
     status: typeof routes['users.status']
     resetPassword: typeof routes['users.reset_password']
   }
+  products: {
+    index: typeof routes['products.index']
+    store: typeof routes['products.store']
+    show: typeof routes['products.show']
+    update: typeof routes['products.update']
+    status: typeof routes['products.status']
+    destroy: typeof routes['products.destroy']
+  }
+  customers: {
+    index: typeof routes['customers.index']
+    store: typeof routes['customers.store']
+    show: typeof routes['customers.show']
+    update: typeof routes['customers.update']
+    status: typeof routes['customers.status']
+    destroy: typeof routes['customers.destroy']
+  }
 }
