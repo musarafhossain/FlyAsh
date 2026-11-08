@@ -68,6 +68,7 @@ FlyAsh/
 - Base URL: `https://api.<domain>/api/v1` (dev: `http://localhost:3333/api/v1`)
 - JSON request and response bodies, `snake_case` keys
 - Auth header: `Authorization: Bearer <token>`
+- Language header: `Accept-Language: en` (default) or `bn`. Every `message` (success, errors, validation errors and field names) comes back in that language, with a `Content-Language` header. Translations live in `backend/resources/lang/{en,bn}/messages.json` and `validator.json`; code uses message keys (`sales.saved`), never raw text
 - Dates `YYYY-MM-DD`; timestamps ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`)
 - Money is sent and returned as **strings with 2 decimals** (`"28500.00"`), so no precision is lost in JSON. Flutter parses it with a decimal type.
 
