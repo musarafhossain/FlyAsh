@@ -8,6 +8,12 @@ export type { Route, Path } from './schema.d.ts'
 const placeholder: any = {}
 
 const routes = {
+  'uploads.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/uploads/*',
+    tokens: [[0,"uploads"],[2,"*"]],
+    types: placeholder as Registry['uploads.show']['types'],
+  },
   'auth.login': {
     methods: ["POST"],
     pattern: '/api/v1/auth/login',
@@ -319,6 +325,60 @@ const routes = {
     pattern: '/api/v1/wage-payments/:id',
     tokens: [[0,"api"],[0,"v1"],[0,"wage-payments"],[1,"id"]],
     types: placeholder as Registry['wages.destroy_payment']['types'],
+  },
+  'expenses.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/expenses',
+    tokens: [[0,"api"],[0,"v1"],[0,"expenses"]],
+    types: placeholder as Registry['expenses.index']['types'],
+  },
+  'expenses.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/expenses',
+    tokens: [[0,"api"],[0,"v1"],[0,"expenses"]],
+    types: placeholder as Registry['expenses.store']['types'],
+  },
+  'expenses.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/expenses/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"expenses"],[1,"id"]],
+    types: placeholder as Registry['expenses.show']['types'],
+  },
+  'expenses.update': {
+    methods: ["PUT"],
+    pattern: '/api/v1/expenses/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"expenses"],[1,"id"]],
+    types: placeholder as Registry['expenses.update']['types'],
+  },
+  'expenses.destroy': {
+    methods: ["DELETE"],
+    pattern: '/api/v1/expenses/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"expenses"],[1,"id"]],
+    types: placeholder as Registry['expenses.destroy']['types'],
+  },
+  'expenses.categories': {
+    methods: ["GET","HEAD"],
+    pattern: '/api/v1/expense-categories',
+    tokens: [[0,"api"],[0,"v1"],[0,"expense-categories"]],
+    types: placeholder as Registry['expenses.categories']['types'],
+  },
+  'expenses.store_category': {
+    methods: ["POST"],
+    pattern: '/api/v1/expense-categories',
+    tokens: [[0,"api"],[0,"v1"],[0,"expense-categories"]],
+    types: placeholder as Registry['expenses.store_category']['types'],
+  },
+  'expenses.update_category': {
+    methods: ["PUT"],
+    pattern: '/api/v1/expense-categories/:id',
+    tokens: [[0,"api"],[0,"v1"],[0,"expense-categories"],[1,"id"]],
+    types: placeholder as Registry['expenses.update_category']['types'],
+  },
+  'uploads.store': {
+    methods: ["POST"],
+    pattern: '/api/v1/uploads',
+    tokens: [[0,"api"],[0,"v1"],[0,"uploads"]],
+    types: placeholder as Registry['uploads.store']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 

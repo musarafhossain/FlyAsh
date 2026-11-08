@@ -19,11 +19,16 @@ const SalesController = () => import('#controllers/sales_controller')
 const LaboursController = () => import('#controllers/labours_controller')
 const AttendanceController = () => import('#controllers/attendance_controller')
 const WagesController = () => import('#controllers/wages_controller')
+const ExpensesController = () => import('#controllers/expenses_controller')
+const UploadsController = () => import('#controllers/uploads_controller')
 
 /** Every :id style param must be numeric. */
 router.where('id', router.matchers.number())
 
 router.get('/', ({ response }) => ok(response, { name: 'FlyAsh API' }))
+
+/** Uploaded files (served by Nginx in production) */
+router.get('/uploads/*', [UploadsController, 'show'])
 
 router
   .group(() => {
@@ -114,6 +119,19 @@ router
         router.delete('advances/:id', [WagesController, 'destroyAdvance'])
         router.post('labours/:id/wage-payments', [WagesController, 'storePayment'])
         router.delete('wage-payments/:id', [WagesController, 'destroyPayment'])
+
+        // Expenses
+        router.get('expenses', [ExpensesController, 'index'])
+        router.post('expenses', [ExpensesController, 'store'])
+        router.get('expenses/:id', [ExpensesController, 'show'])
+        router.put('expenses/:id', [ExpensesController, 'update'])
+        router.delete('expenses/:id', [ExpensesController, 'destroy'])
+        router.get('expense-categories', [ExpensesController, 'categories'])
+        router.post('expense-categories', [ExpensesController, 'storeCategory'])
+        router.put('expense-categories/:id', [ExpensesController, 'updateCategory'])
+
+        // Uploads
+        router.post('uploads', [UploadsController, 'store'])
       })
       .use(middleware.auth())
   })

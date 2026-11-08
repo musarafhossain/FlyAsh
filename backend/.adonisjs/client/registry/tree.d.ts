@@ -2,6 +2,10 @@
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
+  uploads: {
+    show: typeof routes['uploads.show']
+    store: typeof routes['uploads.store']
+  }
   auth: {
     login: typeof routes['auth.login']
     logout: typeof routes['auth.logout']
@@ -71,5 +75,15 @@ export interface ApiDefinition {
     destroyAdvance: typeof routes['wages.destroy_advance']
     storePayment: typeof routes['wages.store_payment']
     destroyPayment: typeof routes['wages.destroy_payment']
+  }
+  expenses: {
+    index: typeof routes['expenses.index']
+    store: typeof routes['expenses.store']
+    show: typeof routes['expenses.show']
+    update: typeof routes['expenses.update']
+    destroy: typeof routes['expenses.destroy']
+    categories: typeof routes['expenses.categories']
+    storeCategory: typeof routes['expenses.store_category']
+    updateCategory: typeof routes['expenses.update_category']
   }
 }

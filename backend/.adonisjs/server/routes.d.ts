@@ -4,6 +4,7 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
+    'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'auth.login': { paramsTuple?: []; params?: {} }
     'password_reset.forgot': { paramsTuple?: []; params?: {} }
     'password_reset.verify': { paramsTuple?: []; params?: {} }
@@ -56,8 +57,18 @@ export type ScannedRoutes = {
     'wages.destroy_advance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.store_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.destroy_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.index': { paramsTuple?: []; params?: {} }
+    'expenses.store': { paramsTuple?: []; params?: {} }
+    'expenses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.categories': { paramsTuple?: []; params?: {} }
+    'expenses.store_category': { paramsTuple?: []; params?: {} }
+    'expenses.update_category': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'uploads.store': { paramsTuple?: []; params?: {} }
   }
   GET: {
+    'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'auth.me': { paramsTuple?: []; params?: {} }
     'users.index': { paramsTuple?: []; params?: {} }
     'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -76,8 +87,12 @@ export type ScannedRoutes = {
     'wages.sheet': { paramsTuple?: []; params?: {} }
     'wages.labour': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.advances': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.index': { paramsTuple?: []; params?: {} }
+    'expenses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.categories': { paramsTuple?: []; params?: {} }
   }
   HEAD: {
+    'uploads.show': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'auth.me': { paramsTuple?: []; params?: {} }
     'users.index': { paramsTuple?: []; params?: {} }
     'users.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -96,6 +111,9 @@ export type ScannedRoutes = {
     'wages.sheet': { paramsTuple?: []; params?: {} }
     'wages.labour': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.advances': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.index': { paramsTuple?: []; params?: {} }
+    'expenses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.categories': { paramsTuple?: []; params?: {} }
   }
   POST: {
     'auth.login': { paramsTuple?: []; params?: {} }
@@ -113,6 +131,9 @@ export type ScannedRoutes = {
     'labours.store': { paramsTuple?: []; params?: {} }
     'wages.store_advance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.store_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.store': { paramsTuple?: []; params?: {} }
+    'expenses.store_category': { paramsTuple?: []; params?: {} }
+    'uploads.store': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'auth.update_me': { paramsTuple?: []; params?: {} }
@@ -124,6 +145,8 @@ export type ScannedRoutes = {
     'sales.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'labours.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'attendance.save': { paramsTuple?: []; params?: {} }
+    'expenses.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.update_category': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PATCH: {
     'users.status': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -138,6 +161,7 @@ export type ScannedRoutes = {
     'sales.delete_payment': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'paymentId': ParamValue} }
     'wages.destroy_advance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.destroy_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'expenses.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {
