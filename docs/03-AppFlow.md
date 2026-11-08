@@ -62,7 +62,7 @@ flowchart LR
 | Screen | Behaviour |
 |---|---|
 | ① Email | Validate the email format → send → always show "If this email is registered, an OTP has been sent" → go to ② (the email is passed along) |
-| ② Verify OTP | 6 boxes, auto-submit on the 6th digit. Wrong → "Wrong OTP · N tries left". 60 s resend countdown. Back → ① |
+| ② Verify OTP | Shows the **full email** so a typo is easy to spot, with **"Wrong email? Change it"** → back to ① with the email filled in. 6 boxes, auto-submit on the 6th digit. Wrong → "Wrong OTP · N tries left". 60 s resend countdown |
 | ③ New Password | The `reset_token` is held in memory only (route argument). New + confirm. Back → confirm "Cancel password reset?" → Login |
 
 ### 2.3 Logout
@@ -125,7 +125,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 | `/profile` · `/profile/edit` · `/profile/password` | My profile | |
 | `/settings` · `/settings/factory` · `/settings/appearance` · `/settings/language` · `/settings/about` | Settings | |
 
-**Redirect rule:** while the session is checked → `/splash`. Signed out → any private route redirects to `/login?from=<page>`. Signed in → `/splash`, `/login` and `/forgot-password*` redirect to the `from` page (only internal, private pages) or `/home`. So a deep link such as `/sales/12` opens after login.
+**Redirect rule:** while the session is checked → `/splash`. Signed out → any private route redirects to `/login?from=<page>` (Home is never kept, it is the default). Signed in → `/splash`, `/login` and `/forgot-password*` redirect to the `from` page (only internal, private pages) or `/home`. So a deep link such as `/sales/12` opens after login. `from` is **base64url** (`/login?from=L3NhbGVz` = `/sales`), because Flutter web shows percent-encoded values decoded in the address bar.
 
 ## 4. Dashboard (Home)
 

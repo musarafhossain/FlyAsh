@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,38 +18,59 @@ import 'nav_items.dart';
 bool isPublicRoute(String location) =>
     location == '/login' || location.startsWith('/forgot-password');
 
+/// The page to return to after login is kept in `?from=` as base64url
+/// (only A–Z a–z 0–9 - _), because Flutter web shows percent-encoded
+/// values decoded in the address bar (`from=/sales`). Encoded:
+/// `/login?from=L3NhbGVz`.
+String encodeFrom(String location) =>
+    base64Url.encode(utf8.encode(location)).replaceAll('=', '');
+
+/// Reads `from`; returns null if it is missing, broken or not an internal,
+/// private page (e.g. an outside URL or the login page itself).
+String? decodeFrom(String? value) {
+  if (value == null || value.isEmpty) return null;
+  try {
+    final location = utf8.decode(base64Url.decode(base64Url.normalize(value)));
+    final safe =
+        location.startsWith('/') &&
+        !location.startsWith('//') &&
+        !isPublicRoute(Uri.parse(location).path) &&
+        location != '/splash';
+    return safe ? location : null;
+  } on FormatException {
+    return null;
+  }
+}
+
 /// Where to go for a given auth state (null = stay). Keeps the page the
 /// user asked for in `?from=` so they land there after login.
 String? authRedirect(AuthState auth, Uri uri) {
   final location = uri.path;
   if (kDebugMode && location.startsWith('/dev')) return null;
 
-  final from = uri.queryParameters['from'];
-  final target =
-      (from != null &&
-          from.startsWith('/') &&
-          !isPublicRoute(from) &&
-          from != '/splash')
-      ? from
-      : '/home';
+  final rawFrom = uri.queryParameters['from'];
+  final from = decodeFrom(rawFrom);
+
+  // Home is the default after login, so it is never kept in `from`.
   String withFrom(String page) =>
-      (location == '/splash' || isPublicRoute(location) || location == '/')
+      (location == '/splash' ||
+          isPublicRoute(location) ||
+          location == '/' ||
+          location == '/home')
       ? page
-      : '$page?from=${Uri.encodeComponent(uri.toString())}';
+      : '$page?from=${encodeFrom(uri.toString())}';
 
   switch (auth.status) {
     case AuthStatus.checking:
       return location == '/splash' ? null : withFrom('/splash');
     case AuthStatus.signedOut:
       if (isPublicRoute(location)) return null;
-      return from != null
-          ? '/login?from=${Uri.encodeComponent(from)}'
-          : withFrom('/login');
+      return from != null ? '/login?from=$rawFrom' : withFrom('/login');
     case AuthStatus.signedIn:
       return (location == '/splash' ||
               isPublicRoute(location) ||
               location == '/')
-          ? target
+          ? (from ?? '/home')
           : null;
   }
 }
@@ -69,7 +92,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
       GoRoute(
         path: '/forgot-password',
-        builder: (_, _) => const ForgotPasswordPage(),
+        builder: (_, state) => ForgotPasswordPage(
+          initialEmail: state.extra is String ? state.extra! as String : null,
+        ),
         routes: [
           GoRoute(
             path: 'verify',

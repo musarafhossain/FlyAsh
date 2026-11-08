@@ -144,6 +144,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get verify => 'যাচাই করুন';
 
   @override
+  String get changeEmail => 'ইমেইল ভুল? বদলান';
+
+  @override
   String resendIn(String seconds) {
     return '$seconds সেকেন্ড পরে আবার OTP পাঠানো যাবে';
   }

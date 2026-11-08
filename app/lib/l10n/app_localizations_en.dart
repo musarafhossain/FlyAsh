@@ -145,6 +145,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verify => 'Verify';
 
   @override
+  String get changeEmail => 'Wrong email? Change it';
+
+  @override
   String resendIn(String seconds) {
     return 'Resend OTP in ${seconds}s';
   }

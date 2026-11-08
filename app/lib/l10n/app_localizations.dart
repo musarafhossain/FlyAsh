@@ -356,6 +356,12 @@ abstract class AppLocalizations {
   /// **'Verify'**
   String get verify;
 
+  /// No description provided for @changeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong email? Change it'**
+  String get changeEmail;
+
   /// No description provided for @resendIn.
   ///
   /// In en, this message translates to:

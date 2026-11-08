@@ -57,6 +57,7 @@
   },
   "otpLabel": "6-digit OTP",
   "verify": "Verify",
+  "changeEmail": "Wrong email? Change it",
   "resendIn": "Resend OTP in {seconds}s",
   "@resendIn": {
     "placeholders": {

@@ -43,6 +43,7 @@
   "otpSentTo": "{email}-এ পাঠানো OTP দিন",
   "otpLabel": "৬ সংখ্যার OTP",
   "verify": "যাচাই করুন",
+  "changeEmail": "ইমেইল ভুল? বদলান",
   "resendIn": "{seconds} সেকেন্ড পরে আবার OTP পাঠানো যাবে",
   "resendOtp": "আবার OTP পাঠান",
   "resetTitle": "নতুন পাসওয়ার্ড দিন",

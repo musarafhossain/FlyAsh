@@ -23,7 +23,10 @@ void showMessage(BuildContext context, String message) {
 
 /// ① Email → the server emails a 6-digit OTP (03-AppFlow §2.2).
 class ForgotPasswordPage extends ConsumerStatefulWidget {
-  const ForgotPasswordPage({super.key});
+  const ForgotPasswordPage({super.key, this.initialEmail});
+
+  /// Pre-filled when the user comes back to fix a wrong email.
+  final String? initialEmail;
 
   @override
   ConsumerState<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
@@ -31,7 +34,7 @@ class ForgotPasswordPage extends ConsumerStatefulWidget {
 
 class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   final _form = GlobalKey<FormState>();
-  final _email = TextEditingController();
+  late final _email = TextEditingController(text: widget.initialEmail);
   bool _busy = false;
   String? _error;
   String? _fieldError;
@@ -175,6 +178,15 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
     }
   }
 
+  /// Back to step ① with the email filled in, to fix a typo.
+  void _changeEmail() {
+    if (context.canPop()) {
+      context.pop(); // the email page is still there with the typed email
+    } else {
+      context.go('/forgot-password', extra: widget.email);
+    }
+  }
+
   Future<void> _resend() async {
     try {
       final message = await ref
@@ -194,11 +206,20 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
     final l = context.l10n;
     return AuthLayout(
       title: l.verifyTitle,
-      subtitle: l.otpSentTo(_maskEmail(widget.email)),
+      // The full email is shown so a typo is easy to spot.
+      subtitle: l.otpSentTo(widget.email),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           OtpField(controller: _otp, onCompleted: _verify, errorText: _error),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: _changeEmail,
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: Text(l.changeEmail),
+            ),
+          ),
           const SizedBox(height: Space.s4),
           BusyButton(
             label: l.verify,
@@ -223,13 +244,6 @@ class _VerifyOtpPageState extends ConsumerState<VerifyOtpPage> {
       ),
     );
   }
-}
-
-/// r•••@gmail.com
-String _maskEmail(String email) {
-  final at = email.indexOf('@');
-  if (at <= 1) return email;
-  return '${email[0]}•••${email.substring(at)}';
 }
 
 /// ③ Set the new password with the reset token.

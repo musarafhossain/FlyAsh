@@ -275,7 +275,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Send OTP'));
       await tester.pumpAndSettle();
       expect(find.text('Verify OTP'), findsOneWidget);
-      expect(find.text('Enter the OTP sent to o•••@test.com'), findsOneWidget);
+      expect(find.text('Enter the OTP sent to owner@test.com'), findsOneWidget);
       expect(find.text('Resend OTP in 60s'), findsOneWidget);
 
       await tester.enterText(find.byKey(const Key('otp-input')), '000000');
@@ -300,6 +300,39 @@ void main() {
       expect(find.widgetWithText(FilledButton, 'Sign in'), findsOneWidget);
     });
 
+    testWidgets('a wrong email can be changed from the OTP screen', (
+      tester,
+    ) async {
+      final requests = <RequestOptions>[];
+      await start(tester, requests: requests);
+      await tester.tap(find.text('Forgot password?'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextFormField), 'ownr@test.com');
+      await tester.tap(find.widgetWithText(FilledButton, 'Send OTP'));
+      await tester.pumpAndSettle();
+      expect(find.text('Enter the OTP sent to ownr@test.com'), findsOneWidget);
+
+      await tester.tap(find.text('Wrong email? Change it'));
+      await tester.pumpAndSettle();
+      expect(find.text('Forgot password'), findsOneWidget);
+      expect(
+        find.widgetWithText(TextFormField, 'ownr@test.com'),
+        findsOneWidget,
+      );
+
+      await tester.enterText(find.byType(TextFormField), 'owner@test.com');
+      await tester.tap(find.widgetWithText(FilledButton, 'Send OTP'));
+      await tester.pumpAndSettle();
+      expect(find.text('Enter the OTP sent to owner@test.com'), findsOneWidget);
+
+      final sentTo = requests
+          .where((r) => r.path == '/auth/forgot-password')
+          .map((r) => body(r)['email'])
+          .toList();
+      expect(sentTo, ['ownr@test.com', 'owner@test.com']);
+    });
+
     testWidgets('resend becomes available after 60 seconds', (tester) async {
       await start(tester);
       await tester.tap(find.text('Forgot password?'));
@@ -315,42 +348,71 @@ void main() {
 
   group('redirect rules', () {
     const signedIn = AuthState(AuthStatus.signedIn);
-    test('signed out → login, keeping the requested page', () {
+    final sales = encodeFrom('/sales'); // L3NhbGVz
+
+    test('from is base64url: no "/" or "%" in the address bar', () {
+      expect(sales, 'L3NhbGVz');
+      expect(
+        encodeFrom('/sales/12?tab=paid'),
+        isNot(matches(RegExp(r'[/%=?&]'))),
+      );
+      expect(
+        decodeFrom(encodeFrom('/sales/12?tab=paid')),
+        '/sales/12?tab=paid',
+      );
+    });
+    test('signed out → login, keeping the requested page (not Home)', () {
       expect(
         authRedirect(AuthState.signedOut, Uri.parse('/sales')),
-        '/login?from=%2Fsales',
+        '/login?from=$sales',
       );
+      expect(authRedirect(AuthState.signedOut, Uri.parse('/home')), '/login');
       expect(
         authRedirect(AuthState.signedOut, Uri.parse('/forgot-password')),
         isNull,
       );
     });
     test('signed in → back to the requested page, or Home', () {
-      expect(
-        authRedirect(signedIn, Uri.parse('/login?from=%2Fsales')),
-        '/sales',
-      );
+      expect(authRedirect(signedIn, Uri.parse('/login?from=$sales')), '/sales');
       expect(authRedirect(signedIn, Uri.parse('/login')), '/home');
       expect(authRedirect(signedIn, Uri.parse('/splash')), '/home');
       expect(authRedirect(signedIn, Uri.parse('/customers')), isNull);
     });
-    test('checking → splash; external or public "from" values are ignored', () {
-      expect(
-        authRedirect(AuthState.checking, Uri.parse('/sales')),
-        '/splash?from=%2Fsales',
-      );
-      expect(
-        authRedirect(
-          signedIn,
-          Uri.parse('/splash?from=https%3A%2F%2Fevil.com'),
-        ),
-        '/home',
-      );
-      expect(
-        authRedirect(signedIn, Uri.parse('/login?from=%2Flogin')),
-        '/home',
-      );
-    });
+    test(
+      'checking → splash; broken, external or public "from" values are ignored',
+      () {
+        expect(
+          authRedirect(AuthState.checking, Uri.parse('/sales')),
+          '/splash?from=$sales',
+        );
+        expect(authRedirect(AuthState.checking, Uri.parse('/home')), '/splash');
+        expect(
+          authRedirect(
+            signedIn,
+            Uri.parse('/splash?from=${encodeFrom('https://evil.com')}'),
+          ),
+          '/home',
+        );
+        expect(
+          authRedirect(
+            signedIn,
+            Uri.parse('/splash?from=${encodeFrom('//evil.com')}'),
+          ),
+          '/home',
+        );
+        expect(
+          authRedirect(
+            signedIn,
+            Uri.parse('/login?from=${encodeFrom('/login')}'),
+          ),
+          '/home',
+        );
+        expect(
+          authRedirect(signedIn, Uri.parse('/login?from=%%%not-base64')),
+          '/home',
+        );
+      },
+    );
   });
 
   for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {
