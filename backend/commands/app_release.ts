@@ -24,7 +24,10 @@ export default class AppRelease extends BaseCommand {
   @flags.number({ description: 'Build number (the +N in pubspec.yaml), e.g. 12' })
   declare build: number
 
-  @flags.number({ flagName: 'min-build', description: 'Builds below this must update (default: no force)' })
+  @flags.number({
+    flagName: 'min-build',
+    description: 'Builds below this must update (default: no force)',
+  })
   declare minBuild?: number
 
   @flags.string({ description: 'Download URL of the APK / EXE (not needed for web)' })

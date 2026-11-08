@@ -148,8 +148,7 @@ export default class WageService {
         advances: fromPaise(advanced),
         paid: fromPaise(paid),
         balance: fromPaise(balance),
-        status:
-          earned > 0 && advanced + paid === 0 ? 'due' : balance > 0 ? 'partial' : 'paid',
+        status: earned > 0 && advanced + paid === 0 ? 'due' : balance > 0 ? 'partial' : 'paid',
       }
     })
   }

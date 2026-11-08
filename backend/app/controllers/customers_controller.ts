@@ -15,12 +15,19 @@ const DUE_SQL = `(SELECT COALESCE(SUM(s.due_amount), 0) FROM sales s
 
 export default class CustomersController {
   async index({ request, response }: HttpContext) {
-    const { page = 1, limit = DEFAULT_LIMIT, search, has_due: hasDue, active } =
-      await request.validateUsing(listCustomersValidator)
+    const {
+      page = 1,
+      limit = DEFAULT_LIMIT,
+      search,
+      has_due: hasDue,
+      active,
+    } = await request.validateUsing(listCustomersValidator)
 
     const query = Customer.query()
       .if(search, (q) => {
-        q.where((sub) => sub.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`))
+        q.where((sub) =>
+          sub.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`)
+        )
       })
       .if(active !== undefined, (q) => q.where('is_active', active!))
       .if(hasDue, (q) => q.whereRaw(`${DUE_SQL} > 0`))

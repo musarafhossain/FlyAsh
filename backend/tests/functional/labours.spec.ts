@@ -39,16 +39,34 @@ test.group('Labours & attendance', (group) => {
 
   test('attendance day: save, summary, clear, rules', async ({ client, assert }) => {
     const user = await createUser()
-    const a = await addLabour(client, user, { name: 'A', wage_type: 'daily', wage_amount: 400, joining_date: '2026-10-01' })
-    const b = await addLabour(client, user, { name: 'B', wage_type: 'daily', wage_amount: 400, joining_date: '2026-10-01' })
-    const late = await addLabour(client, user, { name: 'Late', wage_type: 'daily', wage_amount: 400, joining_date: '2026-10-15' })
+    const a = await addLabour(client, user, {
+      name: 'A',
+      wage_type: 'daily',
+      wage_amount: 400,
+      joining_date: '2026-10-01',
+    })
+    const b = await addLabour(client, user, {
+      name: 'B',
+      wage_type: 'daily',
+      wage_amount: 400,
+      joining_date: '2026-10-01',
+    })
+    const late = await addLabour(client, user, {
+      name: 'Late',
+      wage_type: 'daily',
+      wage_amount: 400,
+      joining_date: '2026-10-15',
+    })
 
     const day = await mark(client, user, '2026-10-02', [
       { labour_id: a.id, status: 'present' },
       { labour_id: b.id, status: 'half_day' },
     ])
     assert.containsSubset(day.summary, { present: 1, half_day: 1 })
-    assert.notInclude(day.items.map((i: any) => i.labour_id), late.id)
+    assert.notInclude(
+      day.items.map((i: any) => i.labour_id),
+      late.id
+    )
 
     const cleared = await mark(client, user, '2026-10-02', [{ labour_id: b.id, status: null }])
     assert.equal(cleared.items.find((i: any) => i.labour_id === b.id).status, null)
@@ -65,7 +83,9 @@ test.group('Labours & attendance', (group) => {
       .json({ date: '2099-01-01', records: [] })
     future.assertStatus(422)
 
-    const calendar = await client.get(`${API}/labours/${a.id}/attendance?month=2026-10`).loginAs(user)
+    const calendar = await client
+      .get(`${API}/labours/${a.id}/attendance?month=2026-10`)
+      .loginAs(user)
     assert.lengthOf(calendar.body().data.days, 31)
     assert.equal(calendar.body().data.summary.present, 1)
   })
@@ -89,7 +109,12 @@ test.group('Wages', (group) => {
 
     let sheet = await client.get(`${API}/wages?month=2026-10`).loginAs(user)
     let row = sheet.body().data.items.find((r: any) => r.labour_id === labour.id)
-    assert.containsSubset(row, { worked_days: '1.50', earned: '750.00', status: 'due', not_marked_days: 28 })
+    assert.containsSubset(row, {
+      worked_days: '1.50',
+      earned: '750.00',
+      status: 'due',
+      not_marked_days: 28,
+    })
 
     const adv = await client
       .post(`${API}/labours/${labour.id}/advances`)
@@ -105,7 +130,12 @@ test.group('Wages', (group) => {
 
     sheet = await client.get(`${API}/wages?month=2026-10`).loginAs(user)
     row = sheet.body().data.items.find((r: any) => r.labour_id === labour.id)
-    assert.containsSubset(row, { advances: '200.00', paid: '300.00', balance: '250.00', status: 'partial' })
+    assert.containsSubset(row, {
+      advances: '200.00',
+      paid: '300.00',
+      balance: '250.00',
+      status: 'partial',
+    })
     assert.property(sheet.body().data, 'totals')
 
     const detail = await client.get(`${API}/labours/${labour.id}/wages?month=2026-10`).loginAs(user)
@@ -114,7 +144,10 @@ test.group('Wages', (group) => {
     assert.equal(detail.body().data.payments[0].created_by.id, user.id)
   })
 
-  test('monthly wage uses days in month and keeps the wage snapshot', async ({ client, assert }) => {
+  test('monthly wage uses days in month and keeps the wage snapshot', async ({
+    client,
+    assert,
+  }) => {
     const user = await createUser()
     // October has 31 days → 31000 / 31 = 1000 per day
     const labour = await addLabour(client, user, {

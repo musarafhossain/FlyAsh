@@ -16,11 +16,17 @@ test.group('Expenses', (group) => {
 
   test('categories: create, unique name, rename, deactivate', async ({ client, assert }) => {
     const user = await createUser()
-    const created = await client.post(`${API}/expense-categories`).loginAs(user).json({ name: 'Test Cat' })
+    const created = await client
+      .post(`${API}/expense-categories`)
+      .loginAs(user)
+      .json({ name: 'Test Cat' })
     created.assertStatus(201)
     const id = created.body().data.id
 
-    const dup = await client.post(`${API}/expense-categories`).loginAs(user).json({ name: 'Test Cat' })
+    const dup = await client
+      .post(`${API}/expense-categories`)
+      .loginAs(user)
+      .json({ name: 'Test Cat' })
     dup.assertStatus(422)
 
     const renamed = await client
@@ -30,7 +36,10 @@ test.group('Expenses', (group) => {
     renamed.assertBodyContains({ data: { name: 'Renamed Cat', is_active: false } })
 
     const active = await client.get(`${API}/expense-categories?active=true`).loginAs(user)
-    assert.notInclude(active.body().data.map((c: any) => c.id), id)
+    assert.notInclude(
+      active.body().data.map((c: any) => c.id),
+      id
+    )
   })
 
   test('expenses: create, filter, period total, update, delete', async ({ client, assert }) => {
@@ -58,7 +67,9 @@ test.group('Expenses', (group) => {
       amount: '1200.50',
     })
 
-    const october = await client.get(`${API}/expenses?from=2026-10-01&to=2026-10-31&limit=1`).loginAs(user)
+    const october = await client
+      .get(`${API}/expenses?from=2026-10-01&to=2026-10-31&limit=1`)
+      .loginAs(user)
     assert.equal(october.body().data.period_total, '2050.50')
     assert.lengthOf(october.body().data.items, 1)
     assert.equal(october.body().data.total, 2)

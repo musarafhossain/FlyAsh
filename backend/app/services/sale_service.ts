@@ -45,7 +45,10 @@ export type PaymentInput = {
  */
 export default class SaleService {
   static async create(
-    input: SaleInput & { type: 'instant' | 'booking'; payment?: Omit<PaymentInput, 'payment_date'> },
+    input: SaleInput & {
+      type: 'instant' | 'booking'
+      payment?: Omit<PaymentInput, 'payment_date'>
+    },
     userId: number | null
   ) {
     return db.transaction(async (trx) => {
@@ -106,7 +109,11 @@ export default class SaleService {
       sale.useTransaction(trx)
       const saleDate = input.sale_date ?? sale.saleDate
       const isBooking = sale.type === 'booking'
-      this.assertDeliveryDate(isBooking, saleDate, input.delivery_date ?? sale.deliveryDate ?? undefined)
+      this.assertDeliveryDate(
+        isBooking,
+        saleDate,
+        input.delivery_date ?? sale.deliveryDate ?? undefined
+      )
 
       const customerId = await this.resolveCustomer(input, userId, trx)
 
@@ -301,7 +308,9 @@ export default class SaleService {
     }
     if (deliveryDate < saleDate) {
       throw new AppError('Validation failed', 422, {
-        errors: [{ field: 'delivery_date', message: 'Delivery date cannot be before the sale date' }],
+        errors: [
+          { field: 'delivery_date', message: 'Delivery date cannot be before the sale date' },
+        ],
       })
     }
   }

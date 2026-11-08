@@ -3,7 +3,9 @@ import User from '#models/user'
 let counter = 0
 
 /** Creates an active user with a unique phone. Password: "secret123". */
-export async function createUser(overrides: Partial<{ name: string; phone: string; email: string | null; isActive: boolean }> = {}) {
+export async function createUser(
+  overrides: Partial<{ name: string; phone: string; email: string | null; isActive: boolean }> = {}
+) {
   counter += 1
   return User.create({
     name: overrides.name ?? `User ${counter}`,

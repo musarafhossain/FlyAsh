@@ -35,17 +35,20 @@ test.group('Sales: calculations', (group) => {
   test('instant sale: totals, profit, due, status and snapshots', async ({ client, assert }) => {
     const { user, brick, block, customer } = await setup()
 
-    const response = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'instant',
-      customer_id: customer.id,
-      items: [
-        { product_id: brick.id, quantity: 5000 },
-        { product_id: block.id, quantity: 100, unit_price: '50.00' },
-      ],
-      transport_charge: 1500,
-      discount: 500,
-      payment: { amount: 10000, method: 'upi' },
-    })
+    const response = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        customer_id: customer.id,
+        items: [
+          { product_id: brick.id, quantity: 5000 },
+          { product_id: block.id, quantity: 100, unit_price: '50.00' },
+        ],
+        transport_charge: 1500,
+        discount: 500,
+        payment: { amount: 10000, method: 'upi' },
+      })
 
     response.assertStatus(201)
     const sale = response.body().data
@@ -66,7 +69,11 @@ test.group('Sales: calculations', (group) => {
     })
     assert.match(sale.invoice_no, /^INV-\d{6}$/)
     assert.lengthOf(sale.items, 2)
-    assert.containsSubset(sale.items[0], { product_name: brick.name, unit_cost: '4.20', line_total: '32500.00' })
+    assert.containsSubset(sale.items[0], {
+      product_name: brick.name,
+      unit_cost: '4.20',
+      line_total: '32500.00',
+    })
     assert.equal(sale.payments[0].created_by.id, user.id)
     assert.equal(sale.created_by.name, user.name)
 
@@ -83,51 +90,75 @@ test.group('Sales: calculations', (group) => {
 
   test('payments: no overpayment, paying the rest makes it paid', async ({ client, assert }) => {
     const { user, brick, customer } = await setup()
-    const created = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'instant',
-      customer_id: customer.id,
-      items: [{ product_id: brick.id, quantity: 1000 }],
-    })
+    const created = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 1000 }],
+      })
     const sale = created.body().data
     assert.equal(sale.payment_status, 'due')
 
-    const tooMuch = await client.post(`${API}/sales/${sale.id}/payments`).loginAs(user).json({ amount: 7000 })
+    const tooMuch = await client
+      .post(`${API}/sales/${sale.id}/payments`)
+      .loginAs(user)
+      .json({ amount: 7000 })
     tooMuch.assertStatus(400)
 
-    const rest = await client.post(`${API}/sales/${sale.id}/payments`).loginAs(user).json({ amount: 6500 })
+    const rest = await client
+      .post(`${API}/sales/${sale.id}/payments`)
+      .loginAs(user)
+      .json({ amount: 6500 })
     rest.assertStatus(200)
-    assert.containsSubset(rest.body().data, { paid_amount: '6500.00', due_amount: '0.00', payment_status: 'paid' })
+    assert.containsSubset(rest.body().data, {
+      paid_amount: '6500.00',
+      due_amount: '0.00',
+      payment_status: 'paid',
+    })
 
     const paymentId = rest.body().data.payments[0].id
-    const removed = await client.delete(`${API}/sales/${sale.id}/payments/${paymentId}`).loginAs(user)
+    const removed = await client
+      .delete(`${API}/sales/${sale.id}/payments/${paymentId}`)
+      .loginAs(user)
     assert.equal(removed.body().data.payment_status, 'due')
   })
 
   test('edit is rejected when the new total is less than paid', async ({ client }) => {
     const { user, brick, customer } = await setup()
-    const created = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'instant',
-      customer_id: customer.id,
-      items: [{ product_id: brick.id, quantity: 1000 }],
-      payment: { amount: 6000 },
-    })
+    const created = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 1000 }],
+        payment: { amount: 6000 },
+      })
     const id = created.body().data.id
 
-    const edit = await client.put(`${API}/sales/${id}`).loginAs(user).json({
-      customer_id: customer.id,
-      items: [{ product_id: brick.id, quantity: 100 }],
-    })
+    const edit = await client
+      .put(`${API}/sales/${id}`)
+      .loginAs(user)
+      .json({
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 100 }],
+      })
     edit.assertStatus(400)
   })
 
   test('discount larger than subtotal + transport is rejected', async ({ client }) => {
     const { user, brick, customer } = await setup()
-    const response = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'instant',
-      customer_id: customer.id,
-      items: [{ product_id: brick.id, quantity: 10 }],
-      discount: 1000,
-    })
+    const response = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 10 }],
+        discount: 1000,
+      })
     response.assertStatus(400)
   })
 })
@@ -137,23 +168,29 @@ test.group('Sales: bookings', (group) => {
 
   test('booking needs a delivery date', async ({ client }) => {
     const { user, brick, customer } = await setup()
-    const response = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'booking',
-      customer_id: customer.id,
-      items: [{ product_id: brick.id, quantity: 10 }],
-    })
+    const response = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'booking',
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 10 }],
+      })
     response.assertStatus(422)
   })
 
   test('booked → upcoming, not in dues; delivered → counts in dues', async ({ client, assert }) => {
     const { user, brick, customer } = await setup()
-    const created = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'booking',
-      customer_id: customer.id,
-      delivery_date: '2099-01-01',
-      items: [{ product_id: brick.id, quantity: 1000 }],
-      payment: { amount: 2000, note: 'Advance' },
-    })
+    const created = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'booking',
+        customer_id: customer.id,
+        delivery_date: '2099-01-01',
+        items: [{ product_id: brick.id, quantity: 1000 }],
+        payment: { amount: 2000, note: 'Advance' },
+      })
     created.assertStatus(201)
     const sale = created.body().data
     assert.containsSubset(sale, { status: 'booked', delivered_date: null, due_amount: '4500.00' })
@@ -177,12 +214,15 @@ test.group('Sales: bookings', (group) => {
 
   test('a booking without payments can be cancelled', async ({ client }) => {
     const { user, brick, customer } = await setup()
-    const created = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'booking',
-      customer_id: customer.id,
-      delivery_date: today(),
-      items: [{ product_id: brick.id, quantity: 10 }],
-    })
+    const created = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'booking',
+        customer_id: customer.id,
+        delivery_date: today(),
+        items: [{ product_id: brick.id, quantity: 10 }],
+      })
     const cancel = await client.post(`${API}/sales/${created.body().data.id}/cancel`).loginAs(user)
     cancel.assertStatus(200)
     cancel.assertBodyContains({ data: { status: 'cancelled' } })
@@ -192,43 +232,61 @@ test.group('Sales: bookings', (group) => {
 test.group('Sales: customers, list and delete', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('inline new customer; duplicate phone returns the existing id', async ({ client, assert }) => {
+  test('inline new customer; duplicate phone returns the existing id', async ({
+    client,
+    assert,
+  }) => {
     const { user, brick, customer } = await setup()
 
-    const ok = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'instant',
-      new_customer: { name: 'New Buyer', phone: '9811111111', address: 'Habra' },
-      items: [{ product_id: brick.id, quantity: 10 }],
-    })
+    const ok = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        new_customer: { name: 'New Buyer', phone: '9811111111', address: 'Habra' },
+        items: [{ product_id: brick.id, quantity: 10 }],
+      })
     ok.assertStatus(201)
     assert.equal(ok.body().data.customer.name, 'New Buyer')
 
-    const dup = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'instant',
-      new_customer: { name: 'Someone', phone: customer.phone },
-      items: [{ product_id: brick.id, quantity: 10 }],
-    })
+    const dup = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        new_customer: { name: 'Someone', phone: customer.phone },
+        items: [{ product_id: brick.id, quantity: 10 }],
+      })
     dup.assertStatus(422)
     assert.equal(dup.body().data.existing_customer_id, customer.id)
   })
 
   test('list filters and soft delete', async ({ client, assert }) => {
     const { user, brick, customer } = await setup()
-    const created = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'instant',
-      customer_id: customer.id,
-      items: [{ product_id: brick.id, quantity: 100 }],
-      payment: { amount: 100 },
-    })
+    const created = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 100 }],
+        payment: { amount: 100 },
+      })
     const id = created.body().data.id
 
     const partial = await client.get(`${API}/sales?status=partial&search=Rahim`).loginAs(user)
-    assert.include(partial.body().data.items.map((s: any) => s.id), id)
+    assert.include(
+      partial.body().data.items.map((s: any) => s.id),
+      id
+    )
     assert.equal(partial.body().data.items[0].customer.name, 'Rahim Traders')
 
     await client.delete(`${API}/sales/${id}`).loginAs(user)
     const list = await client.get(`${API}/sales`).loginAs(user)
-    assert.notInclude(list.body().data.items.map((s: any) => s.id), id)
+    assert.notInclude(
+      list.body().data.items.map((s: any) => s.id),
+      id
+    )
     const show = await client.get(`${API}/sales/${id}`).loginAs(user)
     show.assertStatus(404)
   })

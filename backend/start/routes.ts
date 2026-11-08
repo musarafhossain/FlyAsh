@@ -46,7 +46,9 @@ router
     router
       .group(() => {
         router.post('login', [AuthController, 'login'])
-        router.post('forgot-password', [PasswordResetController, 'forgot']).use(forgotPasswordThrottle)
+        router
+          .post('forgot-password', [PasswordResetController, 'forgot'])
+          .use(forgotPasswordThrottle)
         router.post('verify-otp', [PasswordResetController, 'verify']).use(otpThrottle)
         router.post('reset-password', [PasswordResetController, 'reset']).use(otpThrottle)
       })

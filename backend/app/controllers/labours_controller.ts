@@ -11,12 +11,18 @@ import { labourStatusValidator, labourValidator, listLaboursValidator } from '#v
 
 export default class LaboursController {
   async index({ request, response }: HttpContext) {
-    const { page = 1, limit = DEFAULT_LIMIT, search, active } =
-      await request.validateUsing(listLaboursValidator)
+    const {
+      page = 1,
+      limit = DEFAULT_LIMIT,
+      search,
+      active,
+    } = await request.validateUsing(listLaboursValidator)
 
     const labours = await this.withTodayStatus(Labour.query())
       .if(search, (q) => {
-        q.where((sub) => sub.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`))
+        q.where((sub) =>
+          sub.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`)
+        )
       })
       .if(active !== undefined, (q) => q.where('is_active', active!))
       .orderBy('is_active', 'desc')
@@ -111,9 +117,7 @@ export default class LaboursController {
   }
 
   private async find(id: number | string) {
-    const labour = await this.withTodayStatus(Labour.query())
-      .where('labours.id', id)
-      .firstOrFail()
+    const labour = await this.withTodayStatus(Labour.query()).where('labours.id', id).firstOrFail()
     return labour.toResponse()
   }
 }

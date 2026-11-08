@@ -17,7 +17,12 @@ type Paginator<T> = {
  * Every API response uses the same envelope:
  * { success, status_code, message, data }
  */
-export function ok(response: Response, data: unknown = null, message = 'Success', statusCode = 200) {
+export function ok(
+  response: Response,
+  data: unknown = null,
+  message = 'Success',
+  statusCode = 200
+) {
   return response.status(statusCode).send({ success: true, status_code: statusCode, message, data })
 }
 
@@ -49,6 +54,13 @@ export function paginated<T>(
   )
 }
 
-export function fail(response: Response, statusCode: number, message: string, data: unknown = null) {
-  return response.status(statusCode).send({ success: false, status_code: statusCode, message, data })
+export function fail(
+  response: Response,
+  statusCode: number,
+  message: string,
+  data: unknown = null
+) {
+  return response
+    .status(statusCode)
+    .send({ success: false, status_code: statusCode, message, data })
 }

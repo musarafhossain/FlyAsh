@@ -17,13 +17,19 @@ import {
  */
 export default class UsersController {
   async index({ auth, request, response }: HttpContext) {
-    const { page = 1, limit = DEFAULT_LIMIT, search, active } =
-      await request.validateUsing(listUsersValidator)
+    const {
+      page = 1,
+      limit = DEFAULT_LIMIT,
+      search,
+      active,
+    } = await request.validateUsing(listUsersValidator)
 
     const users = await User.query()
       .whereNot('id', auth.getUserOrFail().id)
       .if(search, (query) => {
-        query.where((q) => q.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`))
+        query.where((q) =>
+          q.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`)
+        )
       })
       .if(active !== undefined, (query) => query.where('is_active', active!))
       .orderBy('name', 'asc')

@@ -48,7 +48,10 @@ test.group('Products', (group) => {
     })
     const id = product.body().data.id
 
-    const status = await client.patch(`${API}/products/${id}/status`).loginAs(user).json({ is_active: false })
+    const status = await client
+      .patch(`${API}/products/${id}/status`)
+      .loginAs(user)
+      .json({ is_active: false })
     status.assertBodyContains({ data: { is_active: false } })
 
     const deleted = await client.delete(`${API}/products/${id}`).loginAs(user)

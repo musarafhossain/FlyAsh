@@ -22,38 +22,55 @@ async function seedOctober(client: any) {
     defaultPrice: '6.50',
     isActive: true,
   })
-  const customer = await Customer.create({ name: 'Report Customer', phone: '9822222222', isActive: true })
-
-  await client.post(`${API}/sales`).loginAs(user).json({
-    type: 'instant',
-    customer_id: customer.id,
-    sale_date: '2026-10-10',
-    items: [{ product_id: brick.id, quantity: 1000 }],
-    payment: { amount: 1000, method: 'upi' },
+  const customer = await Customer.create({
+    name: 'Report Customer',
+    phone: '9822222222',
+    isActive: true,
   })
 
-  const booking = await client.post(`${API}/sales`).loginAs(user).json({
-    type: 'booking',
-    customer_id: customer.id,
-    sale_date: '2026-10-11',
-    delivery_date: '2026-10-20',
-    items: [{ product_id: brick.id, quantity: 2000 }],
-    payment: { amount: 3000, method: 'cash' },
-  })
+  await client
+    .post(`${API}/sales`)
+    .loginAs(user)
+    .json({
+      type: 'instant',
+      customer_id: customer.id,
+      sale_date: '2026-10-10',
+      items: [{ product_id: brick.id, quantity: 1000 }],
+      payment: { amount: 1000, method: 'upi' },
+    })
+
+  const booking = await client
+    .post(`${API}/sales`)
+    .loginAs(user)
+    .json({
+      type: 'booking',
+      customer_id: customer.id,
+      sale_date: '2026-10-11',
+      delivery_date: '2026-10-20',
+      items: [{ product_id: brick.id, quantity: 2000 }],
+      payment: { amount: 3000, method: 'cash' },
+    })
   await client
     .post(`${API}/sales/${booking.body().data.id}/deliver`)
     .loginAs(user)
     .json({ delivered_date: '2026-10-20' })
 
-  await client.post(`${API}/sales`).loginAs(user).json({
-    type: 'booking',
-    customer_id: customer.id,
-    sale_date: '2026-10-12',
-    delivery_date: '2099-01-01',
-    items: [{ product_id: brick.id, quantity: 100 }],
-  })
+  await client
+    .post(`${API}/sales`)
+    .loginAs(user)
+    .json({
+      type: 'booking',
+      customer_id: customer.id,
+      sale_date: '2026-10-12',
+      delivery_date: '2099-01-01',
+      items: [{ product_id: brick.id, quantity: 100 }],
+    })
 
-  const category = await ExpenseCategory.create({ name: 'Report Cat', isActive: true, sortOrder: 1 })
+  const category = await ExpenseCategory.create({
+    name: 'Report Cat',
+    isActive: true,
+    sortOrder: 1,
+  })
   await client.post(`${API}/expenses`).loginAs(user).json({
     expense_category_id: category.id,
     expense_date: '2026-10-15',
@@ -84,8 +101,17 @@ test.group('Reports', (group) => {
     const range = 'from=2026-10-01&to=2026-10-31'
 
     const sales = (await client.get(`${API}/reports/sales?${range}`).loginAs(user)).body().data
-    assert.containsSubset(sales, { count: 2, amount: '19500.00', cost: '12600.00', profit: '6900.00' })
-    assert.containsSubset(sales.by_product[0], { quantity: '3000.00', amount: '19500.00', profit: '6900.00' })
+    assert.containsSubset(sales, {
+      count: 2,
+      amount: '19500.00',
+      cost: '12600.00',
+      profit: '6900.00',
+    })
+    assert.containsSubset(sales.by_product[0], {
+      quantity: '3000.00',
+      amount: '19500.00',
+      profit: '6900.00',
+    })
     assert.deepEqual(
       sales.daily.map((d: any) => d.date),
       ['2026-10-10', '2026-10-20']
@@ -93,20 +119,29 @@ test.group('Reports', (group) => {
 
     const dues = (await client.get(`${API}/reports/dues`).loginAs(user)).body().data
     const row = dues.items.find((d: any) => d.customer_id === customer.id)
-    assert.containsSubset(row, { total_due: '15500.00', oldest_due_date: '2026-10-10', sales_count: 2 })
+    assert.containsSubset(row, {
+      total_due: '15500.00',
+      oldest_due_date: '2026-10-10',
+      sales_count: 2,
+    })
 
-    const expenses = (await client.get(`${API}/reports/expenses?${range}`).loginAs(user)).body().data
+    const expenses = (await client.get(`${API}/reports/expenses?${range}`).loginAs(user)).body()
+      .data
     assert.equal(expenses.total, '850.00')
     assert.equal(expenses.by_category[0].percent, 100)
 
-    const collections = (await client.get(`${API}/reports/collections?${range}`).loginAs(user)).body().data
+    const collections = (
+      await client.get(`${API}/reports/collections?${range}`).loginAs(user)
+    ).body().data
     assert.equal(collections.total, '4000.00')
     assert.sameDeepMembers(collections.by_method, [
       { method: 'cash', amount: '3000.00' },
       { method: 'upi', amount: '1000.00' },
     ])
 
-    const net = (await client.get(`${API}/reports/net-profit?from=2026-09-01&to=2026-10-31`).loginAs(user)).body().data
+    const net = (
+      await client.get(`${API}/reports/net-profit?from=2026-09-01&to=2026-10-31`).loginAs(user)
+    ).body().data
     // 6900 − 850 − 1000
     assert.containsSubset(net, {
       sales_profit: '6900.00',
@@ -145,7 +180,9 @@ test.group('Reports', (group) => {
 
   test('from after to is rejected', async ({ client }) => {
     const user = await createUser()
-    const response = await client.get(`${API}/reports/sales?from=2026-10-31&to=2026-10-01`).loginAs(user)
+    const response = await client
+      .get(`${API}/reports/sales?from=2026-10-31&to=2026-10-01`)
+      .loginAs(user)
     response.assertStatus(422)
   })
 })

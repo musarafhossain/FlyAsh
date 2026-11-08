@@ -6,11 +6,7 @@ import Attendance from '#models/attendance'
 import AppError from '#exceptions/app_error'
 import { ok } from '#helpers/api_response'
 import { currentMonth, monthRange, today } from '#helpers/dates'
-import {
-  attendanceDayValidator,
-  monthValidator,
-  saveAttendanceValidator,
-} from '#validators/labour'
+import { attendanceDayValidator, monthValidator, saveAttendanceValidator } from '#validators/labour'
 
 export default class AttendanceController {
   /**

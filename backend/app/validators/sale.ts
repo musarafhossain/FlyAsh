@@ -19,7 +19,11 @@ const item = vine.object({
 
 const saleFields = {
   /** Existing customer, OR new_customer to create one inline */
-  customer_id: vine.number().withoutDecimals().exists({ table: 'customers', column: 'id' }).optional(),
+  customer_id: vine
+    .number()
+    .withoutDecimals()
+    .exists({ table: 'customers', column: 'id' })
+    .optional(),
   new_customer: vine.object(customerFields).optional(),
   /** Defaults to today */
   sale_date: pastDateRule().optional(),

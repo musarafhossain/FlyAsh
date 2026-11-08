@@ -13,8 +13,12 @@ import {
 
 export default class ProductsController {
   async index({ request, response }: HttpContext) {
-    const { page = 1, limit = DEFAULT_LIMIT, search, active } =
-      await request.validateUsing(listProductsValidator)
+    const {
+      page = 1,
+      limit = DEFAULT_LIMIT,
+      search,
+      active,
+    } = await request.validateUsing(listProductsValidator)
 
     const products = await Product.query()
       .if(search, (query) => query.where('name', 'like', `%${search}%`))

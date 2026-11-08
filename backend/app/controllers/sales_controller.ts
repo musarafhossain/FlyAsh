@@ -23,8 +23,15 @@ export default class SalesController {
    * status: paid | partial | due (delivered sales by payment) or booked | delivered | cancelled
    */
   async index({ request, response }: HttpContext) {
-    const { page = 1, limit = DEFAULT_LIMIT, search, type, status, from, to } =
-      await request.validateUsing(listSalesValidator)
+    const {
+      page = 1,
+      limit = DEFAULT_LIMIT,
+      search,
+      type,
+      status,
+      from,
+      to,
+    } = await request.validateUsing(listSalesValidator)
 
     const query = this.listQuery()
       .if(type, (q) => q.where('sales.type', type!))
@@ -32,11 +39,9 @@ export default class SalesController {
       .if(to, (q) => q.where('sales.sale_date', '<=', to!))
       .if(search, (q) => {
         q.where((sub) => {
-          sub
-            .where('sales.invoice_no', 'like', `%${search}%`)
-            .orWhereHas('customer', (c) => {
-              c.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`)
-            })
+          sub.where('sales.invoice_no', 'like', `%${search}%`).orWhereHas('customer', (c) => {
+            c.where('name', 'like', `%${search}%`).orWhere('phone', 'like', `%${search}%`)
+          })
         })
       })
 

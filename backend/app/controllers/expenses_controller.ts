@@ -20,8 +20,11 @@ export default class ExpensesController {
    * GET /expenses?from&to&category_id&search → paginated + period_total
    */
   async index({ request, response }: HttpContext) {
-    const { page = 1, limit = DEFAULT_LIMIT, ...filters } =
-      await request.validateUsing(listExpensesValidator)
+    const {
+      page = 1,
+      limit = DEFAULT_LIMIT,
+      ...filters
+    } = await request.validateUsing(listExpensesValidator)
 
     const expenses = await this.applyFilters(Expense.query(), filters)
       .preload('category', (q) => q.select('id', 'name', 'icon'))

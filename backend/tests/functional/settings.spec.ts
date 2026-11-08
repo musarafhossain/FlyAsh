@@ -8,7 +8,10 @@ import { API, createUser } from '#tests/helpers'
 test.group('Settings', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('factory profile: read, update, invoice prefix used by new sales', async ({ client, assert }) => {
+  test('factory profile: read, update, invoice prefix used by new sales', async ({
+    client,
+    assert,
+  }) => {
     const user = await createUser()
 
     const read = await client.get(`${API}/settings/factory`).loginAs(user)
@@ -21,15 +24,26 @@ test.group('Settings', (group) => {
       address: 'Barasat',
       invoice_prefix: 'mt-',
     })
-    updated.assertBodyContains({ data: { factory_name: 'Maa Tara Fly Ash Bricks', invoice_prefix: 'MT-' } })
-
-    const product = await Product.create({ name: 'P', unit: 'piece', defaultCost: '1.00', defaultPrice: '2.00', isActive: true })
-    const customer = await Customer.create({ name: 'C', phone: '9844444444', isActive: true })
-    const sale = await client.post(`${API}/sales`).loginAs(user).json({
-      type: 'instant',
-      customer_id: customer.id,
-      items: [{ product_id: product.id, quantity: 1 }],
+    updated.assertBodyContains({
+      data: { factory_name: 'Maa Tara Fly Ash Bricks', invoice_prefix: 'MT-' },
     })
+
+    const product = await Product.create({
+      name: 'P',
+      unit: 'piece',
+      defaultCost: '1.00',
+      defaultPrice: '2.00',
+      isActive: true,
+    })
+    const customer = await Customer.create({ name: 'C', phone: '9844444444', isActive: true })
+    const sale = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        customer_id: customer.id,
+        items: [{ product_id: product.id, quantity: 1 }],
+      })
     assert.match(sale.body().data.invoice_no, /^MT-\d{6}$/)
   })
 })
@@ -55,7 +69,11 @@ test.group('App version', (group) => {
     })
 
     const optional = (await client.get(`${API}/app/version?platform=android&build=11`)).body().data
-    assert.containsSubset(optional, { latest_version: '1.2.0', update_available: true, force_update: false })
+    assert.containsSubset(optional, {
+      latest_version: '1.2.0',
+      update_available: true,
+      force_update: false,
+    })
 
     const forced = (await client.get(`${API}/app/version?platform=android&build=9`)).body().data
     assert.containsSubset(forced, { update_available: true, force_update: true })

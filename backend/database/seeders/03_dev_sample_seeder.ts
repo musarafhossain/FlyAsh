@@ -38,21 +38,68 @@ export default class extends BaseSeeder {
       return
     }
 
-    const userId = (await User.query().orderBy('id').first())?.id ?? null
+    const firstUser = await User.query().orderBy('id').first()
+    const userId = firstUser?.id ?? null
     const days = (n: number) => now().minus({ days: n }).toISODate()!
 
     // Products
     const products = await Product.createMany([
-      { name: 'Fly Ash Brick 9×4×3', unit: 'piece', defaultCost: '4.20', defaultPrice: '6.50', isActive: true, createdBy: userId },
-      { name: 'Fly Ash Brick 9×4×2.5', unit: 'piece', defaultCost: '3.80', defaultPrice: '5.80', isActive: true, createdBy: userId },
-      { name: 'Hollow Block 16×8×8', unit: 'piece', defaultCost: '28.00', defaultPrice: '42.00', isActive: true, createdBy: userId },
-      { name: 'Solid Block 12×8×6', unit: 'piece', defaultCost: '22.00', defaultPrice: '34.00', isActive: true, createdBy: userId },
-      { name: 'Paver Block', unit: 'piece', defaultCost: '9.00', defaultPrice: '14.00', isActive: false, createdBy: userId },
+      {
+        name: 'Fly Ash Brick 9×4×3',
+        unit: 'piece',
+        defaultCost: '4.20',
+        defaultPrice: '6.50',
+        isActive: true,
+        createdBy: userId,
+      },
+      {
+        name: 'Fly Ash Brick 9×4×2.5',
+        unit: 'piece',
+        defaultCost: '3.80',
+        defaultPrice: '5.80',
+        isActive: true,
+        createdBy: userId,
+      },
+      {
+        name: 'Hollow Block 16×8×8',
+        unit: 'piece',
+        defaultCost: '28.00',
+        defaultPrice: '42.00',
+        isActive: true,
+        createdBy: userId,
+      },
+      {
+        name: 'Solid Block 12×8×6',
+        unit: 'piece',
+        defaultCost: '22.00',
+        defaultPrice: '34.00',
+        isActive: true,
+        createdBy: userId,
+      },
+      {
+        name: 'Paver Block',
+        unit: 'piece',
+        defaultCost: '9.00',
+        defaultPrice: '14.00',
+        isActive: false,
+        createdBy: userId,
+      },
     ])
     const sellable = products.filter((p) => p.isActive)
 
     // Customers
-    const firstNames = ['Rahim', 'Karim', 'Sujit', 'Amit', 'Bikash', 'Tapas', 'Rafiq', 'Subrata', 'Anil', 'Monirul']
+    const firstNames = [
+      'Rahim',
+      'Karim',
+      'Sujit',
+      'Amit',
+      'Bikash',
+      'Tapas',
+      'Rafiq',
+      'Subrata',
+      'Anil',
+      'Monirul',
+    ]
     const lastNames = ['Sheikh', 'Mondal', 'Das', 'Ghosh', 'Biswas', 'Sarkar', 'Ali', 'Roy']
     const places = ['Barasat', 'Habra', 'Bongaon', 'Madhyamgram', 'Basirhat', 'Ashoknagar']
     const customers: Customer[] = []
@@ -74,9 +121,14 @@ export default class extends BaseSeeder {
       const isBooking = this.random() < 0.25
       const items = Array.from({ length: this.int(1, 2) }, () => {
         const product = this.pick(sellable)
-        return { product_id: product.id, quantity: Number(product.defaultPrice) > 20 ? this.int(50, 500) : this.int(1, 10) * 1000 }
+        return {
+          product_id: product.id,
+          quantity: Number(product.defaultPrice) > 20 ? this.int(50, 500) : this.int(1, 10) * 1000,
+        }
       })
-      const uniqueItems = items.filter((item, index) => items.findIndex((x) => x.product_id === item.product_id) === index)
+      const uniqueItems = items.filter(
+        (item, index) => items.findIndex((x) => x.product_id === item.product_id) === index
+      )
 
       const id = await SaleService.create(
         {
@@ -84,7 +136,9 @@ export default class extends BaseSeeder {
           customer_id: this.pick(customers).id,
           sale_date: saleDate,
           delivery_date: isBooking
-            ? DateTime.fromISO(saleDate).plus({ days: this.int(2, 10) }).toISODate()!
+            ? DateTime.fromISO(saleDate)
+                .plus({ days: this.int(2, 10) })
+                .toISODate()!
             : undefined,
           items: uniqueItems,
           transport_charge: this.random() < 0.5 ? this.pick([500, 800, 1200, 1500]) : 0,
@@ -95,7 +149,8 @@ export default class extends BaseSeeder {
 
       const sale = await Sale.findOrFail(id)
       const roll = this.random()
-      const amount = roll < 0.5 ? Number(sale.total) : roll < 0.8 ? Math.floor(Number(sale.total) * 0.4) : 0
+      const amount =
+        roll < 0.5 ? Number(sale.total) : roll < 0.8 ? Math.floor(Number(sale.total) * 0.4) : 0
       if (amount > 0) {
         await SaleService.addPayment(
           sale,
@@ -112,8 +167,20 @@ export default class extends BaseSeeder {
     }
 
     // Labours with ~2 months of attendance
-    const labourNames = ['Kartik Mondal', 'Sujit Das', 'Bablu Sheikh', 'Rajesh Roy', 'Habib Ali', 'Gopal Ghosh',
-      'Samir Biswas', 'Nitai Sarkar', 'Abdul Karim', 'Pintu Das', 'Ratan Mondal', 'Asit Roy']
+    const labourNames = [
+      'Kartik Mondal',
+      'Sujit Das',
+      'Bablu Sheikh',
+      'Rajesh Roy',
+      'Habib Ali',
+      'Gopal Ghosh',
+      'Samir Biswas',
+      'Nitai Sarkar',
+      'Abdul Karim',
+      'Pintu Das',
+      'Ratan Mondal',
+      'Asit Roy',
+    ]
     const labours: Labour[] = []
     for (const [index, name] of labourNames.entries()) {
       const monthly = index < 2

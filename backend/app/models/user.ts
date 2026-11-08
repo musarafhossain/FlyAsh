@@ -22,7 +22,8 @@ export default class User extends compose(
   static async revokeTokens(user: User, exceptTokenId?: string | number | BigInt) {
     const tokens = await User.accessTokens.all(user)
     for (const token of tokens) {
-      if (exceptTokenId !== undefined && String(token.identifier) === String(exceptTokenId)) continue
+      if (exceptTokenId !== undefined && String(token.identifier) === String(exceptTokenId))
+        continue
       await User.accessTokens.delete(user, token.identifier)
     }
   }

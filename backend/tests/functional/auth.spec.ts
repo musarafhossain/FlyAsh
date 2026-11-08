@@ -9,9 +9,14 @@ import { API, createUser } from '#tests/helpers'
 test.group('Auth', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('login returns the envelope with a token and snake_case user', async ({ client, assert }) => {
+  test('login returns the envelope with a token and snake_case user', async ({
+    client,
+    assert,
+  }) => {
     const user = await createUser()
-    const response = await client.post(`${API}/auth/login`).json({ login: user.phone, password: 'secret123' })
+    const response = await client
+      .post(`${API}/auth/login`)
+      .json({ login: user.phone, password: 'secret123' })
 
     response.assertStatus(200)
     const body = response.body()
@@ -25,7 +30,9 @@ test.group('Auth', (group) => {
 
   test('wrong password returns 400', async ({ client }) => {
     const user = await createUser()
-    const response = await client.post(`${API}/auth/login`).json({ login: user.phone, password: 'nope' })
+    const response = await client
+      .post(`${API}/auth/login`)
+      .json({ login: user.phone, password: 'nope' })
     response.assertStatus(400)
     response.assertBodyContains({ success: false, message: 'Invalid phone/email or password' })
   })
@@ -36,7 +43,10 @@ test.group('Auth', (group) => {
     response.assertStatus(401)
   })
 
-  test('change password keeps the current device and revokes others', async ({ client, assert }) => {
+  test('change password keeps the current device and revokes others', async ({
+    client,
+    assert,
+  }) => {
     const user = await createUser()
     await User.accessTokens.create(user) // other device
     const current = await User.accessTokens.create(user)
@@ -44,7 +54,11 @@ test.group('Auth', (group) => {
     const response = await client
       .put(`${API}/auth/password`)
       .bearerToken(current.value!.release())
-      .json({ current_password: 'secret123', password: 'newpass1', password_confirmation: 'newpass1' })
+      .json({
+        current_password: 'secret123',
+        password: 'newpass1',
+        password_confirmation: 'newpass1',
+      })
 
     response.assertStatus(200)
     const tokens = await User.accessTokens.all(user)
@@ -69,7 +83,10 @@ test.group('Users', (group) => {
 
   test('cannot change yourself through /users/:id', async ({ client }) => {
     const me = await createUser()
-    const response = await client.patch(`${API}/users/${me.id}/status`).loginAs(me).json({ is_active: false })
+    const response = await client
+      .patch(`${API}/users/${me.id}/status`)
+      .loginAs(me)
+      .json({ is_active: false })
     response.assertStatus(400)
   })
 
@@ -78,7 +95,10 @@ test.group('Users', (group) => {
     const other = await createUser()
     await User.accessTokens.create(other)
 
-    const response = await client.patch(`${API}/users/${other.id}/status`).loginAs(me).json({ is_active: false })
+    const response = await client
+      .patch(`${API}/users/${other.id}/status`)
+      .loginAs(me)
+      .json({ is_active: false })
     response.assertStatus(200)
     assert.lengthOf(await User.accessTokens.all(other), 0)
   })
@@ -98,7 +118,9 @@ test.group('Password reset', (group) => {
   }
 
   test('forgot password always returns the same message', async ({ client }) => {
-    const response = await client.post(`${API}/auth/forgot-password`).json({ email: 'nobody@example.com' })
+    const response = await client
+      .post(`${API}/auth/forgot-password`)
+      .json({ email: 'nobody@example.com' })
     response.assertStatus(200)
     response.assertBodyContains({ message: 'If this email is registered, an OTP has been sent' })
   })
@@ -107,7 +129,9 @@ test.group('Password reset', (group) => {
     const user = await createUser({ email: 'reset@example.com' })
     await createOtp(user.id)
 
-    const verify = await client.post(`${API}/auth/verify-otp`).json({ email: 'reset@example.com', otp: '123456' })
+    const verify = await client
+      .post(`${API}/auth/verify-otp`)
+      .json({ email: 'reset@example.com', otp: '123456' })
     verify.assertStatus(200)
     const token = verify.body().data.reset_token
 
@@ -130,7 +154,9 @@ test.group('Password reset', (group) => {
     const otp = await createOtp(user.id)
 
     for (let i = 0; i < 5; i++) {
-      await client.post(`${API}/auth/verify-otp`).json({ email: 'wrong@example.com', otp: '999999' })
+      await client
+        .post(`${API}/auth/verify-otp`)
+        .json({ email: 'wrong@example.com', otp: '999999' })
     }
     assert.isNull(await PasswordResetOtp.find(otp.id))
   })

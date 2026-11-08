@@ -20,8 +20,12 @@ export default class WagesController {
    * GET /wages?month=YYYY-MM&page&limit → paginated rows + month totals
    */
   async sheet({ request, response }: HttpContext) {
-    const { month = currentMonth(), page = 1, limit = DEFAULT_LIMIT, search } =
-      await request.validateUsing(wageSheetValidator)
+    const {
+      month = currentMonth(),
+      page = 1,
+      limit = DEFAULT_LIMIT,
+      search,
+    } = await request.validateUsing(wageSheetValidator)
 
     let rows = await WageService.sheet(month)
     if (search) {
