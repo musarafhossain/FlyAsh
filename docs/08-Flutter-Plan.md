@@ -26,7 +26,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F0** ✅ | **Setup** | Empty app with the FlyAsh logo runs on Web and Windows; folders, packages, app icon, run commands | — |
 | **F1** ✅ | **Theme & design tokens** | 5 accents × light/dark, fonts (Inter + Hind Siliguri), a debug "gallery" screen to switch themes | F0 |
 | **F2** ✅ | **Core widgets** | Hero card, KPI chip, status pill, buttons, inputs, empty/error/loading states in the gallery | F1 |
-| F3 | Networking | Dio client, `{ success, status_code, message, data }` parsing, errors, pagination helper, `Accept-Language` + token + `X-Business-Date` handling | F0 |
+| **F3** ✅ | **Networking** | Dio client, `{ success, status_code, message, data }` parsing, errors, pagination helper, `Accept-Language` + token + `X-Business-Date` handling | F0 |
 | F4 | Routing & app shell | go_router, bottom nav (phone) / rail (tablet) / sidebar (desktop), drawer, placeholder screens | F2 |
 | F5 | Localization & preferences | English/Bengali ARB files, language + theme controller (cached locally, synced with `PUT /auth/preferences`) | F1, F3 |
 | F6 | Auth | Splash, Login, Forgot password (3 screens), logout, session expiry (401) | F3, F4, F5 |
@@ -65,5 +65,6 @@ The app is built **one small step at a time**. Each step ends with a working app
 ## Notes
 
 - **Android:** run `flutter doctor --android-licenses` once (answer `y`) before the first Android build.
+- **Live API tests** (backend running): `flutter test test/integration --dart-define=LIVE_API=true`. Each run makes 2 wrong-password attempts; the login limit is 5 per 15 minutes.
 - **Commands** always pass the API URL: `--dart-define=API_BASE_URL=...` (emulator: `http://10.0.2.2:3333/api/v1`, real phone: the PC's LAN IP).
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

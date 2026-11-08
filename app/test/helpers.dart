@@ -1,19 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flyash/core/config/preferences.dart';
+import 'package:flyash/core/network/session.dart';
+import 'package:flyash/features/splash/presentation/widgets/api_status_card.dart';
 
-/// Creates a ProviderScope with in-memory SharedPreferences.
+/// Creates a ProviderScope with in-memory storage and no real network
+/// (the start screen's health check answers "ok").
 Future<Widget> testApp(
   Widget child, {
   Map<String, Object> prefs = const {},
+  List<Override> overrides = const [],
 }) async {
   SharedPreferences.setMockInitialValues(prefs);
+  FlutterSecureStorage.setMockInitialValues({});
   final instance = await SharedPreferences.getInstance();
   return ProviderScope(
-    overrides: [sharedPreferencesProvider.overrideWithValue(instance)],
+    overrides: [
+      sharedPreferencesProvider.overrideWithValue(instance),
+      tokenStoreProvider.overrideWithValue(
+        TokenStore(const FlutterSecureStorage()),
+      ),
+      healthProvider.overrideWith((ref) async => {'status': 'ok'}),
+      ...overrides,
+    ],
     child: child,
   );
 }
