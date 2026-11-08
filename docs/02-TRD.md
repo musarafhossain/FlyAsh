@@ -6,7 +6,7 @@
 | **Version** | 1.0 |
 | **Date** | 2026-11-08 |
 | **Status** | Approved for v1 |
-| **Related docs** | 01-PRD · 03-AppFlow · 04-UI-UX-Design-Brief · 05-Backend-Schema · 06-Implementation-Plan |
+| **Related docs** | 01-PRD · 03-AppFlow · 04-UI-UX-Design-Brief · 05-Backend-Schema · 06-Implementation-Plan · 07-API-Reference |
 
 **Guiding rule: keep it simple.** Use the framework defaults. Add no layer, package or abstraction until a real need appears.
 

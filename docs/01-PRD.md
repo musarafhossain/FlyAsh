@@ -7,7 +7,7 @@
 | **Version** | 1.0 |
 | **Date** | 2026-11-08 |
 | **Status** | Approved scope for v1 (MVP) |
-| **Related docs** | 02-TRD · 03-AppFlow · 04-UI-UX-Design-Brief · 05-Backend-Schema · 06-Implementation-Plan |
+| **Related docs** | 02-TRD · 03-AppFlow · 04-UI-UX-Design-Brief · 05-Backend-Schema · 06-Implementation-Plan · 07-API-Reference |
 
 ---
 

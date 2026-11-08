@@ -11,8 +11,9 @@ It runs on **Android, Web and Windows**, built with **Flutter + AdonisJS + Maria
 | 04 | [UI/UX Design Brief](04-UI-UX-Design-Brief.md) | How it looks: themes, colors, components, screens |
 | 05 | [Backend Schema](05-Backend-Schema.md) | Database tables, columns, calculations, API data contracts |
 | 06 | [Implementation Plan](06-Implementation-Plan.md) | The order of work, step by step, with done criteria |
+| 07 | [API Reference](07-API-Reference.md) | Every endpoint with payloads and real responses for success and error cases |
 
-**Read order for a new developer:** 01 → 02 → 05 → 03 → 04 → 06.
+**Read order for a new developer:** 01 → 02 → 05 → 03 → 04 → 06. Keep 07 open while building the app.
 
 **Key decisions**
 - Multiple users, all equal (no roles). No sign-up: the first user is created on the server.

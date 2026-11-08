@@ -7,7 +7,7 @@
 | **Version** | 1.0 |
 | **Date** | 2026-11-08 |
 | **Status** | Approved for v1. Section 10 matches the v1 scope in 01-PRD |
-| **Related docs** | 01-PRD · 02-TRD · 03-AppFlow · 05-Backend-Schema · 06-Implementation-Plan |
+| **Related docs** | 01-PRD · 02-TRD · 03-AppFlow · 05-Backend-Schema · 06-Implementation-Plan · 07-API-Reference |
 
 ---
 
