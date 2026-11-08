@@ -13,7 +13,13 @@ sealed class Failure implements Exception {
 
 /// No connection, timeout, DNS … (no response from the server).
 class NetworkFailure extends Failure {
-  const NetworkFailure([super.message = 'No internet connection']);
+  const NetworkFailure([
+    super.message = 'No internet connection',
+    this.isTimeout = false,
+  ]);
+
+  /// The server did not answer in time (vs. no connection at all).
+  final bool isTimeout;
 }
 
 /// 401: missing/invalid token or deactivated user → back to login.

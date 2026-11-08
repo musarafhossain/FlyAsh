@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/env.dart';
+import '../../../../core/l10n/l10n.dart';
+import '../../../../core/widgets/language_switch.dart';
 import '../widgets/api_status_card.dart';
 
 /// Placeholder start screen for F0 (setup).
@@ -16,7 +18,13 @@ class SplashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
+    final l = context.l10n;
+
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        actions: const [LanguageSwitch(), SizedBox(width: 8)],
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -38,10 +46,10 @@ class SplashPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text('Brick factory management', style: textTheme.bodyLarge),
+                Text(l.appTagline, style: textTheme.bodyLarge),
                 const SizedBox(height: 32),
                 Text(
-                  'API: ${Env.apiBaseUrl}',
+                  l.apiUrl(Env.apiBaseUrl),
                   style: textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
@@ -51,7 +59,7 @@ class SplashPage extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: () => context.go('/home'),
                   icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Open app'),
+                  label: Text(l.openApp),
                 ),
                 if (kDebugMode) ...[
                   const SizedBox(height: 8),

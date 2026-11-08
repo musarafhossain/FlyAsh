@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flyash/l10n/app_localizations.dart';
 
 import 'package:flyash/core/theme/app_colors.dart';
 import 'package:flyash/core/theme/app_theme.dart';
@@ -17,6 +18,8 @@ class _Host extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(themeControllerProvider);
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.build(s.accent, Brightness.light),
       darkTheme: AppTheme.build(s.accent, Brightness.dark),
       themeMode: s.mode,

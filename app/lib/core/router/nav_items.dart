@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 /// One section of the app. The order is the branch order of the router.
 class NavItem {
   const NavItem({
@@ -21,9 +23,25 @@ class NavItem {
 
   /// Shown in the phone bottom bar / tablet rail (the rest live in the drawer).
   final bool primary;
+
+  /// Label in the current language ([label] is the English fallback).
+  String text(AppLocalizations l) => switch (path) {
+    '/home' => l.navHome,
+    '/sales' => l.navSales,
+    '/attendance' => l.navAttendance,
+    '/expenses' => l.navExpenses,
+    '/customers' => l.navCustomers,
+    '/products' => l.navProducts,
+    '/labours' => l.navLabours,
+    '/wages' => l.navWages,
+    '/reports' => l.navReports,
+    '/users' => l.navUsers,
+    '/settings' => l.navSettings,
+    _ => label,
+  };
 }
 
-/// All sections (03-AppFlow §3). Labels are translated in F5.
+/// All sections (03-AppFlow §3). UI text comes from [NavItem.text].
 const List<NavItem> kNavItems = [
   NavItem(
     path: '/home',

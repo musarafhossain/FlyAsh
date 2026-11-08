@@ -1,0 +1,54 @@
+{
+  "@@locale": "en",
+  "appTagline": "Brick factory management",
+  "navHome": "Home",
+  "navSales": "Sales",
+  "navAttendance": "Attendance",
+  "navExpenses": "Expenses",
+  "navCustomers": "Customers",
+  "navProducts": "Products",
+  "navLabours": "Labours",
+  "navWages": "Wages",
+  "navReports": "Reports",
+  "navUsers": "Users",
+  "navSettings": "Settings",
+  "menu": "Menu",
+  "collapseMenu": "Collapse menu",
+  "expandMenu": "Expand menu",
+  "openApp": "Open app",
+  "apiUrl": "API: {url}",
+  "@apiUrl": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "serverTitle": "Server",
+  "serverConnected": "Connected · factory date {date}",
+  "@serverConnected": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "serverChecking": "Checking…",
+  "serverOnline": "Online",
+  "serverUnreachable": "Cannot reach the server",
+  "retry": "Retry",
+  "cancel": "Cancel",
+  "placeholderStep": "This screen is built in step {step}.",
+  "@placeholderStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageBengali": "বাংলা",
+  "networkError": "No internet connection",
+  "networkTimeout": "The server is taking too long. Please try again"
+}

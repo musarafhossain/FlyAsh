@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/error/failure.dart';
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/session.dart';
@@ -28,6 +28,7 @@ class ApiStatusCard extends ConsumerWidget {
     final t = context.tokens;
     final health = ref.watch(healthProvider);
     final factoryDate = ref.watch(businessDateProvider);
+    final l = context.l10n;
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 420),
@@ -44,16 +45,14 @@ class ApiStatusCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Server',
+                  l.serverTitle,
                   style: AppTypography.title.copyWith(color: t.textPrimary),
                 ),
                 Text(
                   health.when(
-                    data: (_) =>
-                        'Connected · factory date ${Fmt.date(factoryDate)}',
-                    loading: () => 'Checking…',
-                    error: (e, _) =>
-                        e is Failure ? e.message : 'Cannot reach the server',
+                    data: (_) => l.serverConnected(Fmt.date(factoryDate)),
+                    loading: () => l.serverChecking,
+                    error: (e, _) => failureText(context, e),
                   ),
                   style: AppTypography.caption.copyWith(color: t.textSecondary),
                 ),
@@ -62,14 +61,14 @@ class ApiStatusCard extends ConsumerWidget {
           ),
           health.when(
             data: (_) =>
-                const StatusPill('Online', tone: StatusTone.success, dot: true),
+                StatusPill(l.serverOnline, tone: StatusTone.success, dot: true),
             loading: () => const SizedBox.square(
               dimension: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
             error: (_, _) => TextButton(
               onPressed: () => ref.invalidate(healthProvider),
-              child: const Text('Retry'),
+              child: Text(l.retry),
             ),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
@@ -69,12 +70,14 @@ class ErrorState extends StatelessWidget {
   const ErrorState({
     super.key,
     required this.message,
-    this.retryLabel = 'Retry',
+    this.retryLabel,
     this.onRetry,
   });
 
   final String message;
-  final String retryLabel;
+
+  /// Defaults to the translated 'Retry'.
+  final String? retryLabel;
   final VoidCallback? onRetry;
 
   @override
@@ -98,7 +101,7 @@ class ErrorState extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: Text(retryLabel),
+                label: Text(retryLabel ?? context.l10n.retry),
               ),
             ],
           ],
@@ -208,7 +211,7 @@ Future<bool> showConfirmDialog(
   required String title,
   required String message,
   required String confirmLabel,
-  String cancelLabel = 'Cancel',
+  String? cancelLabel,
   bool destructive = false,
 }) async {
   final t = context.tokens;
@@ -226,7 +229,7 @@ Future<bool> showConfirmDialog(
       actions: [
         OutlinedButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text(cancelLabel),
+          child: Text(cancelLabel ?? context.l10n.cancel),
         ),
         FilledButton(
           style: destructive

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/l10n/l10n.dart';
 import '../../../../core/router/app_shell.dart';
 import '../../../../core/router/nav_items.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -18,7 +19,7 @@ class SectionPlaceholderPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: ShellMenuButton.maybe(context),
-        title: Text(item.label),
+        title: Text(item.text(context.l10n)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(Space.s4),
@@ -26,8 +27,8 @@ class SectionPlaceholderPage extends StatelessWidget {
           const SizedBox(height: Space.s8),
           EmptyState(
             icon: item.selectedIcon,
-            title: item.label,
-            message: 'This screen is built in step ${item.step}.',
+            title: item.text(context.l10n),
+            message: context.l10n.placeholderStep(item.step),
           ),
           if (kDebugMode && item.path == '/settings')
             Wrap(

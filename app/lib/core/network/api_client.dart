@@ -175,6 +175,7 @@ class ApiClient {
     DioExceptionType.sendTimeout ||
     DioExceptionType.receiveTimeout => const NetworkFailure(
       'The server is taking too long. Please try again',
+      true,
     ),
     _ => const NetworkFailure(),
   };

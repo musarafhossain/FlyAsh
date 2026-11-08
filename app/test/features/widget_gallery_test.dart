@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flyash/l10n/app_localizations.dart';
 
 import 'package:flyash/core/theme/app_colors.dart';
 import 'package:flyash/core/theme/app_theme.dart';
@@ -11,6 +12,8 @@ import 'package:flyash/features/dev/presentation/pages/widget_gallery_page.dart'
 import '../helpers.dart';
 
 Widget _host(Brightness b, {double fontScale = 1}) => MaterialApp(
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
   theme: AppTheme.build(AccentColor.emerald, b),
   // Same font-size handling as the real app
   builder: (context, child) => MediaQuery(
@@ -93,6 +96,8 @@ void main() {
     var tapped = 0;
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: AppTheme.build(AccentColor.blue, Brightness.light),
         home: Scaffold(
           body: Column(

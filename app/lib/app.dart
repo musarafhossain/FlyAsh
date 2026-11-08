@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/env.dart';
+import 'core/l10n/l10n.dart';
+import 'core/l10n/locale_controller.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
 
 /// Root widget: applies the saved theme (mode, accent, font size).
-/// Navigation: go_router (core/router). Localization is added in F5.
+/// Navigation: go_router (core/router). Language: English / Bengali (lib/l10n).
 class FlyAshApp extends ConsumerWidget {
   const FlyAshApp({super.key});
 
@@ -15,10 +17,14 @@ class FlyAshApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(themeControllerProvider);
     final router = ref.watch(routerProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       routerConfig: router,
       title: Env.appName,
+      locale: Locale(locale),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.build(settings.accent, Brightness.light),
       darkTheme: AppTheme.build(settings.accent, Brightness.dark),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../config/env.dart';
+import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
@@ -101,7 +102,7 @@ class _AppShellState extends State<AppShell> {
                   NavigationRailDestination(
                     icon: Icon(kNavItems[i].icon),
                     selectedIcon: Icon(kNavItems[i].selectedIcon),
-                    label: Text(kNavItems[i].label),
+                    label: Text(kNavItems[i].text(context.l10n)),
                   ),
               ],
             ),
@@ -125,7 +126,7 @@ class _AppShellState extends State<AppShell> {
             selectedIcon: Icon(
               inDrawerSection ? kNavItems[i].icon : kNavItems[i].selectedIcon,
             ),
-            label: kNavItems[i].label,
+            label: kNavItems[i].text(context.l10n),
           ),
       ],
     );
@@ -181,7 +182,7 @@ class ShellMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => IconButton(
     onPressed: onPressed,
-    tooltip: 'Menu',
+    tooltip: context.l10n.menu,
     icon: const Icon(Icons.menu),
   );
 }
@@ -338,7 +339,9 @@ class _Sidebar extends StatelessWidget {
               padding: const EdgeInsets.all(Space.s3),
               child: IconButton(
                 onPressed: onToggle,
-                tooltip: collapsed ? 'Expand menu' : 'Collapse menu',
+                tooltip: collapsed
+                    ? context.l10n.expandMenu
+                    : context.l10n.collapseMenu,
                 icon: Icon(
                   collapsed
                       ? Icons.keyboard_double_arrow_right
@@ -404,7 +407,7 @@ class _MenuTile extends StatelessWidget {
                 const SizedBox(width: Space.s3),
                 Expanded(
                   child: Text(
-                    item.label,
+                    item.text(context.l10n),
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.body.copyWith(
                       color: selected ? t.onPrimaryContainer : t.textPrimary,
@@ -422,7 +425,9 @@ class _MenuTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Semantics(
         selected: selected,
-        child: compact ? Tooltip(message: item.label, child: tile) : tile,
+        child: compact
+            ? Tooltip(message: item.text(context.l10n), child: tile)
+            : tile,
       ),
     );
   }
