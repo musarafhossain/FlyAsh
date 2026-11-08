@@ -1,0 +1,64 @@
+name: flyash
+description: "FlyAsh brick factory management"
+publish_to: 'none'
+
+# version: <name>+<build>. The build number is used by the in-app update check.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management / dependency injection
+  flutter_riverpod: ^3.3.2
+  # HTTP
+  dio: ^5.11.1
+  # Navigation
+  go_router: ^17.5.0
+  # Models
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+  # Storage (token, cached preferences)
+  flutter_secure_storage: ^11.2.0
+  shared_preferences: ^2.5.6
+  # Formatting (₹, dates) and exact money values
+  intl: ^0.20.2
+  decimal: ^3.2.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.15.1
+  freezed: ^3.2.5
+  json_serializable: ^6.14.1
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+# App icons: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/icon/icon_white.png"
+  android: true
+  ios: false
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#FFFFFF"
+    theme_color: "#1A56F0"
+  windows:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    icon_size: 256

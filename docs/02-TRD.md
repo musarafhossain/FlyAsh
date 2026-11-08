@@ -16,7 +16,7 @@
 
 | Layer | Technology |
 |---|---|
-| Frontend | **Flutter** (latest stable, Dart 3), one codebase for **Android, Web and Windows** |
+| Frontend | **Flutter 3.41** (Dart 3.11), one codebase for **Android, Web and Windows** |
 | State management / DI | **flutter_riverpod** |
 | Backend | **AdonisJS 7** (TypeScript) on **Node.js 24 LTS** |
 | ORM / validation / auth | Lucid ORM · VineJS · `@adonisjs/auth` access tokens |
@@ -436,7 +436,7 @@ features/customers/
 
 | Purpose | Package |
 |---|---|
-| State / DI | `flutter_riverpod` (+ `riverpod_annotation`, `riverpod_generator`) |
+| State / DI | `flutter_riverpod` (plain providers, no code generation) |
 | HTTP | `dio` |
 | Routing | `go_router` |
 | Models | `freezed`, `json_serializable`, `build_runner` |

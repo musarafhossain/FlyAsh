@@ -12,6 +12,7 @@ It runs on **Android, Web and Windows**, built with **Flutter + AdonisJS + Maria
 | 05 | [Backend Schema](05-Backend-Schema.md) | Database tables, columns, calculations, API data contracts |
 | 06 | [Implementation Plan](06-Implementation-Plan.md) | The order of work, step by step, with done criteria |
 | 07 | [API Reference](07-API-Reference.md) | Every endpoint with payloads and real responses for success and error cases |
+| 08 | [Flutter Plan](08-Flutter-Plan.md) | The app build steps F0–F19, one small step at a time |
 
 **Read order for a new developer:** 01 → 02 → 05 → 03 → 04 → 06. Keep 07 open while building the app.
 
