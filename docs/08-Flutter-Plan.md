@@ -28,7 +28,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F2** ✅ | **Core widgets** | Hero card, KPI chip, status pill, buttons, inputs, empty/error/loading states in the gallery | F1 |
 | **F3** ✅ | **Networking** | Dio client, `{ success, status_code, message, data }` parsing, errors, pagination helper, `Accept-Language` + token + `X-Business-Date` handling | F0 |
 | **F4** ✅ | **Routing & app shell** | go_router, bottom nav (phone) / rail (tablet) / sidebar (desktop), drawer, placeholder screens | F2 |
-| F5 | Localization & preferences | English/Bengali ARB files, language + theme controller (cached locally, synced with `PUT /auth/preferences`) | F1, F3 |
+| **F5** ✅ | **Localization & preferences** | English/Bengali ARB files, language + theme controller (cached locally, synced with `PUT /auth/preferences`) | F1, F3 |
 | F6 | Auth | Splash, Login, Forgot password (3 screens), logout, session expiry (401) | F3, F4, F5 |
 | F7 | Profile, Users, Settings | My profile, change password, users list/add/edit, Settings (factory profile, appearance, language) | F6 |
 | F8 | Products | List, add/edit, activate/deactivate, delete | F6 |
@@ -67,4 +67,5 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Android:** SDK licenses accepted; the first debug APK built on 2026-11-08.
 - **Live API tests** (backend running): `flutter test test/integration --dart-define=LIVE_API=true`. Each run makes 2 wrong-password attempts; the login limit is 5 per 15 minutes.
 - **Commands** always pass the API URL: `--dart-define=API_BASE_URL=...` (emulator: `http://10.0.2.2:3333/api/v1`, real phone: the PC's LAN IP).
+- **Translations:** add every new UI string to both `app/lib/l10n/app_en.arb` and `app_bn.arb` (a test checks both files have the same keys). Numbers and dates stay in Latin digits.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

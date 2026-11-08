@@ -115,6 +115,20 @@ void main() {
       ),
     );
 
+    // Preferences are saved to the account (F5 sync uses this endpoint).
+    final prefs = await api.put(
+      '/auth/preferences',
+      body: {'theme_mode': 'dark', 'accent_color': 'emerald'},
+      parse: (d) => d as Json,
+    );
+    expect(prefs.data['theme_mode'], 'dark');
+    expect(prefs.data['accent_color'], 'emerald');
+    await api.put(
+      '/auth/preferences',
+      body: {'theme_mode': 'system', 'accent_color': 'blue'},
+      parse: (d) => d,
+    );
+
     await api.post('/auth/logout', parse: (d) => d);
     await expectLater(
       api.get('/auth/me', parse: (d) => d),

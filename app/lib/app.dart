@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/env.dart';
+import 'core/config/preferences_sync.dart';
 import 'core/l10n/l10n.dart';
 import 'core/l10n/locale_controller.dart';
 import 'core/router/app_router.dart';
@@ -18,6 +19,8 @@ class FlyAshApp extends ConsumerWidget {
     final settings = ref.watch(themeControllerProvider);
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider);
+    // Keeps language/theme in sync with the account while the app runs.
+    ref.watch(preferencesSyncProvider);
 
     return MaterialApp.router(
       routerConfig: router,
