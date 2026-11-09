@@ -104,4 +104,44 @@ void main() {
     expect(testContainer.read(localeProvider), 'bn');
     expect(find.byTooltip('চেহারা'), findsOneWidget);
   });
+
+  // Popovers line up with their button and never touch the screen edge.
+  for (final size in const [Size(360, 800), Size(1440, 900)]) {
+    for (final (tooltip, item) in [
+      ('Appearance', 'More appearance settings'),
+      ('Account', 'My profile'),
+    ]) {
+      testWidgets('$tooltip popover keeps a gap on the right '
+          '(${size.width.toInt()} px)', (tester) async {
+        await openHome(tester, size);
+        final button = tester.getRect(find.byTooltip(tooltip));
+        await tester.tap(find.byTooltip(tooltip));
+        await tester.pumpAndSettle();
+        final menu = tester.getRect(find.widgetWithText(MenuItemButton, item));
+        expect(size.width - menu.right, greaterThanOrEqualTo(8));
+        // Right-aligned with its button when there is room on the left;
+        // otherwise kept inside the screen from the left edge.
+        if (button.right >= menu.width) {
+          expect(menu.right, closeTo(button.right, 5), reason: 'aligned');
+        } else {
+          expect(menu.left, greaterThanOrEqualTo(0));
+        }
+      });
+    }
+  }
+
+  testWidgets('account button shows a person icon, not initials', (
+    tester,
+  ) async {
+    await openHome(tester, const Size(1440, 900));
+    final button = find.byTooltip('Account');
+    expect(
+      find.descendant(of: button, matching: find.byIcon(Icons.person)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: button, matching: find.text('TO')),
+      findsNothing,
+    );
+  });
 }

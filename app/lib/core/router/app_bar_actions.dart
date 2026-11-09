@@ -13,7 +13,6 @@ import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import '../theme/theme_controller.dart';
 import '../widgets/language_switch.dart';
-import '../widgets/list_items.dart';
 import '../widgets/state_views.dart';
 
 /// Right side of a section's app bar:
@@ -47,15 +46,17 @@ class AppearanceButton extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     return MenuAnchor(
-      alignmentOffset: const Offset(0, Space.s1),
-      style: popoverStyle(context),
+      // Right edge lines up with the button's right edge, so the popover
+      // keeps the button's gap from the screen edge.
+      alignmentOffset: const Offset(-_appearanceWidth, Space.s1),
+      style: popoverStyle(context, width: _appearanceWidth),
       menuChildren: [
         Consumer(
           builder: (context, ref, _) {
             final settings = ref.watch(themeControllerProvider);
             final controller = ref.read(themeControllerProvider.notifier);
             return SizedBox(
-              width: 300,
+              width: _appearanceWidth,
               child: Padding(
                 padding: const EdgeInsets.all(Space.s4),
                 child: Column(
@@ -116,10 +117,13 @@ class AppearanceButton extends ConsumerWidget {
           },
         ),
         const Divider(height: 1),
-        MenuItemButton(
-          leadingIcon: const Icon(Icons.tune),
-          onPressed: () => context.go('/settings/appearance'),
-          child: Text(l.moreAppearanceSettings),
+        SizedBox(
+          width: _appearanceWidth,
+          child: MenuItemButton(
+            leadingIcon: const Icon(Icons.tune),
+            onPressed: () => context.go('/settings/appearance'),
+            child: Text(l.moreAppearanceSettings),
+          ),
         ),
       ],
       builder: (context, menu, _) => IconButton(
@@ -143,17 +147,17 @@ class AccountMenu extends ConsumerWidget {
     final name = user?.name ?? l.myProfile;
 
     return MenuAnchor(
-      alignmentOffset: const Offset(0, Space.s1),
-      style: popoverStyle(context),
+      alignmentOffset: const Offset(-_accountWidth, Space.s1),
+      style: popoverStyle(context, width: _accountWidth),
       menuChildren: [
         // Who is logged in
         SizedBox(
-          width: 260,
+          width: _accountWidth,
           child: Padding(
             padding: const EdgeInsets.all(Space.s4),
             child: Row(
               children: [
-                InitialsAvatar(name, size: 44),
+                const UserIconAvatar(size: 44),
                 const SizedBox(width: Space.s3),
                 Expanded(
                   child: Column(
@@ -184,21 +188,30 @@ class AccountMenu extends ConsumerWidget {
           ),
         ),
         const Divider(height: 1),
-        MenuItemButton(
-          leadingIcon: const Icon(Icons.person_outline),
-          onPressed: () => context.go('/profile'),
-          child: Text(l.myProfile),
+        SizedBox(
+          width: _accountWidth,
+          child: MenuItemButton(
+            leadingIcon: const Icon(Icons.person_outline),
+            onPressed: () => context.go('/profile'),
+            child: Text(l.myProfile),
+          ),
         ),
-        MenuItemButton(
-          leadingIcon: const Icon(Icons.lock_outline),
-          onPressed: () => context.go('/profile/password'),
-          child: Text(l.changePassword),
+        SizedBox(
+          width: _accountWidth,
+          child: MenuItemButton(
+            leadingIcon: const Icon(Icons.lock_outline),
+            onPressed: () => context.go('/profile/password'),
+            child: Text(l.changePassword),
+          ),
         ),
         const Divider(height: 1),
-        MenuItemButton(
-          leadingIcon: Icon(Icons.logout, color: t.error),
-          onPressed: () => confirmLogout(context, ref),
-          child: Text(l.logout, style: TextStyle(color: t.error)),
+        SizedBox(
+          width: _accountWidth,
+          child: MenuItemButton(
+            leadingIcon: Icon(Icons.logout, color: t.error),
+            onPressed: () => confirmLogout(context, ref),
+            child: Text(l.logout, style: TextStyle(color: t.error)),
+          ),
         ),
       ],
       builder: (context, menu, _) => Tooltip(
@@ -209,13 +222,37 @@ class AccountMenu extends ConsumerWidget {
           child: InkWell(
             customBorder: const CircleBorder(),
             onTap: () => menu.isOpen ? menu.close() : menu.open(),
-            child: Padding(
-              padding: const EdgeInsets.all(Space.s1),
-              child: InitialsAvatar(name, size: 36),
+            child: const Padding(
+              padding: EdgeInsets.all(Space.s1),
+              child: UserIconAvatar(size: 36),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+const double _appearanceWidth = 320;
+const double _accountWidth = 264;
+
+/// Round avatar with a person icon (the account button and its popover).
+class UserIconAvatar extends StatelessWidget {
+  const UserIconAvatar({super.key, this.size = 36});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: t.primaryContainer,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(Icons.person, size: size * 0.62, color: t.onPrimaryContainer),
     );
   }
 }
@@ -233,10 +270,14 @@ Future<void> confirmLogout(BuildContext context, WidgetRef ref) async {
   if (ok) await ref.read(authControllerProvider.notifier).logout();
 }
 
-/// Rounded, bordered popover look shared by the app bar menus.
-MenuStyle popoverStyle(BuildContext context) {
+/// Rounded, bordered popover of a fixed [width], attached below the
+/// button's right corner (pair with `alignmentOffset: Offset(-width, 4)`).
+MenuStyle popoverStyle(BuildContext context, {required double width}) {
   final t = context.tokens;
   return MenuStyle(
+    alignment: AlignmentDirectional.bottomEnd,
+    minimumSize: WidgetStatePropertyAll(Size(width, 0)),
+    maximumSize: WidgetStatePropertyAll(Size(width, double.infinity)),
     backgroundColor: WidgetStatePropertyAll(t.surfaceElevated),
     elevation: const WidgetStatePropertyAll(8),
     padding: const WidgetStatePropertyAll(
