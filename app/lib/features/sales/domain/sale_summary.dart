@@ -17,7 +17,10 @@ class SaleSummary {
     required this.paidAmount,
     required this.dueAmount,
     required this.paymentStatus,
+    this.customerId,
     this.customerName,
+    this.customerPhone,
+    this.isOverdue = false,
   });
 
   final int id;
@@ -36,7 +39,12 @@ class SaleSummary {
 
   /// paid | partial | due
   final String paymentStatus;
+  final int? customerId;
   final String? customerName;
+  final String? customerPhone;
+
+  /// Booked and the delivery date has passed (upcoming deliveries only).
+  final bool isOverdue;
 
   bool get isCancelled => status == 'cancelled';
 
@@ -51,6 +59,9 @@ class SaleSummary {
     paidAmount: '${json['paid_amount'] ?? '0'}',
     dueAmount: '${json['due_amount'] ?? '0'}',
     paymentStatus: json['payment_status'] as String? ?? 'due',
+    customerId: (json['customer_id'] as num?)?.toInt(),
     customerName: (json['customer'] as Json?)?['name'] as String?,
+    customerPhone: (json['customer'] as Json?)?['phone'] as String?,
+    isOverdue: json['is_overdue'] as bool? ?? false,
   );
 }

@@ -8,8 +8,8 @@ import 'package:flyash/app.dart';
 import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/core/utils/contact_launcher.dart';
 import 'package:flyash/core/widgets/data_table_card.dart';
-import 'package:flyash/features/customers/presentation/pages/customer_detail_page.dart';
 import 'package:flyash/features/customers/presentation/pages/customers_list_page.dart';
+import 'package:flyash/features/sales/presentation/widgets/sale_list_items.dart';
 
 import '../fake_api.dart';
 import '../helpers.dart';

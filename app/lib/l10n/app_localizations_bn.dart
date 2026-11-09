@@ -720,4 +720,126 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteCustomerMessage => 'কোনো বিক্রি না থাকলেই ডিলিট করা যাবে।';
+
+  @override
+  String get reset => 'রিসেট';
+
+  @override
+  String get apply => 'প্রয়োগ করুন';
+
+  @override
+  String get saleDetails => 'বিক্রি';
+
+  @override
+  String get searchSales => 'ইনভয়েস নং, কাস্টমার বা ফোন';
+
+  @override
+  String get filterSales => 'বিক্রি ফিল্টার';
+
+  @override
+  String get salesEmptyMessage => 'আপনার বিক্রি এখানে দেখাবে।';
+
+  @override
+  String get anyDate => 'যেকোনো তারিখ';
+
+  @override
+  String get presetToday => 'আজ';
+
+  @override
+  String get presetYesterday => 'গতকাল';
+
+  @override
+  String get presetThisWeek => 'এই সপ্তাহ';
+
+  @override
+  String get presetThisMonth => 'এই মাস';
+
+  @override
+  String get presetLastMonth => 'গত মাস';
+
+  @override
+  String get presetCustom => 'নিজে বাছুন…';
+
+  @override
+  String get upcomingDeliveries => 'সামনের ডেলিভারি';
+
+  @override
+  String get noUpcomingDeliveries => 'কোনো ডেলিভারি বাকি নেই';
+
+  @override
+  String get noUpcomingDeliveriesMessage =>
+      'ডেলিভারির অপেক্ষায় থাকা বুকিং এখানে দেখাবে।';
+
+  @override
+  String get overdue => 'দেরি হয়েছে';
+
+  @override
+  String deliverOn(String date) {
+    return 'ডেলিভারি $date';
+  }
+
+  @override
+  String get saleDate => 'বিক্রির তারিখ';
+
+  @override
+  String get deliveryDate => 'ডেলিভারির তারিখ';
+
+  @override
+  String get deliveredOn => 'ডেলিভারি হয়েছে';
+
+  @override
+  String createdBy(String name) {
+    return '$name এন্ট্রি করেছেন';
+  }
+
+  @override
+  String byUser(String name) {
+    return '$name';
+  }
+
+  @override
+  String itemsCount(String count) {
+    return 'আইটেম ($count)';
+  }
+
+  @override
+  String paymentsCount(String count) {
+    return 'পেমেন্ট ($count)';
+  }
+
+  @override
+  String get noPaymentsYet => 'এখনো কোনো টাকা পাওয়া যায়নি';
+
+  @override
+  String get amountSummary => 'হিসাব';
+
+  @override
+  String get subtotal => 'উপমোট';
+
+  @override
+  String get transport => 'গাড়িভাড়া';
+
+  @override
+  String get discount => 'ছাড়';
+
+  @override
+  String get productionCost => 'উৎপাদন খরচ';
+
+  @override
+  String get profit => 'লাভ';
+
+  @override
+  String get methodCash => 'নগদ';
+
+  @override
+  String get methodUpi => 'UPI';
+
+  @override
+  String get methodBank => 'ব্যাংক';
+
+  @override
+  String get methodCheque => 'চেক';
+
+  @override
+  String get methodOther => 'অন্য';
 }

@@ -1429,6 +1429,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only possible if they have no sales.'**
   String get deleteCustomerMessage;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @saleDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale'**
+  String get saleDetails;
+
+  /// No description provided for @searchSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice no., customer or phone'**
+  String get searchSales;
+
+  /// No description provided for @filterSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter sales'**
+  String get filterSales;
+
+  /// No description provided for @salesEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales you make will show here.'**
+  String get salesEmptyMessage;
+
+  /// No description provided for @anyDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Any date'**
+  String get anyDate;
+
+  /// No description provided for @presetToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get presetToday;
+
+  /// No description provided for @presetYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get presetYesterday;
+
+  /// No description provided for @presetThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get presetThisWeek;
+
+  /// No description provided for @presetThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get presetThisMonth;
+
+  /// No description provided for @presetLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get presetLastMonth;
+
+  /// No description provided for @presetCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get presetCustom;
+
+  /// No description provided for @upcomingDeliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming deliveries'**
+  String get upcomingDeliveries;
+
+  /// No description provided for @noUpcomingDeliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries pending'**
+  String get noUpcomingDeliveries;
+
+  /// No description provided for @noUpcomingDeliveriesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings waiting for delivery will show here.'**
+  String get noUpcomingDeliveriesMessage;
+
+  /// No description provided for @overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get overdue;
+
+  /// No description provided for @deliverOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver {date}'**
+  String deliverOn(String date);
+
+  /// No description provided for @saleDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale date'**
+  String get saleDate;
+
+  /// No description provided for @deliveryDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery date'**
+  String get deliveryDate;
+
+  /// No description provided for @deliveredOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered on'**
+  String get deliveredOn;
+
+  /// No description provided for @createdBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Entered by {name}'**
+  String createdBy(String name);
+
+  /// No description provided for @byUser.
+  ///
+  /// In en, this message translates to:
+  /// **'by {name}'**
+  String byUser(String name);
+
+  /// No description provided for @itemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Items ({count})'**
+  String itemsCount(String count);
+
+  /// No description provided for @paymentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments ({count})'**
+  String paymentsCount(String count);
+
+  /// No description provided for @noPaymentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No payment received yet'**
+  String get noPaymentsYet;
+
+  /// No description provided for @amountSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amountSummary;
+
+  /// No description provided for @subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotal;
+
+  /// No description provided for @transport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get transport;
+
+  /// No description provided for @discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discount;
+
+  /// No description provided for @productionCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Production cost'**
+  String get productionCost;
+
+  /// No description provided for @profit.
+  ///
+  /// In en, this message translates to:
+  /// **'Profit'**
+  String get profit;
+
+  /// No description provided for @methodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get methodCash;
+
+  /// No description provided for @methodUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI'**
+  String get methodUpi;
+
+  /// No description provided for @methodBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get methodBank;
+
+  /// No description provided for @methodCheque.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheque'**
+  String get methodCheque;
+
+  /// No description provided for @methodOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get methodOther;
 }
 
 class _AppLocalizationsDelegate

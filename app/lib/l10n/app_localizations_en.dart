@@ -722,4 +722,126 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteCustomerMessage => 'Only possible if they have no sales.';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get saleDetails => 'Sale';
+
+  @override
+  String get searchSales => 'Invoice no., customer or phone';
+
+  @override
+  String get filterSales => 'Filter sales';
+
+  @override
+  String get salesEmptyMessage => 'Sales you make will show here.';
+
+  @override
+  String get anyDate => 'Any date';
+
+  @override
+  String get presetToday => 'Today';
+
+  @override
+  String get presetYesterday => 'Yesterday';
+
+  @override
+  String get presetThisWeek => 'This week';
+
+  @override
+  String get presetThisMonth => 'This month';
+
+  @override
+  String get presetLastMonth => 'Last month';
+
+  @override
+  String get presetCustom => 'Custom…';
+
+  @override
+  String get upcomingDeliveries => 'Upcoming deliveries';
+
+  @override
+  String get noUpcomingDeliveries => 'No deliveries pending';
+
+  @override
+  String get noUpcomingDeliveriesMessage =>
+      'Bookings waiting for delivery will show here.';
+
+  @override
+  String get overdue => 'Overdue';
+
+  @override
+  String deliverOn(String date) {
+    return 'Deliver $date';
+  }
+
+  @override
+  String get saleDate => 'Sale date';
+
+  @override
+  String get deliveryDate => 'Delivery date';
+
+  @override
+  String get deliveredOn => 'Delivered on';
+
+  @override
+  String createdBy(String name) {
+    return 'Entered by $name';
+  }
+
+  @override
+  String byUser(String name) {
+    return 'by $name';
+  }
+
+  @override
+  String itemsCount(String count) {
+    return 'Items ($count)';
+  }
+
+  @override
+  String paymentsCount(String count) {
+    return 'Payments ($count)';
+  }
+
+  @override
+  String get noPaymentsYet => 'No payment received yet';
+
+  @override
+  String get amountSummary => 'Amount';
+
+  @override
+  String get subtotal => 'Subtotal';
+
+  @override
+  String get transport => 'Transport';
+
+  @override
+  String get discount => 'Discount';
+
+  @override
+  String get productionCost => 'Production cost';
+
+  @override
+  String get profit => 'Profit';
+
+  @override
+  String get methodCash => 'Cash';
+
+  @override
+  String get methodUpi => 'UPI';
+
+  @override
+  String get methodBank => 'Bank';
+
+  @override
+  String get methodCheque => 'Cheque';
+
+  @override
+  String get methodOther => 'Other';
 }

@@ -322,5 +322,77 @@
       }
     }
   },
-  "deleteCustomerMessage": "Only possible if they have no sales."
+  "deleteCustomerMessage": "Only possible if they have no sales.",
+  "reset": "Reset",
+  "apply": "Apply",
+  "saleDetails": "Sale",
+  "searchSales": "Invoice no., customer or phone",
+  "filterSales": "Filter sales",
+  "salesEmptyMessage": "Sales you make will show here.",
+  "anyDate": "Any date",
+  "presetToday": "Today",
+  "presetYesterday": "Yesterday",
+  "presetThisWeek": "This week",
+  "presetThisMonth": "This month",
+  "presetLastMonth": "Last month",
+  "presetCustom": "Custom…",
+  "upcomingDeliveries": "Upcoming deliveries",
+  "noUpcomingDeliveries": "No deliveries pending",
+  "noUpcomingDeliveriesMessage": "Bookings waiting for delivery will show here.",
+  "overdue": "Overdue",
+  "deliverOn": "Deliver {date}",
+  "@deliverOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "saleDate": "Sale date",
+  "deliveryDate": "Delivery date",
+  "deliveredOn": "Delivered on",
+  "createdBy": "Entered by {name}",
+  "@createdBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "byUser": "by {name}",
+  "@byUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itemsCount": "Items ({count})",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentsCount": "Payments ({count})",
+  "@paymentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "noPaymentsYet": "No payment received yet",
+  "amountSummary": "Amount",
+  "subtotal": "Subtotal",
+  "transport": "Transport",
+  "discount": "Discount",
+  "productionCost": "Production cost",
+  "profit": "Profit",
+  "methodCash": "Cash",
+  "methodUpi": "UPI",
+  "methodBank": "Bank",
+  "methodCheque": "Cheque",
+  "methodOther": "Other"
 }

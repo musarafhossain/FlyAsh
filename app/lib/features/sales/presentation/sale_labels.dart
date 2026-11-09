@@ -23,6 +23,15 @@ extension SaleLabels on AppLocalizations {
   /// instant | booking
   String saleTypeText(String type) =>
       type == 'booking' ? saleTypeBooking : saleTypeInstant;
+
+  /// cash | upi | bank | cheque | other
+  String paymentMethodText(String method) => switch (method) {
+    'cash' => methodCash,
+    'upi' => methodUpi,
+    'bank' => methodBank,
+    'cheque' => methodCheque,
+    _ => methodOther,
+  };
 }
 
 /// The pill for a sale in a list: "Cancelled" wins, then "Booked",

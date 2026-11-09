@@ -10,14 +10,13 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/contact_launcher.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cards.dart';
-import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
 import '../../../sales/domain/sale_summary.dart';
-import '../../../sales/presentation/sale_labels.dart';
+import '../../../sales/presentation/widgets/sale_list_items.dart';
 import '../../data/customers_repository_impl.dart';
 import '../../domain/customer.dart';
 
@@ -223,12 +222,18 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                 message: l.noSalesYetMessage,
               ),
               builder: (context, sales) => desktop
-                  ? _SalesTable(sales: sales)
+                  ? SalesTable(
+                      sales: sales,
+                      onOpen: (sale) => context.push('/sales/${sale.id}'),
+                    )
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         for (final s in sales) ...[
-                          SaleTile(sale: s),
+                          SaleTile(
+                            sale: s,
+                            onTap: () => context.push('/sales/${s.id}'),
+                          ),
                           const SizedBox(height: Space.s2),
                         ],
                       ],
@@ -324,110 +329,6 @@ class _ContactCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// One sale in a list: invoice no · date · type | total · status/due.
-/// (Opening the sale detail is added in F10.)
-class SaleTile extends StatelessWidget {
-  const SaleTile({super.key, required this.sale, this.onTap});
-
-  final SaleSummary sale;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final s = sale;
-    return Opacity(
-      opacity: s.isCancelled ? 0.6 : 1,
-      child: AppCard(
-        onTap: onTap,
-        padding: const EdgeInsets.symmetric(
-          horizontal: Space.s4,
-          vertical: Space.s3,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    s.invoiceNo,
-                    style: AppTypography.title.copyWith(color: t.textPrimary),
-                  ),
-                  Text(
-                    '${Fmt.date(s.saleDate)} · ${l.saleTypeText(s.type)}',
-                    style: AppTypography.caption.copyWith(
-                      color: t.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  Fmt.money(s.total),
-                  style: AppTypography.bodyStrong.copyWith(
-                    color: t.textPrimary,
-                    fontFeatures: AppTypography.tabular,
-                  ),
-                ),
-                const SizedBox(height: Space.s1),
-                SaleStatusPill(s),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SalesTable extends StatelessWidget {
-  const _SalesTable({required this.sales});
-
-  final List<SaleSummary> sales;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    return DataTableCard(
-      columns: [
-        TableColumnDef(l.invoiceNo, flex: 2),
-        TableColumnDef(l.date, flex: 2),
-        TableColumnDef(l.type, flex: 2),
-        TableColumnDef(l.total, flex: 2, alignEnd: true),
-        TableColumnDef(l.due, flex: 2, alignEnd: true),
-        TableColumnDef(l.status, flex: 2, alignEnd: true),
-      ],
-      rows: [
-        for (final s in sales)
-          [
-            CellText(s.invoiceNo, strong: true),
-            CellText(Fmt.date(s.saleDate)),
-            CellText(l.saleTypeText(s.type)),
-            CellText(Fmt.money(s.total)),
-            Text(
-              s.dueAmount == '0.00' || s.isCancelled
-                  ? '—'
-                  : Fmt.money(s.dueAmount),
-              style: AppTypography.body.copyWith(
-                color: s.dueAmount == '0.00' || s.isCancelled
-                    ? t.textTertiary
-                    : t.error,
-                fontFeatures: AppTypography.tabular,
-              ),
-            ),
-            SaleStatusPill(s),
-          ],
-      ],
     );
   }
 }

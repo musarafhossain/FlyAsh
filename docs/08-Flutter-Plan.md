@@ -33,7 +33,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F7** ✅ | **Profile, Users, Settings** | My profile, change password, users list/add/edit, Settings (factory profile, appearance, language) | F6 |
 | **F8** ✅ | **Products** | List, add/edit, activate/deactivate, delete | F6 |
 | **F9** ✅ | **Customers** | List with dues, add/edit, detail with sales | F6 |
-| F10 | Sales: list & detail | Sales list with filters, sale detail, upcoming deliveries | F8, F9 |
+| **F10** ✅ | **Sales: list & detail** | Sales list with filters, sale detail, upcoming deliveries | F8, F9 |
 | F11 | Sales: form & payments | New/edit sale and booking, inline customer, live totals, add/remove payment, deliver, cancel | F10 |
 | F12 | Labours & attendance | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with P/H/A toggles | F6 |
 | F13 | Wages & advances | Wages tab inside Labours (`/labours/wages`): wage sheet, labour wage detail, give advance, pay wages | F12 |
@@ -72,5 +72,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Money input:** use `MoneyField` + `Validators.money` (digits, up to 2 decimals, ₹ prefix). Values are sent as strings ("4.5"), never doubles; compute previews with `Decimal`.
 - **Call / WhatsApp:** `ContactLauncher.call(phone)` / `.whatsApp(phone)` (tel:+91…, wa.me/91…); returns false when nothing can open it → show `couldNotOpen`. Tests replace `ContactLauncher.launch`.
 - **Sale labels:** `SaleSummary` (sales/domain) and `SaleStatusPill` + `l.paymentStatusText / saleStatusText / saleTypeText` (sales/presentation/sale_labels.dart) are shared by every sale list.
+- **Dates:** `Ymd` (core/utils/dates.dart) works on business-date strings; `DateRange.preset(...)` builds Today / This week / This month … from `businessDateProvider` (the factory's today), never the device clock.
+- **Live API tests without the owner's password:** create a temporary user (`node ace user:create --phone=6000000099 …`), run with `--dart-define=LIVE_LOGIN=… --dart-define=LIVE_PASSWORD=…`, then reset `factory_settings.updated_by` and delete that user.
 - **Riverpod retries are off** (`retry: noRetry`): a failed load shows an error with a Retry button instead of retrying silently.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

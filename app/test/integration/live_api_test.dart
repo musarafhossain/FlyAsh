@@ -15,11 +15,14 @@ import 'package:flyash/core/l10n/locale_controller.dart';
 import 'package:flyash/core/network/api_client.dart';
 import 'package:flyash/core/network/api_response.dart';
 import 'package:flyash/core/network/session.dart';
+import 'package:flyash/core/utils/dates.dart';
 import 'package:flyash/features/auth/data/auth_repository_impl.dart';
 import 'package:flyash/features/customers/data/customers_repository_impl.dart';
 import 'package:flyash/features/customers/domain/customer.dart';
 import 'package:flyash/features/products/data/products_repository_impl.dart';
 import 'package:flyash/features/products/domain/product.dart';
+import 'package:flyash/features/sales/data/sales_repository_impl.dart';
+import 'package:flyash/features/sales/domain/sale.dart';
 import 'package:flyash/features/settings/data/settings_repository_impl.dart';
 import 'package:flyash/features/users/data/users_repository_impl.dart';
 
@@ -315,6 +318,63 @@ void main() {
     expect(inactive.isActive, isFalse);
 
     expect(await repo.delete(created.id), isNotEmpty);
+    await api.post('/auth/logout', parse: (d) => d);
+  }, skip: !live);
+
+  // F10: read-only checks of the sales list, filters, detail and upcoming.
+  test('F10: sales list, filters, detail, upcoming deliveries', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final repo = c.read(salesRepositoryProvider);
+
+    final all = await repo.list();
+    expect(all.items, isNotEmpty, reason: 'the dev database has sales');
+    final first = all.items.first;
+    expect(first.invoiceNo, matches(RegExp(r'^[A-Z]')));
+    expect(first.customerName, isNotNull);
+
+    final bookings = await repo.list(filter: const SaleFilter(type: 'booking'));
+    expect(bookings.items.every((s) => s.type == 'booking'), isTrue);
+
+    final partial = await repo.list(
+      filter: const SaleFilter(status: 'partial'),
+    );
+    expect(
+      partial.items.every(
+        (s) => s.status == 'delivered' && s.paymentStatus == 'partial',
+      ),
+      isTrue,
+    );
+
+    final today = c.read(businessDateProvider);
+    final month = DateRange.preset(DatePreset.thisMonth, today);
+    final inMonth = await repo.list(filter: SaleFilter(range: month));
+    expect(
+      inMonth.items.every(
+        (s) =>
+            s.saleDate.compareTo(month.from!) >= 0 &&
+            s.saleDate.compareTo(month.to!) <= 0,
+      ),
+      isTrue,
+    );
+
+    final bySearch = await repo.list(
+      filter: SaleFilter(search: first.invoiceNo),
+    );
+    expect(bySearch.items.map((s) => s.id), contains(first.id));
+
+    final sale = await repo.get(first.id);
+    expect(sale.summary.invoiceNo, first.invoiceNo);
+    expect(sale.items, isNotEmpty);
+
+    final upcoming = await repo.upcoming();
+    expect(upcoming.items.every((s) => s.status == 'booked'), isTrue);
+
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);
 }
