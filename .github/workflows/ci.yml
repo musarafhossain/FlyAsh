@@ -1,0 +1,100 @@
+# Checks every push and pull request to main:
+#   backend: lint, type check, tests (on a real MariaDB)
+#   app:     localizations, analyze, tests (live API tests are skipped here)
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (AdonisJS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: flyash_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    # No .env file in CI: Adonis reads these from the environment.
+    # .env.test (committed) adds DB_DATABASE=flyash_test and MAIL_MAILER=log.
+    env:
+      TZ: UTC
+      NODE_ENV: test
+      PORT: 3333
+      HOST: 0.0.0.0
+      LOG_LEVEL: warn
+      APP_KEY: ci-only-app-key-not-a-secret-0123456789
+      APP_URL: http://localhost:3333
+      APP_TIMEZONE: Asia/Kolkata
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_DATABASE: flyash_test
+      MAIL_MAILER: log
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Production build
+        run: npm run build
+
+  app:
+    name: App (Flutter)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.6
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Generated localizations are up to date
+        run: |
+          flutter gen-l10n
+          git diff --exit-code -- lib/l10n
+
+      - run: flutter analyze
+      - run: flutter test
