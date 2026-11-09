@@ -2467,6 +2467,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Advance / pay'**
   String get advanceOrPay;
+
+  /// No description provided for @note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get note;
+
+  /// No description provided for @category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get category;
+
+  /// No description provided for @icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get icon;
+
+  /// No description provided for @enteredByColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Entered by'**
+  String get enteredByColumn;
+
+  /// No description provided for @addExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get addExpense;
+
+  /// No description provided for @editExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit expense'**
+  String get editExpense;
+
+  /// No description provided for @spentIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent: {period}'**
+  String spentIn(String period);
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allCategories;
+
+  /// No description provided for @searchNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Search notes'**
+  String get searchNote;
+
+  /// No description provided for @noExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses in this period'**
+  String get noExpenses;
+
+  /// No description provided for @noExpensesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Record tiffin, repairs, diesel, electricity and other costs here.'**
+  String get noExpensesMessage;
+
+  /// No description provided for @expenseNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Tiffin for 15 labours'**
+  String get expenseNoteHint;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select category'**
+  String get selectCategory;
+
+  /// No description provided for @selectCategoryError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a category'**
+  String get selectCategoryError;
+
+  /// No description provided for @newCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get newCategory;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get editCategory;
+
+  /// No description provided for @manageCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage categories'**
+  String get manageCategories;
+
+  /// No description provided for @categoryNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Gate pass'**
+  String get categoryNameHint;
+
+  /// No description provided for @inactiveCategoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off to hide it from new expenses. Old expenses keep it.'**
+  String get inactiveCategoryHint;
+
+  /// No description provided for @categoriesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories are never deleted. Turn one off to hide it from new expenses.'**
+  String get categoriesHint;
+
+  /// No description provided for @categoryCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Category added'**
+  String get categoryCreated;
+
+  /// No description provided for @categoryUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Category updated'**
+  String get categoryUpdated;
+
+  /// No description provided for @deleteExpenseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this expense?'**
+  String get deleteExpenseTitle;
+
+  /// No description provided for @deleteExpenseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It is removed from the totals and reports.'**
+  String get deleteExpenseMessage;
 }
 
 class _AppLocalizationsDelegate

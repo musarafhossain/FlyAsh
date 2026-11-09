@@ -13,6 +13,9 @@ import '../../features/customers/presentation/pages/customers_list_page.dart';
 import '../../features/dev/presentation/pages/section_placeholder_page.dart';
 import '../../features/dev/presentation/pages/theme_gallery_page.dart';
 import '../../features/dev/presentation/pages/widget_gallery_page.dart';
+import '../../features/expenses/presentation/pages/expense_categories_page.dart';
+import '../../features/expenses/presentation/pages/expense_form_page.dart';
+import '../../features/expenses/presentation/pages/expenses_list_page.dart';
 import '../../features/labours/presentation/pages/labour_detail_page.dart';
 import '../../features/labours/presentation/pages/labour_form_page.dart';
 import '../../features/labours/presentation/pages/labours_page.dart';
@@ -361,6 +364,37 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
               path: 'edit',
               builder: (_, state) =>
                   LabourFormPage(labourId: _intParam(state, 'id')),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ],
+  '/expenses' => [
+    GoRoute(
+      path: '/expenses',
+      builder: (_, _) => const ExpensesListPage(),
+      routes: [
+        GoRoute(path: 'new', builder: (_, _) => const ExpenseFormPage()),
+        GoRoute(
+          path: 'categories',
+          builder: (_, _) => const ExpenseCategoriesPage(),
+        ),
+        // No separate detail page: /expenses/:id opens the edit form.
+        GoRoute(
+          path: ':id',
+          redirect: (_, state) {
+            final id = _intParam(state, 'id');
+            if (id == null) return '/expenses';
+            return state.uri.path == '/expenses/$id'
+                ? '/expenses/$id/edit'
+                : null;
+          },
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (_, state) =>
+                  ExpenseFormPage(expenseId: _intParam(state, 'id')),
             ),
           ],
         ),

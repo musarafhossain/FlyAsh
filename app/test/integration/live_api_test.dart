@@ -21,6 +21,8 @@ import 'package:flyash/features/auth/data/auth_repository_impl.dart';
 import 'package:flyash/features/customers/data/customers_repository_impl.dart';
 import 'package:flyash/features/customers/domain/customer.dart';
 import 'package:flyash/features/attendance/data/attendance_repository_impl.dart';
+import 'package:flyash/features/expenses/data/expenses_repository_impl.dart';
+import 'package:flyash/features/expenses/domain/expense.dart';
 import 'package:flyash/features/labours/data/labours_repository_impl.dart';
 import 'package:flyash/features/labours/domain/labour.dart';
 import 'package:flyash/features/products/data/products_repository_impl.dart';
@@ -668,6 +670,86 @@ void main() {
     // Clear the attendance again (the labour is removed in the database).
     await attendance.save(today, {lb.id: null});
 
+    await api.post('/auth/logout', parse: (d) => d);
+  }, skip: !live);
+
+  // F14: a test category and expenses; removed afterwards in the database
+  // (categories cannot be deleted through the API).
+  test('F14: expenses and categories', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final repo = c.read(expensesRepositoryProvider);
+    final today = c.read(businessDateProvider);
+    final stamp = DateTime.now().millisecondsSinceEpoch;
+
+    final category = await repo.createCategory(
+      name: 'Live test $stamp',
+      icon: 'ticket',
+    );
+    expect(category.isActive, isTrue);
+    await expectLater(
+      repo.createCategory(name: category.name),
+      throwsA(
+        isA<ValidationFailure>().having((f) => f['name'], 'name', isNotNull),
+      ),
+    );
+    final active = await repo.categories(active: true);
+    expect(active.map((x) => x.id), contains(category.id));
+
+    final (created, msg) = await repo.create(
+      ExpenseInput(
+        categoryId: category.id,
+        date: today,
+        amount: '1250.5',
+        note: 'Live test $stamp',
+      ),
+    );
+    expect(msg, isNotEmpty);
+    expect(created.amount, '1250.50');
+    expect(created.categoryName, category.name);
+
+    final list = await repo.list(
+      range: DateRange(from: today, to: today),
+      categoryId: category.id,
+    );
+    expect(list.items.single.id, created.id);
+    expect(list.extra['period_total'], '1250.50');
+
+    final (edited, _) = await repo.update(
+      created.id,
+      ExpenseInput(categoryId: category.id, date: today, amount: '900'),
+    );
+    expect(edited.amount, '900.00');
+
+    await expectLater(
+      repo.create(
+        ExpenseInput(
+          categoryId: category.id,
+          date: Ymd.addDays(today, 3),
+          amount: '1',
+        ),
+      ),
+      throwsA(isA<ValidationFailure>()),
+    );
+
+    final off = await repo.updateCategory(
+      category.id,
+      name: category.name,
+      icon: 'ticket',
+      isActive: false,
+    );
+    expect(off.isActive, isFalse);
+    expect(
+      (await repo.categories(active: true)).map((x) => x.id),
+      isNot(contains(category.id)),
+    );
+
+    expect(await repo.delete(created.id), isNotEmpty);
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);
 }

@@ -1311,4 +1311,81 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get advanceOrPay => 'অগ্রিম / মজুরি দিন';
+
+  @override
+  String get note => 'নোট';
+
+  @override
+  String get category => 'ক্যাটাগরি';
+
+  @override
+  String get icon => 'আইকন';
+
+  @override
+  String get enteredByColumn => 'এন্ট্রি করেছেন';
+
+  @override
+  String get addExpense => 'খরচ যোগ করুন';
+
+  @override
+  String get editExpense => 'খরচ এডিট';
+
+  @override
+  String spentIn(String period) {
+    return 'খরচ: $period';
+  }
+
+  @override
+  String get allCategories => 'সব';
+
+  @override
+  String get searchNote => 'নোট খুঁজুন';
+
+  @override
+  String get noExpenses => 'এই সময়ে কোনো খরচ নেই';
+
+  @override
+  String get noExpensesMessage =>
+      'টিফিন, মেরামত, ডিজেল, বিদ্যুৎ আর অন্য খরচ এখানে লিখুন।';
+
+  @override
+  String get expenseNoteHint => 'যেমন ১৫ জন শ্রমিকের টিফিন';
+
+  @override
+  String get selectCategory => 'ক্যাটাগরি বাছুন';
+
+  @override
+  String get selectCategoryError => 'একটা ক্যাটাগরি বাছুন';
+
+  @override
+  String get newCategory => 'নতুন ক্যাটাগরি';
+
+  @override
+  String get editCategory => 'ক্যাটাগরি এডিট';
+
+  @override
+  String get manageCategories => 'ক্যাটাগরি ব্যবস্থাপনা';
+
+  @override
+  String get categoryNameHint => 'যেমন গেট পাস';
+
+  @override
+  String get inactiveCategoryHint =>
+      'বন্ধ করলে নতুন খরচে দেখাবে না। আগের খরচে থেকে যাবে।';
+
+  @override
+  String get categoriesHint =>
+      'ক্যাটাগরি কখনো মোছা হয় না। নতুন খরচ থেকে লুকাতে বন্ধ করে দিন।';
+
+  @override
+  String get categoryCreated => 'ক্যাটাগরি যোগ হয়েছে';
+
+  @override
+  String get categoryUpdated => 'ক্যাটাগরি আপডেট হয়েছে';
+
+  @override
+  String get deleteExpenseTitle => 'এই খরচ মুছবেন?';
+
+  @override
+  String get deleteExpenseMessage => 'মোট আর রিপোর্ট থেকে সরে যাবে।';
 }

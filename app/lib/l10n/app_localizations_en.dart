@@ -1316,4 +1316,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advanceOrPay => 'Advance / pay';
+
+  @override
+  String get note => 'Note';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get icon => 'Icon';
+
+  @override
+  String get enteredByColumn => 'Entered by';
+
+  @override
+  String get addExpense => 'Add expense';
+
+  @override
+  String get editExpense => 'Edit expense';
+
+  @override
+  String spentIn(String period) {
+    return 'Spent: $period';
+  }
+
+  @override
+  String get allCategories => 'All';
+
+  @override
+  String get searchNote => 'Search notes';
+
+  @override
+  String get noExpenses => 'No expenses in this period';
+
+  @override
+  String get noExpensesMessage =>
+      'Record tiffin, repairs, diesel, electricity and other costs here.';
+
+  @override
+  String get expenseNoteHint => 'e.g. Tiffin for 15 labours';
+
+  @override
+  String get selectCategory => 'Select category';
+
+  @override
+  String get selectCategoryError => 'Select a category';
+
+  @override
+  String get newCategory => 'New category';
+
+  @override
+  String get editCategory => 'Edit category';
+
+  @override
+  String get manageCategories => 'Manage categories';
+
+  @override
+  String get categoryNameHint => 'e.g. Gate pass';
+
+  @override
+  String get inactiveCategoryHint =>
+      'Turn off to hide it from new expenses. Old expenses keep it.';
+
+  @override
+  String get categoriesHint =>
+      'Categories are never deleted. Turn one off to hide it from new expenses.';
+
+  @override
+  String get categoryCreated => 'Category added';
+
+  @override
+  String get categoryUpdated => 'Category updated';
+
+  @override
+  String get deleteExpenseTitle => 'Delete this expense?';
+
+  @override
+  String get deleteExpenseMessage =>
+      'It is removed from the totals and reports.';
 }

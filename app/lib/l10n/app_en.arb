@@ -721,5 +721,36 @@
   "balanceRecalculated": "The balance is worked out again.",
   "dayByDay": "Day by day",
   "wageThisMonth": "Wage this month",
-  "advanceOrPay": "Advance / pay"
+  "advanceOrPay": "Advance / pay",
+  "note": "Note",
+  "category": "Category",
+  "icon": "Icon",
+  "enteredByColumn": "Entered by",
+  "addExpense": "Add expense",
+  "editExpense": "Edit expense",
+  "spentIn": "Spent: {period}",
+  "@spentIn": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "allCategories": "All",
+  "searchNote": "Search notes",
+  "noExpenses": "No expenses in this period",
+  "noExpensesMessage": "Record tiffin, repairs, diesel, electricity and other costs here.",
+  "expenseNoteHint": "e.g. Tiffin for 15 labours",
+  "selectCategory": "Select category",
+  "selectCategoryError": "Select a category",
+  "newCategory": "New category",
+  "editCategory": "Edit category",
+  "manageCategories": "Manage categories",
+  "categoryNameHint": "e.g. Gate pass",
+  "inactiveCategoryHint": "Turn off to hide it from new expenses. Old expenses keep it.",
+  "categoriesHint": "Categories are never deleted. Turn one off to hide it from new expenses.",
+  "categoryCreated": "Category added",
+  "categoryUpdated": "Category updated",
+  "deleteExpenseTitle": "Delete this expense?",
+  "deleteExpenseMessage": "It is removed from the totals and reports."
 }
