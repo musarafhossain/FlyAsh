@@ -752,5 +752,35 @@
   "categoryCreated": "Category added",
   "categoryUpdated": "Category updated",
   "deleteExpenseTitle": "Delete this expense?",
-  "deleteExpenseMessage": "It is removed from the totals and reports."
+  "deleteExpenseMessage": "It is removed from the totals and reports.",
+  "totalDue": "Total due",
+  "deliveriesToday": "Deliveries today",
+  "deliveriesTodayOverdue": "Deliveries · {count} late",
+  "@deliveriesTodayOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "presentToday": "Present today",
+  "monthExpenses": "Month expenses",
+  "quickActions": "Quick actions",
+  "recentSales": "Recent sales",
+  "viewAll": "View all",
+  "todaysSales": "Today's sales",
+  "todaysSalesCaption": "{count} sales · profit {profit}",
+  "@todaysSalesCaption": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "profit": {
+        "type": "String"
+      }
+    }
+  },
+  "goodMorning": "Good morning",
+  "goodAfternoon": "Good afternoon",
+  "goodEvening": "Good evening"
 }

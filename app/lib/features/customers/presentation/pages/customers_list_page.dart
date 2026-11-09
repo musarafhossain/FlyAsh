@@ -27,7 +27,10 @@ enum CustomerFilter { all, hasDue, inactive }
 /// All / Has due / Inactive, the due on every row. Cards on phones and
 /// tablets, a table on desktop. Tap → customer detail.
 class CustomersListPage extends ConsumerStatefulWidget {
-  const CustomersListPage({super.key});
+  const CustomersListPage({super.key, this.initialFilter});
+
+  /// From `?filter=due` (Home → Total due).
+  final String? initialFilter;
 
   @override
   ConsumerState<CustomersListPage> createState() => _CustomersListPageState();
@@ -37,7 +40,19 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
   final _list = PagedListController();
   final _search = TextEditingController();
   Timer? _debounce;
-  CustomerFilter _filter = CustomerFilter.all;
+  late CustomerFilter _filter = widget.initialFilter == 'due'
+      ? CustomerFilter.hasDue
+      : CustomerFilter.all;
+
+  @override
+  void didUpdateWidget(CustomersListPage old) {
+    super.didUpdateWidget(old);
+    // The page stays alive in the shell; a new ?filter= applies anew.
+    if (widget.initialFilter != old.initialFilter &&
+        widget.initialFilter == 'due') {
+      _setFilter(CustomerFilter.hasDue);
+    }
+  }
 
   @override
   void dispose() {

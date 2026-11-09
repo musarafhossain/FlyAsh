@@ -1388,4 +1388,47 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteExpenseMessage => 'মোট আর রিপোর্ট থেকে সরে যাবে।';
+
+  @override
+  String get totalDue => 'মোট বাকি';
+
+  @override
+  String get deliveriesToday => 'আজকের ডেলিভারি';
+
+  @override
+  String deliveriesTodayOverdue(String count) {
+    return 'ডেলিভারি · $countটি দেরি';
+  }
+
+  @override
+  String get presentToday => 'আজ উপস্থিত';
+
+  @override
+  String get monthExpenses => 'মাসের খরচ';
+
+  @override
+  String get quickActions => 'দ্রুত কাজ';
+
+  @override
+  String get recentSales => 'সাম্প্রতিক বিক্রি';
+
+  @override
+  String get viewAll => 'সব দেখুন';
+
+  @override
+  String get todaysSales => 'আজকের বিক্রি';
+
+  @override
+  String todaysSalesCaption(String count, String profit) {
+    return '$countটি বিক্রি · লাভ $profit';
+  }
+
+  @override
+  String get goodMorning => 'শুভ সকাল';
+
+  @override
+  String get goodAfternoon => 'শুভ দুপুর';
+
+  @override
+  String get goodEvening => 'শুভ সন্ধ্যা';
 }

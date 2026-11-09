@@ -27,7 +27,10 @@ import '../widgets/sale_list_items.dart';
 /// a table on desktop. The truck button opens upcoming deliveries; the
 /// "New sale" button opens the form and then the saved sale.
 class SalesListPage extends ConsumerStatefulWidget {
-  const SalesListPage({super.key});
+  const SalesListPage({super.key, this.initialPeriod});
+
+  /// From `?period=today` (Home → Today's sales).
+  final String? initialPeriod;
 
   @override
   ConsumerState<SalesListPage> createState() => _SalesListPageState();
@@ -37,7 +40,27 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
   final _list = PagedListController();
   final _search = TextEditingController();
   Timer? _debounce;
-  SaleFilter _filter = const SaleFilter();
+  late SaleFilter _filter = _filterFor(widget.initialPeriod);
+
+  SaleFilter _filterFor(String? period) => period == 'today'
+      ? SaleFilter(
+          range: DateRange.preset(
+            DatePreset.today,
+            ref.read(businessDateProvider),
+          ),
+          preset: DatePreset.today,
+        )
+      : const SaleFilter();
+
+  @override
+  void didUpdateWidget(SalesListPage old) {
+    super.didUpdateWidget(old);
+    // The page stays alive in the shell; a new ?period= applies anew.
+    if (widget.initialPeriod != old.initialPeriod &&
+        widget.initialPeriod != null) {
+      _apply(_filterFor(widget.initialPeriod));
+    }
+  }
 
   @override
   void dispose() {

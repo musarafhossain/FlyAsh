@@ -418,5 +418,18 @@
   "categoryCreated": "ক্যাটাগরি যোগ হয়েছে",
   "categoryUpdated": "ক্যাটাগরি আপডেট হয়েছে",
   "deleteExpenseTitle": "এই খরচ মুছবেন?",
-  "deleteExpenseMessage": "মোট আর রিপোর্ট থেকে সরে যাবে।"
+  "deleteExpenseMessage": "মোট আর রিপোর্ট থেকে সরে যাবে।",
+  "totalDue": "মোট বাকি",
+  "deliveriesToday": "আজকের ডেলিভারি",
+  "deliveriesTodayOverdue": "ডেলিভারি · {count}টি দেরি",
+  "presentToday": "আজ উপস্থিত",
+  "monthExpenses": "মাসের খরচ",
+  "quickActions": "দ্রুত কাজ",
+  "recentSales": "সাম্প্রতিক বিক্রি",
+  "viewAll": "সব দেখুন",
+  "todaysSales": "আজকের বিক্রি",
+  "todaysSalesCaption": "{count}টি বিক্রি · লাভ {profit}",
+  "goodMorning": "শুভ সকাল",
+  "goodAfternoon": "শুভ দুপুর",
+  "goodEvening": "শুভ সন্ধ্যা"
 }

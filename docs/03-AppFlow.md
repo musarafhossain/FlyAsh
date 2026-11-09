@@ -133,11 +133,11 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 ```
 Home
  ├─ Pull to refresh → GET /dashboard
- ├─ Hero "Today's Sales" (tap) → /sales?from=today&to=today
- ├─ KPI "Total due" → /reports/dues
+ ├─ Hero "Today's Sales" (tap) → /sales?period=today
+ ├─ KPI "Total due" → /customers?filter=due (the dues report comes in F16)
  ├─ KPI "Deliveries today" → /sales/upcoming
  ├─ KPI "Present today" → /attendance (today)
- ├─ KPI "Month expenses" → /expenses?from=month_start
+ ├─ KPI "Month expenses" → /expenses (this month by default)
  ├─ Quick: New Sale → /sales/new?type=instant
  ├─ Quick: New Booking → /sales/new?type=booking
  ├─ Quick: Attendance → /attendance

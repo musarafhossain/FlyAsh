@@ -1394,4 +1394,47 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteExpenseMessage =>
       'It is removed from the totals and reports.';
+
+  @override
+  String get totalDue => 'Total due';
+
+  @override
+  String get deliveriesToday => 'Deliveries today';
+
+  @override
+  String deliveriesTodayOverdue(String count) {
+    return 'Deliveries · $count late';
+  }
+
+  @override
+  String get presentToday => 'Present today';
+
+  @override
+  String get monthExpenses => 'Month expenses';
+
+  @override
+  String get quickActions => 'Quick actions';
+
+  @override
+  String get recentSales => 'Recent sales';
+
+  @override
+  String get viewAll => 'View all';
+
+  @override
+  String get todaysSales => 'Today\'s sales';
+
+  @override
+  String todaysSalesCaption(String count, String profit) {
+    return '$count sales · profit $profit';
+  }
+
+  @override
+  String get goodMorning => 'Good morning';
+
+  @override
+  String get goodAfternoon => 'Good afternoon';
+
+  @override
+  String get goodEvening => 'Good evening';
 }

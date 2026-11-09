@@ -10,6 +10,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/customers/presentation/pages/customer_detail_page.dart';
 import '../../features/customers/presentation/pages/customer_form_page.dart';
 import '../../features/customers/presentation/pages/customers_list_page.dart';
+import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/dev/presentation/pages/section_placeholder_page.dart';
 import '../../features/dev/presentation/pages/theme_gallery_page.dart';
 import '../../features/dev/presentation/pages/widget_gallery_page.dart';
@@ -233,10 +234,12 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
       ],
     ),
   ],
+  '/home' => [GoRoute(path: '/home', builder: (_, _) => const DashboardPage())],
   '/sales' => [
     GoRoute(
       path: '/sales',
-      builder: (_, _) => const SalesListPage(),
+      builder: (_, state) =>
+          SalesListPage(initialPeriod: state.uri.queryParameters['period']),
       routes: [
         // Before ':id' so "upcoming" / "new" are not read as sale ids.
         GoRoute(
@@ -273,7 +276,8 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
   '/customers' => [
     GoRoute(
       path: '/customers',
-      builder: (_, _) => const CustomersListPage(),
+      builder: (_, state) =>
+          CustomersListPage(initialFilter: state.uri.queryParameters['filter']),
       routes: [
         GoRoute(path: 'new', builder: (_, _) => const CustomerFormPage()),
         GoRoute(

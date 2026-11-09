@@ -2611,6 +2611,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It is removed from the totals and reports.'**
   String get deleteExpenseMessage;
+
+  /// No description provided for @totalDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Total due'**
+  String get totalDue;
+
+  /// No description provided for @deliveriesToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries today'**
+  String get deliveriesToday;
+
+  /// No description provided for @deliveriesTodayOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries · {count} late'**
+  String deliveriesTodayOverdue(String count);
+
+  /// No description provided for @presentToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Present today'**
+  String get presentToday;
+
+  /// No description provided for @monthExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Month expenses'**
+  String get monthExpenses;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get quickActions;
+
+  /// No description provided for @recentSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent sales'**
+  String get recentSales;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAll;
+
+  /// No description provided for @todaysSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s sales'**
+  String get todaysSales;
+
+  /// No description provided for @todaysSalesCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sales · profit {profit}'**
+  String todaysSalesCaption(String count, String profit);
+
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get goodMorning;
+
+  /// No description provided for @goodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get goodAfternoon;
+
+  /// No description provided for @goodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get goodEvening;
 }
 
 class _AppLocalizationsDelegate

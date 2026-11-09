@@ -38,7 +38,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F12** ✅ | **Labours & attendance** | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with P/H/A toggles | F6 |
 | **F13** ✅ | **Wages & advances** | Wages tab inside Labours (`/labours/wages`): wage sheet, labour wage detail, give advance, pay wages | F12 |
 | **F14** ✅ | **Expenses** | Expense list with totals, form, categories | F6 |
-| F15 | Dashboard | Home screen with all cards and quick actions | F11, F13, F14 |
+| **F15** ✅ | **Dashboard** | Home screen with all cards and quick actions | F11, F13, F14 |
 | F16 | Reports & export | 6 reports with charts and tables, PDF/Excel export | F15 |
 | F17 | Receipt PDF | Sale receipt with the logo: share (WhatsApp), print, save | F11 |
 | F18 | App update | Version check, optional/forced update for Android, Windows, Web | F6 |
@@ -80,5 +80,6 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Live tests that create sales** cannot clean up through the API (records with sales are kept); afterwards delete the temporary user's rows and reset AUTO_INCREMENT of `sales`, `sale_items`, `sale_payments`, `customers`, `products`, `users` to their values before the run (invoice numbers come from `sales.id`).
 - **Dates in forms:** `DateField` (core/widgets/date_field.dart) for any business-date input with first/last limits.
 - **Shell branches** set `initialLocation: item.path`, so the route order inside a section (e.g. `/labours/wages` before `/labours`) never changes which page a sidebar tap opens.
+- **Deep links with filters:** `/sales?period=today` and `/customers?filter=due` (used by Home). Shell root pages stay alive, so they apply a changed query in `didUpdateWidget`.
 - **Riverpod retries are off** (`retry: noRetry`): a failed load shows an error with a Retry button instead of retrying silently.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

@@ -21,6 +21,7 @@ import 'package:flyash/features/auth/data/auth_repository_impl.dart';
 import 'package:flyash/features/customers/data/customers_repository_impl.dart';
 import 'package:flyash/features/customers/domain/customer.dart';
 import 'package:flyash/features/attendance/data/attendance_repository_impl.dart';
+import 'package:flyash/features/dashboard/data/dashboard_repository_impl.dart';
 import 'package:flyash/features/expenses/data/expenses_repository_impl.dart';
 import 'package:flyash/features/expenses/domain/expense.dart';
 import 'package:flyash/features/labours/data/labours_repository_impl.dart';
@@ -750,6 +751,39 @@ void main() {
     );
 
     expect(await repo.delete(created.id), isNotEmpty);
+    await api.post('/auth/logout', parse: (d) => d);
+  }, skip: !live);
+
+  // F15: read-only; the dashboard agrees with the lists it links to.
+  test('F15: dashboard numbers match the lists', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final today = c.read(businessDateProvider);
+
+    final d = await c.read(dashboardRepositoryProvider).get();
+    expect(d.date, today);
+    expect(d.recentSales.length, lessThanOrEqualTo(5));
+
+    final active = await c.read(laboursRepositoryProvider).list(active: true);
+    expect(d.laboursTotal, lessThanOrEqualTo(active.total));
+    expect(d.presentToday, lessThanOrEqualTo(d.laboursTotal));
+
+    final month = await c
+        .read(expensesRepositoryProvider)
+        .list(range: DateRange.preset(DatePreset.thisMonth, today));
+    expect(d.monthExpenses, month.extra['period_total']);
+
+    final upcoming = await c.read(salesRepositoryProvider).upcoming();
+    expect(
+      upcoming.items.where((s) => s.isOverdue).length,
+      lessThanOrEqualTo(d.overdueDeliveries),
+    );
+
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);
 }
