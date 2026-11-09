@@ -39,7 +39,6 @@ class NavItem {
     '/customers' => l.navCustomers,
     '/products' => l.navProducts,
     '/labours' => l.navLabours,
-    '/wages' => l.navWages,
     '/reports' => l.navReports,
     '/users' => l.navUsers,
     '/settings' => l.navSettings,
@@ -106,15 +105,7 @@ const List<NavItem> kNavItems = [
     label: 'Labours',
     icon: Icons.engineering_outlined,
     selectedIcon: Icons.engineering,
-    step: 'F12',
-    group: NavGroup.business,
-  ),
-  NavItem(
-    path: '/wages',
-    label: 'Wages',
-    icon: Icons.payments_outlined,
-    selectedIcon: Icons.payments,
-    step: 'F13',
+    step: 'F12', // Wages is a tab inside Labours (F13)
     group: NavGroup.business,
   ),
   NavItem(

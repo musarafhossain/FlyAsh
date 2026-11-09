@@ -35,8 +35,8 @@ The app is built **one small step at a time**. Each step ends with a working app
 | F9 | Customers | List with dues, add/edit, detail with sales | F6 |
 | F10 | Sales: list & detail | Sales list with filters, sale detail, upcoming deliveries | F8, F9 |
 | F11 | Sales: form & payments | New/edit sale and booking, inline customer, live totals, add/remove payment, deliver, cancel | F10 |
-| F12 | Labours & attendance | Labours list/form/detail, attendance screen with P/H/A toggles | F6 |
-| F13 | Wages & advances | Wage sheet, labour wage detail, give advance, pay wages | F12 |
+| F12 | Labours & attendance | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with P/H/A toggles | F6 |
+| F13 | Wages & advances | Wages tab inside Labours (`/labours/wages`): wage sheet, labour wage detail, give advance, pay wages | F12 |
 | F14 | Expenses | Expense list with totals, form, categories | F6 |
 | F15 | Dashboard | Home screen with all cards and quick actions | F11, F13, F14 |
 | F16 | Reports & export | 6 reports with charts and tables, PDF/Excel export | F15 |

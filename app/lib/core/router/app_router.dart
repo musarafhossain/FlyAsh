@@ -10,6 +10,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dev/presentation/pages/section_placeholder_page.dart';
 import '../../features/dev/presentation/pages/theme_gallery_page.dart';
 import '../../features/dev/presentation/pages/widget_gallery_page.dart';
+import '../../features/labours/presentation/pages/labours_page.dart';
 import '../../features/profile/presentation/pages/change_password_page.dart';
 import '../../features/profile/presentation/pages/profile_edit_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -211,6 +212,18 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         ),
       ],
     ),
+  ],
+  // Labours · Wages are two tabs of one section; switching tabs does not
+  // animate like opening a new page.
+  '/labours' => [
+    for (final tab in LaboursTab.values)
+      GoRoute(
+        path: tab.path,
+        pageBuilder: (_, state) => NoTransitionPage(
+          key: state.pageKey,
+          child: LaboursPage(tab: tab),
+        ),
+      ),
   ],
   _ => [
     GoRoute(

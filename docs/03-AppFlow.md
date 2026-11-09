@@ -87,7 +87,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 └──────────────────────────────────────────┘
 ☰ (app bar, left) → opens the side drawer:
   Dashboard · Sales · Upcoming Deliveries · Customers · Products
-  Labours · Attendance · Wages · Expenses · Reports · Users · Settings
+  Labours (tabs: Labours · Wages) · Attendance · Expenses · Reports · Users · Settings
   [Need help?]  ·  Log out
 ```
 
@@ -119,8 +119,8 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 | `/expenses/new` · `/expenses/:id/edit` | Expense form | |
 | `/customers` · `/customers/new` · `/customers/:id` · `/customers/:id/edit` | Customers | |
 | `/products` · `/products/new` · `/products/:id/edit` | Products | |
-| `/labours` · `/labours/new` · `/labours/:id` · `/labours/:id/edit` | Labours | |
-| `/wages?month=` · `/wages/:labourId?month=` | Wage sheet / labour wage detail | |
+| `/labours` · `/labours/new` · `/labours/:id` · `/labours/:id/edit` | Labours (tab 1) | |
+| `/labours/wages?month=` · `/labours/wages/:labourId?month=` | Wage sheet (tab 2) / labour wage detail | Wages is a tab inside Labours, not a separate section |
 | `/reports` · `/reports/:type` | Reports | `type` = sales, dues, expenses, wages, net-profit, collections |
 | `/users` · `/users/new` · `/users/:id` · `/users/:id/edit` | Users | |
 | `/profile` · `/profile/edit` · `/profile/password` | My profile | |
@@ -214,7 +214,10 @@ Product row ⋮ ─ Edit · Deactivate/Activate · Delete (409 → "Product is u
 ### 7.1 Labours
 
 ```
-Labours list ─ search ─ FAB → Labour form (wage type toggle Daily/Monthly, amount, joining date)
+Labours section = 2 tabs: Labours (/labours) · Wages (/labours/wages)
+
+Labours list ─ search ─ FAB → Labour form: name, phone, address,
+                               wage type Daily/Monthly + wage amount (both required), joining date
 Labour detail ─ Info · This month's attendance (mini calendar) · Wage summary card
              ─ Actions: Edit · Give advance · Pay wage · Deactivate (asks for the leaving date)
 ```
@@ -236,12 +239,12 @@ flowchart TD
 - Unsaved changes + date change or back → "Save changes for 08 Nov?" (Save / Discard).
 - Unmarked labours show an empty toggle and count in "Not marked". Save sends only the marked ones.
 
-### 7.3 Wages
+### 7.3 Wages (tab inside Labours)
 
 ```
-Wages (month selector) → GET /wages?month
+Labours → Wages tab (/labours/wages, month selector) → GET /wages?month
  ├─ Hero: total earned · strip: Advances · Paid · Balance
- └─ Row per labour → Labour wage detail (/wages/:labourId?month)
+ └─ Row per labour → Labour wage detail (/labours/wages/:labourId?month)
         ├─ Breakdown: worked days × rate − advances − paid = balance
         ├─ Day-by-day attendance list
         ├─ "Give advance" → sheet (amount, date, note) → POST /labours/:id/advances

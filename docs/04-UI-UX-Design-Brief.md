@@ -406,7 +406,7 @@ Bottom nav:  Home │ Sales │ Attendance │ Expenses      (☰ in the app bar
 
 Drawer (☰):
   Dashboard · Sales · Upcoming Deliveries · Customers · Products
-  Labours · Attendance · Wages & Advances · Expenses · Reports
+  Labours (tabs: Labours · Wages & Advances) · Attendance · Expenses · Reports
   Users
   Settings (My profile · Factory profile · Appearance · Language · Password · About & Updates)
 ```
@@ -429,7 +429,7 @@ Drawer (☰):
 | **Products** | List rows: tinted brick icon, name, unit, cost → price, margin. Inactive products are dimmed with an "Inactive" pill. Form: name, unit, default cost, default price, notes |
 | **Labours** | Search. Row: avatar, name, wage ("₹500 / day" or "₹15,000 / month"), today's status pill. Form: name, phone, address, wage type toggle, amount, joining date |
 | **Attendance** | Adapted from the reference: date selector (‹ Today, 08 Nov ›, future dates disabled) → ring (present / total) → tiles Present · Half Day · Absent · Not marked → "Mark all present" → list with a **3-state segmented toggle per labour** (P / H / A, 48 dp targets) → sticky "Save attendance" |
-| **Wages** | Month selector → hero card (total earned this month) → summary strip (Advances · Paid · Balance) → list per labour: days worked, earned, balance, pill (*Paid / Partial / Due*). Detail: calculation breakdown card (worked days × rate, − advances, − paid = balance), "Give advance" and "Pay wage" buttons |
+| **Wages** (tab inside Labours) | Month selector → hero card (total earned this month) → summary strip (Advances · Paid · Balance) → list per labour: days worked, earned, balance, pill (*Paid / Partial / Due*). Detail: calculation breakdown card (worked days × rate, − advances, − paid = balance), "Give advance" and "Pay wage" buttons |
 | **Expenses** | Period selector → total hero → category chips (filter) → expense rows (category icon, note, date, ₹) → FAB "Add expense". Form: date, category select (+ new), amount, note |
 | **Reports** | Tiles grid: Sales · Dues · Expenses · Wages · **Net Profit** · Collections. Each opens a period selector + chart + table + export (PDF / Excel) |
 | **Users** | Search. Row: initials avatar, name, phone, last login, pill (*Active* `success` / *Inactive* `neutral`). **The logged-in user is not listed.** FAB "Add user". Form: name, phone, email, password (on create only). Detail actions: Edit · Reset password · Deactivate/Activate. Empty state: "Only you so far · Add user" |

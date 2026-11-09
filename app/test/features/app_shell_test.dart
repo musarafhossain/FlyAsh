@@ -164,7 +164,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byTooltip('Expand menu'), findsOneWidget);
     expect(
-      find.text('Wages'),
+      find.text('Customers'),
       findsNothing,
       reason: 'labels hidden when collapsed',
     );
