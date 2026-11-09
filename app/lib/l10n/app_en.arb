@@ -394,5 +394,108 @@
   "methodUpi": "UPI",
   "methodBank": "Bank",
   "methodCheque": "Cheque",
-  "methodOther": "Other"
+  "methodOther": "Other",
+  "ok": "OK",
+  "discard": "Discard",
+  "keepEditing": "Keep editing",
+  "amount": "Amount",
+  "amountOptional": "Amount (optional)",
+  "dueAmount": "Due {amount}",
+  "@dueAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidQuantity": "Enter a quantity more than 0",
+  "newSale": "New sale",
+  "newBooking": "New booking",
+  "editSale": "Edit sale",
+  "saveSale": "Save sale",
+  "instantHint": "Goods leave the factory today.",
+  "bookingHint": "Order now, deliver on a later date. You can take an advance.",
+  "selectCustomer": "Select customer",
+  "selectCustomerError": "Select a customer or add a new one",
+  "newCustomer": "New customer",
+  "pickExistingCustomer": "Pick an existing customer instead",
+  "useThisCustomer": "Use this customer",
+  "deliveryAddressOptional": "Delivery address (optional)",
+  "selectProduct": "Select product",
+  "selectProductError": "Select a product",
+  "addItem": "Add item",
+  "removeItem": "Remove item",
+  "quantity": "Quantity",
+  "unitPriceLabel": "Price / unit",
+  "unitCostLabel": "Cost / unit",
+  "lineTotal": "Line total",
+  "discountTooHigh": "Cannot be more than subtotal + transport",
+  "alreadyPaid": "Already paid",
+  "paymentReceived": "Payment received now",
+  "advanceReceived": "Advance received",
+  "paymentNoteOptional": "Payment note (optional)",
+  "cannotExceedTotal": "Cannot be more than total {amount}",
+  "@cannotExceedTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "saleNotesHint": "e.g. Deliver before noon",
+  "discardSaleTitle": "Discard this sale?",
+  "discardChangesTitle": "Discard your changes?",
+  "discardSaleMessage": "What you entered will be lost.",
+  "addPayment": "Add payment",
+  "paymentDate": "Payment date",
+  "cannotExceedDue": "Cannot be more than the due {amount}",
+  "@cannotExceedDue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentActions": "Payment actions",
+  "deletePayment": "Delete payment",
+  "deletePaymentTitle": "Delete payment of {amount}?",
+  "@deletePaymentTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePaymentMessage": "The due amount goes up again.",
+  "markDelivered": "Mark delivered",
+  "markDeliveredTitle": "Deliver {invoice}",
+  "@markDeliveredTitle": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelBooking": "Cancel booking",
+  "keepBooking": "Keep booking",
+  "cancelBookingTitle": "Cancel {invoice}?",
+  "@cancelBookingTitle": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelBookingMessage": "The booking stays in the list as Cancelled and is left out of totals.",
+  "removePaymentsFirst": "This booking has payments. Delete them first (refund the money), then cancel.",
+  "deleteSale": "Delete sale",
+  "deleteSaleTitle": "Delete {invoice}?",
+  "@deleteSaleTitle": {
+    "placeholders": {
+      "invoice": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteSaleMessage": "It will be removed from all lists and reports."
 }

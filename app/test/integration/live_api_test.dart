@@ -377,4 +377,146 @@ void main() {
 
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);
+
+  // F11: creates real sales with the live user. The cleanup (sales, the
+  // test product and customer) is done afterwards in the database, because
+  // the API keeps records that have sales.
+  test('F11: create, pay, edit, deliver, cancel, delete', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final sales = c.read(salesRepositoryProvider);
+    final today = c.read(businessDateProvider);
+    final stamp = DateTime.now().millisecondsSinceEpoch;
+
+    final product = await c
+        .read(productsRepositoryProvider)
+        .create(
+          ProductInput(
+            name: 'Live sale brick $stamp',
+            unit: ProductUnit.piece,
+            defaultCost: '4.2',
+            defaultPrice: '6.5',
+          ),
+        );
+    final phone = '8${(stamp % 1000000000).toString().padLeft(9, '0')}';
+    SaleItemInput item(String qty) => SaleItemInput(
+      productId: product.id,
+      quantity: qty,
+      unitCost: '4.2',
+      unitPrice: '6.5',
+    );
+
+    // Instant sale with a new customer and money received now
+    final (sale, msg) = await sales.create(
+      SaleInput(
+        type: 'instant',
+        newCustomer: NewCustomerInput(
+          name: 'Live sale customer $stamp',
+          phone: phone,
+        ),
+        saleDate: today,
+        items: [item('1000')],
+        transportCharge: '500',
+        discount: '100',
+        payment: const PaymentInput(amount: '2000', method: 'upi'),
+      ),
+    );
+    expect(msg, isNotEmpty);
+    expect(sale.summary.total, '6900.00'); // 6500 + 500 − 100
+    expect(sale.profit, '2700.00'); // 6900 − 4200
+    expect(sale.summary.dueAmount, '4900.00');
+    expect(sale.summary.status, 'delivered');
+    final customerId = sale.summary.customerId!;
+
+    // Payment above the due → 400
+    await expectLater(
+      sales.addPayment(sale.id, const PaymentInput(amount: '99999')),
+      throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 400)),
+    );
+    final (paid, _) = await sales.addPayment(
+      sale.id,
+      PaymentInput(amount: '4900', paymentDate: today),
+    );
+    expect(paid.summary.paymentStatus, 'paid');
+
+    // Edit below what was paid → 400; a bigger edit works
+    final editLow = SaleInput(
+      type: 'instant',
+      customerId: customerId,
+      saleDate: today,
+      items: [item('10')],
+    );
+    await expectLater(
+      sales.update(sale.id, editLow),
+      throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 400)),
+    );
+    final (edited, _) = await sales.update(
+      sale.id,
+      SaleInput(
+        type: 'instant',
+        customerId: customerId,
+        saleDate: today,
+        items: [item('1200')],
+      ),
+    );
+    expect(edited.summary.total, '7800.00');
+    expect(edited.summary.dueAmount, '900.00');
+
+    final lastPayment = edited.payments.last;
+    final (afterDelete, _) = await sales.deletePayment(sale.id, lastPayment.id);
+    expect(afterDelete.payments.length, edited.payments.length - 1);
+
+    // Booking: deliver
+    final (booking, _) = await sales.create(
+      SaleInput(
+        type: 'booking',
+        customerId: customerId,
+        saleDate: today,
+        deliveryDate: today,
+        deliveryAddress: 'Live test road',
+        items: [item('500')],
+      ),
+    );
+    expect(booking.summary.status, 'booked');
+    final upcoming = await sales.upcoming();
+    expect(upcoming.items.map((s) => s.id), contains(booking.id));
+    final (delivered, _) = await sales.deliver(
+      booking.id,
+      deliveredDate: today,
+    );
+    expect(delivered.summary.status, 'delivered');
+
+    // Booking: cancel is refused with a payment, works without
+    final (booking2, _) = await sales.create(
+      SaleInput(
+        type: 'booking',
+        customerId: customerId,
+        saleDate: today,
+        deliveryDate: today,
+        items: [item('100')],
+        payment: const PaymentInput(amount: '100'),
+      ),
+    );
+    await expectLater(
+      sales.cancel(booking2.id),
+      throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 400)),
+    );
+    await sales.deletePayment(booking2.id, booking2.payments.single.id);
+    final (cancelled, _) = await sales.cancel(booking2.id);
+    expect(cancelled.summary.status, 'cancelled');
+
+    // Delete (soft) removes it from the list
+    expect(await sales.delete(booking2.id), isNotEmpty);
+    await expectLater(
+      sales.get(booking2.id),
+      throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 404)),
+    );
+
+    await api.post('/auth/logout', parse: (d) => d);
+  }, skip: !live);
 }

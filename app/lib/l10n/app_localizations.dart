@@ -1651,6 +1651,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get methodOther;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// No description provided for @keepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keepEditing;
+
+  /// No description provided for @amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount;
+
+  /// No description provided for @amountOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (optional)'**
+  String get amountOptional;
+
+  /// No description provided for @dueAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {amount}'**
+  String dueAmount(String amount);
+
+  /// No description provided for @invalidQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a quantity more than 0'**
+  String get invalidQuantity;
+
+  /// No description provided for @newSale.
+  ///
+  /// In en, this message translates to:
+  /// **'New sale'**
+  String get newSale;
+
+  /// No description provided for @newBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'New booking'**
+  String get newBooking;
+
+  /// No description provided for @editSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit sale'**
+  String get editSale;
+
+  /// No description provided for @saveSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Save sale'**
+  String get saveSale;
+
+  /// No description provided for @instantHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Goods leave the factory today.'**
+  String get instantHint;
+
+  /// No description provided for @bookingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Order now, deliver on a later date. You can take an advance.'**
+  String get bookingHint;
+
+  /// No description provided for @selectCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Select customer'**
+  String get selectCustomer;
+
+  /// No description provided for @selectCustomerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a customer or add a new one'**
+  String get selectCustomerError;
+
+  /// No description provided for @newCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer'**
+  String get newCustomer;
+
+  /// No description provided for @pickExistingCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an existing customer instead'**
+  String get pickExistingCustomer;
+
+  /// No description provided for @useThisCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this customer'**
+  String get useThisCustomer;
+
+  /// No description provided for @deliveryAddressOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery address (optional)'**
+  String get deliveryAddressOptional;
+
+  /// No description provided for @selectProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Select product'**
+  String get selectProduct;
+
+  /// No description provided for @selectProductError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a product'**
+  String get selectProductError;
+
+  /// No description provided for @addItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get addItem;
+
+  /// No description provided for @removeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove item'**
+  String get removeItem;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantity;
+
+  /// No description provided for @unitPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price / unit'**
+  String get unitPriceLabel;
+
+  /// No description provided for @unitCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost / unit'**
+  String get unitCostLabel;
+
+  /// No description provided for @lineTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Line total'**
+  String get lineTotal;
+
+  /// No description provided for @discountTooHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be more than subtotal + transport'**
+  String get discountTooHigh;
+
+  /// No description provided for @alreadyPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Already paid'**
+  String get alreadyPaid;
+
+  /// No description provided for @paymentReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received now'**
+  String get paymentReceived;
+
+  /// No description provided for @advanceReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance received'**
+  String get advanceReceived;
+
+  /// No description provided for @paymentNoteOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment note (optional)'**
+  String get paymentNoteOptional;
+
+  /// No description provided for @cannotExceedTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be more than total {amount}'**
+  String cannotExceedTotal(String amount);
+
+  /// No description provided for @saleNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Deliver before noon'**
+  String get saleNotesHint;
+
+  /// No description provided for @discardSaleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this sale?'**
+  String get discardSaleTitle;
+
+  /// No description provided for @discardChangesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your changes?'**
+  String get discardChangesTitle;
+
+  /// No description provided for @discardSaleMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'What you entered will be lost.'**
+  String get discardSaleMessage;
+
+  /// No description provided for @addPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add payment'**
+  String get addPayment;
+
+  /// No description provided for @paymentDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment date'**
+  String get paymentDate;
+
+  /// No description provided for @cannotExceedDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be more than the due {amount}'**
+  String cannotExceedDue(String amount);
+
+  /// No description provided for @paymentActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment actions'**
+  String get paymentActions;
+
+  /// No description provided for @deletePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete payment'**
+  String get deletePayment;
+
+  /// No description provided for @deletePaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete payment of {amount}?'**
+  String deletePaymentTitle(String amount);
+
+  /// No description provided for @deletePaymentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The due amount goes up again.'**
+  String get deletePaymentMessage;
+
+  /// No description provided for @markDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark delivered'**
+  String get markDelivered;
+
+  /// No description provided for @markDeliveredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver {invoice}'**
+  String markDeliveredTitle(String invoice);
+
+  /// No description provided for @cancelBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel booking'**
+  String get cancelBooking;
+
+  /// No description provided for @keepBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep booking'**
+  String get keepBooking;
+
+  /// No description provided for @cancelBookingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel {invoice}?'**
+  String cancelBookingTitle(String invoice);
+
+  /// No description provided for @cancelBookingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The booking stays in the list as Cancelled and is left out of totals.'**
+  String get cancelBookingMessage;
+
+  /// No description provided for @removePaymentsFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'This booking has payments. Delete them first (refund the money), then cancel.'**
+  String get removePaymentsFirst;
+
+  /// No description provided for @deleteSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete sale'**
+  String get deleteSale;
+
+  /// No description provided for @deleteSaleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {invoice}?'**
+  String deleteSaleTitle(String invoice);
+
+  /// No description provided for @deleteSaleMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be removed from all lists and reports.'**
+  String get deleteSaleMessage;
 }
 
 class _AppLocalizationsDelegate

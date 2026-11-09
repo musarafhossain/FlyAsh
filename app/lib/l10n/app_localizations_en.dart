@@ -844,4 +844,184 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodOther => 'Other';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get keepEditing => 'Keep editing';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get amountOptional => 'Amount (optional)';
+
+  @override
+  String dueAmount(String amount) {
+    return 'Due $amount';
+  }
+
+  @override
+  String get invalidQuantity => 'Enter a quantity more than 0';
+
+  @override
+  String get newSale => 'New sale';
+
+  @override
+  String get newBooking => 'New booking';
+
+  @override
+  String get editSale => 'Edit sale';
+
+  @override
+  String get saveSale => 'Save sale';
+
+  @override
+  String get instantHint => 'Goods leave the factory today.';
+
+  @override
+  String get bookingHint =>
+      'Order now, deliver on a later date. You can take an advance.';
+
+  @override
+  String get selectCustomer => 'Select customer';
+
+  @override
+  String get selectCustomerError => 'Select a customer or add a new one';
+
+  @override
+  String get newCustomer => 'New customer';
+
+  @override
+  String get pickExistingCustomer => 'Pick an existing customer instead';
+
+  @override
+  String get useThisCustomer => 'Use this customer';
+
+  @override
+  String get deliveryAddressOptional => 'Delivery address (optional)';
+
+  @override
+  String get selectProduct => 'Select product';
+
+  @override
+  String get selectProductError => 'Select a product';
+
+  @override
+  String get addItem => 'Add item';
+
+  @override
+  String get removeItem => 'Remove item';
+
+  @override
+  String get quantity => 'Quantity';
+
+  @override
+  String get unitPriceLabel => 'Price / unit';
+
+  @override
+  String get unitCostLabel => 'Cost / unit';
+
+  @override
+  String get lineTotal => 'Line total';
+
+  @override
+  String get discountTooHigh => 'Cannot be more than subtotal + transport';
+
+  @override
+  String get alreadyPaid => 'Already paid';
+
+  @override
+  String get paymentReceived => 'Payment received now';
+
+  @override
+  String get advanceReceived => 'Advance received';
+
+  @override
+  String get paymentNoteOptional => 'Payment note (optional)';
+
+  @override
+  String cannotExceedTotal(String amount) {
+    return 'Cannot be more than total $amount';
+  }
+
+  @override
+  String get saleNotesHint => 'e.g. Deliver before noon';
+
+  @override
+  String get discardSaleTitle => 'Discard this sale?';
+
+  @override
+  String get discardChangesTitle => 'Discard your changes?';
+
+  @override
+  String get discardSaleMessage => 'What you entered will be lost.';
+
+  @override
+  String get addPayment => 'Add payment';
+
+  @override
+  String get paymentDate => 'Payment date';
+
+  @override
+  String cannotExceedDue(String amount) {
+    return 'Cannot be more than the due $amount';
+  }
+
+  @override
+  String get paymentActions => 'Payment actions';
+
+  @override
+  String get deletePayment => 'Delete payment';
+
+  @override
+  String deletePaymentTitle(String amount) {
+    return 'Delete payment of $amount?';
+  }
+
+  @override
+  String get deletePaymentMessage => 'The due amount goes up again.';
+
+  @override
+  String get markDelivered => 'Mark delivered';
+
+  @override
+  String markDeliveredTitle(String invoice) {
+    return 'Deliver $invoice';
+  }
+
+  @override
+  String get cancelBooking => 'Cancel booking';
+
+  @override
+  String get keepBooking => 'Keep booking';
+
+  @override
+  String cancelBookingTitle(String invoice) {
+    return 'Cancel $invoice?';
+  }
+
+  @override
+  String get cancelBookingMessage =>
+      'The booking stays in the list as Cancelled and is left out of totals.';
+
+  @override
+  String get removePaymentsFirst =>
+      'This booking has payments. Delete them first (refund the money), then cancel.';
+
+  @override
+  String get deleteSale => 'Delete sale';
+
+  @override
+  String deleteSaleTitle(String invoice) {
+    return 'Delete $invoice?';
+  }
+
+  @override
+  String get deleteSaleMessage =>
+      'It will be removed from all lists and reports.';
 }

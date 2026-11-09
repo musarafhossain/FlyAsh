@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/network/session.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -18,13 +19,16 @@ import '../../../../core/widgets/status_pill.dart';
 import '../../../products/presentation/pages/products_list_page.dart';
 import '../../data/sales_repository_impl.dart';
 import '../../domain/sale.dart';
+import '../../domain/sale_summary.dart';
 import '../sale_labels.dart';
+import '../widgets/sale_action_sheets.dart';
 
 /// Sale detail (04-UI-UX "Sale detail"): invoice no. and status pills →
 /// customer card (Call / WhatsApp, opens the customer) → items → money
 /// summary (subtotal, transport, discount, total, cost, profit, paid, due)
-/// → payments. Actions (add payment, deliver, cancel, edit, share) come in
-/// F11 and F17.
+/// → payments. Actions (03-AppFlow §5.2): Add payment · Mark delivered ·
+/// Cancel booking (buttons), Edit and Delete (app bar), delete a payment
+/// (⋮ on its row). Share receipt comes in F17.
 class SaleDetailPage extends ConsumerStatefulWidget {
   const SaleDetailPage({super.key, required this.saleId});
 
@@ -44,6 +48,8 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
     _load();
   }
 
+  bool _busy = false;
+
   Future<void> _load() async {
     setState(() => _error = null);
     try {
@@ -54,6 +60,129 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
     }
   }
 
+  /// Runs an action that returns the updated sale; shows its message.
+  Future<void> _run(Future<(Sale, String)> Function() action) async {
+    setState(() => _busy = true);
+    try {
+      final (sale, message) = await action();
+      if (!mounted) return;
+      setState(() => _sale = sale);
+      showMessage(context, message);
+    } on Failure catch (f) {
+      if (mounted) showMessage(context, failureText(context, f));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  String get _today => ref.read(businessDateProvider);
+
+  Future<void> _addPayment() async {
+    final input = await showAddPaymentSheet(
+      context,
+      sale: _sale!,
+      today: _today,
+    );
+    if (input == null || !mounted) return;
+    await _run(
+      () => ref.read(salesRepositoryProvider).addPayment(widget.saleId, input),
+    );
+  }
+
+  Future<void> _deletePayment(SalePayment p) async {
+    final l = context.l10n;
+    final ok = await showConfirmDialog(
+      context,
+      title: l.deletePaymentTitle(Fmt.money(p.amount, decimals: true)),
+      message: l.deletePaymentMessage,
+      confirmLabel: l.delete,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    await _run(
+      () =>
+          ref.read(salesRepositoryProvider).deletePayment(widget.saleId, p.id),
+    );
+  }
+
+  Future<void> _deliver() async {
+    final s = _sale!.summary;
+    final date = await showDeliverSheet(
+      context,
+      invoiceNo: s.invoiceNo,
+      saleDate: s.saleDate,
+      today: _today,
+    );
+    if (date == null || !mounted) return;
+    await _run(
+      () => ref
+          .read(salesRepositoryProvider)
+          .deliver(widget.saleId, deliveredDate: date),
+    );
+  }
+
+  Future<void> _cancel() async {
+    final l = context.l10n;
+    final sale = _sale!;
+    if (sale.payments.isNotEmpty) {
+      // The server refuses too; explain instead of asking.
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l.cancelBooking),
+          content: Text(l.removePaymentsFirst),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l.ok),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    final ok = await showConfirmDialog(
+      context,
+      title: l.cancelBookingTitle(sale.summary.invoiceNo),
+      message: l.cancelBookingMessage,
+      confirmLabel: l.cancelBooking,
+      cancelLabel: l.keepBooking,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    await _run(() => ref.read(salesRepositoryProvider).cancel(widget.saleId));
+  }
+
+  Future<void> _edit() async {
+    final updated = await context.push<Sale>('/sales/${widget.saleId}/edit');
+    if (updated != null && mounted) setState(() => _sale = updated);
+  }
+
+  Future<void> _delete() async {
+    final l = context.l10n;
+    final ok = await showConfirmDialog(
+      context,
+      title: l.deleteSaleTitle(_sale!.summary.invoiceNo),
+      message: l.deleteSaleMessage,
+      confirmLabel: l.delete,
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      final message = await ref
+          .read(salesRepositoryProvider)
+          .delete(widget.saleId);
+      if (!mounted) return;
+      showMessage(context, message);
+      context.pop();
+    } on Failure catch (f) {
+      if (mounted) showMessage(context, failureText(context, f));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -61,7 +190,37 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
     final wide = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
 
     return Scaffold(
-      appBar: AppBar(title: Text(sale?.summary.invoiceNo ?? l.saleDetails)),
+      appBar: AppBar(
+        title: Text(sale?.summary.invoiceNo ?? l.saleDetails),
+        actions: [
+          if (sale != null && !sale.summary.isCancelled)
+            IconButton(
+              tooltip: l.edit,
+              onPressed: _busy ? null : _edit,
+              icon: const Icon(Icons.edit_outlined),
+            ),
+          if (sale != null)
+            PopupMenuButton<void>(
+              tooltip: l.moreActions,
+              enabled: !_busy,
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  onTap: _delete,
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.delete_outline,
+                      color: context.tokens.error,
+                    ),
+                    title: Text(
+                      l.deleteSale,
+                      style: TextStyle(color: context.tokens.error),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
       body: sale == null
           ? (_error != null
                 ? ErrorState(
@@ -81,6 +240,13 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
     maxWidth: 720,
     children: [
       _Header(sale: sale),
+      _Actions(
+        summary: sale.summary,
+        busy: _busy,
+        onAddPayment: _addPayment,
+        onDeliver: _deliver,
+        onCancel: _cancel,
+      ),
       const SizedBox(height: Space.s3),
       _CustomerCard(sale: sale),
       const SizedBox(height: Space.s3),
@@ -88,7 +254,7 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
       const SizedBox(height: Space.s3),
       _Summary(sale: sale),
       const SizedBox(height: Space.s3),
-      _Payments(sale: sale),
+      _Payments(sale: sale, onDelete: _busy ? null : _deletePayment),
     ],
   );
 
@@ -106,10 +272,17 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _Header(sale: sale),
+                _Actions(
+                  summary: sale.summary,
+                  busy: _busy,
+                  onAddPayment: _addPayment,
+                  onDeliver: _deliver,
+                  onCancel: _cancel,
+                ),
                 const SizedBox(height: Space.s3),
                 _Items(sale: sale),
                 const SizedBox(height: Space.s3),
-                _Payments(sale: sale),
+                _Payments(sale: sale, onDelete: _busy ? null : _deletePayment),
               ],
             ),
           ),
@@ -436,9 +609,12 @@ class _Summary extends StatelessWidget {
 }
 
 class _Payments extends StatelessWidget {
-  const _Payments({required this.sale});
+  const _Payments({required this.sale, this.onDelete});
 
   final Sale sale;
+
+  /// ⋮ → Delete on each payment (null while an action runs).
+  final ValueChanged<SalePayment>? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -510,6 +686,19 @@ class _Payments extends StatelessWidget {
                       fontFeatures: AppTypography.tabular,
                     ),
                   ),
+                  PopupMenuButton<void>(
+                    tooltip: l.paymentActions,
+                    enabled: onDelete != null,
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        onTap: () => onDelete?.call(p),
+                        child: Text(
+                          l.deletePayment,
+                          style: TextStyle(color: t.error),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -525,4 +714,58 @@ class _Payments extends StatelessWidget {
     'cash' => Icons.payments_outlined,
     _ => Icons.more_horiz,
   };
+}
+
+/// Add payment · Mark delivered · Cancel booking, shown when they apply.
+class _Actions extends StatelessWidget {
+  const _Actions({
+    required this.summary,
+    required this.busy,
+    required this.onAddPayment,
+    required this.onDeliver,
+    required this.onCancel,
+  });
+
+  final SaleSummary summary;
+  final bool busy;
+  final VoidCallback onAddPayment;
+  final VoidCallback onDeliver;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final s = summary;
+    final canPay = !s.isCancelled && !Sale.isZeroAmount(s.dueAmount);
+    final booked = s.status == 'booked';
+    if (!canPay && !booked) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: Space.s3),
+      child: Wrap(
+        spacing: Space.s2,
+        runSpacing: Space.s2,
+        children: [
+          if (canPay)
+            FilledButton.icon(
+              onPressed: busy ? null : onAddPayment,
+              icon: const Icon(Icons.add_card),
+              label: Text(l.addPayment),
+            ),
+          if (booked)
+            FilledButton.tonalIcon(
+              onPressed: busy ? null : onDeliver,
+              icon: const Icon(Icons.local_shipping_outlined),
+              label: Text(l.markDelivered),
+            ),
+          if (booked)
+            OutlinedButton.icon(
+              onPressed: busy ? null : onCancel,
+              icon: const Icon(Icons.cancel_outlined),
+              label: Text(l.cancelBooking),
+            ),
+        ],
+      ),
+    );
+  }
 }

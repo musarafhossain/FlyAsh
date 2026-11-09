@@ -18,13 +18,14 @@ import '../../domain/sale.dart';
 import '../../domain/sale_summary.dart';
 import '../sale_labels.dart';
 import '../widgets/sale_filter_sheet.dart';
+import 'sale_form_page.dart' show kReturnSale;
 import '../widgets/sale_list_items.dart';
 
 /// Sales list (03-AppFlow §5.3): tabs All / Instant / Booking, search by
 /// invoice no., customer or phone (400 ms debounce), filter sheet (date
 /// range presets + status), infinite scroll. Cards on phones and tablets,
-/// a table on desktop. The truck button opens upcoming deliveries.
-/// (The "New sale" button is added with the sale form in F11.)
+/// a table on desktop. The truck button opens upcoming deliveries; the
+/// "New sale" button opens the form and then the saved sale.
 class SalesListPage extends ConsumerStatefulWidget {
   const SalesListPage({super.key});
 
@@ -74,6 +75,18 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
     if (mounted) _list.refresh();
   }
 
+  /// Form → (saved) → the new sale's detail; Back returns here.
+  Future<void> _newSale() async {
+    final type = _filter.type == 'booking' ? 'booking' : 'instant';
+    final sale = await context.push<Sale>(
+      '/sales/new?type=$type',
+      extra: kReturnSale,
+    );
+    if (!mounted) return;
+    _list.refresh();
+    if (sale != null) await _open('/sales/${sale.id}');
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -95,6 +108,11 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
           ),
           const AppBarActions(),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _newSale,
+        icon: const Icon(Icons.add),
+        label: Text(l.newSale),
       ),
       body: PagedList<SaleSummary>(
         controller: _list,
@@ -188,6 +206,8 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
                 icon: Icons.point_of_sale_outlined,
                 title: l.noSalesYet,
                 message: l.salesEmptyMessage,
+                actionLabel: l.newSale,
+                onAction: _newSale,
               ),
         builder: (context, sales) => desktop
             ? SalesTable(

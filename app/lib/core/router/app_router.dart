@@ -20,6 +20,7 @@ import '../../features/profile/presentation/pages/change_password_page.dart';
 import '../../features/profile/presentation/pages/profile_edit_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/sales/presentation/pages/sale_detail_page.dart';
+import '../../features/sales/presentation/pages/sale_form_page.dart';
 import '../../features/sales/presentation/pages/sales_list_page.dart';
 import '../../features/sales/presentation/pages/upcoming_deliveries_page.dart';
 import '../../features/settings/presentation/pages/about_page.dart';
@@ -226,10 +227,20 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
       path: '/sales',
       builder: (_, _) => const SalesListPage(),
       routes: [
-        // Before ':id' so "upcoming" is not read as a sale id.
+        // Before ':id' so "upcoming" / "new" are not read as sale ids.
         GoRoute(
           path: 'upcoming',
           builder: (_, _) => const UpcomingDeliveriesPage(),
+        ),
+        GoRoute(
+          path: 'new',
+          builder: (_, state) => SaleFormPage(
+            initialType: state.uri.queryParameters['type'] ?? 'instant',
+            customerId: int.tryParse(
+              state.uri.queryParameters['customer'] ?? '',
+            ),
+            returnResult: state.extra == kReturnSale,
+          ),
         ),
         GoRoute(
           path: ':id',
@@ -237,6 +248,13 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
               _intParam(state, 'id') == null ? '/sales' : null,
           builder: (_, state) =>
               SaleDetailPage(saleId: _intParam(state, 'id')!),
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (_, state) =>
+                  SaleFormPage(saleId: _intParam(state, 'id')),
+            ),
+          ],
         ),
       ],
     ),

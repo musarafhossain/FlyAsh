@@ -842,4 +842,183 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get methodOther => 'অন্য';
+
+  @override
+  String get ok => 'ঠিক আছে';
+
+  @override
+  String get discard => 'বাদ দিন';
+
+  @override
+  String get keepEditing => 'এডিট চালিয়ে যান';
+
+  @override
+  String get amount => 'টাকার পরিমাণ';
+
+  @override
+  String get amountOptional => 'টাকার পরিমাণ (ঐচ্ছিক)';
+
+  @override
+  String dueAmount(String amount) {
+    return 'বাকি $amount';
+  }
+
+  @override
+  String get invalidQuantity => '0-এর বেশি পরিমাণ লিখুন';
+
+  @override
+  String get newSale => 'নতুন বিক্রি';
+
+  @override
+  String get newBooking => 'নতুন বুকিং';
+
+  @override
+  String get editSale => 'বিক্রি এডিট';
+
+  @override
+  String get saveSale => 'বিক্রি সেভ করুন';
+
+  @override
+  String get instantHint => 'আজই মাল কারখানা থেকে যাবে।';
+
+  @override
+  String get bookingHint =>
+      'এখন অর্ডার, পরে নির্দিষ্ট তারিখে ডেলিভারি। অগ্রিম নেওয়া যায়।';
+
+  @override
+  String get selectCustomer => 'কাস্টমার বাছুন';
+
+  @override
+  String get selectCustomerError => 'একজন কাস্টমার বাছুন বা নতুন যোগ করুন';
+
+  @override
+  String get newCustomer => 'নতুন কাস্টমার';
+
+  @override
+  String get pickExistingCustomer => 'তার বদলে পুরোনো কাস্টমার বাছুন';
+
+  @override
+  String get useThisCustomer => 'এই কাস্টমারকেই নিন';
+
+  @override
+  String get deliveryAddressOptional => 'ডেলিভারির ঠিকানা (ঐচ্ছিক)';
+
+  @override
+  String get selectProduct => 'প্রোডাক্ট বাছুন';
+
+  @override
+  String get selectProductError => 'একটা প্রোডাক্ট বাছুন';
+
+  @override
+  String get addItem => 'আইটেম যোগ করুন';
+
+  @override
+  String get removeItem => 'আইটেম সরান';
+
+  @override
+  String get quantity => 'পরিমাণ';
+
+  @override
+  String get unitPriceLabel => 'দাম / একক';
+
+  @override
+  String get unitCostLabel => 'খরচ / একক';
+
+  @override
+  String get lineTotal => 'মোট';
+
+  @override
+  String get discountTooHigh => 'উপমোট + গাড়িভাড়ার বেশি হতে পারে না';
+
+  @override
+  String get alreadyPaid => 'আগে পরিশোধ';
+
+  @override
+  String get paymentReceived => 'এখন পাওয়া টাকা';
+
+  @override
+  String get advanceReceived => 'অগ্রিম পাওয়া টাকা';
+
+  @override
+  String get paymentNoteOptional => 'পেমেন্টের নোট (ঐচ্ছিক)';
+
+  @override
+  String cannotExceedTotal(String amount) {
+    return 'মোট $amount-এর বেশি হতে পারে না';
+  }
+
+  @override
+  String get saleNotesHint => 'যেমন দুপুরের আগে ডেলিভারি';
+
+  @override
+  String get discardSaleTitle => 'এই বিক্রি বাদ দেবেন?';
+
+  @override
+  String get discardChangesTitle => 'পরিবর্তনগুলো বাদ দেবেন?';
+
+  @override
+  String get discardSaleMessage => 'যা লিখেছেন তা মুছে যাবে।';
+
+  @override
+  String get addPayment => 'পেমেন্ট যোগ করুন';
+
+  @override
+  String get paymentDate => 'পেমেন্টের তারিখ';
+
+  @override
+  String cannotExceedDue(String amount) {
+    return 'বাকি $amount-এর বেশি হতে পারে না';
+  }
+
+  @override
+  String get paymentActions => 'পেমেন্টের অপশন';
+
+  @override
+  String get deletePayment => 'পেমেন্ট মুছুন';
+
+  @override
+  String deletePaymentTitle(String amount) {
+    return '$amount-এর পেমেন্ট মুছবেন?';
+  }
+
+  @override
+  String get deletePaymentMessage => 'বাকি টাকা আবার বেড়ে যাবে।';
+
+  @override
+  String get markDelivered => 'ডেলিভারি হয়েছে';
+
+  @override
+  String markDeliveredTitle(String invoice) {
+    return '$invoice ডেলিভারি';
+  }
+
+  @override
+  String get cancelBooking => 'বুকিং বাতিল';
+
+  @override
+  String get keepBooking => 'বুকিং রাখুন';
+
+  @override
+  String cancelBookingTitle(String invoice) {
+    return '$invoice বাতিল করবেন?';
+  }
+
+  @override
+  String get cancelBookingMessage =>
+      'বুকিংটা তালিকায় \"বাতিল\" হিসেবে থাকবে, হিসাবে ধরা হবে না।';
+
+  @override
+  String get removePaymentsFirst =>
+      'এই বুকিংয়ে পেমেন্ট আছে। আগে সেগুলো মুছুন (টাকা ফেরত দিন), তারপর বাতিল করুন।';
+
+  @override
+  String get deleteSale => 'বিক্রি ডিলিট';
+
+  @override
+  String deleteSaleTitle(String invoice) {
+    return '$invoice ডিলিট করবেন?';
+  }
+
+  @override
+  String get deleteSaleMessage => 'সব তালিকা আর রিপোর্ট থেকে সরে যাবে।';
 }

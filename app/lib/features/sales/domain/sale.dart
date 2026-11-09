@@ -10,6 +10,7 @@ import 'sale_summary.dart';
 @immutable
 class SaleItem {
   const SaleItem({
+    this.productId,
     required this.productName,
     required this.unit,
     required this.quantity,
@@ -19,6 +20,7 @@ class SaleItem {
     required this.lineCost,
   });
 
+  final int? productId;
   final String productName;
   final ProductUnit unit;
   final String quantity;
@@ -28,6 +30,7 @@ class SaleItem {
   final String lineCost;
 
   factory SaleItem.fromJson(Json json) => SaleItem(
+    productId: (json['product_id'] as num?)?.toInt(),
     productName: json['product_name'] as String? ?? '',
     unit: ProductUnit.values.firstWhere(
       (u) => u.name == json['unit'],
@@ -176,7 +179,123 @@ class SaleFilter {
   );
 }
 
-/// Sales API (07-API §9, read side). Methods throw a `Failure` on error.
+/// One line the sale form sends. Money and quantity are decimal strings.
+@immutable
+class SaleItemInput {
+  const SaleItemInput({
+    required this.productId,
+    required this.quantity,
+    required this.unitCost,
+    required this.unitPrice,
+  });
+
+  final int productId;
+  final String quantity;
+  final String unitCost;
+  final String unitPrice;
+
+  Json toJson() => {
+    'product_id': productId,
+    'quantity': quantity,
+    'unit_cost': unitCost,
+    'unit_price': unitPrice,
+  };
+}
+
+/// A new customer created together with the sale.
+@immutable
+class NewCustomerInput {
+  const NewCustomerInput({
+    required this.name,
+    required this.phone,
+    this.address,
+  });
+
+  final String name;
+  final String phone;
+  final String? address;
+
+  Json toJson() => {
+    'name': name.trim(),
+    'phone': phone.trim(),
+    'address': address,
+  };
+}
+
+/// Money received (with a new sale, or later on the sale detail page).
+@immutable
+class PaymentInput {
+  const PaymentInput({
+    required this.amount,
+    this.method = 'cash',
+    this.note,
+    this.paymentDate,
+  });
+
+  final String amount;
+
+  /// cash | upi | bank | other
+  final String method;
+  final String? note;
+
+  /// Null = today (only for payments added later).
+  final String? paymentDate;
+
+  Json toJson() => {
+    'amount': amount,
+    'method': method,
+    'note': note,
+    'payment_date': ?paymentDate,
+  };
+}
+
+/// What the sale form sends (POST /sales; PUT without type and payment).
+@immutable
+class SaleInput {
+  const SaleInput({
+    required this.type,
+    this.customerId,
+    this.newCustomer,
+    required this.saleDate,
+    this.deliveryDate,
+    this.deliveryAddress,
+    required this.items,
+    this.transportCharge = '0',
+    this.discount = '0',
+    this.payment,
+    this.notes,
+  });
+
+  /// instant | booking
+  final String type;
+  final int? customerId;
+  final NewCustomerInput? newCustomer;
+  final String saleDate;
+  final String? deliveryDate;
+  final String? deliveryAddress;
+  final List<SaleItemInput> items;
+  final String transportCharge;
+  final String discount;
+  final PaymentInput? payment;
+  final String? notes;
+
+  Json toJson({bool forEdit = false}) => {
+    if (!forEdit) 'type': type,
+    'customer_id': ?customerId,
+    if (newCustomer != null) 'new_customer': newCustomer!.toJson(),
+    'sale_date': saleDate,
+    if (type == 'booking') 'delivery_date': deliveryDate,
+    'delivery_address': type == 'booking' ? deliveryAddress : null,
+    'items': [for (final i in items) i.toJson()],
+    'transport_charge': transportCharge,
+    'discount': discount,
+    if (!forEdit && payment != null) 'payment': payment!.toJson(),
+    'notes': notes,
+  };
+}
+
+/// Sales API (07-API §9). Methods throw a `Failure` on error; actions return
+/// the updated sale and the server message.
 abstract interface class SalesRepository {
   /// GET /sales?page&search&type&status&from&to (newest sale date first)
   Future<Paginated<SaleSummary>> list({int page = 1, SaleFilter filter});
@@ -186,4 +305,25 @@ abstract interface class SalesRepository {
 
   /// GET /sales/upcoming-deliveries (booked, by delivery date, overdue first)
   Future<Paginated<SaleSummary>> upcoming({int page = 1});
+
+  /// POST /sales
+  Future<(Sale, String)> create(SaleInput input);
+
+  /// PUT /sales/:id (items replaced, totals recalculated)
+  Future<(Sale, String)> update(int id, SaleInput input);
+
+  /// DELETE /sales/:id (soft delete) → message
+  Future<String> delete(int id);
+
+  /// POST /sales/:id/deliver
+  Future<(Sale, String)> deliver(int id, {String? deliveredDate});
+
+  /// POST /sales/:id/cancel (booked, without payments)
+  Future<(Sale, String)> cancel(int id);
+
+  /// POST /sales/:id/payments
+  Future<(Sale, String)> addPayment(int id, PaymentInput payment);
+
+  /// DELETE /sales/:id/payments/:paymentId
+  Future<(Sale, String)> deletePayment(int id, int paymentId);
 }

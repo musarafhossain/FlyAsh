@@ -45,6 +45,15 @@ class Validators {
 
   static final _money = RegExp(r'^\d+(\.\d{1,2})?$');
 
+  /// Quantity: more than 0, at most 2 decimals.
+  String? quantity(String? v) {
+    final error = money(v);
+    if (error != null) {
+      return error == _l.fieldRequired ? error : _l.invalidQuantity;
+    }
+    return double.parse(v!.trim()) > 0 ? null : _l.invalidQuantity;
+  }
+
   /// Must equal [other] (read when validating).
   FormFieldValidator<String> sameAs(TextEditingController other) =>
       (v) => required(v) ?? (v == other.text ? null : _l.passwordsDontMatch);

@@ -39,6 +39,55 @@ class SalesRepositoryImpl implements SalesRepository {
     page: page,
     item: SaleSummary.fromJson,
   );
+
+  static Sale _sale(Object? d) => Sale.fromJson(d as Json);
+
+  (Sale, String) _pair(ApiResponse<Sale> r) => (r.data, r.message);
+
+  @override
+  Future<(Sale, String)> create(SaleInput input) async =>
+      _pair(await _api.post('/sales', body: input.toJson(), parse: _sale));
+
+  @override
+  Future<(Sale, String)> update(int id, SaleInput input) async => _pair(
+    await _api.put(
+      '/sales/$id',
+      body: input.toJson(forEdit: true),
+      parse: _sale,
+    ),
+  );
+
+  @override
+  Future<String> delete(int id) async =>
+      (await _api.delete('/sales/$id', parse: (d) => d)).message;
+
+  @override
+  Future<(Sale, String)> deliver(int id, {String? deliveredDate}) async =>
+      _pair(
+        await _api.post(
+          '/sales/$id/deliver',
+          body: {'delivered_date': ?deliveredDate},
+          parse: _sale,
+        ),
+      );
+
+  @override
+  Future<(Sale, String)> cancel(int id) async =>
+      _pair(await _api.post('/sales/$id/cancel', parse: _sale));
+
+  @override
+  Future<(Sale, String)> addPayment(int id, PaymentInput payment) async =>
+      _pair(
+        await _api.post(
+          '/sales/$id/payments',
+          body: payment.toJson(),
+          parse: _sale,
+        ),
+      );
+
+  @override
+  Future<(Sale, String)> deletePayment(int id, int paymentId) async =>
+      _pair(await _api.delete('/sales/$id/payments/$paymentId', parse: _sale));
 }
 
 final salesRepositoryProvider = Provider<SalesRepository>(

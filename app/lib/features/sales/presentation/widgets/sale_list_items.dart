@@ -24,11 +24,15 @@ class SaleTile extends StatelessWidget {
     this.onTap,
     this.showCustomer = false,
     this.showDelivery = false,
+    this.action,
   });
 
   final SaleSummary sale;
   final VoidCallback? onTap;
   final bool showCustomer;
+
+  /// A button shown under the row (e.g. "Mark delivered").
+  final Widget? action;
 
   /// Upcoming deliveries: the delivery date instead of the sale date, and
   /// an "Overdue" pill when it has passed.
@@ -55,51 +59,62 @@ class SaleTile extends StatelessWidget {
           horizontal: Space.s4,
           vertical: Space.s3,
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (showCustomer) ...[
-              InitialsAvatar(s.customerName ?? '?'),
-              const SizedBox(width: Space.s3),
-            ],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.title.copyWith(color: t.textPrimary),
-                  ),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.caption.copyWith(
-                      color: s.isOverdue ? t.error : t.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: Space.s2),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            Row(
               children: [
-                Text(
-                  Fmt.money(s.total),
-                  style: AppTypography.bodyStrong.copyWith(
-                    color: t.textPrimary,
-                    fontFeatures: AppTypography.tabular,
+                if (showCustomer) ...[
+                  InitialsAvatar(s.customerName ?? '?'),
+                  const SizedBox(width: Space.s3),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.title.copyWith(
+                          color: t.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.caption.copyWith(
+                          color: s.isOverdue ? t.error : t.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: Space.s1),
-                if (showDelivery && s.isOverdue)
-                  StatusPill(l.overdue, tone: StatusTone.error)
-                else
-                  SaleStatusPill(s),
+                const SizedBox(width: Space.s2),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      Fmt.money(s.total),
+                      style: AppTypography.bodyStrong.copyWith(
+                        color: t.textPrimary,
+                        fontFeatures: AppTypography.tabular,
+                      ),
+                    ),
+                    const SizedBox(height: Space.s1),
+                    if (showDelivery && s.isOverdue)
+                      StatusPill(l.overdue, tone: StatusTone.error)
+                    else
+                      SaleStatusPill(s),
+                  ],
+                ),
               ],
             ),
+            if (action != null) ...[
+              const SizedBox(height: Space.s2),
+              Align(alignment: Alignment.centerRight, child: action),
+            ],
           ],
         ),
       ),
@@ -115,12 +130,16 @@ class SalesTable extends StatelessWidget {
     this.onOpen,
     this.showCustomer = false,
     this.showDelivery = false,
+    this.actionBuilder,
   });
 
   final List<SaleSummary> sales;
   final ValueChanged<SaleSummary>? onOpen;
   final bool showCustomer;
   final bool showDelivery;
+
+  /// Last column with a button per row (e.g. "Mark delivered").
+  final Widget Function(SaleSummary sale)? actionBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +154,8 @@ class SalesTable extends StatelessWidget {
         TableColumnDef(l.total, flex: 2, alignEnd: true),
         TableColumnDef(l.due, flex: 2, alignEnd: true),
         TableColumnDef(l.status, flex: 2, alignEnd: true),
+        if (actionBuilder != null)
+          const TableColumnDef('', flex: 3, alignEnd: true),
       ],
       rows: [
         for (final s in sales)
@@ -162,6 +183,7 @@ class SalesTable extends StatelessWidget {
               StatusPill(l.overdue, tone: StatusTone.error)
             else
               SaleStatusPill(s),
+            if (actionBuilder != null) actionBuilder!(s),
           ],
       ],
       onTapRow: onOpen == null ? null : (i) => onOpen!(sales[i]),
