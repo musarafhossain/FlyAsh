@@ -4,6 +4,7 @@
 @TestOn('vm')
 library;
 
+import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +28,7 @@ import 'package:flyash/features/products/domain/product.dart';
 import 'package:flyash/features/sales/data/sales_repository_impl.dart';
 import 'package:flyash/features/sales/domain/sale.dart';
 import 'package:flyash/features/settings/data/settings_repository_impl.dart';
+import 'package:flyash/features/wages/data/wages_repository_impl.dart';
 import 'package:flyash/features/users/data/users_repository_impl.dart';
 
 const live = bool.fromEnvironment('LIVE_API');
@@ -600,6 +602,71 @@ void main() {
     expect(left.leftDate, today);
     final (back, _) = await labours.setActive(created.id, true);
     expect(back.leftDate, isNull);
+
+    await api.post('/auth/logout', parse: (d) => d);
+  }, skip: !live);
+
+  // F13: a test labour with 1 present + 1 half day (₹400/day) → earned
+  // ₹600; advance and payment change the balance. Rows are removed
+  // afterwards in the database.
+  test('F13: wage sheet, detail, advance, payment', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final labours = c.read(laboursRepositoryProvider);
+    final attendance = c.read(attendanceRepositoryProvider);
+    final wages = c.read(wagesRepositoryProvider);
+    final today = c.read(businessDateProvider);
+    final month = today.substring(0, 7);
+    final stamp = DateTime.now().millisecondsSinceEpoch;
+
+    final lb = await labours.create(
+      LabourInput(
+        name: 'Live wage labour $stamp',
+        wageType: 'daily',
+        wageAmount: '400',
+        joiningDate: Ymd.monthStart(today),
+      ),
+    );
+    await attendance.save(today, {lb.id: 'present'});
+    if (today != Ymd.monthStart(today)) {
+      await attendance.save(Ymd.addDays(today, -1), {lb.id: 'half_day'});
+    }
+    final expected = today == Ymd.monthStart(today) ? '400.00' : '600.00';
+
+    final sheet = await wages.sheet(month: month, search: lb.name);
+    final row = sheet.items.singleWhere((r) => r.labourId == lb.id);
+    expect(row.earned, expected);
+    expect(row.status, 'due');
+    expect((sheet.extra['totals'] as Json)['earned'], isNotNull);
+
+    expect(
+      await wages.giveAdvance(lb.id, amount: '100', date: today),
+      isNotEmpty,
+    );
+    expect(
+      await wages.pay(lb.id, month: month, amount: '200', date: today),
+      isNotEmpty,
+    );
+    final detail = await wages.detail(lb.id, month);
+    expect(detail.row.advances, '100.00');
+    expect(detail.row.paid, '200.00');
+    final balance = Decimal.parse(expected) - Decimal.parse('300');
+    expect(detail.row.balance, balance.toStringAsFixed(2));
+    expect(detail.row.status, 'partial');
+    expect(detail.days.firstWhere((d) => d.date == today).earned, '400.00');
+
+    await wages.deleteAdvance(detail.advances.single.id);
+    await wages.deletePayment(detail.payments.single.id);
+    final after = await wages.detail(lb.id, month);
+    expect(after.row.balance, expected);
+
+    // Clear the attendance again (the labour is removed in the database).
+    await attendance.save(today, {lb.id: null});
 
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);

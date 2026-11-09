@@ -1212,4 +1212,108 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noLaboursOnDateMessage =>
       'Only labours who had joined and not left on this date are listed.';
+
+  @override
+  String get days => 'Days';
+
+  @override
+  String get earned => 'Earned';
+
+  @override
+  String get advances => 'Advances';
+
+  @override
+  String get balance => 'Balance';
+
+  @override
+  String daysWorked(String count) {
+    return '$count days';
+  }
+
+  @override
+  String earnedAmount(String amount) {
+    return 'earned $amount';
+  }
+
+  @override
+  String earnedInMonth(String month) {
+    return 'Earned in $month';
+  }
+
+  @override
+  String balanceAmount(String amount) {
+    return 'Balance $amount';
+  }
+
+  @override
+  String get searchLabour => 'Search labour';
+
+  @override
+  String get noWagesThisMonth => 'No wages this month';
+
+  @override
+  String get noWagesThisMonthMessage =>
+      'Labours employed in this month and their attendance make the wage sheet.';
+
+  @override
+  String get wageDetails => 'Wage';
+
+  @override
+  String get wageBreakdown => 'Wage for the month';
+
+  @override
+  String workedDaysLine(String present, String half, String absent) {
+    return 'Worked (P $present · H $half · A $absent)';
+  }
+
+  @override
+  String get payWage => 'Pay wage';
+
+  @override
+  String payWageTitle(String name, String month) {
+    return 'Pay $name for $month';
+  }
+
+  @override
+  String get giveAdvance => 'Give advance';
+
+  @override
+  String giveAdvanceTo(String name) {
+    return 'Advance to $name';
+  }
+
+  @override
+  String get advanceHint =>
+      'It is taken off the wage of the month of its date.';
+
+  @override
+  String advancesCount(String count) {
+    return 'Advances ($count)';
+  }
+
+  @override
+  String get noAdvances => 'No advance this month';
+
+  @override
+  String get noWagePayments => 'Nothing paid for this month yet';
+
+  @override
+  String get deleteAdvance => 'Delete advance';
+
+  @override
+  String deleteAdvanceTitle(String amount) {
+    return 'Delete advance of $amount?';
+  }
+
+  @override
+  String get balanceRecalculated => 'The balance is worked out again.';
+
+  @override
+  String get dayByDay => 'Day by day';
+
+  @override
+  String get wageThisMonth => 'Wage this month';
+
+  @override
+  String get advanceOrPay => 'Advance / pay';
 }

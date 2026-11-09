@@ -38,7 +38,7 @@ void main() {
     await tester.tap(tab('Wages'));
     await tester.pumpAndSettle();
     expect(currentPath(), '/labours/wages');
-    expect(find.text('This screen is built in step F13.'), findsOneWidget);
+    expect(find.text('Search labour'), findsOneWidget); // the real wage sheet
 
     await tester.tap(tab('Labours'));
     await tester.pumpAndSettle();

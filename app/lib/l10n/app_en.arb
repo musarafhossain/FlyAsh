@@ -621,5 +621,105 @@
     }
   },
   "noLaboursOnDate": "No labours on this date",
-  "noLaboursOnDateMessage": "Only labours who had joined and not left on this date are listed."
+  "noLaboursOnDateMessage": "Only labours who had joined and not left on this date are listed.",
+  "days": "Days",
+  "earned": "Earned",
+  "advances": "Advances",
+  "balance": "Balance",
+  "daysWorked": "{count} days",
+  "@daysWorked": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "earnedAmount": "earned {amount}",
+  "@earnedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "earnedInMonth": "Earned in {month}",
+  "@earnedInMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceAmount": "Balance {amount}",
+  "@balanceAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "searchLabour": "Search labour",
+  "noWagesThisMonth": "No wages this month",
+  "noWagesThisMonthMessage": "Labours employed in this month and their attendance make the wage sheet.",
+  "wageDetails": "Wage",
+  "wageBreakdown": "Wage for the month",
+  "workedDaysLine": "Worked (P {present} · H {half} · A {absent})",
+  "@workedDaysLine": {
+    "placeholders": {
+      "present": {
+        "type": "String"
+      },
+      "half": {
+        "type": "String"
+      },
+      "absent": {
+        "type": "String"
+      }
+    }
+  },
+  "payWage": "Pay wage",
+  "payWageTitle": "Pay {name} for {month}",
+  "@payWageTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "giveAdvance": "Give advance",
+  "giveAdvanceTo": "Advance to {name}",
+  "@giveAdvanceTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "advanceHint": "It is taken off the wage of the month of its date.",
+  "advancesCount": "Advances ({count})",
+  "@advancesCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "noAdvances": "No advance this month",
+  "noWagePayments": "Nothing paid for this month yet",
+  "deleteAdvance": "Delete advance",
+  "deleteAdvanceTitle": "Delete advance of {amount}?",
+  "@deleteAdvanceTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "balanceRecalculated": "The balance is worked out again.",
+  "dayByDay": "Day by day",
+  "wageThisMonth": "Wage this month",
+  "advanceOrPay": "Advance / pay"
 }

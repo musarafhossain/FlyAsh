@@ -21,6 +21,9 @@ import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
+import '../../../wages/data/wages_repository_impl.dart';
+import '../../../wages/domain/wages.dart';
+import '../../../wages/presentation/widgets/wages_tab.dart';
 import '../../data/labours_repository_impl.dart';
 import '../../domain/labour.dart';
 import '../labour_labels.dart';
@@ -28,8 +31,8 @@ import '../widgets/labours_tab.dart' show TodayPill;
 
 /// Labour detail (03-AppFlow §7.1): info, Call / WhatsApp, the month's
 /// attendance calendar (‹ month ›), Edit, and Deactivate (asks for the
-/// leaving date) / Activate. Wage summary, advances and payments are added
-/// in F13.
+/// leaving date) / Activate, and this month's wage (earned, advances, paid,
+/// balance) with a link to the wage detail (advance, pay).
 class LabourDetailPage extends ConsumerStatefulWidget {
   const LabourDetailPage({super.key, required this.labourId});
 
@@ -45,6 +48,7 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
   late String _month = ref.read(businessDateProvider).substring(0, 7);
   LabourMonth? _calendar;
   Object? _calendarError;
+  WageRow? _wage; // this month (null while loading or on error)
 
   String get _today => ref.read(businessDateProvider);
 
@@ -53,6 +57,25 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
     super.initState();
     _load();
     _loadMonth();
+    _loadWage();
+  }
+
+  Future<void> _loadWage() async {
+    try {
+      final d = await ref
+          .read(wagesRepositoryProvider)
+          .detail(widget.labourId, _today.substring(0, 7));
+      if (mounted) setState(() => _wage = d.row);
+    } on Failure {
+      // The card is just left out; the wage detail page shows errors.
+    }
+  }
+
+  Future<void> _openWages() async {
+    await context.push(
+      '/labours/wages/${widget.labourId}?month=${_today.substring(0, 7)}',
+    );
+    if (mounted) unawaited(_loadWage());
   }
 
   Future<void> _load() async {
@@ -179,6 +202,10 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
                   onCall: () => _contact(ContactLauncher.call),
                   onWhatsApp: () => _contact(ContactLauncher.whatsApp),
                 ),
+                if (_wage != null) ...[
+                  const SizedBox(height: Space.s4),
+                  _WageCard(row: _wage!, onOpen: _openWages),
+                ],
                 const SizedBox(height: Space.s4),
                 SectionHeader(l.attendanceThisMonth),
                 PeriodSelector(
@@ -521,6 +548,71 @@ class _LeavingDateDialogState extends State<_LeavingDateDialog> {
           child: Text(l.deactivate),
         ),
       ],
+    );
+  }
+}
+
+/// This month: earned, advances, paid and balance → wage detail.
+class _WageCard extends StatelessWidget {
+  const _WageCard({required this.row, required this.onOpen});
+
+  final WageRow row;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return AppCard(
+      onTap: onOpen,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.wageThisMonth,
+                  style: AppTypography.title.copyWith(color: t.textPrimary),
+                ),
+              ),
+              WageStatusPill(row.status),
+              Icon(Icons.chevron_right, color: t.textTertiary),
+            ],
+          ),
+          const SizedBox(height: Space.s3),
+          KpiRow(
+            children: [
+              KpiChip(
+                icon: Icons.payments_outlined,
+                label: l.earned,
+                value: Fmt.money(row.earned),
+              ),
+              KpiChip(
+                icon: Icons.request_quote_outlined,
+                label: l.advances,
+                value: Fmt.money(row.advances),
+                tint: KpiTint.amber,
+              ),
+              KpiChip(
+                icon: Icons.account_balance_wallet_outlined,
+                label: l.balance,
+                value: Fmt.money(row.balance),
+                tint: row.hasBalance ? KpiTint.rose : KpiTint.green,
+              ),
+            ],
+          ),
+          const SizedBox(height: Space.s2),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: onOpen,
+              icon: const Icon(Icons.payments_outlined, size: 18),
+              label: Text(l.advanceOrPay),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

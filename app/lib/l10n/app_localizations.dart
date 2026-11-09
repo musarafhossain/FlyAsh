@@ -2299,6 +2299,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only labours who had joined and not left on this date are listed.'**
   String get noLaboursOnDateMessage;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get days;
+
+  /// No description provided for @earned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get earned;
+
+  /// No description provided for @advances.
+  ///
+  /// In en, this message translates to:
+  /// **'Advances'**
+  String get advances;
+
+  /// No description provided for @balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balance;
+
+  /// No description provided for @daysWorked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String daysWorked(String count);
+
+  /// No description provided for @earnedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'earned {amount}'**
+  String earnedAmount(String amount);
+
+  /// No description provided for @earnedInMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned in {month}'**
+  String earnedInMonth(String month);
+
+  /// No description provided for @balanceAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance {amount}'**
+  String balanceAmount(String amount);
+
+  /// No description provided for @searchLabour.
+  ///
+  /// In en, this message translates to:
+  /// **'Search labour'**
+  String get searchLabour;
+
+  /// No description provided for @noWagesThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'No wages this month'**
+  String get noWagesThisMonth;
+
+  /// No description provided for @noWagesThisMonthMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Labours employed in this month and their attendance make the wage sheet.'**
+  String get noWagesThisMonthMessage;
+
+  /// No description provided for @wageDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Wage'**
+  String get wageDetails;
+
+  /// No description provided for @wageBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Wage for the month'**
+  String get wageBreakdown;
+
+  /// No description provided for @workedDaysLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked (P {present} · H {half} · A {absent})'**
+  String workedDaysLine(String present, String half, String absent);
+
+  /// No description provided for @payWage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay wage'**
+  String get payWage;
+
+  /// No description provided for @payWageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {name} for {month}'**
+  String payWageTitle(String name, String month);
+
+  /// No description provided for @giveAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Give advance'**
+  String get giveAdvance;
+
+  /// No description provided for @giveAdvanceTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance to {name}'**
+  String giveAdvanceTo(String name);
+
+  /// No description provided for @advanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'It is taken off the wage of the month of its date.'**
+  String get advanceHint;
+
+  /// No description provided for @advancesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Advances ({count})'**
+  String advancesCount(String count);
+
+  /// No description provided for @noAdvances.
+  ///
+  /// In en, this message translates to:
+  /// **'No advance this month'**
+  String get noAdvances;
+
+  /// No description provided for @noWagePayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing paid for this month yet'**
+  String get noWagePayments;
+
+  /// No description provided for @deleteAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete advance'**
+  String get deleteAdvance;
+
+  /// No description provided for @deleteAdvanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete advance of {amount}?'**
+  String deleteAdvanceTitle(String amount);
+
+  /// No description provided for @balanceRecalculated.
+  ///
+  /// In en, this message translates to:
+  /// **'The balance is worked out again.'**
+  String get balanceRecalculated;
+
+  /// No description provided for @dayByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day by day'**
+  String get dayByDay;
+
+  /// No description provided for @wageThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Wage this month'**
+  String get wageThisMonth;
+
+  /// No description provided for @advanceOrPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance / pay'**
+  String get advanceOrPay;
 }
 
 class _AppLocalizationsDelegate

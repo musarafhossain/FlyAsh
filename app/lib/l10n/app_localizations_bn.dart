@@ -1208,4 +1208,107 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get noLaboursOnDateMessage =>
       'যাঁরা এই তারিখে কাজে যোগ দিয়েছিলেন এবং ছাড়েননি, শুধু তাঁরাই দেখাবেন।';
+
+  @override
+  String get days => 'দিন';
+
+  @override
+  String get earned => 'পাওনা';
+
+  @override
+  String get advances => 'অগ্রিম';
+
+  @override
+  String get balance => 'বাকি';
+
+  @override
+  String daysWorked(String count) {
+    return '$count দিন';
+  }
+
+  @override
+  String earnedAmount(String amount) {
+    return 'পাওনা $amount';
+  }
+
+  @override
+  String earnedInMonth(String month) {
+    return '$month-এ মোট পাওনা';
+  }
+
+  @override
+  String balanceAmount(String amount) {
+    return 'বাকি $amount';
+  }
+
+  @override
+  String get searchLabour => 'শ্রমিক খুঁজুন';
+
+  @override
+  String get noWagesThisMonth => 'এই মাসে কোনো মজুরি নেই';
+
+  @override
+  String get noWagesThisMonthMessage =>
+      'এই মাসে কাজ করা শ্রমিক আর তাঁদের হাজিরা থেকে মজুরির হিসাব হয়।';
+
+  @override
+  String get wageDetails => 'মজুরি';
+
+  @override
+  String get wageBreakdown => 'মাসের মজুরি';
+
+  @override
+  String workedDaysLine(String present, String half, String absent) {
+    return 'কাজ (উ $present · অর্ধ $half · অনু $absent)';
+  }
+
+  @override
+  String get payWage => 'মজুরি দিন';
+
+  @override
+  String payWageTitle(String name, String month) {
+    return '$name-কে $month-এর মজুরি';
+  }
+
+  @override
+  String get giveAdvance => 'অগ্রিম দিন';
+
+  @override
+  String giveAdvanceTo(String name) {
+    return '$name-কে অগ্রিম';
+  }
+
+  @override
+  String get advanceHint => 'যে মাসের তারিখ, সেই মাসের মজুরি থেকে কাটা হবে।';
+
+  @override
+  String advancesCount(String count) {
+    return 'অগ্রিম ($count)';
+  }
+
+  @override
+  String get noAdvances => 'এই মাসে কোনো অগ্রিম নেই';
+
+  @override
+  String get noWagePayments => 'এই মাসের জন্য এখনো কিছু দেওয়া হয়নি';
+
+  @override
+  String get deleteAdvance => 'অগ্রিম মুছুন';
+
+  @override
+  String deleteAdvanceTitle(String amount) {
+    return '$amount-এর অগ্রিম মুছবেন?';
+  }
+
+  @override
+  String get balanceRecalculated => 'বাকি আবার হিসাব হবে।';
+
+  @override
+  String get dayByDay => 'দিনভিত্তিক';
+
+  @override
+  String get wageThisMonth => 'এই মাসের মজুরি';
+
+  @override
+  String get advanceOrPay => 'অগ্রিম / মজুরি দিন';
 }

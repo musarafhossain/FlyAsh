@@ -33,6 +33,7 @@ import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/attendance/presentation/pages/attendance_page.dart';
 import '../../features/auth/domain/app_user.dart';
 import '../../features/users/presentation/pages/user_detail_page.dart';
+import '../../features/wages/presentation/pages/wage_detail_page.dart';
 import '../../features/users/presentation/pages/user_form_page.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
@@ -324,8 +325,22 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
       path: LabourSectionTab.wages.path,
       pageBuilder: (_, state) => NoTransitionPage(
         key: state.pageKey,
-        child: const LaboursPage(tab: LabourSectionTab.wages),
+        child: LaboursPage(
+          tab: LabourSectionTab.wages,
+          month: state.uri.queryParameters['month'],
+        ),
       ),
+      routes: [
+        GoRoute(
+          path: ':labourId',
+          redirect: (_, state) =>
+              _intParam(state, 'labourId') == null ? '/labours/wages' : null,
+          builder: (_, state) => WageDetailPage(
+            labourId: _intParam(state, 'labourId')!,
+            month: state.uri.queryParameters['month'],
+          ),
+        ),
+      ],
     ),
     GoRoute(
       path: LabourSectionTab.labours.path,
