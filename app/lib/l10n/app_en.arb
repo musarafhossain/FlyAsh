@@ -199,5 +199,66 @@
   "navGroupBusiness": "Business",
   "navGroupAdmin": "Admin",
   "account": "Account",
-  "moreAppearanceSettings": "More appearance settings"
+  "moreAppearanceSettings": "More appearance settings",
+  "filterAll": "All",
+  "delete": "Delete",
+  "notesOptional": "Notes (optional)",
+  "invalidAmount": "Enter an amount, e.g. 4.50",
+  "addProduct": "Add product",
+  "editProduct": "Edit product",
+  "searchProducts": "Search products",
+  "productsEmptyTitle": "No products yet",
+  "productsEmptyMessage": "Add the bricks you sell with their cost and price. Sales use these prices.",
+  "productName": "Product name",
+  "productNameHint": "e.g. Fly Ash Brick 9×4×3",
+  "unitField": "Unit",
+  "unitPiece": "Piece",
+  "unitThousand": "1000 pieces",
+  "unitTruck": "Truck",
+  "unitOther": "Other",
+  "unitLabel": "Unit name",
+  "unitLabelHint": "e.g. cft",
+  "perUnit": "per {unit}",
+  "@perUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "defaultCost": "Cost",
+  "defaultPrice": "Price",
+  "margin": "Margin",
+  "marginPerUnit": "Margin per unit",
+  "lossPerUnit": "Loss per unit",
+  "productCreated": "Product added",
+  "productUpdated": "Product updated",
+  "inactiveProductHint": "Hidden from the sale form. Old sales keep it.",
+  "activateProductTitle": "Activate {name}?",
+  "@activateProductTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deactivateProductTitle": "Deactivate {name}?",
+  "@deactivateProductTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "activateProductMessage": "It will show in the sale form again.",
+  "deactivateProductMessage": "It will be hidden from the sale form. Old sales are not changed.",
+  "deleteProductTitle": "Delete {name}?",
+  "@deleteProductTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteProductMessage": "Only possible if it was never used in a sale."
 }

@@ -478,4 +478,115 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreAppearanceSettings => 'More appearance settings';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get notesOptional => 'Notes (optional)';
+
+  @override
+  String get invalidAmount => 'Enter an amount, e.g. 4.50';
+
+  @override
+  String get addProduct => 'Add product';
+
+  @override
+  String get editProduct => 'Edit product';
+
+  @override
+  String get searchProducts => 'Search products';
+
+  @override
+  String get productsEmptyTitle => 'No products yet';
+
+  @override
+  String get productsEmptyMessage =>
+      'Add the bricks you sell with their cost and price. Sales use these prices.';
+
+  @override
+  String get productName => 'Product name';
+
+  @override
+  String get productNameHint => 'e.g. Fly Ash Brick 9×4×3';
+
+  @override
+  String get unitField => 'Unit';
+
+  @override
+  String get unitPiece => 'Piece';
+
+  @override
+  String get unitThousand => '1000 pieces';
+
+  @override
+  String get unitTruck => 'Truck';
+
+  @override
+  String get unitOther => 'Other';
+
+  @override
+  String get unitLabel => 'Unit name';
+
+  @override
+  String get unitLabelHint => 'e.g. cft';
+
+  @override
+  String perUnit(String unit) {
+    return 'per $unit';
+  }
+
+  @override
+  String get defaultCost => 'Cost';
+
+  @override
+  String get defaultPrice => 'Price';
+
+  @override
+  String get margin => 'Margin';
+
+  @override
+  String get marginPerUnit => 'Margin per unit';
+
+  @override
+  String get lossPerUnit => 'Loss per unit';
+
+  @override
+  String get productCreated => 'Product added';
+
+  @override
+  String get productUpdated => 'Product updated';
+
+  @override
+  String get inactiveProductHint =>
+      'Hidden from the sale form. Old sales keep it.';
+
+  @override
+  String activateProductTitle(String name) {
+    return 'Activate $name?';
+  }
+
+  @override
+  String deactivateProductTitle(String name) {
+    return 'Deactivate $name?';
+  }
+
+  @override
+  String get activateProductMessage => 'It will show in the sale form again.';
+
+  @override
+  String get deactivateProductMessage =>
+      'It will be hidden from the sale form. Old sales are not changed.';
+
+  @override
+  String deleteProductTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deleteProductMessage =>
+      'Only possible if it was never used in a sale.';
 }

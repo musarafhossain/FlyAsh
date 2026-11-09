@@ -11,6 +11,8 @@ import '../../features/dev/presentation/pages/section_placeholder_page.dart';
 import '../../features/dev/presentation/pages/theme_gallery_page.dart';
 import '../../features/dev/presentation/pages/widget_gallery_page.dart';
 import '../../features/labours/presentation/pages/labours_page.dart';
+import '../../features/products/presentation/pages/product_form_page.dart';
+import '../../features/products/presentation/pages/products_list_page.dart';
 import '../../features/profile/presentation/pages/change_password_page.dart';
 import '../../features/profile/presentation/pages/profile_edit_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -209,6 +211,33 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         GoRoute(
           path: 'password',
           builder: (_, _) => const ChangePasswordPage(),
+        ),
+      ],
+    ),
+  ],
+  '/products' => [
+    GoRoute(
+      path: '/products',
+      builder: (_, _) => const ProductsListPage(),
+      routes: [
+        GoRoute(path: 'new', builder: (_, _) => const ProductFormPage()),
+        // No separate detail page: /products/:id opens the edit form.
+        GoRoute(
+          path: ':id',
+          redirect: (_, state) {
+            final id = _intParam(state, 'id');
+            if (id == null) return '/products';
+            return state.uri.path == '/products/$id'
+                ? '/products/$id/edit'
+                : null;
+          },
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (_, state) =>
+                  ProductFormPage(productId: _intParam(state, 'id')),
+            ),
+          ],
         ),
       ],
     ),

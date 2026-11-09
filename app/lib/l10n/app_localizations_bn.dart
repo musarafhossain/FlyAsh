@@ -477,4 +477,115 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get moreAppearanceSettings => 'চেহারার আরও সেটিংস';
+
+  @override
+  String get filterAll => 'সব';
+
+  @override
+  String get delete => 'ডিলিট';
+
+  @override
+  String get notesOptional => 'নোট (ঐচ্ছিক)';
+
+  @override
+  String get invalidAmount => 'টাকার পরিমাণ লিখুন, যেমন 4.50';
+
+  @override
+  String get addProduct => 'প্রোডাক্ট যোগ করুন';
+
+  @override
+  String get editProduct => 'প্রোডাক্ট এডিট';
+
+  @override
+  String get searchProducts => 'প্রোডাক্ট খুঁজুন';
+
+  @override
+  String get productsEmptyTitle => 'এখনো কোনো প্রোডাক্ট নেই';
+
+  @override
+  String get productsEmptyMessage =>
+      'যে ইট বিক্রি করেন সেগুলো খরচ আর দামসহ যোগ করুন। বিক্রিতে এই দাম ব্যবহার হবে।';
+
+  @override
+  String get productName => 'প্রোডাক্টের নাম';
+
+  @override
+  String get productNameHint => 'যেমন Fly Ash Brick 9×4×3';
+
+  @override
+  String get unitField => 'একক';
+
+  @override
+  String get unitPiece => 'পিস';
+
+  @override
+  String get unitThousand => '1000 পিস';
+
+  @override
+  String get unitTruck => 'ট্রাক';
+
+  @override
+  String get unitOther => 'অন্য';
+
+  @override
+  String get unitLabel => 'এককের নাম';
+
+  @override
+  String get unitLabelHint => 'যেমন cft';
+
+  @override
+  String perUnit(String unit) {
+    return 'প্রতি $unit';
+  }
+
+  @override
+  String get defaultCost => 'খরচ';
+
+  @override
+  String get defaultPrice => 'দাম';
+
+  @override
+  String get margin => 'লাভ';
+
+  @override
+  String get marginPerUnit => 'প্রতি এককে লাভ';
+
+  @override
+  String get lossPerUnit => 'প্রতি এককে ক্ষতি';
+
+  @override
+  String get productCreated => 'প্রোডাক্ট যোগ হয়েছে';
+
+  @override
+  String get productUpdated => 'প্রোডাক্ট আপডেট হয়েছে';
+
+  @override
+  String get inactiveProductHint =>
+      'বিক্রির ফর্মে দেখাবে না। আগের বিক্রিতে থেকে যাবে।';
+
+  @override
+  String activateProductTitle(String name) {
+    return '$name সক্রিয় করবেন?';
+  }
+
+  @override
+  String deactivateProductTitle(String name) {
+    return '$name নিষ্ক্রিয় করবেন?';
+  }
+
+  @override
+  String get activateProductMessage => 'এটা আবার বিক্রির ফর্মে দেখাবে।';
+
+  @override
+  String get deactivateProductMessage =>
+      'এটা বিক্রির ফর্মে আর দেখাবে না। আগের বিক্রি বদলাবে না।';
+
+  @override
+  String deleteProductTitle(String name) {
+    return '$name ডিলিট করবেন?';
+  }
+
+  @override
+  String get deleteProductMessage =>
+      'কোনো বিক্রিতে ব্যবহার না হয়ে থাকলেই ডিলিট করা যাবে।';
 }

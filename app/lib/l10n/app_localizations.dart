@@ -985,6 +985,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More appearance settings'**
   String get moreAppearanceSettings;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @notesOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get notesOptional;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount, e.g. 4.50'**
+  String get invalidAmount;
+
+  /// No description provided for @addProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Add product'**
+  String get addProduct;
+
+  /// No description provided for @editProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit product'**
+  String get editProduct;
+
+  /// No description provided for @searchProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Search products'**
+  String get searchProducts;
+
+  /// No description provided for @productsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No products yet'**
+  String get productsEmptyTitle;
+
+  /// No description provided for @productsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the bricks you sell with their cost and price. Sales use these prices.'**
+  String get productsEmptyMessage;
+
+  /// No description provided for @productName.
+  ///
+  /// In en, this message translates to:
+  /// **'Product name'**
+  String get productName;
+
+  /// No description provided for @productNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Fly Ash Brick 9×4×3'**
+  String get productNameHint;
+
+  /// No description provided for @unitField.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get unitField;
+
+  /// No description provided for @unitPiece.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece'**
+  String get unitPiece;
+
+  /// No description provided for @unitThousand.
+  ///
+  /// In en, this message translates to:
+  /// **'1000 pieces'**
+  String get unitThousand;
+
+  /// No description provided for @unitTruck.
+  ///
+  /// In en, this message translates to:
+  /// **'Truck'**
+  String get unitTruck;
+
+  /// No description provided for @unitOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get unitOther;
+
+  /// No description provided for @unitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit name'**
+  String get unitLabel;
+
+  /// No description provided for @unitLabelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. cft'**
+  String get unitLabelHint;
+
+  /// No description provided for @perUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'per {unit}'**
+  String perUnit(String unit);
+
+  /// No description provided for @defaultCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get defaultCost;
+
+  /// No description provided for @defaultPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get defaultPrice;
+
+  /// No description provided for @margin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin'**
+  String get margin;
+
+  /// No description provided for @marginPerUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin per unit'**
+  String get marginPerUnit;
+
+  /// No description provided for @lossPerUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss per unit'**
+  String get lossPerUnit;
+
+  /// No description provided for @productCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Product added'**
+  String get productCreated;
+
+  /// No description provided for @productUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Product updated'**
+  String get productUpdated;
+
+  /// No description provided for @inactiveProductHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden from the sale form. Old sales keep it.'**
+  String get inactiveProductHint;
+
+  /// No description provided for @activateProductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate {name}?'**
+  String activateProductTitle(String name);
+
+  /// No description provided for @deactivateProductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate {name}?'**
+  String deactivateProductTitle(String name);
+
+  /// No description provided for @activateProductMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It will show in the sale form again.'**
+  String get activateProductMessage;
+
+  /// No description provided for @deactivateProductMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be hidden from the sale form. Old sales are not changed.'**
+  String get deactivateProductMessage;
+
+  /// No description provided for @deleteProductTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteProductTitle(String name);
+
+  /// No description provided for @deleteProductMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Only possible if it was never used in a sale.'**
+  String get deleteProductMessage;
 }
 
 class _AppLocalizationsDelegate

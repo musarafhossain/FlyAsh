@@ -255,3 +255,52 @@ class BusyButton extends StatelessWidget {
     );
   }
 }
+
+/// Rupee amount input: digits with up to 2 decimals, "₹" prefix, numeric
+/// keyboard. The text is kept as typed ("4.5") and sent as a string, never a
+/// double (02-TRD money rules).
+class MoneyField extends StatelessWidget {
+  const MoneyField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.errorText,
+    this.helperText,
+    this.validator,
+    this.onChanged,
+    this.textInputAction = TextInputAction.next,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final String? errorText;
+  final String? helperText;
+  final FormFieldValidator<String>? validator;
+  final ValueChanged<String>? onChanged;
+  final TextInputAction textInputAction;
+
+  static final _allowed = RegExp(r'^\d{0,10}(\.\d{0,2})?$');
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      textInputAction: textInputAction,
+      inputFormatters: [
+        TextInputFormatter.withFunction(
+          (old, value) => _allowed.hasMatch(value.text) ? value : old,
+        ),
+      ],
+      validator: validator,
+      onChanged: onChanged,
+      style: const TextStyle(fontFeatures: AppTypography.tabular),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixText: '₹ ',
+        errorText: errorText,
+        helperText: helperText,
+      ),
+    );
+  }
+}

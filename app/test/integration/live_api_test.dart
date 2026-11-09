@@ -16,6 +16,8 @@ import 'package:flyash/core/network/api_client.dart';
 import 'package:flyash/core/network/api_response.dart';
 import 'package:flyash/core/network/session.dart';
 import 'package:flyash/features/auth/data/auth_repository_impl.dart';
+import 'package:flyash/features/products/data/products_repository_impl.dart';
+import 'package:flyash/features/products/domain/product.dart';
 import 'package:flyash/features/settings/data/settings_repository_impl.dart';
 import 'package:flyash/features/users/data/users_repository_impl.dart';
 
@@ -193,6 +195,74 @@ void main() {
     final (saved, message) = await settings.saveFactory(factory);
     expect(saved.invoicePrefix, factory.invoicePrefix);
     expect(message, isNotEmpty);
+
+    await api.post('/auth/logout', parse: (d) => d);
+  }, skip: !live);
+
+  // F8: the full product life cycle; the test product is deleted at the end.
+  test('F8: products create, list, edit, deactivate, delete', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final repo = c.read(productsRepositoryProvider);
+    final name = 'Live test brick ${DateTime.now().millisecondsSinceEpoch}';
+
+    final created = await repo.create(
+      ProductInput(
+        name: name,
+        unit: ProductUnit.other,
+        unitLabel: 'cft',
+        defaultCost: '4.5',
+        defaultPrice: '7',
+      ),
+    );
+    expect(created.defaultCost, '4.50');
+    expect(created.margin, '2.50');
+    expect(created.unitLabel, 'cft');
+
+    await expectLater(
+      repo.create(
+        ProductInput(
+          name: name,
+          unit: ProductUnit.piece,
+          defaultCost: '1',
+          defaultPrice: '2',
+        ),
+      ),
+      throwsA(
+        isA<ValidationFailure>().having((f) => f['name'], 'name', isNotNull),
+      ),
+    );
+
+    final found = await repo.list(search: name);
+    expect(found.items.single.id, created.id);
+
+    final edited = await repo.update(
+      created.id,
+      ProductInput(
+        name: name,
+        unit: ProductUnit.piece,
+        defaultCost: '6',
+        defaultPrice: '5.5',
+      ),
+    );
+    expect(edited.margin, '-0.50');
+    expect(edited.isLoss, isTrue);
+
+    final (inactive, _) = await repo.setActive(created.id, false);
+    expect(inactive.isActive, isFalse);
+    final inactiveList = await repo.list(search: name, active: false);
+    expect(inactiveList.items.map((p) => p.id), contains(created.id));
+
+    expect(await repo.delete(created.id), isNotEmpty);
+    await expectLater(
+      repo.get(created.id),
+      throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 404)),
+    );
 
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);

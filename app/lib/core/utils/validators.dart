@@ -36,6 +36,15 @@ class Validators {
       ? _l.passwordTooLong
       : null;
 
+  /// Amount in rupees: a number ≥ 0 with at most 2 decimals ("4.50").
+  String? money(String? v) {
+    final value = v?.trim() ?? '';
+    if (value.isEmpty) return _l.fieldRequired;
+    return _money.hasMatch(value) ? null : _l.invalidAmount;
+  }
+
+  static final _money = RegExp(r'^\d+(\.\d{1,2})?$');
+
   /// Must equal [other] (read when validating).
   FormFieldValidator<String> sameAs(TextEditingController other) =>
       (v) => required(v) ?? (v == other.text ? null : _l.passwordsDontMatch);
