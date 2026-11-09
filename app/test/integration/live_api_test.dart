@@ -16,6 +16,8 @@ import 'package:flyash/core/network/api_client.dart';
 import 'package:flyash/core/network/api_response.dart';
 import 'package:flyash/core/network/session.dart';
 import 'package:flyash/features/auth/data/auth_repository_impl.dart';
+import 'package:flyash/features/customers/data/customers_repository_impl.dart';
+import 'package:flyash/features/customers/domain/customer.dart';
 import 'package:flyash/features/products/data/products_repository_impl.dart';
 import 'package:flyash/features/products/domain/product.dart';
 import 'package:flyash/features/settings/data/settings_repository_impl.dart';
@@ -264,6 +266,55 @@ void main() {
       throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 404)),
     );
 
+    await api.post('/auth/logout', parse: (d) => d);
+  }, skip: !live);
+
+  // F9: customer life cycle; the test customer is deleted at the end.
+  test('F9: customers create, duplicate phone, edit, sales, delete', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final repo = c.read(customersRepositoryProvider);
+    final stamp = DateTime.now().millisecondsSinceEpoch;
+    final phone = '9${(stamp % 1000000000).toString().padLeft(9, '0')}';
+
+    final created = await repo.create(
+      CustomerInput(name: 'Live test customer $stamp', phone: phone),
+    );
+    expect(created.totalDue, '0.00');
+    expect(created.hasDue, isFalse);
+
+    await expectLater(
+      repo.create(CustomerInput(name: 'Duplicate', phone: phone)),
+      throwsA(
+        isA<ValidationFailure>()
+            .having((f) => f['phone'], 'phone', isNotNull)
+            .having(
+              (f) => f.data?['existing_customer_id'],
+              'existing id',
+              created.id,
+            ),
+      ),
+    );
+
+    final found = await repo.list(search: phone);
+    expect(found.items.single.id, created.id);
+
+    final edited = await repo.update(
+      created.id,
+      CustomerInput(name: created.name, phone: phone, address: 'Habra'),
+    );
+    expect(edited.address, 'Habra');
+    expect((await repo.sales(created.id)).items, isEmpty);
+
+    final (inactive, _) = await repo.setActive(created.id, false);
+    expect(inactive.isActive, isFalse);
+
+    expect(await repo.delete(created.id), isNotEmpty);
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);
 }

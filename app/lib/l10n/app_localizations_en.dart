@@ -589,4 +589,137 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteProductMessage =>
       'Only possible if it was never used in a sale.';
+
+  @override
+  String get moreActions => 'More actions';
+
+  @override
+  String get couldNotOpen => 'Could not open it on this device';
+
+  @override
+  String get addressOptional => 'Address (optional)';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get whatsApp => 'WhatsApp';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get type => 'Type';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get paid => 'Paid';
+
+  @override
+  String get due => 'Due';
+
+  @override
+  String get noDue => 'No due';
+
+  @override
+  String get sales => 'Sales';
+
+  @override
+  String get invoiceNo => 'Invoice';
+
+  @override
+  String get paymentPaid => 'Paid';
+
+  @override
+  String get paymentPartial => 'Partial';
+
+  @override
+  String get paymentDue => 'Due';
+
+  @override
+  String get saleBooked => 'Booked';
+
+  @override
+  String get saleDelivered => 'Delivered';
+
+  @override
+  String get saleCancelled => 'Cancelled';
+
+  @override
+  String get saleTypeInstant => 'Instant';
+
+  @override
+  String get saleTypeBooking => 'Booking';
+
+  @override
+  String get addCustomer => 'Add customer';
+
+  @override
+  String get editCustomer => 'Edit customer';
+
+  @override
+  String get customerDetails => 'Customer';
+
+  @override
+  String get filterHasDue => 'Has due';
+
+  @override
+  String get customersEmptyTitle => 'No customers yet';
+
+  @override
+  String get customersEmptyMessage =>
+      'Add the people and shops who buy from you. Their dues show here.';
+
+  @override
+  String get customerNameHint => 'e.g. Rahim Traders';
+
+  @override
+  String get customerPhoneHint =>
+      'Each phone number can belong to one customer only.';
+
+  @override
+  String get openExistingCustomer => 'Open that customer';
+
+  @override
+  String get customerCreated => 'Customer added';
+
+  @override
+  String get customerUpdated => 'Customer updated';
+
+  @override
+  String get purchases => 'Purchases';
+
+  @override
+  String get noSalesYet => 'No sales yet';
+
+  @override
+  String get noSalesYetMessage => 'Sales to this customer will show here.';
+
+  @override
+  String activateCustomerTitle(String name) {
+    return 'Activate $name?';
+  }
+
+  @override
+  String deactivateCustomerTitle(String name) {
+    return 'Deactivate $name?';
+  }
+
+  @override
+  String get activateCustomerMessage =>
+      'They can be chosen in new sales again.';
+
+  @override
+  String get deactivateCustomerMessage =>
+      'They will not be offered in new sales. Old sales and dues stay.';
+
+  @override
+  String deleteCustomerTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deleteCustomerMessage => 'Only possible if they have no sales.';
 }

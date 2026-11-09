@@ -150,7 +150,8 @@ class KpiChip extends StatelessWidget {
   }
 }
 
-/// Lays out KPI chips: 2 per row on phones, all in one row on wider screens.
+/// Lays out KPI chips: on phones up to 3 in one row (4+ → 2 per row), all
+/// in one row on wider screens. Values shrink to fit (FittedBox in KpiChip).
 class KpiRow extends StatelessWidget {
   const KpiRow({super.key, required this.children});
 
@@ -161,7 +162,7 @@ class KpiRow extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, c) {
         final perRow = c.maxWidth < Breakpoints.medium
-            ? 2
+            ? (children.length <= 3 ? children.length : 2)
             : children.length.clamp(1, 6);
         final width = (c.maxWidth - Space.s2 * (perRow - 1)) / perRow;
         return Wrap(

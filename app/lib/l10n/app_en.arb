@@ -260,5 +260,67 @@
       }
     }
   },
-  "deleteProductMessage": "Only possible if it was never used in a sale."
+  "deleteProductMessage": "Only possible if it was never used in a sale.",
+  "moreActions": "More actions",
+  "couldNotOpen": "Could not open it on this device",
+  "addressOptional": "Address (optional)",
+  "call": "Call",
+  "whatsApp": "WhatsApp",
+  "date": "Date",
+  "type": "Type",
+  "total": "Total",
+  "paid": "Paid",
+  "due": "Due",
+  "noDue": "No due",
+  "sales": "Sales",
+  "invoiceNo": "Invoice",
+  "paymentPaid": "Paid",
+  "paymentPartial": "Partial",
+  "paymentDue": "Due",
+  "saleBooked": "Booked",
+  "saleDelivered": "Delivered",
+  "saleCancelled": "Cancelled",
+  "saleTypeInstant": "Instant",
+  "saleTypeBooking": "Booking",
+  "addCustomer": "Add customer",
+  "editCustomer": "Edit customer",
+  "customerDetails": "Customer",
+  "filterHasDue": "Has due",
+  "customersEmptyTitle": "No customers yet",
+  "customersEmptyMessage": "Add the people and shops who buy from you. Their dues show here.",
+  "customerNameHint": "e.g. Rahim Traders",
+  "customerPhoneHint": "Each phone number can belong to one customer only.",
+  "openExistingCustomer": "Open that customer",
+  "customerCreated": "Customer added",
+  "customerUpdated": "Customer updated",
+  "purchases": "Purchases",
+  "noSalesYet": "No sales yet",
+  "noSalesYetMessage": "Sales to this customer will show here.",
+  "activateCustomerTitle": "Activate {name}?",
+  "@activateCustomerTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deactivateCustomerTitle": "Deactivate {name}?",
+  "@deactivateCustomerTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "activateCustomerMessage": "They can be chosen in new sales again.",
+  "deactivateCustomerMessage": "They will not be offered in new sales. Old sales and dues stay.",
+  "deleteCustomerTitle": "Delete {name}?",
+  "@deleteCustomerTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCustomerMessage": "Only possible if they have no sales."
 }

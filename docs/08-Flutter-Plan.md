@@ -32,7 +32,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F6** ✅ | **Auth** | Splash, Login, Forgot password (3 screens), logout, session expiry (401) | F3, F4, F5 |
 | **F7** ✅ | **Profile, Users, Settings** | My profile, change password, users list/add/edit, Settings (factory profile, appearance, language) | F6 |
 | **F8** ✅ | **Products** | List, add/edit, activate/deactivate, delete | F6 |
-| F9 | Customers | List with dues, add/edit, detail with sales | F6 |
+| **F9** ✅ | **Customers** | List with dues, add/edit, detail with sales | F6 |
 | F10 | Sales: list & detail | Sales list with filters, sale detail, upcoming deliveries | F8, F9 |
 | F11 | Sales: form & payments | New/edit sale and booking, inline customer, live totals, add/remove payment, deliver, cancel | F10 |
 | F12 | Labours & attendance | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with P/H/A toggles | F6 |
@@ -70,5 +70,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Translations:** add every new UI string to both `app/lib/l10n/app_en.arb` and `app_bn.arb` (a test checks both files have the same keys). Numbers and dates stay in Latin digits.
 - **Shared building blocks from F7** (use them in F8+): `PagedList` (paginated API list with skeleton, error + retry, empty state, pull to refresh, next page on scroll), `DataTableCard` (desktop tables), `PageBody` (form/detail column, max 560/720 px), `MenuGroup`/`MenuRow`/`InfoRow`, `FormSubmit` mixin (validate → busy → 422 field errors / banner), `Validators` (phone, email, password, same-as), `showMessage`.
 - **Money input:** use `MoneyField` + `Validators.money` (digits, up to 2 decimals, ₹ prefix). Values are sent as strings ("4.5"), never doubles; compute previews with `Decimal`.
+- **Call / WhatsApp:** `ContactLauncher.call(phone)` / `.whatsApp(phone)` (tel:+91…, wa.me/91…); returns false when nothing can open it → show `couldNotOpen`. Tests replace `ContactLauncher.launch`.
+- **Sale labels:** `SaleSummary` (sales/domain) and `SaleStatusPill` + `l.paymentStatusText / saleStatusText / saleTypeText` (sales/presentation/sale_labels.dart) are shared by every sale list.
 - **Riverpod retries are off** (`retry: noRetry`): a failed load shows an error with a Retry button instead of retrying silently.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

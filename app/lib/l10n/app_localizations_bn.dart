@@ -588,4 +588,136 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get deleteProductMessage =>
       'কোনো বিক্রিতে ব্যবহার না হয়ে থাকলেই ডিলিট করা যাবে।';
+
+  @override
+  String get moreActions => 'আরও অপশন';
+
+  @override
+  String get couldNotOpen => 'এই ডিভাইসে খোলা গেল না';
+
+  @override
+  String get addressOptional => 'ঠিকানা (ঐচ্ছিক)';
+
+  @override
+  String get call => 'কল করুন';
+
+  @override
+  String get whatsApp => 'WhatsApp';
+
+  @override
+  String get date => 'তারিখ';
+
+  @override
+  String get type => 'ধরন';
+
+  @override
+  String get total => 'মোট';
+
+  @override
+  String get paid => 'পরিশোধ';
+
+  @override
+  String get due => 'বাকি';
+
+  @override
+  String get noDue => 'বাকি নেই';
+
+  @override
+  String get sales => 'বিক্রি';
+
+  @override
+  String get invoiceNo => 'ইনভয়েস';
+
+  @override
+  String get paymentPaid => 'পরিশোধিত';
+
+  @override
+  String get paymentPartial => 'আংশিক';
+
+  @override
+  String get paymentDue => 'বাকি';
+
+  @override
+  String get saleBooked => 'বুকড';
+
+  @override
+  String get saleDelivered => 'ডেলিভারি হয়েছে';
+
+  @override
+  String get saleCancelled => 'বাতিল';
+
+  @override
+  String get saleTypeInstant => 'তাৎক্ষণিক';
+
+  @override
+  String get saleTypeBooking => 'বুকিং';
+
+  @override
+  String get addCustomer => 'কাস্টমার যোগ করুন';
+
+  @override
+  String get editCustomer => 'কাস্টমার এডিট';
+
+  @override
+  String get customerDetails => 'কাস্টমার';
+
+  @override
+  String get filterHasDue => 'বাকি আছে';
+
+  @override
+  String get customersEmptyTitle => 'এখনো কোনো কাস্টমার নেই';
+
+  @override
+  String get customersEmptyMessage =>
+      'যাঁরা আপনার কাছ থেকে কেনেন তাঁদের যোগ করুন। তাঁদের বাকি এখানে দেখাবে।';
+
+  @override
+  String get customerNameHint => 'যেমন Rahim Traders';
+
+  @override
+  String get customerPhoneHint =>
+      'একটা ফোন নম্বর শুধু একজন কাস্টমারের হতে পারে।';
+
+  @override
+  String get openExistingCustomer => 'সেই কাস্টমার খুলুন';
+
+  @override
+  String get customerCreated => 'কাস্টমার যোগ হয়েছে';
+
+  @override
+  String get customerUpdated => 'কাস্টমার আপডেট হয়েছে';
+
+  @override
+  String get purchases => 'মোট কেনা';
+
+  @override
+  String get noSalesYet => 'এখনো কোনো বিক্রি নেই';
+
+  @override
+  String get noSalesYetMessage => 'এই কাস্টমারের কাছে বিক্রি এখানে দেখাবে।';
+
+  @override
+  String activateCustomerTitle(String name) {
+    return '$name-কে সক্রিয় করবেন?';
+  }
+
+  @override
+  String deactivateCustomerTitle(String name) {
+    return '$name-কে নিষ্ক্রিয় করবেন?';
+  }
+
+  @override
+  String get activateCustomerMessage => 'নতুন বিক্রিতে আবার বেছে নেওয়া যাবে।';
+
+  @override
+  String get deactivateCustomerMessage =>
+      'নতুন বিক্রিতে আর দেখাবে না। আগের বিক্রি আর বাকি থেকে যাবে।';
+
+  @override
+  String deleteCustomerTitle(String name) {
+    return '$name-কে ডিলিট করবেন?';
+  }
+
+  @override
+  String get deleteCustomerMessage => 'কোনো বিক্রি না থাকলেই ডিলিট করা যাবে।';
 }

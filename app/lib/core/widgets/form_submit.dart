@@ -13,10 +13,14 @@ mixin FormSubmit<T extends StatefulWidget> on State<T> {
   String? error;
   Map<String, String> fieldErrors = const {};
 
+  /// Extra data of the last 422, e.g. `existing_customer_id`.
+  Map<String, Object?>? errorData;
+
   Future<bool> submit(Future<void> Function() action) async {
     setState(() {
       error = null;
       fieldErrors = const {};
+      errorData = null;
     });
     if (!(formKey.currentState?.validate() ?? true)) return false;
     setState(() => busy = true);
@@ -27,6 +31,7 @@ mixin FormSubmit<T extends StatefulWidget> on State<T> {
       if (mounted) {
         setState(() {
           fieldErrors = f.fieldErrors;
+          errorData = f.data;
           if (f.fieldErrors.isEmpty) error = failureText(context, f);
         });
       }

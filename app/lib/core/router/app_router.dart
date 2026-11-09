@@ -7,6 +7,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/pages/forgot_password_pages.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/customers/presentation/pages/customer_detail_page.dart';
+import '../../features/customers/presentation/pages/customer_form_page.dart';
+import '../../features/customers/presentation/pages/customers_list_page.dart';
 import '../../features/dev/presentation/pages/section_placeholder_page.dart';
 import '../../features/dev/presentation/pages/theme_gallery_page.dart';
 import '../../features/dev/presentation/pages/widget_gallery_page.dart';
@@ -211,6 +214,29 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         GoRoute(
           path: 'password',
           builder: (_, _) => const ChangePasswordPage(),
+        ),
+      ],
+    ),
+  ],
+  '/customers' => [
+    GoRoute(
+      path: '/customers',
+      builder: (_, _) => const CustomersListPage(),
+      routes: [
+        GoRoute(path: 'new', builder: (_, _) => const CustomerFormPage()),
+        GoRoute(
+          path: ':id',
+          redirect: (_, state) =>
+              _intParam(state, 'id') == null ? '/customers' : null,
+          builder: (_, state) =>
+              CustomerDetailPage(customerId: _intParam(state, 'id')!),
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (_, state) =>
+                  CustomerFormPage(customerId: _intParam(state, 'id')),
+            ),
+          ],
         ),
       ],
     ),

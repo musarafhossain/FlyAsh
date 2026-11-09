@@ -1183,6 +1183,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Only possible if it was never used in a sale.'**
   String get deleteProductMessage;
+
+  /// No description provided for @moreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get moreActions;
+
+  /// No description provided for @couldNotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open it on this device'**
+  String get couldNotOpen;
+
+  /// No description provided for @addressOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Address (optional)'**
+  String get addressOptional;
+
+  /// No description provided for @call.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get call;
+
+  /// No description provided for @whatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsApp;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get type;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paid;
+
+  /// No description provided for @due.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get due;
+
+  /// No description provided for @noDue.
+  ///
+  /// In en, this message translates to:
+  /// **'No due'**
+  String get noDue;
+
+  /// No description provided for @sales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get sales;
+
+  /// No description provided for @invoiceNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice'**
+  String get invoiceNo;
+
+  /// No description provided for @paymentPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paymentPaid;
+
+  /// No description provided for @paymentPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial'**
+  String get paymentPartial;
+
+  /// No description provided for @paymentDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get paymentDue;
+
+  /// No description provided for @saleBooked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get saleBooked;
+
+  /// No description provided for @saleDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get saleDelivered;
+
+  /// No description provided for @saleCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get saleCancelled;
+
+  /// No description provided for @saleTypeInstant.
+  ///
+  /// In en, this message translates to:
+  /// **'Instant'**
+  String get saleTypeInstant;
+
+  /// No description provided for @saleTypeBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking'**
+  String get saleTypeBooking;
+
+  /// No description provided for @addCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add customer'**
+  String get addCustomer;
+
+  /// No description provided for @editCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit customer'**
+  String get editCustomer;
+
+  /// No description provided for @customerDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customerDetails;
+
+  /// No description provided for @filterHasDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Has due'**
+  String get filterHasDue;
+
+  /// No description provided for @customersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers yet'**
+  String get customersEmptyTitle;
+
+  /// No description provided for @customersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the people and shops who buy from you. Their dues show here.'**
+  String get customersEmptyMessage;
+
+  /// No description provided for @customerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Rahim Traders'**
+  String get customerNameHint;
+
+  /// No description provided for @customerPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each phone number can belong to one customer only.'**
+  String get customerPhoneHint;
+
+  /// No description provided for @openExistingCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Open that customer'**
+  String get openExistingCustomer;
+
+  /// No description provided for @customerCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer added'**
+  String get customerCreated;
+
+  /// No description provided for @customerUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer updated'**
+  String get customerUpdated;
+
+  /// No description provided for @purchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get purchases;
+
+  /// No description provided for @noSalesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales yet'**
+  String get noSalesYet;
+
+  /// No description provided for @noSalesYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales to this customer will show here.'**
+  String get noSalesYetMessage;
+
+  /// No description provided for @activateCustomerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate {name}?'**
+  String activateCustomerTitle(String name);
+
+  /// No description provided for @deactivateCustomerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate {name}?'**
+  String deactivateCustomerTitle(String name);
+
+  /// No description provided for @activateCustomerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They can be chosen in new sales again.'**
+  String get activateCustomerMessage;
+
+  /// No description provided for @deactivateCustomerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They will not be offered in new sales. Old sales and dues stay.'**
+  String get deactivateCustomerMessage;
+
+  /// No description provided for @deleteCustomerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteCustomerTitle(String name);
+
+  /// No description provided for @deleteCustomerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Only possible if they have no sales.'**
+  String get deleteCustomerMessage;
 }
 
 class _AppLocalizationsDelegate
