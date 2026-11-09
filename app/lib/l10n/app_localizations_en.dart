@@ -1024,4 +1024,192 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteSaleMessage =>
       'It will be removed from all lists and reports.';
+
+  @override
+  String get previous => 'Previous';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get phoneOptional => 'Phone (optional)';
+
+  @override
+  String get addLabour => 'Add labour';
+
+  @override
+  String get editLabour => 'Edit labour';
+
+  @override
+  String get labourDetails => 'Labour';
+
+  @override
+  String get laboursEmptyTitle => 'No labours yet';
+
+  @override
+  String get laboursEmptyMessage =>
+      'Add the people who work at the factory with their daily or monthly wage.';
+
+  @override
+  String get labourCreated => 'Labour added';
+
+  @override
+  String get labourUpdated => 'Labour updated';
+
+  @override
+  String get wage => 'Wage';
+
+  @override
+  String get wageDaily => 'Daily';
+
+  @override
+  String get wageMonthly => 'Monthly';
+
+  @override
+  String get wagePerDay => 'Wage per day';
+
+  @override
+  String get wagePerMonth => 'Wage per month';
+
+  @override
+  String get dailyWageHint => 'Paid for each day present; half for a half day.';
+
+  @override
+  String get monthlyWageHint =>
+      'Divided by the days in the month, then counted per day present.';
+
+  @override
+  String get wageChangeHint =>
+      'The new wage applies to attendance saved from now on. Past days keep their wage.';
+
+  @override
+  String perDay(String amount) {
+    return '$amount / day';
+  }
+
+  @override
+  String perMonth(String amount) {
+    return '$amount / month';
+  }
+
+  @override
+  String get joiningDate => 'Joining date';
+
+  @override
+  String get leavingDate => 'Leaving date';
+
+  @override
+  String get joined => 'Joined';
+
+  @override
+  String get attendanceThisMonth => 'Attendance';
+
+  @override
+  String activateLabourTitle(String name) {
+    return 'Activate $name?';
+  }
+
+  @override
+  String get activateLabourMessage =>
+      'They will show on the attendance sheet again.';
+
+  @override
+  String deactivateLabourTitle(String name) {
+    return '$name left?';
+  }
+
+  @override
+  String get deactivateLabourMessage =>
+      'Choose the last working day. After it they are not on the attendance sheet. Their wages stay.';
+
+  @override
+  String get wkMon => 'Mon';
+
+  @override
+  String get wkTue => 'Tue';
+
+  @override
+  String get wkWed => 'Wed';
+
+  @override
+  String get wkThu => 'Thu';
+
+  @override
+  String get wkFri => 'Fri';
+
+  @override
+  String get wkSat => 'Sat';
+
+  @override
+  String get wkSun => 'Sun';
+
+  @override
+  String get attPresent => 'Present';
+
+  @override
+  String get attHalfDay => 'Half day';
+
+  @override
+  String get attAbsent => 'Absent';
+
+  @override
+  String get attNotMarked => 'Not marked';
+
+  @override
+  String get attPresentShort => 'P';
+
+  @override
+  String get attHalfDayShort => 'H';
+
+  @override
+  String get attAbsentShort => 'A';
+
+  @override
+  String get markAllPresent => 'Mark all present';
+
+  @override
+  String get saveAttendance => 'Save attendance';
+
+  @override
+  String get noChanges => 'No changes';
+
+  @override
+  String changesCount(String count) {
+    return '$count changed';
+  }
+
+  @override
+  String attendanceSaved(String date) {
+    return 'Attendance saved for $date';
+  }
+
+  @override
+  String saveChangesFor(String date) {
+    return 'Save changes for $date?';
+  }
+
+  @override
+  String unsavedAttendance(String count) {
+    return '$count labours changed and not saved yet.';
+  }
+
+  @override
+  String todayWithDate(String date) {
+    return 'Today, $date';
+  }
+
+  @override
+  String yesterdayWithDate(String date) {
+    return 'Yesterday, $date';
+  }
+
+  @override
+  String get noLaboursOnDate => 'No labours on this date';
+
+  @override
+  String get noLaboursOnDateMessage =>
+      'Only labours who had joined and not left on this date are listed.';
 }

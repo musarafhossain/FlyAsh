@@ -497,5 +497,129 @@
       }
     }
   },
-  "deleteSaleMessage": "It will be removed from all lists and reports."
+  "deleteSaleMessage": "It will be removed from all lists and reports.",
+  "previous": "Previous",
+  "next": "Next",
+  "today": "Today",
+  "phoneOptional": "Phone (optional)",
+  "addLabour": "Add labour",
+  "editLabour": "Edit labour",
+  "labourDetails": "Labour",
+  "laboursEmptyTitle": "No labours yet",
+  "laboursEmptyMessage": "Add the people who work at the factory with their daily or monthly wage.",
+  "labourCreated": "Labour added",
+  "labourUpdated": "Labour updated",
+  "wage": "Wage",
+  "wageDaily": "Daily",
+  "wageMonthly": "Monthly",
+  "wagePerDay": "Wage per day",
+  "wagePerMonth": "Wage per month",
+  "dailyWageHint": "Paid for each day present; half for a half day.",
+  "monthlyWageHint": "Divided by the days in the month, then counted per day present.",
+  "wageChangeHint": "The new wage applies to attendance saved from now on. Past days keep their wage.",
+  "perDay": "{amount} / day",
+  "@perDay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "perMonth": "{amount} / month",
+  "@perMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "joiningDate": "Joining date",
+  "leavingDate": "Leaving date",
+  "joined": "Joined",
+  "attendanceThisMonth": "Attendance",
+  "activateLabourTitle": "Activate {name}?",
+  "@activateLabourTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "activateLabourMessage": "They will show on the attendance sheet again.",
+  "deactivateLabourTitle": "{name} left?",
+  "@deactivateLabourTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deactivateLabourMessage": "Choose the last working day. After it they are not on the attendance sheet. Their wages stay.",
+  "wkMon": "Mon",
+  "wkTue": "Tue",
+  "wkWed": "Wed",
+  "wkThu": "Thu",
+  "wkFri": "Fri",
+  "wkSat": "Sat",
+  "wkSun": "Sun",
+  "attPresent": "Present",
+  "attHalfDay": "Half day",
+  "attAbsent": "Absent",
+  "attNotMarked": "Not marked",
+  "attPresentShort": "P",
+  "attHalfDayShort": "H",
+  "attAbsentShort": "A",
+  "markAllPresent": "Mark all present",
+  "saveAttendance": "Save attendance",
+  "noChanges": "No changes",
+  "changesCount": "{count} changed",
+  "@changesCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "attendanceSaved": "Attendance saved for {date}",
+  "@attendanceSaved": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "saveChangesFor": "Save changes for {date}?",
+  "@saveChangesFor": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "unsavedAttendance": "{count} labours changed and not saved yet.",
+  "@unsavedAttendance": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "todayWithDate": "Today, {date}",
+  "@todayWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "yesterdayWithDate": "Yesterday, {date}",
+  "@yesterdayWithDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noLaboursOnDate": "No labours on this date",
+  "noLaboursOnDateMessage": "Only labours who had joined and not left on this date are listed."
 }

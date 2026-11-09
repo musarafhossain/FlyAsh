@@ -19,6 +19,9 @@ import 'package:flyash/core/utils/dates.dart';
 import 'package:flyash/features/auth/data/auth_repository_impl.dart';
 import 'package:flyash/features/customers/data/customers_repository_impl.dart';
 import 'package:flyash/features/customers/domain/customer.dart';
+import 'package:flyash/features/attendance/data/attendance_repository_impl.dart';
+import 'package:flyash/features/labours/data/labours_repository_impl.dart';
+import 'package:flyash/features/labours/domain/labour.dart';
 import 'package:flyash/features/products/data/products_repository_impl.dart';
 import 'package:flyash/features/products/domain/product.dart';
 import 'package:flyash/features/sales/data/sales_repository_impl.dart';
@@ -516,6 +519,87 @@ void main() {
       sales.get(booking2.id),
       throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 404)),
     );
+
+    await api.post('/auth/logout', parse: (d) => d);
+  }, skip: !live);
+
+  // F12: a test labour; attendance is saved and cleared only for them.
+  // The labour row is removed afterwards in the database.
+  test('F12: labours and attendance', () async {
+    final api = c.read(apiClientProvider);
+    final res = await api.post(
+      '/auth/login',
+      body: {'login': login, 'password': password},
+      parse: (d) => d as Json,
+    );
+    await c.read(tokenStoreProvider).save(res.data['token'] as String);
+    final labours = c.read(laboursRepositoryProvider);
+    final attendance = c.read(attendanceRepositoryProvider);
+    final today = c.read(businessDateProvider);
+    final stamp = DateTime.now().millisecondsSinceEpoch;
+
+    final created = await labours.create(
+      LabourInput(
+        name: 'Live test labour $stamp',
+        wageType: 'daily',
+        wageAmount: '450',
+        joiningDate: Ymd.addDays(today, -5),
+      ),
+    );
+    expect(created.wageAmount, '450.00');
+    expect(created.todayStatus, isNull);
+
+    final edited = await labours.update(
+      created.id,
+      LabourInput(
+        name: created.name,
+        wageType: 'monthly',
+        wageAmount: '15000',
+        joiningDate: created.joiningDate,
+      ),
+    );
+    expect(edited.isMonthly, isTrue);
+
+    final day = await attendance.day(today);
+    expect(day.entries.map((e) => e.labourId), contains(created.id));
+
+    final (saved, msg) = await attendance.save(today, {created.id: 'present'});
+    expect(msg, isNotEmpty);
+    expect(
+      saved.entries.firstWhere((e) => e.labourId == created.id).status,
+      'present',
+    );
+    expect((await labours.get(created.id)).todayStatus, 'present');
+
+    final month = await labours.month(created.id, today.substring(0, 7));
+    expect(month.days[today], 'present');
+    expect(month.present, 1);
+
+    final (cleared, _) = await attendance.save(today, {created.id: null});
+    expect(
+      cleared.entries.firstWhere((e) => e.labourId == created.id).status,
+      isNull,
+    );
+
+    // Before joining → refused
+    await expectLater(
+      attendance.save(Ymd.addDays(today, -30), {created.id: 'present'}),
+      throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 400)),
+    );
+
+    await expectLater(
+      labours.setActive(created.id, false, leftDate: Ymd.addDays(today, -10)),
+      throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 400)),
+    );
+    final (left, _) = await labours.setActive(
+      created.id,
+      false,
+      leftDate: today,
+    );
+    expect(left.isActive, isFalse);
+    expect(left.leftDate, today);
+    final (back, _) = await labours.setActive(created.id, true);
+    expect(back.leftDate, isNull);
 
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);

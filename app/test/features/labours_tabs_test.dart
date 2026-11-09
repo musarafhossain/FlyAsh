@@ -33,7 +33,7 @@ void main() {
     await open(tester, const Size(1440, 900), '/labours');
     expect(tab('Labours'), findsOneWidget);
     expect(tab('Wages'), findsOneWidget);
-    expect(find.text('This screen is built in step F12.'), findsOneWidget);
+    expect(find.text('Add labour'), findsWidgets); // the real list
 
     await tester.tap(tab('Wages'));
     await tester.pumpAndSettle();

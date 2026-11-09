@@ -1021,4 +1021,191 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get deleteSaleMessage => 'সব তালিকা আর রিপোর্ট থেকে সরে যাবে।';
+
+  @override
+  String get previous => 'আগের';
+
+  @override
+  String get next => 'পরের';
+
+  @override
+  String get today => 'আজ';
+
+  @override
+  String get phoneOptional => 'ফোন (ঐচ্ছিক)';
+
+  @override
+  String get addLabour => 'শ্রমিক যোগ করুন';
+
+  @override
+  String get editLabour => 'শ্রমিক এডিট';
+
+  @override
+  String get labourDetails => 'শ্রমিক';
+
+  @override
+  String get laboursEmptyTitle => 'এখনো কোনো শ্রমিক নেই';
+
+  @override
+  String get laboursEmptyMessage =>
+      'কারখানায় যাঁরা কাজ করেন তাঁদের দৈনিক বা মাসিক মজুরিসহ যোগ করুন।';
+
+  @override
+  String get labourCreated => 'শ্রমিক যোগ হয়েছে';
+
+  @override
+  String get labourUpdated => 'শ্রমিক আপডেট হয়েছে';
+
+  @override
+  String get wage => 'মজুরি';
+
+  @override
+  String get wageDaily => 'দৈনিক';
+
+  @override
+  String get wageMonthly => 'মাসিক';
+
+  @override
+  String get wagePerDay => 'প্রতিদিনের মজুরি';
+
+  @override
+  String get wagePerMonth => 'মাসিক মজুরি';
+
+  @override
+  String get dailyWageHint => 'উপস্থিত প্রতিদিনের জন্য; অর্ধদিনে অর্ধেক।';
+
+  @override
+  String get monthlyWageHint =>
+      'মাসের দিন দিয়ে ভাগ করে উপস্থিত দিন অনুযায়ী হিসাব।';
+
+  @override
+  String get wageChangeHint =>
+      'নতুন মজুরি এখন থেকে সেভ করা হাজিরায় লাগবে। আগের দিনের মজুরি বদলাবে না।';
+
+  @override
+  String perDay(String amount) {
+    return '$amount / দিন';
+  }
+
+  @override
+  String perMonth(String amount) {
+    return '$amount / মাস';
+  }
+
+  @override
+  String get joiningDate => 'যোগদানের তারিখ';
+
+  @override
+  String get leavingDate => 'কাজ ছাড়ার তারিখ';
+
+  @override
+  String get joined => 'যোগদান';
+
+  @override
+  String get attendanceThisMonth => 'হাজিরা';
+
+  @override
+  String activateLabourTitle(String name) {
+    return '$name-কে সক্রিয় করবেন?';
+  }
+
+  @override
+  String get activateLabourMessage => 'হাজিরার তালিকায় আবার দেখাবে।';
+
+  @override
+  String deactivateLabourTitle(String name) {
+    return '$name কাজ ছেড়েছেন?';
+  }
+
+  @override
+  String get deactivateLabourMessage =>
+      'শেষ কাজের দিনটা বাছুন। তার পরে হাজিরার তালিকায় থাকবেন না। মজুরির হিসাব থেকে যাবে।';
+
+  @override
+  String get wkMon => 'সোম';
+
+  @override
+  String get wkTue => 'মঙ্গল';
+
+  @override
+  String get wkWed => 'বুধ';
+
+  @override
+  String get wkThu => 'বৃহঃ';
+
+  @override
+  String get wkFri => 'শুক্র';
+
+  @override
+  String get wkSat => 'শনি';
+
+  @override
+  String get wkSun => 'রবি';
+
+  @override
+  String get attPresent => 'উপস্থিত';
+
+  @override
+  String get attHalfDay => 'অর্ধদিন';
+
+  @override
+  String get attAbsent => 'অনুপস্থিত';
+
+  @override
+  String get attNotMarked => 'হাজিরা হয়নি';
+
+  @override
+  String get attPresentShort => 'উ';
+
+  @override
+  String get attHalfDayShort => 'অর্ধ';
+
+  @override
+  String get attAbsentShort => 'অনু';
+
+  @override
+  String get markAllPresent => 'সবাই উপস্থিত';
+
+  @override
+  String get saveAttendance => 'হাজিরা সেভ করুন';
+
+  @override
+  String get noChanges => 'কোনো পরিবর্তন নেই';
+
+  @override
+  String changesCount(String count) {
+    return '$countটি পরিবর্তন';
+  }
+
+  @override
+  String attendanceSaved(String date) {
+    return '$date-এর হাজিরা সেভ হয়েছে';
+  }
+
+  @override
+  String saveChangesFor(String date) {
+    return '$date-এর পরিবর্তন সেভ করবেন?';
+  }
+
+  @override
+  String unsavedAttendance(String count) {
+    return '$count জনের হাজিরা বদলেছে, এখনো সেভ হয়নি।';
+  }
+
+  @override
+  String todayWithDate(String date) {
+    return 'আজ, $date';
+  }
+
+  @override
+  String yesterdayWithDate(String date) {
+    return 'গতকাল, $date';
+  }
+
+  @override
+  String get noLaboursOnDate => 'এই তারিখে কোনো শ্রমিক নেই';
+
+  @override
+  String get noLaboursOnDateMessage =>
+      'যাঁরা এই তারিখে কাজে যোগ দিয়েছিলেন এবং ছাড়েননি, শুধু তাঁরাই দেখাবেন।';
 }

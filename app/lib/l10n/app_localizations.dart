@@ -1975,6 +1975,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It will be removed from all lists and reports.'**
   String get deleteSaleMessage;
+
+  /// No description provided for @previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previous;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @phoneOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone (optional)'**
+  String get phoneOptional;
+
+  /// No description provided for @addLabour.
+  ///
+  /// In en, this message translates to:
+  /// **'Add labour'**
+  String get addLabour;
+
+  /// No description provided for @editLabour.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit labour'**
+  String get editLabour;
+
+  /// No description provided for @labourDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Labour'**
+  String get labourDetails;
+
+  /// No description provided for @laboursEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No labours yet'**
+  String get laboursEmptyTitle;
+
+  /// No description provided for @laboursEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the people who work at the factory with their daily or monthly wage.'**
+  String get laboursEmptyMessage;
+
+  /// No description provided for @labourCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Labour added'**
+  String get labourCreated;
+
+  /// No description provided for @labourUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Labour updated'**
+  String get labourUpdated;
+
+  /// No description provided for @wage.
+  ///
+  /// In en, this message translates to:
+  /// **'Wage'**
+  String get wage;
+
+  /// No description provided for @wageDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get wageDaily;
+
+  /// No description provided for @wageMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get wageMonthly;
+
+  /// No description provided for @wagePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Wage per day'**
+  String get wagePerDay;
+
+  /// No description provided for @wagePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Wage per month'**
+  String get wagePerMonth;
+
+  /// No description provided for @dailyWageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid for each day present; half for a half day.'**
+  String get dailyWageHint;
+
+  /// No description provided for @monthlyWageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Divided by the days in the month, then counted per day present.'**
+  String get monthlyWageHint;
+
+  /// No description provided for @wageChangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The new wage applies to attendance saved from now on. Past days keep their wage.'**
+  String get wageChangeHint;
+
+  /// No description provided for @perDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} / day'**
+  String perDay(String amount);
+
+  /// No description provided for @perMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} / month'**
+  String perMonth(String amount);
+
+  /// No description provided for @joiningDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Joining date'**
+  String get joiningDate;
+
+  /// No description provided for @leavingDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaving date'**
+  String get leavingDate;
+
+  /// No description provided for @joined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get joined;
+
+  /// No description provided for @attendanceThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get attendanceThisMonth;
+
+  /// No description provided for @activateLabourTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate {name}?'**
+  String activateLabourTitle(String name);
+
+  /// No description provided for @activateLabourMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They will show on the attendance sheet again.'**
+  String get activateLabourMessage;
+
+  /// No description provided for @deactivateLabourTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} left?'**
+  String deactivateLabourTitle(String name);
+
+  /// No description provided for @deactivateLabourMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the last working day. After it they are not on the attendance sheet. Their wages stay.'**
+  String get deactivateLabourMessage;
+
+  /// No description provided for @wkMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get wkMon;
+
+  /// No description provided for @wkTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get wkTue;
+
+  /// No description provided for @wkWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get wkWed;
+
+  /// No description provided for @wkThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get wkThu;
+
+  /// No description provided for @wkFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get wkFri;
+
+  /// No description provided for @wkSat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get wkSat;
+
+  /// No description provided for @wkSun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get wkSun;
+
+  /// No description provided for @attPresent.
+  ///
+  /// In en, this message translates to:
+  /// **'Present'**
+  String get attPresent;
+
+  /// No description provided for @attHalfDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Half day'**
+  String get attHalfDay;
+
+  /// No description provided for @attAbsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent'**
+  String get attAbsent;
+
+  /// No description provided for @attNotMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not marked'**
+  String get attNotMarked;
+
+  /// No description provided for @attPresentShort.
+  ///
+  /// In en, this message translates to:
+  /// **'P'**
+  String get attPresentShort;
+
+  /// No description provided for @attHalfDayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'H'**
+  String get attHalfDayShort;
+
+  /// No description provided for @attAbsentShort.
+  ///
+  /// In en, this message translates to:
+  /// **'A'**
+  String get attAbsentShort;
+
+  /// No description provided for @markAllPresent.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all present'**
+  String get markAllPresent;
+
+  /// No description provided for @saveAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Save attendance'**
+  String get saveAttendance;
+
+  /// No description provided for @noChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes'**
+  String get noChanges;
+
+  /// No description provided for @changesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} changed'**
+  String changesCount(String count);
+
+  /// No description provided for @attendanceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance saved for {date}'**
+  String attendanceSaved(String date);
+
+  /// No description provided for @saveChangesFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes for {date}?'**
+  String saveChangesFor(String date);
+
+  /// No description provided for @unsavedAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} labours changed and not saved yet.'**
+  String unsavedAttendance(String count);
+
+  /// No description provided for @todayWithDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {date}'**
+  String todayWithDate(String date);
+
+  /// No description provided for @yesterdayWithDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday, {date}'**
+  String yesterdayWithDate(String date);
+
+  /// No description provided for @noLaboursOnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No labours on this date'**
+  String get noLaboursOnDate;
+
+  /// No description provided for @noLaboursOnDateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Only labours who had joined and not left on this date are listed.'**
+  String get noLaboursOnDateMessage;
 }
 
 class _AppLocalizationsDelegate

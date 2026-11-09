@@ -13,6 +13,8 @@ import '../../features/customers/presentation/pages/customers_list_page.dart';
 import '../../features/dev/presentation/pages/section_placeholder_page.dart';
 import '../../features/dev/presentation/pages/theme_gallery_page.dart';
 import '../../features/dev/presentation/pages/widget_gallery_page.dart';
+import '../../features/labours/presentation/pages/labour_detail_page.dart';
+import '../../features/labours/presentation/pages/labour_form_page.dart';
 import '../../features/labours/presentation/pages/labours_page.dart';
 import '../../features/products/presentation/pages/product_form_page.dart';
 import '../../features/products/presentation/pages/products_list_page.dart';
@@ -28,6 +30,7 @@ import '../../features/settings/presentation/pages/appearance_page.dart';
 import '../../features/settings/presentation/pages/factory_profile_page.dart';
 import '../../features/settings/presentation/pages/language_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/attendance/presentation/pages/attendance_page.dart';
 import '../../features/auth/domain/app_user.dart';
 import '../../features/users/presentation/pages/user_detail_page.dart';
 import '../../features/users/presentation/pages/user_form_page.dart';
@@ -156,7 +159,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, shell) => AppShell(shell: shell),
         branches: [
           for (final item in kNavItems)
-            StatefulShellBranch(routes: sectionRoutes(item)),
+            StatefulShellBranch(
+              // The section's own first page, whatever the route order.
+              initialLocation: item.path,
+              routes: sectionRoutes(item),
+            ),
         ],
       ),
     ],
@@ -310,16 +317,47 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
     ),
   ],
   // Labours · Wages are two tabs of one section; switching tabs does not
-  // animate like opening a new page.
+  // animate like opening a new page. "/labours/wages" comes first so it is
+  // not read as a labour id.
   '/labours' => [
-    for (final tab in LaboursTab.values)
-      GoRoute(
-        path: tab.path,
-        pageBuilder: (_, state) => NoTransitionPage(
-          key: state.pageKey,
-          child: LaboursPage(tab: tab),
-        ),
+    GoRoute(
+      path: LabourSectionTab.wages.path,
+      pageBuilder: (_, state) => NoTransitionPage(
+        key: state.pageKey,
+        child: const LaboursPage(tab: LabourSectionTab.wages),
       ),
+    ),
+    GoRoute(
+      path: LabourSectionTab.labours.path,
+      pageBuilder: (_, state) => NoTransitionPage(
+        key: state.pageKey,
+        child: const LaboursPage(tab: LabourSectionTab.labours),
+      ),
+      routes: [
+        GoRoute(path: 'new', builder: (_, _) => const LabourFormPage()),
+        GoRoute(
+          path: ':id',
+          redirect: (_, state) =>
+              _intParam(state, 'id') == null ? '/labours' : null,
+          builder: (_, state) =>
+              LabourDetailPage(labourId: _intParam(state, 'id')!),
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (_, state) =>
+                  LabourFormPage(labourId: _intParam(state, 'id')),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ],
+  '/attendance' => [
+    GoRoute(
+      path: '/attendance',
+      builder: (_, state) =>
+          AttendancePage(initialDate: state.uri.queryParameters['date']),
+    ),
   ],
   _ => [
     GoRoute(

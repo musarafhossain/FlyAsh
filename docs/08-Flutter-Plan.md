@@ -35,7 +35,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F9** ✅ | **Customers** | List with dues, add/edit, detail with sales | F6 |
 | **F10** ✅ | **Sales: list & detail** | Sales list with filters, sale detail, upcoming deliveries | F8, F9 |
 | **F11** ✅ | **Sales: form & payments** | New/edit sale and booking, inline customer, live totals, add/remove payment, deliver, cancel | F10 |
-| F12 | Labours & attendance | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with P/H/A toggles | F6 |
+| **F12** ✅ | **Labours & attendance** | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with P/H/A toggles | F6 |
 | F13 | Wages & advances | Wages tab inside Labours (`/labours/wages`): wage sheet, labour wage detail, give advance, pay wages | F12 |
 | F14 | Expenses | Expense list with totals, form, categories | F6 |
 | F15 | Dashboard | Home screen with all cards and quick actions | F11, F13, F14 |
@@ -77,5 +77,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Pickers:** `showSearchPicker<T>()` (core/widgets/search_picker_sheet.dart) is a searchable, paginated bottom sheet (customers, products; reuse for labours).
 - **Forms that open a new record:** push with `extra: kReturnSale` (or pop the saved record) so the caller refreshes and then opens it; a deep-linked form opens the saved record itself.
 - **Live tests that create sales** cannot clean up through the API (records with sales are kept); afterwards delete the temporary user's rows and reset AUTO_INCREMENT of `sales`, `sale_items`, `sale_payments`, `customers`, `products`, `users` to their values before the run (invoice numbers come from `sales.id`).
+- **Dates in forms:** `DateField` (core/widgets/date_field.dart) for any business-date input with first/last limits.
+- **Shell branches** set `initialLocation: item.path`, so the route order inside a section (e.g. `/labours/wages` before `/labours`) never changes which page a sidebar tap opens.
 - **Riverpod retries are off** (`retry: noRetry`): a failed load shows an error with a Retry button instead of retrying silently.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

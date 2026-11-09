@@ -54,6 +54,13 @@ abstract final class Fmt {
     return '${p[2].padLeft(2, '0')} ${_months[int.parse(p[1]) - 1]} ${p[0]}';
   }
 
+  /// Month "2026-11" → "Nov 2026".
+  static String month(String ym) {
+    final p = ym.split('-');
+    if (p.length < 2) return ym;
+    return '${_months[int.parse(p[1]) - 1]} ${p[0]}';
+  }
+
   /// API timestamp in UTC ("2026-11-08T14:55:46.000Z") -> device local time
   /// "08 Nov 2026, 8:25 PM". Null/invalid -> "—".
   static String dateTime(String? iso) {

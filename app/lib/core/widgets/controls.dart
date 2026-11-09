@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
@@ -109,7 +110,7 @@ class PeriodSelector extends StatelessWidget {
           IconButton(
             onPressed: onPrevious,
             icon: const Icon(Icons.chevron_left),
-            tooltip: 'Previous',
+            tooltip: context.l10n.previous,
           ),
           Expanded(
             child: InkWell(
@@ -128,7 +129,7 @@ class PeriodSelector extends StatelessWidget {
           IconButton(
             onPressed: onNext,
             icon: const Icon(Icons.chevron_right),
-            tooltip: 'Next',
+            tooltip: context.l10n.next,
           ),
         ],
       ),
