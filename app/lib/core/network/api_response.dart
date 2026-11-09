@@ -71,3 +71,10 @@ class Paginated<T> {
     );
   }
 }
+
+/// Record ids are UUID strings. Numbers are accepted too and turned into
+/// text, so an older payload still parses.
+String idOf(Object? v) => v == null ? '' : '$v';
+
+/// [idOf] that keeps a missing id as null.
+String? idOrNull(Object? v) => v == null ? null : '$v';

@@ -24,7 +24,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
   );
 
   @override
-  Future<Product> get(int id) async =>
+  Future<Product> get(String id) async =>
       (await _api.get('/products/$id', parse: _product)).data;
 
   @override
@@ -35,14 +35,14 @@ class ProductsRepositoryImpl implements ProductsRepository {
   )).data;
 
   @override
-  Future<Product> update(int id, ProductInput input) async => (await _api.put(
+  Future<Product> update(String id, ProductInput input) async => (await _api.put(
     '/products/$id',
     body: input.toJson(),
     parse: _product,
   )).data;
 
   @override
-  Future<(Product, String)> setActive(int id, bool active) async {
+  Future<(Product, String)> setActive(String id, bool active) async {
     final res = await _api.patch(
       '/products/$id/status',
       body: {'is_active': active},
@@ -52,7 +52,7 @@ class ProductsRepositoryImpl implements ProductsRepository {
   }
 
   @override
-  Future<String> delete(int id) async =>
+  Future<String> delete(String id) async =>
       (await _api.delete('/products/$id', parse: (d) => d)).message;
 }
 

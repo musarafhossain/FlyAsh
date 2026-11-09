@@ -64,7 +64,7 @@ class FakeAttendance {
       }
       final d = days[date]!;
       for (final r in (b['records']! as List).cast<Map<String, Object?>>()) {
-        d[r['labour_id']! as int] = r['status'] as String?;
+        d[int.parse('${r['labour_id']}')] = r['status'] as String?;
       }
       return (200, envelope(200, 'Attendance saved for $date', _day(date)), {});
     },
@@ -135,8 +135,8 @@ void main() {
     expect(body(put), {
       'date': '2026-11-09',
       'records': [
-        {'labour_id': 12, 'status': 'half_day'},
-        {'labour_id': 1, 'status': 'absent'},
+        {'labour_id': '12', 'status': 'half_day'},
+        {'labour_id': '1', 'status': 'absent'},
       ],
     });
     expect(find.text('Attendance saved for 09 Nov 2026'), findsOneWidget);
@@ -162,9 +162,9 @@ void main() {
     expect(
       records,
       containsAll([
-        {'labour_id': 9, 'status': null},
-        {'labour_id': 12, 'status': 'present'},
-        {'labour_id': 1, 'status': 'present'},
+        {'labour_id': '9', 'status': null},
+        {'labour_id': '12', 'status': 'present'},
+        {'labour_id': '1', 'status': 'present'},
       ]),
     );
   });

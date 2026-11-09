@@ -25,7 +25,7 @@ export function earnedPaise(row: Pick<Attendance, 'status' | 'wageType' | 'wageA
 }
 
 export type WageRow = {
-  labour_id: number
+  labour_id: string
   name: string
   wage_type: string
   wage_amount: string
@@ -101,7 +101,7 @@ export default class WageService {
    */
   static async earnedBetween(from: string, to: string): Promise<number> {
     const rows = await Attendance.query().whereBetween('date', [from, to])
-    const perLabour = new Map<number, number>()
+    const perLabour = new Map<string, number>()
     for (const row of rows) {
       perLabour.set(row.labourId, (perLabour.get(row.labourId) ?? 0) + earnedPaise(row))
     }

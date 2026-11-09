@@ -28,7 +28,7 @@ class WageRow {
     required this.status,
   });
 
-  final int labourId;
+  final String labourId;
   final String name;
   final String wageType;
   final String wageAmount;
@@ -56,7 +56,7 @@ class WageRow {
     int n(String k) => (json[k] as num?)?.toInt() ?? 0;
     String m(String k) => '${json[k] ?? '0'}';
     return WageRow(
-      labourId: (json['labour_id'] as num).toInt(),
+      labourId: idOf(json['labour_id']),
       name: json['name'] as String? ?? '',
       wageType: json['wage_type'] as String? ?? 'daily',
       wageAmount: m('wage_amount'),
@@ -111,14 +111,14 @@ class Advance {
     this.createdBy,
   });
 
-  final int id;
+  final String id;
   final String amount;
   final String date;
   final String? note;
   final String? createdBy;
 
   factory Advance.fromJson(Json json) => Advance(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     amount: '${json['amount'] ?? '0'}',
     date: json['advance_date'] as String? ?? '',
     note: json['note'] as String?,
@@ -138,7 +138,7 @@ class WagePayment {
     this.createdBy,
   });
 
-  final int id;
+  final String id;
   final String amount;
   final String date;
   final String method;
@@ -146,7 +146,7 @@ class WagePayment {
   final String? createdBy;
 
   factory WagePayment.fromJson(Json json) => WagePayment(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     amount: '${json['amount'] ?? '0'}',
     date: json['payment_date'] as String? ?? '',
     method: json['method'] as String? ?? 'cash',
@@ -220,22 +220,22 @@ abstract interface class WagesRepository {
   });
 
   /// GET /labours/:id/wages?month
-  Future<WageDetail> detail(int labourId, String month);
+  Future<WageDetail> detail(String labourId, String month);
 
   /// POST /labours/:id/advances → message
   Future<String> giveAdvance(
-    int labourId, {
+    String labourId, {
     required String amount,
     required String date,
     String? note,
   });
 
   /// DELETE /advances/:id → message
-  Future<String> deleteAdvance(int id);
+  Future<String> deleteAdvance(String id);
 
   /// POST /labours/:id/wage-payments → message (partial payments allowed)
   Future<String> pay(
-    int labourId, {
+    String labourId, {
     required String month,
     required String amount,
     required String date,
@@ -244,5 +244,5 @@ abstract interface class WagesRepository {
   });
 
   /// DELETE /wage-payments/:id → message
-  Future<String> deletePayment(int id);
+  Future<String> deletePayment(String id);
 }

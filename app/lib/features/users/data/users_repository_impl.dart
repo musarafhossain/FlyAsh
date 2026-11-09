@@ -22,7 +22,7 @@ class UsersRepositoryImpl implements UsersRepository {
       );
 
   @override
-  Future<AppUser> get(int id) async =>
+  Future<AppUser> get(String id) async =>
       (await _api.get('/users/$id', parse: _user)).data;
 
   @override
@@ -47,7 +47,7 @@ class UsersRepositoryImpl implements UsersRepository {
 
   @override
   Future<AppUser> update(
-    int id, {
+    String id, {
     required String name,
     required String phone,
     String? email,
@@ -61,7 +61,7 @@ class UsersRepositoryImpl implements UsersRepository {
   }
 
   @override
-  Future<(AppUser, String)> setActive(int id, bool active) async {
+  Future<(AppUser, String)> setActive(String id, bool active) async {
     final res = await _api.patch(
       '/users/$id/status',
       body: {'is_active': active},
@@ -72,7 +72,7 @@ class UsersRepositoryImpl implements UsersRepository {
 
   @override
   Future<String> resetPassword(
-    int id, {
+    String id, {
     required String password,
     required String confirmation,
   }) async {

@@ -29,7 +29,7 @@ import '../widgets/wages_tab.dart';
 class WageDetailPage extends ConsumerStatefulWidget {
   const WageDetailPage({super.key, required this.labourId, this.month});
 
-  final int labourId;
+  final String labourId;
 
   /// `?month=YYYY-MM`; default this month.
   final String? month;

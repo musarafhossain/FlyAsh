@@ -23,7 +23,7 @@ class SaleSummary {
     this.isOverdue = false,
   });
 
-  final int id;
+  final String id;
   final String invoiceNo;
 
   /// instant | booking
@@ -39,7 +39,7 @@ class SaleSummary {
 
   /// paid | partial | due
   final String paymentStatus;
-  final int? customerId;
+  final String? customerId;
   final String? customerName;
   final String? customerPhone;
 
@@ -49,7 +49,7 @@ class SaleSummary {
   bool get isCancelled => status == 'cancelled';
 
   factory SaleSummary.fromJson(Json json) => SaleSummary(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     invoiceNo: json['invoice_no'] as String? ?? '',
     type: json['type'] as String? ?? 'instant',
     status: json['status'] as String? ?? 'delivered',
@@ -59,7 +59,7 @@ class SaleSummary {
     paidAmount: '${json['paid_amount'] ?? '0'}',
     dueAmount: '${json['due_amount'] ?? '0'}',
     paymentStatus: json['payment_status'] as String? ?? 'due',
-    customerId: (json['customer_id'] as num?)?.toInt(),
+    customerId: idOrNull(json['customer_id']),
     customerName: (json['customer'] as Json?)?['name'] as String?,
     customerPhone: (json['customer'] as Json?)?['phone'] as String?,
     isOverdue: json['is_overdue'] as bool? ?? false,

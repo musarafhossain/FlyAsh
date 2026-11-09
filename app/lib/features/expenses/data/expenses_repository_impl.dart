@@ -18,7 +18,7 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
   Future<Paginated<Expense>> list({
     int page = 1,
     DateRange range = const DateRange(),
-    int? categoryId,
+    String? categoryId,
     String? search,
   }) => _api.getPage(
     '/expenses',
@@ -33,7 +33,7 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
   );
 
   @override
-  Future<Expense> get(int id) async =>
+  Future<Expense> get(String id) async =>
       (await _api.get('/expenses/$id', parse: _expense)).data;
 
   @override
@@ -47,7 +47,7 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
   }
 
   @override
-  Future<(Expense, String)> update(int id, ExpenseInput input) async {
+  Future<(Expense, String)> update(String id, ExpenseInput input) async {
     final res = await _api.put(
       '/expenses/$id',
       body: input.toJson(),
@@ -57,7 +57,7 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
   }
 
   @override
-  Future<String> delete(int id) async =>
+  Future<String> delete(String id) async =>
       (await _api.delete('/expenses/$id', parse: (d) => d)).message;
 
   @override
@@ -82,7 +82,7 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
 
   @override
   Future<ExpenseCategory> updateCategory(
-    int id, {
+    String id, {
     required String name,
     String? icon,
     required bool isActive,

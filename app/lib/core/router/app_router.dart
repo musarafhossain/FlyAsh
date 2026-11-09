@@ -192,14 +192,14 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         GoRoute(
           path: ':id',
           redirect: (_, state) =>
-              _intParam(state, 'id') == null ? '/users' : null,
+              _idParam(state, 'id') == null ? '/users' : null,
           builder: (_, state) =>
-              UserDetailPage(userId: _intParam(state, 'id')!),
+              UserDetailPage(userId: _idParam(state, 'id')!),
           routes: [
             GoRoute(
               path: 'edit',
               builder: (_, state) => UserFormPage(
-                userId: _intParam(state, 'id'),
+                userId: _idParam(state, 'id'),
                 initial: state.extra is AppUser
                     ? state.extra! as AppUser
                     : null,
@@ -250,23 +250,21 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
           path: 'new',
           builder: (_, state) => SaleFormPage(
             initialType: state.uri.queryParameters['type'] ?? 'instant',
-            customerId: int.tryParse(
-              state.uri.queryParameters['customer'] ?? '',
-            ),
+            customerId: _idOrNull(state.uri.queryParameters['customer']),
             returnResult: state.extra == kReturnSale,
           ),
         ),
         GoRoute(
           path: ':id',
           redirect: (_, state) =>
-              _intParam(state, 'id') == null ? '/sales' : null,
+              _idParam(state, 'id') == null ? '/sales' : null,
           builder: (_, state) =>
-              SaleDetailPage(saleId: _intParam(state, 'id')!),
+              SaleDetailPage(saleId: _idParam(state, 'id')!),
           routes: [
             GoRoute(
               path: 'edit',
               builder: (_, state) =>
-                  SaleFormPage(saleId: _intParam(state, 'id')),
+                  SaleFormPage(saleId: _idParam(state, 'id')),
             ),
           ],
         ),
@@ -283,14 +281,14 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         GoRoute(
           path: ':id',
           redirect: (_, state) =>
-              _intParam(state, 'id') == null ? '/customers' : null,
+              _idParam(state, 'id') == null ? '/customers' : null,
           builder: (_, state) =>
-              CustomerDetailPage(customerId: _intParam(state, 'id')!),
+              CustomerDetailPage(customerId: _idParam(state, 'id')!),
           routes: [
             GoRoute(
               path: 'edit',
               builder: (_, state) =>
-                  CustomerFormPage(customerId: _intParam(state, 'id')),
+                  CustomerFormPage(customerId: _idParam(state, 'id')),
             ),
           ],
         ),
@@ -307,7 +305,7 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         GoRoute(
           path: ':id',
           redirect: (_, state) {
-            final id = _intParam(state, 'id');
+            final id = _idParam(state, 'id');
             if (id == null) return '/products';
             return state.uri.path == '/products/$id'
                 ? '/products/$id/edit'
@@ -317,7 +315,7 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
             GoRoute(
               path: 'edit',
               builder: (_, state) =>
-                  ProductFormPage(productId: _intParam(state, 'id')),
+                  ProductFormPage(productId: _idParam(state, 'id')),
             ),
           ],
         ),
@@ -341,9 +339,9 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         GoRoute(
           path: ':labourId',
           redirect: (_, state) =>
-              _intParam(state, 'labourId') == null ? '/labours/wages' : null,
+              _idParam(state, 'labourId') == null ? '/labours/wages' : null,
           builder: (_, state) => WageDetailPage(
-            labourId: _intParam(state, 'labourId')!,
+            labourId: _idParam(state, 'labourId')!,
             month: state.uri.queryParameters['month'],
           ),
         ),
@@ -360,14 +358,14 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         GoRoute(
           path: ':id',
           redirect: (_, state) =>
-              _intParam(state, 'id') == null ? '/labours' : null,
+              _idParam(state, 'id') == null ? '/labours' : null,
           builder: (_, state) =>
-              LabourDetailPage(labourId: _intParam(state, 'id')!),
+              LabourDetailPage(labourId: _idParam(state, 'id')!),
           routes: [
             GoRoute(
               path: 'edit',
               builder: (_, state) =>
-                  LabourFormPage(labourId: _intParam(state, 'id')),
+                  LabourFormPage(labourId: _idParam(state, 'id')),
             ),
           ],
         ),
@@ -388,7 +386,7 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
         GoRoute(
           path: ':id',
           redirect: (_, state) {
-            final id = _intParam(state, 'id');
+            final id = _idParam(state, 'id');
             if (id == null) return '/expenses';
             return state.uri.path == '/expenses/$id'
                 ? '/expenses/$id/edit'
@@ -398,7 +396,7 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
             GoRoute(
               path: 'edit',
               builder: (_, state) =>
-                  ExpenseFormPage(expenseId: _intParam(state, 'id')),
+                  ExpenseFormPage(expenseId: _idParam(state, 'id')),
             ),
           ],
         ),
@@ -420,5 +418,10 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
   ],
 };
 
-int? _intParam(GoRouterState state, String name) =>
-    int.tryParse(state.pathParameters[name] ?? '');
+/// A record id from the path (a UUID); anything else is not a record.
+String? _idParam(GoRouterState state, String name) =>
+    _idOrNull(state.pathParameters[name]);
+
+final _idPattern = RegExp(r'^[0-9a-fA-F-]{1,36}$');
+
+String? _idOrNull(String? v) => v != null && _idPattern.hasMatch(v) ? v : null;

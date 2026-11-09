@@ -100,7 +100,7 @@ export default class CustomersController {
     return ok(response, null, 'customers.deleted')
   }
 
-  private async find(id: number | string) {
+  private async find(id: string) {
     const query = Customer.query().where('customers.id', id)
     Customer.withTotals(query)
     const customer = await query.firstOrFail()

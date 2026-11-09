@@ -107,7 +107,7 @@ test.group('Users', (group) => {
 test.group('Password reset', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  async function createOtp(userId: number, otp = '123456') {
+  async function createOtp(userId: string, otp = '123456') {
     return PasswordResetOtp.create({
       userId,
       otpHash: await hash.make(otp),

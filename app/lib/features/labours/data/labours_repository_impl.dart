@@ -24,7 +24,7 @@ class LaboursRepositoryImpl implements LaboursRepository {
   );
 
   @override
-  Future<Labour> get(int id) async =>
+  Future<Labour> get(String id) async =>
       (await _api.get('/labours/$id', parse: _labour)).data;
 
   @override
@@ -32,7 +32,7 @@ class LaboursRepositoryImpl implements LaboursRepository {
       (await _api.post('/labours', body: input.toJson(), parse: _labour)).data;
 
   @override
-  Future<Labour> update(int id, LabourInput input) async => (await _api.put(
+  Future<Labour> update(String id, LabourInput input) async => (await _api.put(
     '/labours/$id',
     body: input.toJson(),
     parse: _labour,
@@ -40,7 +40,7 @@ class LaboursRepositoryImpl implements LaboursRepository {
 
   @override
   Future<(Labour, String)> setActive(
-    int id,
+    String id,
     bool active, {
     String? leftDate,
   }) async {
@@ -53,7 +53,7 @@ class LaboursRepositoryImpl implements LaboursRepository {
   }
 
   @override
-  Future<LabourMonth> month(int id, String month) async {
+  Future<LabourMonth> month(String id, String month) async {
     final res = await _api.get(
       '/labours/$id/attendance',
       query: {'month': month},

@@ -19,7 +19,7 @@ class UserFormPage extends ConsumerStatefulWidget {
   const UserFormPage({super.key, this.userId, this.initial});
 
   /// Null = add a new user.
-  final int? userId;
+  final String? userId;
 
   /// The user when coming from the detail page (saves a request).
   final AppUser? initial;

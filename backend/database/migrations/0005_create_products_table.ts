@@ -5,7 +5,7 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.uuid('id').primary()
       table.string('name', 100).notNullable().unique()
       table.string('unit', 20).notNullable().defaultTo('piece')
       table.string('unit_label', 30).nullable()
@@ -13,7 +13,7 @@ export default class extends BaseSchema {
       table.decimal('default_price', 12, 2).notNullable().defaultTo(0)
       table.string('notes', 500).nullable()
       table.boolean('is_active').notNullable().defaultTo(true).index()
-      table.integer('created_by').unsigned().nullable().references('id').inTable('users')
+      table.uuid('created_by').nullable().references('id').inTable('users')
       table.dateTime('created_at').notNullable()
       table.dateTime('updated_at').notNullable()
     })

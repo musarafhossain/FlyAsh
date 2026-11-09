@@ -5,14 +5,9 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
+      // Stays numeric: the Adonis token value embeds this id. tokenable_id is the user's UUID.
       table.increments('id')
-      table
-        .integer('tokenable_id')
-        .notNullable()
-        .unsigned()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
+      table.uuid('tokenable_id').notNullable().references('id').inTable('users').onDelete('CASCADE')
       table.string('type').notNullable()
       table.string('name').nullable()
       table.string('hash').notNullable().unique()

@@ -16,7 +16,7 @@ class AttendanceEntry {
     this.status,
   });
 
-  final int labourId;
+  final String labourId;
   final String name;
   final String wageType;
   final String wageAmount;
@@ -25,7 +25,7 @@ class AttendanceEntry {
   final String? status;
 
   factory AttendanceEntry.fromJson(Json json) => AttendanceEntry(
-    labourId: (json['labour_id'] as num).toInt(),
+    labourId: idOf(json['labour_id']),
     name: json['name'] as String? ?? '',
     wageType: json['wage_type'] as String? ?? 'daily',
     wageAmount: '${json['wage_amount'] ?? '0'}',
@@ -57,5 +57,5 @@ abstract interface class AttendanceRepository {
 
   /// PUT /attendance → the saved day and the message. A null status clears
   /// that labour's day.
-  Future<(AttendanceDay, String)> save(String date, Map<int, String?> statuses);
+  Future<(AttendanceDay, String)> save(String date, Map<String, String?> statuses);
 }

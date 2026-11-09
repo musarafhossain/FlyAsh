@@ -57,6 +57,9 @@ export const monthRule = () =>
     .trim()
     .regex(/^\d{4}-(0[1-9]|1[0-2])$/)
 
+/** A record id (UUID) */
+export const idRule = () => vine.string().trim().uuid()
+
 /** App / message language */
 export const localeRule = () => vine.enum(['en', 'bn'] as const)
 

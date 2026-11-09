@@ -48,7 +48,7 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
     DatePreset.thisMonth,
     ref.read(businessDateProvider),
   );
-  int? _categoryId;
+  String? _categoryId;
   String? _periodTotal;
 
   String get _today => ref.read(businessDateProvider);

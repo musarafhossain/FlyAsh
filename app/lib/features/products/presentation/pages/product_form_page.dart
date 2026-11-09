@@ -25,7 +25,7 @@ class ProductFormPage extends ConsumerStatefulWidget {
   const ProductFormPage({super.key, this.productId});
 
   /// Null = add a new product.
-  final int? productId;
+  final String? productId;
 
   @override
   ConsumerState<ProductFormPage> createState() => _ProductFormPageState();

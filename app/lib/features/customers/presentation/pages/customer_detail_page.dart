@@ -32,7 +32,7 @@ enum _MenuAction { toggleActive, delete }
 class CustomerDetailPage extends ConsumerStatefulWidget {
   const CustomerDetailPage({super.key, required this.customerId});
 
-  final int customerId;
+  final String customerId;
 
   @override
   ConsumerState<CustomerDetailPage> createState() => _CustomerDetailPageState();

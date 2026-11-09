@@ -13,7 +13,7 @@ import {
   listExpensesValidator,
 } from '#validators/expense'
 
-type Filters = { from?: string; to?: string; category_id?: number; search?: string }
+type Filters = { from?: string; to?: string; category_id?: string; search?: string }
 
 export default class ExpensesController {
   /**
@@ -125,7 +125,7 @@ export default class ExpensesController {
       .if(filters.search, (q: any) => q.where('note', 'like', `%${filters.search}%`))
   }
 
-  private find(id: number | string) {
+  private find(id: string) {
     return Expense.query()
       .where('id', id)
       .preload('category', (q) => q.select('id', 'name', 'icon'))

@@ -1,4 +1,6 @@
 import { SaleSchema } from '#database/schema'
+import { compose } from '@adonisjs/core/helpers'
+import { withUuid } from '#models/mixins/with_uuid'
 import { belongsTo, hasMany, scope } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Customer from '#models/customer'
@@ -6,7 +8,7 @@ import SaleItem from '#models/sale_item'
 import SalePayment from '#models/sale_payment'
 import User from '#models/user'
 
-export default class Sale extends SaleSchema {
+export default class Sale extends compose(SaleSchema, withUuid) {
   @belongsTo(() => Customer)
   declare customer: BelongsTo<typeof Customer>
 

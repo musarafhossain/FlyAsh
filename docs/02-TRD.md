@@ -361,7 +361,7 @@ Full tables, columns and indexes are in **05-Backend-Schema**. Conventions:
 | Convention | Rule |
 |---|---|
 | Charset | `utf8mb4` / `utf8mb4_unicode_ci` (Bengali text) |
-| Primary keys | `id INT UNSIGNED AUTO_INCREMENT` |
+| Primary keys | `id CHAR(36)` UUID v7 set by the app (except `auth_access_tokens.id`, numeric for Adonis tokens). Invoice numbers come from `factory_settings.last_invoice_no` |
 | Names | `snake_case`, plural table names |
 | Timestamps | `created_at`, `updated_at` on every table |
 | **Money** | `DECIMAL(12,2)`, never FLOAT/DOUBLE |

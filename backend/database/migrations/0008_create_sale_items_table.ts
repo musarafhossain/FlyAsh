@@ -5,15 +5,9 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
-      table
-        .integer('sale_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('sales')
-        .onDelete('CASCADE')
-      table.integer('product_id').unsigned().notNullable().references('id').inTable('products')
+      table.uuid('id').primary()
+      table.uuid('sale_id').notNullable().references('id').inTable('sales').onDelete('CASCADE')
+      table.uuid('product_id').notNullable().references('id').inTable('products')
       table.string('product_name', 100).notNullable()
       table.string('unit', 30).notNullable()
       table.decimal('quantity', 12, 2).notNullable()

@@ -135,7 +135,7 @@ export default class SalesController {
 
   async deletePayment({ params, response }: HttpContext) {
     const sale = await this.find(params.id)
-    await SaleService.deletePayment(sale, Number(params.paymentId))
+    await SaleService.deletePayment(sale, params.paymentId)
     return ok(response, await this.detail(sale.id), 'sales.payment_removed')
   }
 
@@ -146,7 +146,7 @@ export default class SalesController {
       .preload('customer', (q) => q.select('id', 'name', 'phone'))
   }
 
-  private find(id: number | string) {
+  private find(id: string) {
     return Sale.query()
       .where('id', id)
       .withScopes((scopes) => scopes.notDeleted())
@@ -154,7 +154,7 @@ export default class SalesController {
   }
 
   /** Full sale: customer, items, payments (with who added them), creator. */
-  private async detail(id: number | string) {
+  private async detail(id: string) {
     return Sale.query()
       .where('id', id)
       .withScopes((scopes) => scopes.notDeleted())

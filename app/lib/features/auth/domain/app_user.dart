@@ -19,7 +19,7 @@ class AppUser {
     this.raw = const {},
   });
 
-  final int id;
+  final String id;
   final String name;
   final String phone;
   final String? email;
@@ -35,7 +35,7 @@ class AppUser {
   final Json raw;
 
   factory AppUser.fromJson(Json json) => AppUser(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     name: json['name'] as String? ?? '',
     phone: json['phone'] as String? ?? '',
     email: json['email'] as String?,

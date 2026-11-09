@@ -28,7 +28,7 @@ class SalesRepositoryImpl implements SalesRepository {
   );
 
   @override
-  Future<Sale> get(int id) async => (await _api.get(
+  Future<Sale> get(String id) async => (await _api.get(
     '/sales/$id',
     parse: (d) => Sale.fromJson(d as Json),
   )).data;
@@ -49,7 +49,7 @@ class SalesRepositoryImpl implements SalesRepository {
       _pair(await _api.post('/sales', body: input.toJson(), parse: _sale));
 
   @override
-  Future<(Sale, String)> update(int id, SaleInput input) async => _pair(
+  Future<(Sale, String)> update(String id, SaleInput input) async => _pair(
     await _api.put(
       '/sales/$id',
       body: input.toJson(forEdit: true),
@@ -58,11 +58,11 @@ class SalesRepositoryImpl implements SalesRepository {
   );
 
   @override
-  Future<String> delete(int id) async =>
+  Future<String> delete(String id) async =>
       (await _api.delete('/sales/$id', parse: (d) => d)).message;
 
   @override
-  Future<(Sale, String)> deliver(int id, {String? deliveredDate}) async =>
+  Future<(Sale, String)> deliver(String id, {String? deliveredDate}) async =>
       _pair(
         await _api.post(
           '/sales/$id/deliver',
@@ -72,11 +72,11 @@ class SalesRepositoryImpl implements SalesRepository {
       );
 
   @override
-  Future<(Sale, String)> cancel(int id) async =>
+  Future<(Sale, String)> cancel(String id) async =>
       _pair(await _api.post('/sales/$id/cancel', parse: _sale));
 
   @override
-  Future<(Sale, String)> addPayment(int id, PaymentInput payment) async =>
+  Future<(Sale, String)> addPayment(String id, PaymentInput payment) async =>
       _pair(
         await _api.post(
           '/sales/$id/payments',
@@ -86,7 +86,7 @@ class SalesRepositoryImpl implements SalesRepository {
       );
 
   @override
-  Future<(Sale, String)> deletePayment(int id, int paymentId) async =>
+  Future<(Sale, String)> deletePayment(String id, String paymentId) async =>
       _pair(await _api.delete('/sales/$id/payments/$paymentId', parse: _sale));
 }
 

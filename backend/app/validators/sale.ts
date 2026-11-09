@@ -2,6 +2,7 @@ import vine from '@vinejs/vine'
 import { customerFields } from '#validators/customer'
 import {
   dateRule,
+  idRule,
   moneyRule,
   paginationRules,
   pastDateRule,
@@ -10,7 +11,7 @@ import {
 } from '#validators/rules'
 
 const item = vine.object({
-  product_id: vine.number().withoutDecimals().exists({ table: 'products', column: 'id' }),
+  product_id: idRule().exists({ table: 'products', column: 'id' }),
   quantity: vine.number().min(0.01).max(9999999999.99).decimal([0, 2]),
   /** Optional: defaults to the product's default cost / price */
   unit_cost: moneyRule().optional(),
@@ -19,11 +20,7 @@ const item = vine.object({
 
 const saleFields = {
   /** Existing customer, OR new_customer to create one inline */
-  customer_id: vine
-    .number()
-    .withoutDecimals()
-    .exists({ table: 'customers', column: 'id' })
-    .optional(),
+  customer_id: idRule().exists({ table: 'customers', column: 'id' }).optional(),
   new_customer: vine.object(customerFields).optional(),
   /** Defaults to today */
   sale_date: pastDateRule().optional(),

@@ -26,7 +26,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
   );
 
   @override
-  Future<Customer> get(int id) async =>
+  Future<Customer> get(String id) async =>
       (await _api.get('/customers/$id', parse: _customer)).data;
 
   @override
@@ -40,7 +40,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
   }
 
   @override
-  Future<Customer> update(int id, CustomerInput input) async {
+  Future<Customer> update(String id, CustomerInput input) async {
     final res = await _api.put(
       '/customers/$id',
       body: input.toJson(),
@@ -50,7 +50,7 @@ class CustomersRepositoryImpl implements CustomersRepository {
   }
 
   @override
-  Future<(Customer, String)> setActive(int id, bool active) async {
+  Future<(Customer, String)> setActive(String id, bool active) async {
     final res = await _api.patch(
       '/customers/$id/status',
       body: {'is_active': active},
@@ -60,11 +60,11 @@ class CustomersRepositoryImpl implements CustomersRepository {
   }
 
   @override
-  Future<String> delete(int id) async =>
+  Future<String> delete(String id) async =>
       (await _api.delete('/customers/$id', parse: (d) => d)).message;
 
   @override
-  Future<Paginated<SaleSummary>> sales(int id, {int page = 1}) => _api.getPage(
+  Future<Paginated<SaleSummary>> sales(String id, {int page = 1}) => _api.getPage(
     '/customers/$id/sales',
     page: page,
     item: SaleSummary.fromJson,

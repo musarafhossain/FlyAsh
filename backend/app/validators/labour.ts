@@ -8,6 +8,7 @@ import {
   paymentMethodRule,
   phoneRule,
   positiveMoneyRule,
+  idRule,
 } from '#validators/rules'
 
 export const listLaboursValidator = vine.create({
@@ -41,7 +42,7 @@ export const saveAttendanceValidator = vine.create({
   records: vine
     .array(
       vine.object({
-        labour_id: vine.number().withoutDecimals(),
+        labour_id: idRule(),
         /** null clears the day for that labour ("not marked") */
         status: vine.enum(['present', 'half_day', 'absent'] as const).nullable(),
       })

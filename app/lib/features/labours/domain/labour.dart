@@ -18,7 +18,7 @@ class Labour {
     this.todayStatus,
   });
 
-  final int id;
+  final String id;
   final String name;
   final String? phone;
   final String? address;
@@ -38,7 +38,7 @@ class Labour {
   bool get isMonthly => wageType == 'monthly';
 
   factory Labour.fromJson(Json json) => Labour(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     name: json['name'] as String? ?? '',
     phone: json['phone'] as String?,
     address: json['address'] as String?,
@@ -121,16 +121,16 @@ abstract interface class LaboursRepository {
   /// GET /labours?page&search&active (each with today's status)
   Future<Paginated<Labour>> list({int page = 1, String? search, bool? active});
 
-  Future<Labour> get(int id);
+  Future<Labour> get(String id);
 
   Future<Labour> create(LabourInput input);
 
   /// New wage applies to attendance saved from now on.
-  Future<Labour> update(int id, LabourInput input);
+  Future<Labour> update(String id, LabourInput input);
 
   /// PATCH /labours/:id/status; deactivating sets the leaving date.
-  Future<(Labour, String)> setActive(int id, bool active, {String? leftDate});
+  Future<(Labour, String)> setActive(String id, bool active, {String? leftDate});
 
   /// GET /labours/:id/attendance?month=YYYY-MM
-  Future<LabourMonth> month(int id, String month);
+  Future<LabourMonth> month(String id, String month);
 }

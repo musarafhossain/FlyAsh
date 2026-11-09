@@ -18,7 +18,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   @override
   Future<(AttendanceDay, String)> save(
     String date,
-    Map<int, String?> statuses,
+    Map<String, String?> statuses,
   ) async {
     final res = await _api.put(
       '/attendance',

@@ -21,7 +21,7 @@ class Product {
     this.isActive = true,
   });
 
-  final int id;
+  final String id;
   final String name;
   final ProductUnit unit;
 
@@ -38,7 +38,7 @@ class Product {
   bool get isLoss => margin.startsWith('-');
 
   factory Product.fromJson(Json json) => Product(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     name: json['name'] as String? ?? '',
     unit: ProductUnit.values.firstWhere(
       (u) => u.name == json['unit'],
@@ -89,15 +89,15 @@ abstract interface class ProductsRepository {
   /// GET /products?page&limit&search&active (active first, then by name)
   Future<Paginated<Product>> list({int page = 1, String? search, bool? active});
 
-  Future<Product> get(int id);
+  Future<Product> get(String id);
 
   Future<Product> create(ProductInput input);
 
-  Future<Product> update(int id, ProductInput input);
+  Future<Product> update(String id, ProductInput input);
 
   /// PATCH /products/:id/status → (product, message)
-  Future<(Product, String)> setActive(int id, bool active);
+  Future<(Product, String)> setActive(String id, bool active);
 
   /// DELETE /products/:id → message. 409 when used in sales.
-  Future<String> delete(int id);
+  Future<String> delete(String id);
 }

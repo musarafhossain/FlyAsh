@@ -29,7 +29,7 @@ class ExpenseFormPage extends ConsumerStatefulWidget {
   const ExpenseFormPage({super.key, this.expenseId});
 
   /// Null = add a new expense.
-  final int? expenseId;
+  final String? expenseId;
 
   @override
   ConsumerState<ExpenseFormPage> createState() => _ExpenseFormPageState();

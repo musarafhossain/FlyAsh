@@ -122,7 +122,7 @@ class FakeExpenses {
       final b = body(o);
       final e = _e(
         _next++,
-        b['expense_category_id']! as int,
+        int.parse('${b['expense_category_id']}'),
         b['expense_date']! as String,
         Decimal.parse('${b['amount']}').toStringAsFixed(2),
         b['note'] as String?,
@@ -138,7 +138,7 @@ class FakeExpenses {
         final i = expenses.indexWhere((e) => e['id'] == id);
         expenses[i] = _e(
           id,
-          b['expense_category_id']! as int,
+          int.parse('${b['expense_category_id']}'),
           b['expense_date']! as String,
           Decimal.parse('${b['amount']}').toStringAsFixed(2),
           b['note'] as String?,
@@ -246,7 +246,7 @@ void main() {
 
     await tapVisible(tester, find.widgetWithText(ChoiceChip, 'This month'));
     await tapVisible(tester, find.widgetWithText(ChoiceChip, 'Machine Repair'));
-    expect(lastList().queryParameters['category_id'], 2);
+    expect(lastList().queryParameters['category_id'], '2');
     expect(find.text('₹2,300'), findsWidgets);
     expect(find.byType(ExpenseTile), findsOneWidget);
 
@@ -294,7 +294,7 @@ void main() {
     );
     await tapVisible(tester, find.widgetWithText(FilledButton, 'Add expense'));
     expect(body(last('POST', '/expenses')), {
-      'expense_category_id': 2,
+      'expense_category_id': '2',
       'expense_date': '2026-11-09',
       'amount': '1250.5',
       'note': 'Diesel',

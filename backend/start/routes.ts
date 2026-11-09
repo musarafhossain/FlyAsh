@@ -23,8 +23,8 @@ const ExpensesController = () => import('#controllers/expenses_controller')
 const ReportsController = () => import('#controllers/reports_controller')
 const SettingsController = () => import('#controllers/settings_controller')
 
-/** Every :id style param must be numeric. */
-router.where('id', router.matchers.number())
+/** Every :id style param is a record UUID. */
+router.where('id', router.matchers.uuid())
 
 router.get('/', ({ response }) => ok(response, { name: 'FlyAsh API' }))
 
@@ -103,7 +103,7 @@ router
         router.post('sales/:id/payments', [SalesController, 'addPayment'])
         router
           .delete('sales/:id/payments/:paymentId', [SalesController, 'deletePayment'])
-          .where('paymentId', router.matchers.number())
+          .where('paymentId', router.matchers.uuid())
 
         // Labours
         router.get('labours', [LaboursController, 'index'])

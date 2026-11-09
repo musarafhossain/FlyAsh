@@ -36,7 +36,7 @@ import '../widgets/labours_tab.dart' show TodayPill;
 class LabourDetailPage extends ConsumerStatefulWidget {
   const LabourDetailPage({super.key, required this.labourId});
 
-  final int labourId;
+  final String labourId;
 
   @override
   ConsumerState<LabourDetailPage> createState() => _LabourDetailPageState();

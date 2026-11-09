@@ -9,7 +9,7 @@ abstract interface class UsersRepository {
   Future<Paginated<AppUser>> list({int page = 1, String? search});
 
   /// GET /users/:id
-  Future<AppUser> get(int id);
+  Future<AppUser> get(String id);
 
   /// POST /users
   Future<AppUser> create({
@@ -21,18 +21,18 @@ abstract interface class UsersRepository {
 
   /// PUT /users/:id
   Future<AppUser> update(
-    int id, {
+    String id, {
     required String name,
     required String phone,
     String? email,
   });
 
   /// PATCH /users/:id/status → (user, message). Deactivating logs them out.
-  Future<(AppUser, String)> setActive(int id, bool active);
+  Future<(AppUser, String)> setActive(String id, bool active);
 
   /// PUT /users/:id/password → message. Logs that user out everywhere.
   Future<String> resetPassword(
-    int id, {
+    String id, {
     required String password,
     required String confirmation,
   });

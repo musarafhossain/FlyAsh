@@ -1,3 +1,4 @@
+import '../../../../core/network/api_response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,7 +25,7 @@ class CustomerFormPage extends ConsumerStatefulWidget {
   const CustomerFormPage({super.key, this.customerId});
 
   /// Null = add a new customer.
-  final int? customerId;
+  final String? customerId;
 
   @override
   ConsumerState<CustomerFormPage> createState() => _CustomerFormPageState();
@@ -41,7 +42,7 @@ class _CustomerFormPageState extends ConsumerState<CustomerFormPage>
   bool get _isEdit => widget.customerId != null;
 
   /// From a 422 "This phone belongs to …".
-  int? get _existingId => (errorData?['existing_customer_id'] as num?)?.toInt();
+  String? get _existingId => idOrNull(errorData?['existing_customer_id']);
 
   @override
   void initState() {

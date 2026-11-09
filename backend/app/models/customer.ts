@@ -1,4 +1,6 @@
 import { CustomerSchema } from '#database/schema'
+import { compose } from '@adonisjs/core/helpers'
+import { withUuid } from '#models/mixins/with_uuid'
 import { hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
@@ -7,7 +9,7 @@ import Sale from '#models/sale'
 import { money } from '#helpers/money'
 import AppError from '#exceptions/app_error'
 
-export default class Customer extends CustomerSchema {
+export default class Customer extends compose(CustomerSchema, withUuid) {
   @hasMany(() => Sale)
   declare sales: HasMany<typeof Sale>
 
@@ -33,7 +35,7 @@ export default class Customer extends CustomerSchema {
    * Phone numbers are unique. Throws a 422 that also carries the existing
    * customer's id, so the app can offer "Use this customer".
    */
-  static async assertPhoneFree(phone: string, exceptId?: number, field = 'phone') {
+  static async assertPhoneFree(phone: string, exceptId?: string, field = 'phone') {
     const existing = await Customer.query()
       .where('phone', phone)
       .if(exceptId, (q) => q.whereNot('id', exceptId!))

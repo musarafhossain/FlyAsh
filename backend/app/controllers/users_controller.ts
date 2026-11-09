@@ -97,8 +97,8 @@ export default class UsersController {
     return ok(response, null, 'users.password_reset')
   }
 
-  private async findOther(auth: HttpContext['auth'], id: string | number) {
-    if (Number(id) === auth.getUserOrFail().id) {
+  private async findOther(auth: HttpContext['auth'], id: string) {
+    if (id === auth.getUserOrFail().id) {
       throw new AppError('users.use_profile')
     }
     return User.findOrFail(id)

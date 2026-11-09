@@ -5,14 +5,14 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
-      table.integer('labour_id').unsigned().notNullable().references('id').inTable('labours')
+      table.uuid('id').primary()
+      table.uuid('labour_id').notNullable().references('id').inTable('labours')
       table.date('wage_month').notNullable()
       table.decimal('amount', 12, 2).notNullable()
       table.date('payment_date').notNullable()
       table.string('method', 20).notNullable().defaultTo('cash')
       table.string('note', 500).nullable()
-      table.integer('created_by').unsigned().nullable().references('id').inTable('users')
+      table.uuid('created_by').nullable().references('id').inTable('users')
       table.dateTime('created_at').notNullable()
       table.dateTime('updated_at').notNullable()
 

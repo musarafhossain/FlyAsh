@@ -17,7 +17,7 @@ export class AppVersionSchema extends BaseModel {
   @column()
   declare downloadUrl: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -38,13 +38,13 @@ export class AttendanceSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column()
   declare date: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare labourId: number
+  declare labourId: string
   @column()
   declare status: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -73,7 +73,7 @@ export class AuthAccessTokenSchema extends BaseModel {
   @column()
   declare name: string | null
   @column()
-  declare tokenableId: number
+  declare tokenableId: string
   @column()
   declare type: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -88,9 +88,9 @@ export class CustomerSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -109,13 +109,13 @@ export class ExpenseSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column()
-  declare expenseCategoryId: number
+  declare expenseCategoryId: string
   @column()
   declare expenseDate: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare note: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -130,7 +130,7 @@ export class ExpenseCategorySchema extends BaseModel {
   @column()
   declare icon: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -142,7 +142,7 @@ export class ExpenseCategorySchema extends BaseModel {
 }
 
 export class FactorySettingSchema extends BaseModel {
-  static $columns = ['address', 'createdAt', 'email', 'factoryName', 'id', 'invoicePrefix', 'ownerName', 'phone', 'updatedAt', 'updatedBy'] as const
+  static $columns = ['address', 'createdAt', 'email', 'factoryName', 'id', 'invoicePrefix', 'lastInvoiceNo', 'ownerName', 'phone', 'updatedAt', 'updatedBy'] as const
   $columns = FactorySettingSchema.$columns
   @column()
   declare address: string | null
@@ -153,9 +153,11 @@ export class FactorySettingSchema extends BaseModel {
   @column()
   declare factoryName: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare invoicePrefix: string
+  @column()
+  declare lastInvoiceNo: number
   @column()
   declare ownerName: string | null
   @column()
@@ -163,7 +165,7 @@ export class FactorySettingSchema extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()
-  declare updatedBy: number | null
+  declare updatedBy: string | null
 }
 
 export class LabourSchema extends BaseModel {
@@ -174,9 +176,9 @@ export class LabourSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -205,11 +207,11 @@ export class LabourAdvanceSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare labourId: number
+  declare labourId: string
   @column()
   declare note: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -226,13 +228,13 @@ export class PasswordResetOtpSchema extends BaseModel {
   @column.dateTime()
   declare expiresAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column({ serializeAs: null })
   declare otpHash: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()
-  declare userId: number
+  declare userId: string
   @column.dateTime()
   declare verifiedAt: DateTime | null
 }
@@ -243,13 +245,13 @@ export class ProductSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column()
   declare defaultCost: string
   @column()
   declare defaultPrice: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column()
@@ -272,9 +274,9 @@ export class SaleSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column()
-  declare customerId: number
+  declare customerId: string
   @column.dateTime({ serializeAs: null })
   declare deletedAt: DateTime | null
   @column()
@@ -288,7 +290,7 @@ export class SaleSchema extends BaseModel {
   @column()
   declare dueAmount: string
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare invoiceNo: string | null
   @column()
@@ -323,19 +325,19 @@ export class SaleItemSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare lineCost: string
   @column()
   declare lineTotal: string
   @column()
-  declare productId: number
+  declare productId: string
   @column()
   declare productName: string
   @column()
   declare quantity: string
   @column()
-  declare saleId: number
+  declare saleId: string
   @column()
   declare unit: string
   @column()
@@ -354,9 +356,9 @@ export class SalePaymentSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare method: string
   @column()
@@ -364,7 +366,7 @@ export class SalePaymentSchema extends BaseModel {
   @column()
   declare paymentDate: string
   @column()
-  declare saleId: number
+  declare saleId: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
@@ -377,11 +379,11 @@ export class UserSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column()
   declare email: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
   declare isActive: boolean
   @column.dateTime()
@@ -408,11 +410,11 @@ export class WagePaymentSchema extends BaseModel {
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
-  declare createdBy: number | null
+  declare createdBy: string | null
   @column({ isPrimary: true })
-  declare id: number
+  declare id: string
   @column()
-  declare labourId: number
+  declare labourId: string
   @column()
   declare method: string
   @column()

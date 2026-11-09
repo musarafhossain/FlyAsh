@@ -14,7 +14,7 @@
 
 | Item | Rule |
 |---|---|
-| Primary key | `id INT UNSIGNED AUTO_INCREMENT` (Lucid `increments`) |
+| Primary key | `id CHAR(36)` UUID v7, set by the app before insert (`withUuid` mixin in `app/models/mixins`). Time ordered, so `ORDER BY id` is creation order. Exception: `auth_access_tokens.id` stays `INT AUTO_INCREMENT` because the Adonis token value embeds it |
 | Names | `snake_case`, plural tables, FK = `<singular>_id` |
 | Money | `DECIMAL(12,2)`, never FLOAT. Max ₹9,99,99,99,999.99 |
 | Quantity | `DECIMAL(12,2)` |
@@ -23,7 +23,7 @@
 | Enums | `VARCHAR(20)` + validation in VineJS (easier to change than MariaDB `ENUM`) |
 | Booleans | `TINYINT(1)` (`is_active`) |
 | Foreign keys | `ON DELETE RESTRICT ON UPDATE CASCADE`, except child rows of a sale (`CASCADE`) |
-| Audit | `created_by INT UNSIGNED NULL → users.id` on business tables (hidden in JSON; the `creator` relation is serialized as `created_by: { id, name }`) |
+| Audit | `created_by CHAR(36) NULL → users.id` on business tables (hidden in JSON; the `creator` relation is serialized as `created_by: { id, name }`) |
 | Soft delete | `deleted_at` on `sales`. `is_active` on master data |
 | Migrations | One Lucid migration per table. Schema changes only via new migrations |
 
@@ -58,7 +58,7 @@ All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
+| id | CHAR(36) PK (UUID v7) | | app | |
 | name | VARCHAR(100) | no | | |
 | phone | VARCHAR(15) | no | | **unique**, 10 digits, login id |
 | email | VARCHAR(150) | yes | NULL | **unique**, login id + OTP reset |
@@ -68,15 +68,15 @@ All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory
 | accent_color | VARCHAR(20) | no | 'blue' | `blue` · `brick` · `emerald` · `violet` · `slate` (04-UI-UX §5.2) |
 | is_active | TINYINT(1) | no | 1 | |
 | last_login_at | DATETIME | yes | NULL | |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | NULL for the first user |
+| created_by | CHAR(36) FK → users.id | yes | NULL | NULL for the first user |
 | created_at / updated_at | DATETIME | no | | |
 
 ### 3.2 `auth_access_tokens` *(standard @adonisjs/auth table)*
 
 | Column | Type | Null | Notes |
 |---|---|---|---|
-| id | INT UNSIGNED PK | | |
-| tokenable_id | INT UNSIGNED FK → users.id | no | `ON DELETE CASCADE` |
+| id | INT UNSIGNED PK | | | AUTO_INCREMENT (library) |
+| tokenable_id | CHAR(36) FK → users.id | no | `ON DELETE CASCADE` |
 | type | VARCHAR(255) | no | `auth_token` |
 | name | VARCHAR(255) | yes | Device name (e.g. "Android", "Windows", "Web") |
 | hash | VARCHAR(255) | no | **unique**, hash of the token |
@@ -89,8 +89,8 @@ All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | Put inside the signed reset token as `otp_id` |
-| user_id | INT UNSIGNED FK → users.id | no | | `ON DELETE CASCADE`, index |
+| id | CHAR(36) PK (UUID v7) | | app | Put inside the signed reset token as `otp_id` |
+| user_id | CHAR(36) FK → users.id | no | | `ON DELETE CASCADE`, index |
 | otp_hash | VARCHAR(255) | no | | Hash of the 6-digit OTP |
 | attempts | TINYINT UNSIGNED | no | 0 | Deleted at 5 |
 | expires_at | DATETIME | no | | now + 10 min |
@@ -103,21 +103,22 @@ The row is deleted after a successful reset, so the reset token is single use. O
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | 1 | |
+| id | CHAR(36) PK (UUID v7) | | app | |
 | factory_name | VARCHAR(150) | no | 'My Brick Factory' | App header, receipts, OTP email |
 | owner_name | VARCHAR(100) | yes | NULL | |
 | phone | VARCHAR(15) | yes | NULL | |
 | email | VARCHAR(150) | yes | NULL | |
 | address | VARCHAR(500) | yes | NULL | |
 | invoice_prefix | VARCHAR(10) | no | 'INV-' | |
-| updated_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| last_invoice_no | INT UNSIGNED | no | 0 | Counter for invoice numbers; locked (`FOR UPDATE`) and +1 inside the sale transaction |
+| updated_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
 ### 3.5 `products`
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
+| id | CHAR(36) PK (UUID v7) | | app | |
 | name | VARCHAR(100) | no | | **unique** |
 | unit | VARCHAR(20) | no | 'piece' | `piece` · `thousand` · `truck` · `other` |
 | unit_label | VARCHAR(30) | yes | NULL | Required when `unit = other` (e.g. "cft") |
@@ -125,19 +126,19 @@ The row is deleted after a successful reset, so the reset token is single use. O
 | default_price | DECIMAL(12,2) | no | 0.00 | Selling price per unit |
 | notes | VARCHAR(500) | yes | NULL | |
 | is_active | TINYINT(1) | no | 1 | index |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
 ### 3.6 `customers`
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
+| id | CHAR(36) PK (UUID v7) | | app | |
 | name | VARCHAR(100) | no | | index |
 | phone | VARCHAR(15) | no | | **unique** |
 | address | VARCHAR(500) | yes | NULL | |
 | is_active | TINYINT(1) | no | 1 | |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
 Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** from `sales` in queries, not stored.
@@ -146,11 +147,11 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
-| invoice_no | VARCHAR(20) | yes | NULL | **unique**. Set right after insert: `invoice_prefix + LPAD(id, 6, '0')` → `INV-000001` |
+| id | CHAR(36) PK (UUID v7) | | app | |
+| invoice_no | VARCHAR(20) | yes | NULL | **unique**. `invoice_prefix + LPAD(last_invoice_no + 1, 6, '0')` → `INV-000001` (ids are UUIDs, so the number comes from the settings counter) |
 | type | VARCHAR(20) | no | | `instant` · `booking` |
 | status | VARCHAR(20) | no | | `booked` · `delivered` · `cancelled` (instant → `delivered`) |
-| customer_id | INT UNSIGNED FK → customers.id | no | | index |
+| customer_id | CHAR(36) FK → customers.id | no | | index |
 | sale_date | DATE | no | | The day the sale or booking was made |
 | delivery_date | DATE | yes | NULL | Booking: expected delivery date |
 | delivered_date | DATE | yes | NULL | Date it was delivered (instant: = `sale_date`). **Used by all sales and profit reports** |
@@ -166,7 +167,7 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 | payment_status | VARCHAR(20) | no | 'due' | `paid` · `partial` · `due` |
 | notes | VARCHAR(1000) | yes | NULL | |
 | cancelled_at | DATETIME | yes | NULL | |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 | deleted_at | DATETIME | yes | NULL | Soft delete. All queries filter `deleted_at IS NULL` |
 
@@ -177,9 +178,9 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
-| sale_id | INT UNSIGNED FK → sales.id | no | | `ON DELETE CASCADE`, index |
-| product_id | INT UNSIGNED FK → products.id | no | | index |
+| id | CHAR(36) PK (UUID v7) | | app | |
+| sale_id | CHAR(36) FK → sales.id | no | | `ON DELETE CASCADE`, index |
+| product_id | CHAR(36) FK → products.id | no | | index |
 | product_name | VARCHAR(100) | no | | Snapshot (receipt stays the same if the product is renamed) |
 | unit | VARCHAR(30) | no | | Snapshot of the unit label |
 | quantity | DECIMAL(12,2) | no | | > 0 |
@@ -193,20 +194,20 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
-| sale_id | INT UNSIGNED FK → sales.id | no | | `ON DELETE CASCADE`, index |
+| id | CHAR(36) PK (UUID v7) | | app | |
+| sale_id | CHAR(36) FK → sales.id | no | | `ON DELETE CASCADE`, index |
 | amount | DECIMAL(12,2) | no | | > 0, cannot make paid > total |
 | payment_date | DATE | no | | index (collections report) |
 | method | VARCHAR(20) | no | 'cash' | `cash` · `upi` · `bank` · `other` |
 | note | VARCHAR(500) | yes | NULL | |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
 ### 3.10 `labours`
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
+| id | CHAR(36) PK (UUID v7) | | app | |
 | name | VARCHAR(100) | no | | index |
 | phone | VARCHAR(15) | yes | NULL | |
 | address | VARCHAR(500) | yes | NULL | |
@@ -215,20 +216,20 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 | joining_date | DATE | no | | |
 | left_date | DATE | yes | NULL | Set on deactivate |
 | is_active | TINYINT(1) | no | 1 | index |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
 ### 3.11 `attendances`
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
-| labour_id | INT UNSIGNED FK → labours.id | no | | |
+| id | CHAR(36) PK (UUID v7) | | app | |
+| labour_id | CHAR(36) FK → labours.id | no | | |
 | date | DATE | no | | ≤ today |
 | status | VARCHAR(20) | no | | `present` · `half_day` · `absent` |
 | wage_type | VARCHAR(20) | no | | Snapshot from the labour on save |
 | wage_amount | DECIMAL(12,2) | no | | Snapshot from the labour on save |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | Last user who saved this day |
+| created_by | CHAR(36) FK → users.id | yes | NULL | Last user who saved this day |
 | created_at / updated_at | DATETIME | no | | |
 
 **Unique:** `(labour_id, date)`. **Index:** `(date)`. "Not marked" = no row.
@@ -237,26 +238,26 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
-| labour_id | INT UNSIGNED FK → labours.id | no | | index |
+| id | CHAR(36) PK (UUID v7) | | app | |
+| labour_id | CHAR(36) FK → labours.id | no | | index |
 | amount | DECIMAL(12,2) | no | | > 0 |
 | advance_date | DATE | no | | Deducted in the month of this date. index |
 | note | VARCHAR(500) | yes | NULL | |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
 ### 3.13 `wage_payments`
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
-| labour_id | INT UNSIGNED FK → labours.id | no | | |
+| id | CHAR(36) PK (UUID v7) | | app | |
+| labour_id | CHAR(36) FK → labours.id | no | | |
 | wage_month | DATE | no | | First day of the month being paid (`2026-11-01`) |
 | amount | DECIMAL(12,2) | no | | > 0 |
 | payment_date | DATE | no | | |
 | method | VARCHAR(20) | no | 'cash' | `cash` · `upi` · `bank` · `other` |
 | note | VARCHAR(500) | yes | NULL | |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
 **Index:** `(labour_id, wage_month)`.
@@ -265,7 +266,7 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
+| id | CHAR(36) PK (UUID v7) | | app | |
 | name | VARCHAR(50) | no | | **unique** |
 | icon | VARCHAR(30) | yes | NULL | Icon key for the app (e.g. `utensils`, `wrench`) |
 | is_active | TINYINT(1) | no | 1 | |
@@ -278,19 +279,19 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
-| expense_category_id | INT UNSIGNED FK → expense_categories.id | no | | index |
+| id | CHAR(36) PK (UUID v7) | | app | |
+| expense_category_id | CHAR(36) FK → expense_categories.id | no | | index |
 | expense_date | DATE | no | | index |
 | amount | DECIMAL(12,2) | no | | > 0 |
 | note | VARCHAR(500) | yes | NULL | |
-| created_by | INT UNSIGNED FK → users.id | yes | NULL | |
+| created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
 ### 3.16 `app_versions`
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
-| id | INT UNSIGNED PK | | AI | |
+| id | CHAR(36) PK (UUID v7) | | app | |
 | platform | VARCHAR(20) | no | | `android` · `windows` · `web` |
 | version_name | VARCHAR(20) | no | | `1.2.0` |
 | build_number | INT UNSIGNED | no | | `12` |

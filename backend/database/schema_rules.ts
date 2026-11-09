@@ -21,10 +21,10 @@ export default {
   },
   columns: {
     /**
-     * The numeric FK is hidden; models expose a `creator` relation that is
+     * The FK (user UUID) is hidden; models expose a `creator` relation that is
      * serialized as `created_by: { id, name }` when preloaded.
      */
-    created_by: hidden('number'),
+    created_by: hidden('string'),
     otp_hash: hidden('string'),
   },
   tables: {

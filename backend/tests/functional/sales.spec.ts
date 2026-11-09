@@ -88,6 +88,37 @@ test.group('Sales: calculations', (group) => {
     assert.containsSubset(cust.body().data, { total_sales: '38500.00', total_due: '28500.00' })
   })
 
+  test('ids are UUID v7; invoice numbers come from the counter, one after another', async ({
+    client,
+    assert,
+  }) => {
+    const { user, brick, customer } = await setup()
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    const body = {
+      type: 'instant',
+      customer_id: customer.id,
+      items: [{ product_id: brick.id, quantity: 10 }],
+    }
+
+    const first = (await client.post(`${API}/sales`).loginAs(user).json(body)).body().data
+    const second = (await client.post(`${API}/sales`).loginAs(user).json(body)).body().data
+    assert.match(first.id, uuid)
+    assert.match(first.items[0].id, uuid)
+    assert.match(customer.id, uuid)
+    assert.isTrue(second.id > first.id, 'UUID v7 sorts by creation time')
+    const n = (inv: string) => Number(inv.replace(/\D/g, ''))
+    assert.equal(n(second.invoice_no), n(first.invoice_no) + 1)
+
+    // Old numeric ids are not routes any more; a bad id in the body is a 422
+    const numeric = await client.get(`${API}/sales/1`).loginAs(user)
+    numeric.assertStatus(404)
+    const bad = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({ ...body, customer_id: 1 })
+    bad.assertStatus(422)
+  })
+
   test('payments: no overpayment, paying the rest makes it paid', async ({ client, assert }) => {
     const { user, brick, customer } = await setup()
     const created = await client

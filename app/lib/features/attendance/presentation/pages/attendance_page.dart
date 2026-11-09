@@ -49,8 +49,8 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
   bool _saving = false;
 
   /// What the server has, and what is on screen.
-  Map<int, String?> _saved = const {};
-  Map<int, String?> _current = {};
+  Map<String, String?> _saved = const {};
+  Map<String, String?> _current = {};
 
   String get _today => ref.read(businessDateProvider);
 
@@ -60,7 +60,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     return ok && ymd.compareTo(today) <= 0 ? ymd : today;
   }
 
-  Map<int, String?> get _changes => {
+  Map<String, String?> get _changes => {
     for (final e in _current.entries)
       if (_saved[e.key] != e.value) e.key: e.value,
   };
@@ -169,7 +169,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     }
   }
 
-  void _set(int labourId, String status) => setState(() {
+  void _set(String labourId, String status) => setState(() {
     // Tapping the chosen status again clears it (not marked).
     _current[labourId] = _current[labourId] == status ? null : status;
   });

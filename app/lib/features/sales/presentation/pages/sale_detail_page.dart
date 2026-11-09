@@ -32,7 +32,7 @@ import '../widgets/sale_action_sheets.dart';
 class SaleDetailPage extends ConsumerStatefulWidget {
   const SaleDetailPage({super.key, required this.saleId});
 
-  final int saleId;
+  final String saleId;
 
   @override
   ConsumerState<SaleDetailPage> createState() => _SaleDetailPageState();

@@ -1,18 +1,21 @@
 import vine from '@vinejs/vine'
-import { dateRule, paginationRules, pastDateRule, positiveMoneyRule } from '#validators/rules'
+import {
+  dateRule,
+  idRule,
+  paginationRules,
+  pastDateRule,
+  positiveMoneyRule,
+} from '#validators/rules'
 
 export const listExpensesValidator = vine.create({
   ...paginationRules,
   from: dateRule().optional(),
   to: dateRule().optional(),
-  category_id: vine.number().withoutDecimals().optional(),
+  category_id: idRule().optional(),
 })
 
 export const expenseValidator = vine.create({
-  expense_category_id: vine
-    .number()
-    .withoutDecimals()
-    .exists({ table: 'expense_categories', column: 'id' }),
+  expense_category_id: idRule().exists({ table: 'expense_categories', column: 'id' }),
   /** Defaults to today */
   expense_date: pastDateRule().optional(),
   amount: positiveMoneyRule(),

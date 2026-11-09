@@ -22,7 +22,7 @@ class WagesRepositoryImpl implements WagesRepository {
   );
 
   @override
-  Future<WageDetail> detail(int labourId, String month) async {
+  Future<WageDetail> detail(String labourId, String month) async {
     final res = await _api.get(
       '/labours/$labourId/wages',
       query: {'month': month},
@@ -33,7 +33,7 @@ class WagesRepositoryImpl implements WagesRepository {
 
   @override
   Future<String> giveAdvance(
-    int labourId, {
+    String labourId, {
     required String amount,
     required String date,
     String? note,
@@ -44,12 +44,12 @@ class WagesRepositoryImpl implements WagesRepository {
   )).message;
 
   @override
-  Future<String> deleteAdvance(int id) async =>
+  Future<String> deleteAdvance(String id) async =>
       (await _api.delete('/advances/$id', parse: (d) => d)).message;
 
   @override
   Future<String> pay(
-    int labourId, {
+    String labourId, {
     required String month,
     required String amount,
     required String date,
@@ -68,7 +68,7 @@ class WagesRepositoryImpl implements WagesRepository {
   )).message;
 
   @override
-  Future<String> deletePayment(int id) async =>
+  Future<String> deletePayment(String id) async =>
       (await _api.delete('/wage-payments/$id', parse: (d) => d)).message;
 }
 

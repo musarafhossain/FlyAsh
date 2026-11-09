@@ -20,7 +20,7 @@ class SaleItem {
     required this.lineCost,
   });
 
-  final int? productId;
+  final String? productId;
   final String productName;
   final ProductUnit unit;
   final String quantity;
@@ -30,7 +30,7 @@ class SaleItem {
   final String lineCost;
 
   factory SaleItem.fromJson(Json json) => SaleItem(
-    productId: (json['product_id'] as num?)?.toInt(),
+    productId: idOrNull(json['product_id']),
     productName: json['product_name'] as String? ?? '',
     unit: ProductUnit.values.firstWhere(
       (u) => u.name == json['unit'],
@@ -56,7 +56,7 @@ class SalePayment {
     this.createdBy,
   });
 
-  final int id;
+  final String id;
   final String amount;
   final String paymentDate;
 
@@ -66,7 +66,7 @@ class SalePayment {
   final String? createdBy;
 
   factory SalePayment.fromJson(Json json) => SalePayment(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     amount: '${json['amount'] ?? '0'}',
     paymentDate: json['payment_date'] as String? ?? '',
     method: json['method'] as String? ?? 'cash',
@@ -109,7 +109,7 @@ class Sale {
   final List<SaleItem> items;
   final List<SalePayment> payments;
 
-  int get id => summary.id;
+  String get id => summary.id;
 
   /// True for "0.00" (to hide empty lines such as no transport charge).
   static bool isZeroAmount(String v) =>
@@ -189,7 +189,7 @@ class SaleItemInput {
     required this.unitPrice,
   });
 
-  final int productId;
+  final String productId;
   final String quantity;
   final String unitCost;
   final String unitPrice;
@@ -268,7 +268,7 @@ class SaleInput {
 
   /// instant | booking
   final String type;
-  final int? customerId;
+  final String? customerId;
   final NewCustomerInput? newCustomer;
   final String saleDate;
   final String? deliveryDate;
@@ -301,7 +301,7 @@ abstract interface class SalesRepository {
   Future<Paginated<SaleSummary>> list({int page = 1, SaleFilter filter});
 
   /// GET /sales/:id
-  Future<Sale> get(int id);
+  Future<Sale> get(String id);
 
   /// GET /sales/upcoming-deliveries (booked, by delivery date, overdue first)
   Future<Paginated<SaleSummary>> upcoming({int page = 1});
@@ -310,20 +310,20 @@ abstract interface class SalesRepository {
   Future<(Sale, String)> create(SaleInput input);
 
   /// PUT /sales/:id (items replaced, totals recalculated)
-  Future<(Sale, String)> update(int id, SaleInput input);
+  Future<(Sale, String)> update(String id, SaleInput input);
 
   /// DELETE /sales/:id (soft delete) → message
-  Future<String> delete(int id);
+  Future<String> delete(String id);
 
   /// POST /sales/:id/deliver
-  Future<(Sale, String)> deliver(int id, {String? deliveredDate});
+  Future<(Sale, String)> deliver(String id, {String? deliveredDate});
 
   /// POST /sales/:id/cancel (booked, without payments)
-  Future<(Sale, String)> cancel(int id);
+  Future<(Sale, String)> cancel(String id);
 
   /// POST /sales/:id/payments
-  Future<(Sale, String)> addPayment(int id, PaymentInput payment);
+  Future<(Sale, String)> addPayment(String id, PaymentInput payment);
 
   /// DELETE /sales/:id/payments/:paymentId
-  Future<(Sale, String)> deletePayment(int id, int paymentId);
+  Future<(Sale, String)> deletePayment(String id, String paymentId);
 }

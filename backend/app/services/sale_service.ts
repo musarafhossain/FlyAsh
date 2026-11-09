@@ -14,14 +14,14 @@ import { today } from '#helpers/dates'
 type Trx = TransactionClientContract
 
 export type SaleItemInput = {
-  product_id: number
+  product_id: string
   quantity: number
   unit_cost?: number
   unit_price?: number
 }
 
 export type SaleInput = {
-  customer_id?: number
+  customer_id?: string
   new_customer?: { name: string; phone: string; address?: string | null }
   sale_date?: string
   delivery_date?: string
@@ -49,7 +49,7 @@ export default class SaleService {
       type: 'instant' | 'booking'
       payment?: Omit<PaymentInput, 'payment_date'>
     },
-    userId: number | null
+    userId: string | null
   ) {
     return db.transaction(async (trx) => {
       const saleDate = input.sale_date ?? today()
@@ -75,8 +75,7 @@ export default class SaleService {
       })
       await sale.save()
 
-      const settings = await FactorySetting.query({ client: trx }).where('id', 1).first()
-      sale.invoiceNo = `${settings?.invoicePrefix ?? 'INV-'}${String(sale.id).padStart(6, '0')}`
+      sale.invoiceNo = await this.nextInvoiceNo(trx)
       await sale.save()
 
       await this.replaceItems(sale, input.items, trx)
@@ -100,7 +99,7 @@ export default class SaleService {
     })
   }
 
-  static async update(sale: Sale, input: SaleInput, userId: number | null) {
+  static async update(sale: Sale, input: SaleInput, userId: string | null) {
     if (sale.status === 'cancelled') {
       throw new AppError('sales.cancelled_not_editable')
     }
@@ -136,7 +135,7 @@ export default class SaleService {
     })
   }
 
-  static async addPayment(sale: Sale, input: PaymentInput, userId: number | null) {
+  static async addPayment(sale: Sale, input: PaymentInput, userId: string | null) {
     if (sale.status === 'cancelled') {
       throw new AppError('sales.payment_on_cancelled')
     }
@@ -165,7 +164,7 @@ export default class SaleService {
     })
   }
 
-  static async deletePayment(sale: Sale, paymentId: number) {
+  static async deletePayment(sale: Sale, paymentId: string) {
     await db.transaction(async (trx) => {
       sale.useTransaction(trx)
       const payment = await SalePayment.query({ client: trx })
@@ -243,6 +242,22 @@ export default class SaleService {
    * Replaces all items. Cost and price default to the product's defaults,
    * and a snapshot of name / unit / cost / price is stored on each line.
    */
+  /**
+   * INV-000001, INV-000002, … from the counter on the settings row. The row
+   * stays locked until the sale transaction ends, so two sales saved at the
+   * same moment never get the same number.
+   */
+  private static async nextInvoiceNo(trx: Trx) {
+    await FactorySetting.current()
+    const settings = await FactorySetting.query({ client: trx })
+      .orderBy('created_at')
+      .forUpdate()
+      .firstOrFail()
+    settings.lastInvoiceNo += 1
+    await settings.useTransaction(trx).save()
+    return `${settings.invoicePrefix}${String(settings.lastInvoiceNo).padStart(6, '0')}`
+  }
+
   private static async replaceItems(sale: Sale, items: SaleItemInput[], trx: Trx) {
     await SaleItem.query({ client: trx }).where('sale_id', sale.id).delete()
 
@@ -277,7 +292,7 @@ export default class SaleService {
   /**
    * Uses customer_id, or creates new_customer inline (phone must be free).
    */
-  private static async resolveCustomer(input: SaleInput, userId: number | null, trx: Trx) {
+  private static async resolveCustomer(input: SaleInput, userId: string | null, trx: Trx) {
     if (input.customer_id) return input.customer_id
 
     if (!input.new_customer) {

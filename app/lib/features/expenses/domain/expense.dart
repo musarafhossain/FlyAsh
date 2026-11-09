@@ -15,7 +15,7 @@ class ExpenseCategory {
     this.sortOrder = 0,
   });
 
-  final int id;
+  final String id;
   final String name;
 
   /// Icon key, e.g. "wrench" (see expense_icons.dart).
@@ -24,7 +24,7 @@ class ExpenseCategory {
   final int sortOrder;
 
   factory ExpenseCategory.fromJson(Json json) => ExpenseCategory(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     name: json['name'] as String? ?? '',
     icon: json['icon'] as String?,
     isActive: json['is_active'] as bool? ?? true,
@@ -46,8 +46,8 @@ class Expense {
     this.createdBy,
   });
 
-  final int id;
-  final int categoryId;
+  final String id;
+  final String categoryId;
   final String date;
   final String amount;
   final String? note;
@@ -58,8 +58,8 @@ class Expense {
   factory Expense.fromJson(Json json) {
     final category = json['category'] as Json?;
     return Expense(
-      id: (json['id'] as num).toInt(),
-      categoryId: (json['expense_category_id'] as num?)?.toInt() ?? 0,
+      id: idOf(json['id']),
+      categoryId: idOf(json['expense_category_id']),
       date: json['expense_date'] as String? ?? '',
       amount: '${json['amount'] ?? '0'}',
       note: json['note'] as String?,
@@ -80,7 +80,7 @@ class ExpenseInput {
     this.note,
   });
 
-  final int categoryId;
+  final String categoryId;
   final String date;
   final String amount;
   final String? note;
@@ -100,18 +100,18 @@ abstract interface class ExpensesRepository {
   Future<Paginated<Expense>> list({
     int page = 1,
     DateRange range = const DateRange(),
-    int? categoryId,
+    String? categoryId,
     String? search,
   });
 
-  Future<Expense> get(int id);
+  Future<Expense> get(String id);
 
   Future<(Expense, String)> create(ExpenseInput input);
 
-  Future<(Expense, String)> update(int id, ExpenseInput input);
+  Future<(Expense, String)> update(String id, ExpenseInput input);
 
   /// DELETE /expenses/:id → message
-  Future<String> delete(int id);
+  Future<String> delete(String id);
 
   /// GET /expense-categories?active (sorted, not paginated)
   Future<List<ExpenseCategory>> categories({bool? active});
@@ -120,7 +120,7 @@ abstract interface class ExpensesRepository {
 
   /// Rename, change the icon, or deactivate / activate.
   Future<ExpenseCategory> updateCategory(
-    int id, {
+    String id, {
     required String name,
     String? icon,
     required bool isActive,

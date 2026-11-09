@@ -18,7 +18,7 @@ class Customer {
     this.totalDue = '0.00',
   });
 
-  final int id;
+  final String id;
   final String name;
   final String phone;
   final String? address;
@@ -31,7 +31,7 @@ class Customer {
       (Decimal.tryParse(totalDue) ?? Decimal.zero) > Decimal.zero;
 
   factory Customer.fromJson(Json json) => Customer(
-    id: (json['id'] as num).toInt(),
+    id: idOf(json['id']),
     name: json['name'] as String? ?? '',
     phone: json['phone'] as String? ?? '',
     address: json['address'] as String?,
@@ -71,18 +71,18 @@ abstract interface class CustomersRepository {
     bool? active,
   });
 
-  Future<Customer> get(int id);
+  Future<Customer> get(String id);
 
   Future<Customer> create(CustomerInput input);
 
-  Future<Customer> update(int id, CustomerInput input);
+  Future<Customer> update(String id, CustomerInput input);
 
   /// PATCH /customers/:id/status → (customer, message)
-  Future<(Customer, String)> setActive(int id, bool active);
+  Future<(Customer, String)> setActive(String id, bool active);
 
   /// DELETE /customers/:id → message. 409 when they have sales.
-  Future<String> delete(int id);
+  Future<String> delete(String id);
 
   /// GET /customers/:id/sales?page
-  Future<Paginated<SaleSummary>> sales(int id, {int page = 1});
+  Future<Paginated<SaleSummary>> sales(String id, {int page = 1});
 }

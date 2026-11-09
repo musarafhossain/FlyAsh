@@ -76,7 +76,7 @@ class FakeSalesBackend {
       saleDate: '2026-11-08',
       items: [
         {
-          'product_id': 1,
+          'product_id': '1',
           'quantity': '5000',
           'unit_cost': '4.2',
           'unit_price': '6.5',
@@ -135,7 +135,9 @@ class FakeSalesBackend {
     final lines = [
       for (final i in items)
         () {
-          final p = products.firstWhere((p) => p['id'] == i['product_id']);
+          final p = products.firstWhere(
+            (p) => '${p['id']}' == '${i['product_id']}',
+          );
           final q = d(i['quantity']);
           final lineTotal = q * d(i['unit_price']);
           final lineCost = q * d(i['unit_cost']);
@@ -234,7 +236,7 @@ class FakeSalesBackend {
 
   Reply _create(RequestOptions o) {
     final b = body(o);
-    var customerId = b['customer_id'] as int?;
+    var customerId = int.tryParse('${b['customer_id']}');
     final nc = b['new_customer'] as Map<String, Object?>?;
     if (nc != null) {
       final existing = customers.where((c) => c['phone'] == nc['phone']);
@@ -504,12 +506,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(body(last('POST', '/sales')), {
       'type': 'instant',
-      'customer_id': 1,
+      'customer_id': '1',
       'sale_date': '2026-11-09',
       'delivery_address': null,
       'items': [
         {
-          'product_id': 1,
+          'product_id': '1',
           'quantity': '5000',
           'unit_cost': '4.2',
           'unit_price': '6.5',
@@ -581,7 +583,7 @@ void main() {
     expect(find.text('Habib Enterprise · 9774686411'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Save sale'));
     await tester.pumpAndSettle();
-    expect(body(last('POST', '/sales'))['customer_id'], 2);
+    expect(body(last('POST', '/sales'))['customer_id'], '2');
     expect(currentPath(), '/sales/200');
   });
 
@@ -652,7 +654,7 @@ void main() {
     expect(b.containsKey('type'), isFalse);
     expect(b.containsKey('payment'), isFalse);
     expect((b['items']! as List).single, {
-      'product_id': 1,
+      'product_id': '1',
       'quantity': '6000',
       'unit_cost': '4.2',
       'unit_price': '6.5',

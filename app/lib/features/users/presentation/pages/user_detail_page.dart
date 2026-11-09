@@ -23,7 +23,7 @@ import 'users_list_page.dart';
 class UserDetailPage extends ConsumerStatefulWidget {
   const UserDetailPage({super.key, required this.userId});
 
-  final int userId;
+  final String userId;
 
   @override
   ConsumerState<UserDetailPage> createState() => _UserDetailPageState();

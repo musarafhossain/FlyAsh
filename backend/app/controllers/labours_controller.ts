@@ -116,7 +116,7 @@ export default class LaboursController {
       )
   }
 
-  private async find(id: number | string) {
+  private async find(id: string) {
     const labour = await this.withTodayStatus(Labour.query()).where('labours.id', id).firstOrFail()
     return labour.toResponse()
   }

@@ -5,11 +5,11 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.uuid('id').primary()
       table.string('invoice_no', 20).nullable().unique()
       table.string('type', 20).notNullable()
       table.string('status', 20).notNullable()
-      table.integer('customer_id').unsigned().notNullable().references('id').inTable('customers')
+      table.uuid('customer_id').notNullable().references('id').inTable('customers')
       table.date('sale_date').notNullable().index()
       table.date('delivery_date').nullable()
       table.date('delivered_date').nullable()
@@ -25,7 +25,7 @@ export default class extends BaseSchema {
       table.string('payment_status', 20).notNullable().defaultTo('due').index()
       table.string('notes', 1000).nullable()
       table.dateTime('cancelled_at').nullable()
-      table.integer('created_by').unsigned().nullable().references('id').inTable('users')
+      table.uuid('created_by').nullable().references('id').inTable('users')
       table.dateTime('created_at').notNullable()
       table.dateTime('updated_at').notNullable()
       table.dateTime('deleted_at').nullable().index()

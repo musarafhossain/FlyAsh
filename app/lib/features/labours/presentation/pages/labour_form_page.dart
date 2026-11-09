@@ -27,7 +27,7 @@ class LabourFormPage extends ConsumerStatefulWidget {
   const LabourFormPage({super.key, this.labourId});
 
   /// Null = add a new labour.
-  final int? labourId;
+  final String? labourId;
 
   @override
   ConsumerState<LabourFormPage> createState() => _LabourFormPageState();

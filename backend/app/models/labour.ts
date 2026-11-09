@@ -1,4 +1,6 @@
 import { LabourSchema } from '#database/schema'
+import { compose } from '@adonisjs/core/helpers'
+import { withUuid } from '#models/mixins/with_uuid'
 import { hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
@@ -6,7 +8,7 @@ import Attendance from '#models/attendance'
 import LabourAdvance from '#models/labour_advance'
 import WagePayment from '#models/wage_payment'
 
-export default class Labour extends LabourSchema {
+export default class Labour extends compose(LabourSchema, withUuid) {
   /** "labour" is treated as uncountable by the pluralizer, so set it explicitly. */
   static table = 'labours'
 

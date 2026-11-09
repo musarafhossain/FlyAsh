@@ -20,7 +20,7 @@ const OTP_MINUTES = 10
 const MAX_ATTEMPTS = 5
 const TOKEN_PURPOSE = 'password_reset'
 
-type ResetTokenPayload = { user_id: number; otp_id: number }
+type ResetTokenPayload = { user_id: string; otp_id: string }
 
 /**
  * Forgot password in 3 steps:

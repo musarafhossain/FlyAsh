@@ -1,3 +1,4 @@
+import '../../../../core/network/api_response.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,7 +54,7 @@ class _ItemRow {
        cost = TextEditingController(text: cost);
 
   final key = UniqueKey();
-  int? productId;
+  String? productId;
   String? productName;
   ProductUnit unit;
   String? unitLabel;
@@ -87,13 +88,13 @@ class SaleFormPage extends ConsumerStatefulWidget {
   });
 
   /// Null = new sale.
-  final int? saleId;
+  final String? saleId;
 
   /// instant | booking (new sales; from `?type=`).
   final String initialType;
 
   /// Start with this customer selected (from `?customer=`).
-  final int? customerId;
+  final String? customerId;
 
   /// Pop with the saved sale (the caller opens it), see [kReturnSale].
   final bool returnResult;
@@ -172,7 +173,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
 
   // ---------------------------------------------------------------- load
 
-  Future<void> _loadCustomer(int id) async {
+  Future<void> _loadCustomer(String id) async {
     try {
       final c = await ref.read(customersRepositoryProvider).get(id);
       if (mounted) setState(() => _customer = c);
@@ -193,7 +194,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
       setState(() {
         _type = s.type;
         _customer = Customer(
-          id: s.customerId ?? 0,
+          id: s.customerId ?? '',
           name: s.customerName ?? '',
           phone: s.customerPhone ?? '',
           address: sale.customerAddress,
@@ -418,7 +419,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
   }
 
   /// "This phone belongs to …" → use that customer instead.
-  Future<void> _useExisting(int id) async {
+  Future<void> _useExisting(String id) async {
     try {
       final c = await ref.read(customersRepositoryProvider).get(id);
       if (!mounted) return;
@@ -497,7 +498,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
     final t = context.tokens;
     final v = Validators.of(context);
     final booking = _type == 'booking';
-    final existingId = (errorData?['existing_customer_id'] as num?)?.toInt();
+    final existingId = idOrNull(errorData?['existing_customer_id']);
 
     String? payValidator(String? value) {
       if ((value ?? '').trim().isEmpty) return null;
