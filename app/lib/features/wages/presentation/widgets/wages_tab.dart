@@ -197,13 +197,9 @@ class _WagesTabState extends ConsumerState<WagesTab> {
       ),
       builder: (context, rows) => desktop
           ? _WagesTable(rows: rows, onOpen: _open)
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          : ListGroup(
               children: [
-                for (final r in rows) ...[
-                  _WageTile(row: r, onTap: () => _open(r)),
-                  const SizedBox(height: Space.s2),
-                ],
+                for (final r in rows) _WageTile(row: r, onTap: () => _open(r)),
               ],
             ),
     );
@@ -220,7 +216,7 @@ class _WageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    return AppCard(
+    return ListRowSurface(
       onTap: onTap,
       padding: const EdgeInsets.symmetric(
         horizontal: Space.s4,

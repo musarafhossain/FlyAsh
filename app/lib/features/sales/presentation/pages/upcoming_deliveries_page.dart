@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/session.dart';
+import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/paged_list.dart';
@@ -90,10 +91,9 @@ class _UpcomingDeliveriesPageState
                 onOpen: _open,
                 actionBuilder: _deliverButton,
               )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            : ListGroup(
                 children: [
-                  for (final s in sales) ...[
+                  for (final s in sales)
                     SaleTile(
                       sale: s,
                       showCustomer: true,
@@ -101,8 +101,6 @@ class _UpcomingDeliveriesPageState
                       onTap: () => _open(s),
                       action: _deliverButton(s),
                     ),
-                    const SizedBox(height: Space.s2),
-                  ],
                 ],
               ),
       ),

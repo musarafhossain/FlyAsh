@@ -102,10 +102,9 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
               ),
         builder: (context, users) => desktop
             ? _UsersTable(users: users, onOpen: (u) => _open('/users/${u.id}'))
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            : ListGroup(
                 children: [
-                  for (final u in users) ...[
+                  for (final u in users)
                     EntityListTile(
                       leading: InitialsAvatar(u.name),
                       title: u.name,
@@ -117,8 +116,6 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
                           : StatusTone.neutral,
                       onTap: () => _open('/users/${u.id}'),
                     ),
-                    const SizedBox(height: Space.s2),
-                  ],
                 ],
               ),
       ),

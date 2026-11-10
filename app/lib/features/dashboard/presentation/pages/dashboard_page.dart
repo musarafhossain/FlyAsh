@@ -12,6 +12,7 @@ import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cards.dart';
+import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../sales/presentation/widgets/sale_list_items.dart';
@@ -228,14 +229,17 @@ class _Body extends ConsumerWidget {
               ),
             ),
           ),
-        for (final s in d.recentSales) ...[
-          SaleTile(
-            sale: s,
-            showCustomer: true,
-            onTap: () => context.go('/sales/${s.id}'),
+        if (d.recentSales.isNotEmpty)
+          ListGroup(
+            children: [
+              for (final s in d.recentSales)
+                SaleTile(
+                  sale: s,
+                  showCustomer: true,
+                  onTap: () => context.go('/sales/${s.id}'),
+                ),
+            ],
           ),
-          const SizedBox(height: Space.s2),
-        ],
       ],
     );
 

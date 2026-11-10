@@ -9,7 +9,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/paged_list.dart';
@@ -148,16 +147,13 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
                 labours: labours,
                 onOpen: (lb) => _open('/labours/${lb.id}'),
               )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            : ListGroup(
                 children: [
-                  for (final lb in labours) ...[
+                  for (final lb in labours)
                     LabourTile(
                       labour: lb,
                       onTap: () => _open('/labours/${lb.id}'),
                     ),
-                    const SizedBox(height: Space.s2),
-                  ],
                 ],
               ),
       ),
@@ -192,7 +188,7 @@ class LabourTile extends StatelessWidget {
     final lb = labour;
     return Opacity(
       opacity: lb.isActive ? 1 : 0.6,
-      child: AppCard(
+      child: ListRowSurface(
         onTap: onTap,
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,

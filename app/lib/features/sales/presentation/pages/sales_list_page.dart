@@ -10,6 +10,7 @@ import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/router/app_shell.dart';
 import '../../../../core/utils/dates.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/controls.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
@@ -238,17 +239,14 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
                 showCustomer: true,
                 onOpen: (s) => _open('/sales/${s.id}'),
               )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            : ListGroup(
                 children: [
-                  for (final s in sales) ...[
+                  for (final s in sales)
                     SaleTile(
                       sale: s,
                       showCustomer: true,
                       onTap: () => _open('/sales/${s.id}'),
                     ),
-                    const SizedBox(height: Space.s2),
-                  ],
                 ],
               ),
       ),

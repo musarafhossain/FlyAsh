@@ -11,7 +11,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/paged_list.dart';
@@ -169,16 +168,13 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
                 customers: customers,
                 onOpen: (c) => _open('/customers/${c.id}'),
               )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            : ListGroup(
                 children: [
-                  for (final c in customers) ...[
+                  for (final c in customers)
                     CustomerTile(
                       customer: c,
                       onTap: () => _open('/customers/${c.id}'),
                     ),
-                    const SizedBox(height: Space.s2),
-                  ],
                 ],
               ),
       ),
@@ -229,7 +225,7 @@ class CustomerTile extends StatelessWidget {
     final c = customer;
     return Opacity(
       opacity: c.isActive ? 1 : 0.6,
-      child: AppCard(
+      child: ListRowSurface(
         onTap: onTap,
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,

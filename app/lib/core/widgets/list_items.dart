@@ -7,12 +7,47 @@ import '../utils/formatters.dart';
 import 'cards.dart';
 import 'status_pill.dart';
 
-/// Circle with a person's initials ("Rahim Traders" → "RT").
-class InitialsAvatar extends StatelessWidget {
-  const InitialsAvatar(this.name, {super.key, this.size = 40});
+/// Bright circle colours for list avatars. All are dark enough for white
+/// text and icons on top (contrast ≥ 3:1), in light and dark mode.
+const kAvatarColors = <Color>[
+  Color(0xFF059669), // emerald
+  Color(0xFF0284C7), // sky
+  Color(0xFF9333EA), // purple
+  Color(0xFFD97706), // amber
+  Color(0xFFDB2777), // pink
+  Color(0xFFDC2626), // red
+  Color(0xFF0D9488), // teal
+  Color(0xFF16A34A), // green
+  Color(0xFF4F46E5), // indigo
+  Color(0xFFEA580C), // orange
+];
 
-  final String name;
+/// The same seed always gets the same colour (stable on every platform).
+Color avatarColor(String seed) {
+  var h = 0x811c9dc5;
+  for (final c in seed.codeUnits) {
+    h = ((h ^ c) * 0x01000193) & 0xFFFFFFFF;
+  }
+  return kAvatarColors[h % kAvatarColors.length];
+}
+
+/// A coloured circle with a white icon or short text, as in list rows.
+/// [dimmed] shows it grey (e.g. an inactive record).
+class ColorAvatar extends StatelessWidget {
+  const ColorAvatar({
+    super.key,
+    required this.seed,
+    this.icon,
+    this.text,
+    this.size = 48,
+    this.dimmed = false,
+  }) : assert(icon != null || text != null);
+
+  final String seed;
+  final IconData? icon;
+  final String? text;
   final double size;
+  final bool dimmed;
 
   @override
   Widget build(BuildContext context) {
@@ -22,19 +57,81 @@ class InitialsAvatar extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: t.primaryContainer,
+        color: dimmed ? t.textTertiary : avatarColor(seed),
         shape: BoxShape.circle,
       ),
-      child: Text(
-        Fmt.initials(name),
-        style: AppTypography.label.copyWith(
-          color: t.onPrimaryContainer,
-          fontWeight: FontWeight.w700,
-          fontSize: size * 0.34,
-        ),
-      ),
+      child: icon != null
+          ? Icon(icon, size: size * 0.5, color: Colors.white)
+          : Text(
+              text!,
+              style: AppTypography.label.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: size * 0.36,
+              ),
+            ),
     );
   }
+}
+
+/// Coloured circle with a person's initials ("Rahim Traders" → "RT").
+class InitialsAvatar extends StatelessWidget {
+  const InitialsAvatar(this.name, {super.key, this.size = 48});
+
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) =>
+      ColorAvatar(seed: name, text: Fmt.initials(name), size: size);
+}
+
+/// A list of rows on one surface, split by thin lines (like a phone
+/// contacts list). Use with [ListRowSurface] rows.
+class ListGroup extends StatelessWidget {
+  const ListGroup({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    padding: EdgeInsets.zero,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, child) in children.indexed) ...[
+          if (i > 0) const Divider(height: 1),
+          child,
+        ],
+      ],
+    ),
+  );
+}
+
+/// One flat, tappable row inside a [ListGroup] (no border of its own).
+class ListRowSurface extends StatelessWidget {
+  const ListRowSurface({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.padding = const EdgeInsets.symmetric(
+      horizontal: Space.s4,
+      vertical: Space.s3,
+    ),
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    type: MaterialType.transparency,
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(padding: padding, child: child),
+    ),
+  );
 }
 
 /// One row in a list of customers, sales, labours … (§9.7)
@@ -73,12 +170,8 @@ class EntityListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return AppCard(
+    return ListRowSurface(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(
-        horizontal: Space.s4,
-        vertical: Space.s3,
-      ),
       child: Row(
         children: [
           if (leading != null) ...[leading!, const SizedBox(width: Space.s3)],

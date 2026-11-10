@@ -246,16 +246,13 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                       sales: sales,
                       onOpen: (sale) => context.push('/sales/${sale.id}'),
                     )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                  : ListGroup(
                       children: [
-                        for (final s in sales) ...[
+                        for (final s in sales)
                           SaleTile(
                             sale: s,
                             onTap: () => context.push('/sales/${s.id}'),
                           ),
-                          const SizedBox(height: Space.s2),
-                        ],
                       ],
                     ),
             ),

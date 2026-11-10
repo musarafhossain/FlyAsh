@@ -15,6 +15,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/dates.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cards.dart';
+import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
@@ -251,16 +252,13 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
                 expenses: expenses,
                 onOpen: (e) => _open('/expenses/${e.id}/edit'),
               )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            : ListGroup(
                 children: [
-                  for (final e in expenses) ...[
+                  for (final e in expenses)
                     ExpenseTile(
                       expense: e,
                       onTap: () => _open('/expenses/${e.id}/edit'),
                     ),
-                    const SizedBox(height: Space.s2),
-                  ],
                 ],
               ),
       ),
@@ -280,7 +278,7 @@ class ExpenseTile extends StatelessWidget {
     final t = context.tokens;
     final e = expense;
     final hasNote = (e.note ?? '').isNotEmpty;
-    return AppCard(
+    return ListRowSurface(
       onTap: onTap,
       padding: const EdgeInsets.symmetric(
         horizontal: Space.s4,

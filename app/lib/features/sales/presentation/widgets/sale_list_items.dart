@@ -5,7 +5,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/status_pill.dart';
@@ -53,7 +52,7 @@ class SaleTile extends StatelessWidget {
 
     return Opacity(
       opacity: s.isCancelled ? 0.6 : 1,
-      child: AppCard(
+      child: ListRowSurface(
         onTap: onTap,
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,

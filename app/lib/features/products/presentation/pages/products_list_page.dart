@@ -11,7 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/cards.dart';
+import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
@@ -157,16 +157,13 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
                 products: products,
                 onOpen: (p) => _open('/products/${p.id}/edit'),
               )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            : ListGroup(
                 children: [
-                  for (final p in products) ...[
+                  for (final p in products)
                     ProductTile(
                       product: p,
                       onTap: () => _open('/products/${p.id}/edit'),
                     ),
-                    const SizedBox(height: Space.s2),
-                  ],
                 ],
               ),
       ),
@@ -174,30 +171,26 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
   }
 }
 
-/// Tinted brick icon (dimmed when inactive).
+/// Brick icon in a coloured circle (colour from the name; grey when inactive).
 class ProductIcon extends StatelessWidget {
-  const ProductIcon({super.key, this.active = true, this.size = 44});
+  const ProductIcon({
+    super.key,
+    this.seed = '',
+    this.active = true,
+    this.size = 48,
+  });
 
+  final String seed;
   final bool active;
   final double size;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: active ? t.tintAmberBg : t.surfaceVariant,
-        borderRadius: Radii.mdAll,
-      ),
-      child: Icon(
-        Icons.view_module_rounded,
-        size: size * 0.55,
-        color: active ? t.tintAmber : t.textTertiary,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ColorAvatar(
+    seed: seed,
+    icon: Icons.view_module_rounded,
+    size: size,
+    dimmed: !active,
+  );
 }
 
 /// Phone/tablet row: icon · name · "per Piece" · cost → price · margin.
@@ -216,7 +209,7 @@ class ProductTile extends StatelessWidget {
 
     return Opacity(
       opacity: p.isActive ? 1 : 0.6,
-      child: AppCard(
+      child: ListRowSurface(
         onTap: onTap,
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,
@@ -224,7 +217,7 @@ class ProductTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            ProductIcon(active: p.isActive),
+            ProductIcon(seed: p.name, active: p.isActive),
             const SizedBox(width: Space.s3),
             Expanded(
               child: Column(
@@ -328,7 +321,7 @@ class _ProductsTable extends StatelessWidget {
           [
             Row(
               children: [
-                ProductIcon(active: p.isActive, size: 32),
+                ProductIcon(seed: p.name, active: p.isActive, size: 32),
                 const SizedBox(width: Space.s3),
                 Expanded(child: CellText(p.name, strong: true)),
               ],

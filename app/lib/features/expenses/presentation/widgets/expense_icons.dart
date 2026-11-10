@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_tokens.dart';
+import '../../../../core/widgets/list_items.dart';
 
 /// Icon keys a category can use (stored in `expense_categories.icon`).
 const Map<String, IconData> kExpenseIcons = {
@@ -24,19 +23,13 @@ IconData expenseIcon(String? key) =>
 
 /// Category icon in a tinted square.
 class ExpenseIcon extends StatelessWidget {
-  const ExpenseIcon(this.iconKey, {super.key, this.size = 40});
+  const ExpenseIcon(this.iconKey, {super.key, this.size = 48});
 
   final String? iconKey;
   final double size;
 
+  /// A coloured circle; each category icon keeps its own colour.
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(color: t.tintRoseBg, borderRadius: Radii.mdAll),
-      child: Icon(expenseIcon(iconKey), size: size * 0.55, color: t.tintRose),
-    );
-  }
+  Widget build(BuildContext context) =>
+      ColorAvatar(seed: iconKey ?? '', icon: expenseIcon(iconKey), size: size);
 }
