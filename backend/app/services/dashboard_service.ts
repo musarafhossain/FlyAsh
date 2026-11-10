@@ -37,12 +37,7 @@ export default class DashboardService {
       .count('* as count')
       .first()
 
-    const present = await db
-      .from('attendances')
-      .where('date', date)
-      .whereIn('status', ['present', 'half_day'])
-      .count('* as count')
-      .first()
+    const present = await db.from('attendances').where('date', date).count('* as count').first()
 
     const labours = await Labour.activeOn(Labour.query(), date).count('* as total')
 

@@ -2198,83 +2198,11 @@ abstract class AppLocalizations {
   /// **'Present'**
   String get attPresent;
 
-  /// No description provided for @attHalfDay.
-  ///
-  /// In en, this message translates to:
-  /// **'Half day'**
-  String get attHalfDay;
-
   /// No description provided for @attAbsent.
   ///
   /// In en, this message translates to:
   /// **'Absent'**
   String get attAbsent;
-
-  /// No description provided for @attNotMarked.
-  ///
-  /// In en, this message translates to:
-  /// **'Not marked'**
-  String get attNotMarked;
-
-  /// No description provided for @attPresentShort.
-  ///
-  /// In en, this message translates to:
-  /// **'P'**
-  String get attPresentShort;
-
-  /// No description provided for @attHalfDayShort.
-  ///
-  /// In en, this message translates to:
-  /// **'H'**
-  String get attHalfDayShort;
-
-  /// No description provided for @attAbsentShort.
-  ///
-  /// In en, this message translates to:
-  /// **'A'**
-  String get attAbsentShort;
-
-  /// No description provided for @markAllPresent.
-  ///
-  /// In en, this message translates to:
-  /// **'Mark all present'**
-  String get markAllPresent;
-
-  /// No description provided for @saveAttendance.
-  ///
-  /// In en, this message translates to:
-  /// **'Save attendance'**
-  String get saveAttendance;
-
-  /// No description provided for @noChanges.
-  ///
-  /// In en, this message translates to:
-  /// **'No changes'**
-  String get noChanges;
-
-  /// No description provided for @changesCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} changed'**
-  String changesCount(String count);
-
-  /// No description provided for @attendanceSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'Attendance saved for {date}'**
-  String attendanceSaved(String date);
-
-  /// No description provided for @saveChangesFor.
-  ///
-  /// In en, this message translates to:
-  /// **'Save changes for {date}?'**
-  String saveChangesFor(String date);
-
-  /// No description provided for @unsavedAttendance.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} labours changed and not saved yet.'**
-  String unsavedAttendance(String count);
 
   /// No description provided for @todayWithDate.
   ///
@@ -2381,8 +2309,8 @@ abstract class AppLocalizations {
   /// No description provided for @workedDaysLine.
   ///
   /// In en, this message translates to:
-  /// **'Worked (P {present} · H {half} · A {absent})'**
-  String workedDaysLine(String present, String half, String absent);
+  /// **'Present {present} · Absent {absent}'**
+  String workedDaysLine(String present, String absent);
 
   /// No description provided for @payWage.
   ///
@@ -2689,6 +2617,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Good evening'**
   String get goodEvening;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get selectDate;
+
+  /// No description provided for @attendanceCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{present} present · {absent} absent'**
+  String attendanceCount(String present, String absent);
 }
 
 class _AppLocalizationsDelegate

@@ -15,7 +15,7 @@ class Labour {
     required this.joiningDate,
     this.leftDate,
     this.isActive = true,
-    this.todayStatus,
+    this.presentToday = false,
   });
 
   final String id;
@@ -32,8 +32,8 @@ class Labour {
   final String? leftDate;
   final bool isActive;
 
-  /// present | half_day | absent | null (not marked today)
-  final String? todayStatus;
+  /// Marked present today (no mark = absent).
+  final bool presentToday;
 
   bool get isMonthly => wageType == 'monthly';
 
@@ -47,7 +47,7 @@ class Labour {
     joiningDate: json['joining_date'] as String? ?? '',
     leftDate: json['left_date'] as String?,
     isActive: json['is_active'] as bool? ?? true,
-    todayStatus: json['today_status'] as String?,
+    presentToday: json['present_today'] == true,
   );
 }
 
@@ -80,24 +80,24 @@ class LabourInput {
   };
 }
 
-/// One labour's month: the status of every day (GET /labours/:id/attendance).
+/// One labour's month: which days they were present (GET /labours/:id/attendance).
 @immutable
 class LabourMonth {
   const LabourMonth({
     required this.month,
     required this.days,
     required this.present,
-    required this.halfDay,
     required this.absent,
   });
 
   /// "2026-11"
   final String month;
 
-  /// date → status (null = not marked)
-  final Map<String, String?> days;
+  /// date → present
+  final Map<String, bool> days;
   final int present;
-  final int halfDay;
+
+  /// Employed days (up to today) without a present mark.
   final int absent;
 
   factory LabourMonth.fromJson(Json json) {
@@ -107,10 +107,9 @@ class LabourMonth {
       month: json['month'] as String? ?? '',
       days: {
         for (final d in (json['days'] as List<Object?>? ?? const []))
-          (d! as Json)['date']! as String: (d as Json)['status'] as String?,
+          (d! as Json)['date']! as String: (d as Json)['present'] == true,
       },
       present: n('present'),
-      halfDay: n('half_day'),
       absent: n('absent'),
     );
   }
@@ -129,7 +128,11 @@ abstract interface class LaboursRepository {
   Future<Labour> update(String id, LabourInput input);
 
   /// PATCH /labours/:id/status; deactivating sets the leaving date.
-  Future<(Labour, String)> setActive(String id, bool active, {String? leftDate});
+  Future<(Labour, String)> setActive(
+    String id,
+    bool active, {
+    String? leftDate,
+  });
 
   /// GET /labours/:id/attendance?month=YYYY-MM
   Future<LabourMonth> month(String id, String month);

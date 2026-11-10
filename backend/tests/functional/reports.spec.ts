@@ -87,7 +87,7 @@ async function seedOctober(client: any) {
     await client
       .put(`${API}/attendance`)
       .loginAs(user)
-      .json({ date, records: [{ labour_id: labour.body().data.id, status: 'present' }] })
+      .json({ date, records: [{ labour_id: labour.body().data.id, present: true }] })
   }
 
   return { user, customer }

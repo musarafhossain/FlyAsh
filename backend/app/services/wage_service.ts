@@ -6,22 +6,15 @@ import WagePayment from '#models/wage_payment'
 import { fromPaise, toPaise } from '#helpers/money'
 import { daysInMonthOf, monthRange, today } from '#helpers/dates'
 
-/** Present = 1 day, Half day = 0.5, Absent = 0 */
-export function dayValue(status: string) {
-  return status === 'present' ? 1 : status === 'half_day' ? 0.5 : 0
-}
-
 /**
- * Wage earned for one attendance row, in (fractional) paise.
+ * Wage earned for one present day (an attendance row), in (fractional) paise.
  * Uses the wage snapshot stored on the attendance row.
  * Monthly wage → per day = monthly wage ÷ days in that month.
  */
-export function earnedPaise(row: Pick<Attendance, 'status' | 'wageType' | 'wageAmount' | 'date'>) {
-  const rate =
-    row.wageType === 'daily'
-      ? toPaise(row.wageAmount)
-      : toPaise(row.wageAmount) / daysInMonthOf(row.date)
-  return dayValue(row.status) * rate
+export function earnedPaise(row: Pick<Attendance, 'wageType' | 'wageAmount' | 'date'>) {
+  return row.wageType === 'daily'
+    ? toPaise(row.wageAmount)
+    : toPaise(row.wageAmount) / daysInMonthOf(row.date)
 }
 
 export type WageRow = {
@@ -31,10 +24,8 @@ export type WageRow = {
   wage_amount: string
   is_active: boolean
   present_days: number
-  half_days: number
+  /** Employed days so far in the month without a present mark */
   absent_days: number
-  not_marked_days: number
-  worked_days: string
   earned: string
   advances: string
   paid: string
@@ -44,7 +35,7 @@ export type WageRow = {
 
 /**
  * Monthly wages (01-PRD §6.3).
- *   earned  = Σ day value × daily rate (from attendance snapshots)
+ *   earned  = Σ daily rate of each present day (from attendance snapshots)
  *   balance = earned − advances given in the month − payments for the month
  */
 export default class WageService {
@@ -87,7 +78,6 @@ export default class WageService {
       month,
       days: attendances.map((a) => ({
         date: a.date,
-        status: a.status,
         earned: fromPaise(Math.round(earnedPaise(a))),
       })),
       advances,
@@ -131,7 +121,6 @@ export default class WageService {
         .filter((p) => p.labourId === labour.id)
         .reduce((sum, p) => sum + toPaise(p.amount), 0)
       const balance = earned - advanced - paid
-      const worked = mine.reduce((sum, a) => sum + dayValue(a.status), 0)
 
       return {
         labour_id: labour.id,
@@ -139,11 +128,8 @@ export default class WageService {
         wage_type: labour.wageType,
         wage_amount: labour.wageAmount,
         is_active: labour.isActive,
-        present_days: mine.filter((a) => a.status === 'present').length,
-        half_days: mine.filter((a) => a.status === 'half_day').length,
-        absent_days: mine.filter((a) => a.status === 'absent').length,
-        not_marked_days: Math.max(0, this.employedDays(labour, start, end) - mine.length),
-        worked_days: worked.toFixed(2),
+        present_days: mine.length,
+        absent_days: Math.max(0, this.employedDays(labour, start, end) - mine.length),
         earned: fromPaise(earned),
         advances: fromPaise(advanced),
         paid: fromPaise(paid),
@@ -154,7 +140,7 @@ export default class WageService {
   }
 
   /** Days in the month (up to today) on which the labour was employed. */
-  private static employedDays(labour: Labour, start: string, end: string) {
+  static employedDays(labour: Labour, start: string, end: string) {
     const from = [start, labour.joiningDate].sort().at(-1)!
     const to = [end, today(), labour.leftDate ?? end].sort()[0]
     if (to < from) return 0

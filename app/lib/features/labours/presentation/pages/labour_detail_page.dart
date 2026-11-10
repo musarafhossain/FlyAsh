@@ -281,7 +281,7 @@ class _InfoCard extends StatelessWidget {
                     ),
                     const SizedBox(height: Space.s1),
                     lb.isActive
-                        ? TodayPill(lb.todayStatus)
+                        ? TodayPill(lb.presentToday)
                         : StatusPill(l.inactive),
                   ],
                 ),
@@ -371,15 +371,12 @@ class _MonthCalendar extends StatelessWidget {
       l.wkSun,
     ];
 
-    (Color, Color) colors(String? status, bool employed) => switch (status) {
-      'present' => (t.successBg, t.success),
-      'half_day' => (t.warningBg, t.warning),
-      'absent' => (t.errorBg, t.error),
-      _ =>
-        employed
-            ? (t.surfaceVariant, t.textSecondary)
-            : (Colors.transparent, t.textDisabled),
-    };
+    // Present = green; an employed day (up to today) without a mark = absent.
+    (Color, Color) colors(bool present, bool employed) => present
+        ? (t.successBg, t.success)
+        : employed
+        ? (t.errorBg, t.error)
+        : (Colors.transparent, t.textDisabled);
 
     return AppCard(
       child: Column(
@@ -412,15 +409,17 @@ class _MonthCalendar extends StatelessWidget {
               for (var day = 1; day <= daysInMonth; day++)
                 () {
                   final date = '$month-${day.toString().padLeft(2, '0')}';
-                  final status = data.days[date];
+                  final present = data.days[date] ?? false;
                   final employed =
                       date.compareTo(labour.joiningDate) >= 0 &&
                       (labour.leftDate == null ||
                           date.compareTo(labour.leftDate!) <= 0) &&
                       date.compareTo(today) <= 0;
-                  final (bg, fg) = colors(status, employed);
+                  final (bg, fg) = colors(present, employed);
                   return Semantics(
-                    label: '${Fmt.date(date)}: ${l.attendanceText(status)}',
+                    label: employed || present
+                        ? '${Fmt.date(date)}: ${l.attendanceText(present)}'
+                        : Fmt.date(date),
                     excludeSemantics: true,
                     child: Container(
                       alignment: Alignment.center,
@@ -435,7 +434,9 @@ class _MonthCalendar extends StatelessWidget {
                         '$day',
                         style: AppTypography.label.copyWith(
                           color: fg,
-                          fontWeight: status != null ? FontWeight.w700 : null,
+                          fontWeight: employed || present
+                              ? FontWeight.w700
+                              : null,
                         ),
                       ),
                     ),
@@ -451,10 +452,6 @@ class _MonthCalendar extends StatelessWidget {
               _Legend(
                 color: t.success,
                 label: '${l.attPresent} ${data.present}',
-              ),
-              _Legend(
-                color: t.warning,
-                label: '${l.attHalfDay} ${data.halfDay}',
               ),
               _Legend(color: t.error, label: '${l.attAbsent} ${data.absent}'),
             ],

@@ -14,33 +14,39 @@ Map<String, Object?> body(RequestOptions o) =>
     (o.data is String ? jsonDecode(o.data as String) : o.data)
         as Map<String, Object?>;
 
-/// In-memory attendance per date for three labours.
+/// In-memory attendance per date for three labours: a present labour has a
+/// row, an absent one has none.
 class FakeAttendance {
   FakeAttendance({this.empty = false});
 
   final bool empty;
+  bool fail = false;
   final requests = <RequestOptions>[];
-  final Map<String, Map<int, String?>> days = {
-    '2026-11-09': {9: 'present', 12: null, 1: null},
-    '2026-11-08': {9: 'present', 12: 'absent', 1: 'half_day'},
+  final Map<String, Set<String>> present = {
+    '2026-11-09': {'9'},
+    '2026-11-08': {'9', '1'},
   };
 
-  static const names = {9: 'Abdul Karim', 12: 'Asit Roy', 1: 'Kartik Mondal'};
+  static const names = {
+    '9': 'Abdul Karim',
+    '12': 'Asit Roy',
+    '1': 'Kartik Mondal',
+  };
 
   Map<String, Object?> _day(String date) {
-    final d = days.putIfAbsent(date, () => {9: null, 12: null, 1: null});
+    final p = present.putIfAbsent(date, () => {});
     return {
       'date': date,
       'items': empty
           ? const []
           : [
-              for (final e in d.entries)
+              for (final id in names.keys)
                 {
-                  'labour_id': e.key,
-                  'name': names[e.key],
-                  'wage_type': e.key == 1 ? 'monthly' : 'daily',
-                  'wage_amount': e.key == 1 ? '15000.00' : '450.00',
-                  'status': e.value,
+                  'labour_id': id,
+                  'name': names[id],
+                  'wage_type': id == '1' ? 'monthly' : 'daily',
+                  'wage_amount': id == '1' ? '15000.00' : '450.00',
+                  'present': p.contains(id),
                 },
             ],
     };
@@ -55,16 +61,17 @@ class FakeAttendance {
     'PUT /attendance': (o) {
       final b = body(o);
       final date = b['date']! as String;
-      if (date == '2026-11-01') {
+      if (fail || date == '2026-11-01') {
         return (
           400,
-          envelope(400, 'Labour(s) 1 were not employed on 2026-11-01', null),
+          envelope(400, 'Labour(s) 1 were not employed on $date', null),
           {},
         );
       }
-      final d = days[date]!;
+      final p = present.putIfAbsent(date, () => {});
       for (final r in (b['records']! as List).cast<Map<String, Object?>>()) {
-        d[int.parse('${r['labour_id']}')] = r['status'] as String?;
+        final id = '${r['labour_id']}';
+        r['present'] == true ? p.add(id) : p.remove(id);
       }
       return (200, envelope(200, 'Attendance saved for $date', _day(date)), {});
     },
@@ -95,158 +102,133 @@ Future<void> openAttendance(
   await tester.pumpAndSettle();
 }
 
-Finder toggle(String name, String status) =>
-    find.bySemanticsLabel('$name: $status');
+/// The switch on the row of [name].
+Finder switchOf(String name) => find.descendant(
+  of: find.ancestor(of: find.text(name), matching: find.byType(InkWell)).first,
+  matching: find.byType(Switch),
+);
 
-Future<void> tapToggle(WidgetTester tester, String name, String status) async {
-  await tester.ensureVisible(toggle(name, status));
+bool isOn(WidgetTester tester, String name) =>
+    tester.widget<Switch>(switchOf(name)).value;
+
+Future<void> flip(WidgetTester tester, String name) async {
+  await tester.ensureVisible(switchOf(name));
   await tester.pumpAndSettle();
-  await tester.tap(toggle(name, status));
+  await tester.tap(switchOf(name));
+  await tester.pumpAndSettle();
 }
 
 RequestOptions lastGet() =>
     api.requests.lastWhere((r) => r.method == 'GET' && r.path == '/attendance');
 
+List<RequestOptions> puts() => api.requests
+    .where((r) => r.method == 'PUT' && r.path == '/attendance')
+    .toList();
+
 void main() {
-  testWidgets('today: ring, tiles, P/H/A, save sends only the changes', (
+  testWidgets('today: names, wages, switches; no Save button, no half day', (
     tester,
   ) async {
     await openAttendance(tester);
     expect(lastGet().queryParameters['date'], '2026-11-09');
     expect(find.text('Today, 09 Nov 2026'), findsOneWidget);
-    expect(find.text('1/3'), findsOneWidget); // ring: present / total
-    expect(find.text('No changes'), findsOneWidget);
-
-    await tapToggle(tester, 'Asit Roy', 'Half day');
-    await tapToggle(tester, 'Kartik Mondal', 'Absent');
-    await tester.pumpAndSettle();
-    expect(find.text('2 changed'), findsOneWidget);
-
-    // Tapping the chosen one again clears it
-    await tapToggle(tester, 'Kartik Mondal', 'Absent');
-    await tester.pumpAndSettle();
-    expect(find.text('1 changed'), findsOneWidget);
-    await tapToggle(tester, 'Kartik Mondal', 'Absent');
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.widgetWithText(FilledButton, 'Save attendance'));
-    await tester.pumpAndSettle();
-    final put = api.requests.lastWhere((r) => r.method == 'PUT');
-    expect(body(put), {
-      'date': '2026-11-09',
-      'records': [
-        {'labour_id': '12', 'status': 'half_day'},
-        {'labour_id': '1', 'status': 'absent'},
-      ],
-    });
-    expect(find.text('Attendance saved for 09 Nov 2026'), findsOneWidget);
-    expect(find.text('No changes'), findsOneWidget);
+    expect(find.text('Select date'), findsOneWidget);
+    expect(find.text('Asit Roy'), findsOneWidget);
+    expect(find.text('₹450 / day'), findsNWidgets(2));
+    expect(find.text('₹15,000 / month'), findsOneWidget);
+    expect(find.text('1 present · 2 absent'), findsOneWidget);
+    expect(find.byType(Switch), findsNWidgets(3));
+    expect(isOn(tester, 'Abdul Karim'), isTrue);
+    expect(isOn(tester, 'Asit Roy'), isFalse);
+    expect(find.textContaining('Save'), findsNothing);
+    expect(find.textContaining('Half'), findsNothing);
   });
 
-  testWidgets('Mark all present, then clearing a saved day sends null', (
+  testWidgets('a switch saves at once: on = present, off = absent', (
     tester,
   ) async {
     await openAttendance(tester);
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Mark all present'));
-    await tester.pumpAndSettle();
-    expect(find.text('3/3'), findsOneWidget);
-    expect(find.text('2 changed'), findsOneWidget);
 
-    await tapToggle(tester, 'Abdul Karim', 'Present'); // was saved present
+    await flip(tester, 'Asit Roy');
+    expect(isOn(tester, 'Asit Roy'), isTrue);
+    expect(body(puts().last), {
+      'date': '2026-11-09',
+      'records': [
+        {'labour_id': '12', 'present': true},
+      ],
+    });
+    expect(api.present['2026-11-09'], {'9', '12'});
+    expect(find.text('2 present · 1 absent'), findsOneWidget);
+
+    await flip(tester, 'Abdul Karim');
+    expect(isOn(tester, 'Abdul Karim'), isFalse);
+    expect(body(puts().last)['records'], [
+      {'labour_id': '9', 'present': false},
+    ]);
+    expect(api.present['2026-11-09'], {'12'});
+
+    // Tapping the name flips it too
+    await tester.tap(find.text('Kartik Mondal'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Save attendance'));
-    await tester.pumpAndSettle();
-    final records = body(
-      api.requests.lastWhere((r) => r.method == 'PUT'),
-    )['records'];
+    expect(isOn(tester, 'Kartik Mondal'), isTrue);
+    expect(puts(), hasLength(3));
+  });
+
+  testWidgets('a refused save puts the switch back and shows the message', (
+    tester,
+  ) async {
+    await openAttendance(tester);
+    api.fail = true;
+    await flip(tester, 'Asit Roy');
+    expect(isOn(tester, 'Asit Roy'), isFalse);
     expect(
-      records,
-      containsAll([
-        {'labour_id': '9', 'status': null},
-        {'labour_id': '12', 'status': 'present'},
-        {'labour_id': '1', 'status': 'present'},
-      ]),
+      find.text('Labour(s) 1 were not employed on 2026-11-09'),
+      findsOneWidget,
     );
+  });
+
+  testWidgets('search filters the names', (tester) async {
+    await openAttendance(tester);
+    await tester.enterText(find.byType(TextField), 'kart');
+    await tester.pumpAndSettle();
+    expect(find.text('Kartik Mondal'), findsOneWidget);
+    expect(find.text('Asit Roy'), findsNothing);
+    await tester.enterText(find.byType(TextField), 'zzz');
+    await tester.pumpAndSettle();
+    expect(find.text('No results found'), findsOneWidget);
   });
 
   testWidgets('no future: › is off today; ‹ loads yesterday', (tester) async {
     await openAttendance(tester);
-    expect(
-      tester
-          .widget<IconButton>(
-            find.ancestor(
-              of: find.byIcon(Icons.chevron_right),
-              matching: find.byType(IconButton),
-            ),
-          )
-          .onPressed,
-      isNull,
+    final next = find.ancestor(
+      of: find.byTooltip('Next'),
+      matching: find.byType(IconButton),
     );
-    await tester.ensureVisible(find.byTooltip('Previous'));
-    await tester.pumpAndSettle();
+    expect(tester.widget<IconButton>(next).onPressed, isNull);
+
     await tester.tap(find.byTooltip('Previous'));
     await tester.pumpAndSettle();
     expect(lastGet().queryParameters['date'], '2026-11-08');
     expect(find.text('Yesterday, 08 Nov 2026'), findsOneWidget);
-    expect(find.text('2/3'), findsNothing);
-    expect(find.text('1/3'), findsOneWidget);
-  });
+    expect(isOn(tester, 'Kartik Mondal'), isTrue);
+    expect(isOn(tester, 'Asit Roy'), isFalse);
 
-  testWidgets('unsaved changes + date change asks: Cancel, Discard, Save', (
-    tester,
-  ) async {
-    await openAttendance(tester);
-    await tapToggle(tester, 'Asit Roy', 'Present');
-    await tester.pumpAndSettle();
+    // A switch on yesterday saves for yesterday
+    await flip(tester, 'Asit Roy');
+    expect(body(puts().last)['date'], '2026-11-08');
 
-    await tester.ensureVisible(find.byTooltip('Previous'));
+    await tester.tap(next);
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Previous'));
-    await tester.pumpAndSettle();
-    expect(find.text('Save changes for 09 Nov 2026?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
-    await tester.pumpAndSettle();
-    expect(find.text('Today, 09 Nov 2026'), findsOneWidget);
-    expect(find.text('1 changed'), findsOneWidget);
-
-    await tester.ensureVisible(find.byTooltip('Previous'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Previous'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
-    expect(api.days['2026-11-09']![12], 'present');
-    expect(find.text('Yesterday, 08 Nov 2026'), findsOneWidget);
-
-    await tapToggle(tester, 'Asit Roy', 'Present');
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byTooltip('Next'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Next'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Discard'));
-    await tester.pumpAndSettle();
-    expect(api.days['2026-11-08']![12], 'absent', reason: 'not saved');
     expect(find.text('Today, 09 Nov 2026'), findsOneWidget);
   });
 
-  testWidgets('?date= opens that day; a server refusal shows its message', (
+  testWidgets('?date= opens that day; a future ?date= falls back to today', (
     tester,
   ) async {
-    await openAttendance(tester, location: '/attendance?date=2026-11-01');
-    expect(lastGet().queryParameters['date'], '2026-11-01');
-    await tapToggle(tester, 'Kartik Mondal', 'Present');
+    await openAttendance(tester, location: '/attendance?date=2026-11-08');
+    expect(lastGet().queryParameters['date'], '2026-11-08');
+    testContainer.read(routerProvider).go('/home');
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Save attendance'));
-    await tester.pumpAndSettle();
-    expect(
-      find.text('Labour(s) 1 were not employed on 2026-11-01'),
-      findsOneWidget,
-    );
-    expect(find.text('1 changed'), findsOneWidget, reason: 'kept on screen');
-  });
-
-  testWidgets('a future ?date= falls back to today', (tester) async {
     await openAttendance(tester, location: '/attendance?date=2099-01-01');
     expect(lastGet().queryParameters['date'], '2026-11-09');
   });
@@ -257,7 +239,7 @@ void main() {
     await openAttendance(tester, empty: true);
     expect(find.text('No labours on this date'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Add labour'), findsOneWidget);
-    expect(find.text('Save attendance'), findsNothing);
+    expect(find.byType(Switch), findsNothing);
   });
 
   for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {

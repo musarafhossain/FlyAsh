@@ -33,7 +33,7 @@ export class AppVersionSchema extends BaseModel {
 }
 
 export class AttendanceSchema extends BaseModel {
-  static $columns = ['createdAt', 'createdBy', 'date', 'id', 'labourId', 'status', 'updatedAt', 'wageAmount', 'wageType'] as const
+  static $columns = ['createdAt', 'createdBy', 'date', 'id', 'labourId', 'updatedAt', 'wageAmount', 'wageType'] as const
   $columns = AttendanceSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -45,8 +45,6 @@ export class AttendanceSchema extends BaseModel {
   declare id: string
   @column()
   declare labourId: string
-  @column()
-  declare status: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @column()

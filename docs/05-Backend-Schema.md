@@ -221,12 +221,13 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 
 ### 3.11 `attendances`
 
+A row means the labour was **present** that day. No row means absent (there is no half day).
+
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
 | id | CHAR(36) PK (UUID v7) | | app | |
 | labour_id | CHAR(36) FK → labours.id | no | | |
 | date | DATE | no | | ≤ today |
-| status | VARCHAR(20) | no | | `present` · `half_day` · `absent` |
 | wage_type | VARCHAR(20) | no | | Snapshot from the labour on save |
 | wage_amount | DECIMAL(12,2) | no | | Snapshot from the labour on save |
 | created_by | CHAR(36) FK → users.id | yes | NULL | Last user who saved this day |
@@ -323,13 +324,10 @@ payment_status = paid_amount = 0 ? 'due' : (due_amount = 0 ? 'paid' : 'partial')
 ### 4.2 Monthly wage sheet (`WageService`)
 
 ```sql
+-- absent_days = employed days in the month (up to today) − present_days
 SELECT a.labour_id,
-  SUM(a.status = 'present')                           AS present_days,
-  SUM(a.status = 'half_day')                          AS half_days,
-  SUM(a.status = 'absent')                            AS absent_days,
-  SUM(CASE a.status WHEN 'present' THEN 1 WHEN 'half_day' THEN 0.5 ELSE 0 END) AS worked_days,
-  SUM(CASE a.status WHEN 'present' THEN 1 WHEN 'half_day' THEN 0.5 ELSE 0 END
-      * IF(a.wage_type = 'daily', a.wage_amount, a.wage_amount / DAY(LAST_DAY(a.date)))) AS earned
+  COUNT(*) AS present_days,
+  SUM(IF(a.wage_type = 'daily', a.wage_amount, a.wage_amount / DAY(LAST_DAY(a.date)))) AS earned
 FROM attendances a
 WHERE a.date BETWEEN :month_start AND :month_end
 GROUP BY a.labour_id;
@@ -497,17 +495,19 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 // Labour
 { "id": 5, "name": "Kartik Mondal", "phone": "9123456780", "address": null, "wage_type": "daily",
   "wage_amount": "500.00", "joining_date": "2026-06-01", "left_date": null, "is_active": true,
-  "today_status": "present" }
+  "present_today": true }
 
 // AttendanceDay (not paginated: all labours active on that date)
 { "date": "2026-11-08",
-  "summary": { "total": 15, "present": 12, "half_day": 1, "absent": 1, "not_marked": 1 },
-  "items": [ { "labour_id": 5, "name": "Kartik Mondal", "wage_type": "daily", "status": "present" },
-             { "labour_id": 6, "name": "Sujit Das", "wage_type": "monthly", "status": null } ] }
+  "summary": { "total": 15, "present": 12, "absent": 3 },
+  "items": [ { "labour_id": "01a1…", "name": "Kartik Mondal", "wage_type": "daily", "present": true },
+             { "labour_id": "01a2…", "name": "Sujit Das", "wage_type": "monthly", "present": false } ] }
+// PUT /attendance { "date": "2026-11-08", "records": [ { "labour_id": "01a1…", "present": true } ] }
+// present → row saved (wage snapshot); false → row removed. The app saves one switch at a time.
 
 // WageRow
 { "labour_id": 5, "name": "Kartik Mondal", "wage_type": "daily", "wage_amount": "500.00",
-  "present_days": 22, "half_days": 2, "absent_days": 3, "not_marked_days": 0, "worked_days": "23.00",
+  "present_days": 23, "absent_days": 3,
   "earned": "11500.00", "advances": "2000.00", "paid": "5000.00", "balance": "4500.00", "status": "partial" }
 ```
 

@@ -16,23 +16,18 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       (await _api.get('/attendance', query: {'date': date}, parse: _day)).data;
 
   @override
-  Future<(AttendanceDay, String)> save(
-    String date,
-    Map<String, String?> statuses,
-  ) async {
-    final res = await _api.put(
-      '/attendance',
-      body: {
-        'date': date,
-        'records': [
-          for (final e in statuses.entries)
-            {'labour_id': e.key, 'status': e.value},
-        ],
-      },
-      parse: _day,
-    );
-    return (res.data, res.message);
-  }
+  Future<AttendanceDay> save(String date, Map<String, bool> present) async =>
+      (await _api.put(
+        '/attendance',
+        body: {
+          'date': date,
+          'records': [
+            for (final e in present.entries)
+              {'labour_id': e.key, 'present': e.value},
+          ],
+        },
+        parse: _day,
+      )).data;
 }
 
 final attendanceRepositoryProvider = Provider<AttendanceRepository>(

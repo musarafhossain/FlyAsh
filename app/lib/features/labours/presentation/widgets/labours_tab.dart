@@ -165,20 +165,17 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
   }
 }
 
-/// Today's attendance as a pill ("Present", "Not marked" …).
+/// Today's attendance as a pill: "Present" (green) or "Absent".
 class TodayPill extends StatelessWidget {
-  const TodayPill(this.status, {super.key});
+  const TodayPill(this.present, {super.key});
 
-  final String? status;
+  final bool present;
 
   @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return StatusPill(
-      l.attendanceText(status),
-      tone: status == null ? StatusTone.neutral : StatusPill.toneFor(status!),
-    );
-  }
+  Widget build(BuildContext context) => StatusPill(
+    context.l10n.attendanceText(present),
+    tone: present ? StatusTone.success : StatusTone.neutral,
+  );
 }
 
 /// Phone/tablet row: avatar · name · wage | today's status.
@@ -233,7 +230,7 @@ class LabourTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: Space.s2),
-            lb.isActive ? TodayPill(lb.todayStatus) : StatusPill(l.inactive),
+            lb.isActive ? TodayPill(lb.presentToday) : StatusPill(l.inactive),
           ],
         ),
       ),
@@ -271,7 +268,7 @@ class _LaboursTable extends StatelessWidget {
             CellText(lb.phone ?? '—'),
             CellText(l.wageText(lb.wageType, lb.wageAmount)),
             CellText(Fmt.date(lb.joiningDate)),
-            lb.isActive ? TodayPill(lb.todayStatus) : StatusPill(l.inactive),
+            lb.isActive ? TodayPill(lb.presentToday) : StatusPill(l.inactive),
           ],
       ],
       onTapRow: (i) => onOpen(labours[i]),

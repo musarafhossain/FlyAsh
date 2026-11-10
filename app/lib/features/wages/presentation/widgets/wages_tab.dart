@@ -23,9 +23,9 @@ import '../../../sales/presentation/sale_labels.dart';
 import '../../data/wages_repository_impl.dart';
 import '../../domain/wages.dart';
 
-/// "26 days" (worked days; half days count 0.5).
-String daysText(AppLocalizations l, String workedDays) =>
-    l.daysWorked(Fmt.count(workedDays));
+/// "26 days" (days present).
+String daysText(AppLocalizations l, int presentDays) =>
+    l.daysWorked(Fmt.count('$presentDays'));
 
 /// Balance in red while something is owed; "—" when settled.
 class BalanceText extends StatelessWidget {
@@ -241,7 +241,7 @@ class _WageTile extends StatelessWidget {
                   style: AppTypography.title.copyWith(color: t.textPrimary),
                 ),
                 Text(
-                  '${daysText(l, row.workedDays)} · '
+                  '${daysText(l, row.presentDays)} · '
                   '${l.earnedAmount(Fmt.money(row.earned))}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -294,7 +294,7 @@ class _WagesTable extends StatelessWidget {
                 Expanded(child: CellText(r.name, strong: true)),
               ],
             ),
-            CellText(Fmt.count(r.workedDays)),
+            CellText(Fmt.count('${r.presentDays}')),
             CellText(Fmt.money(r.earned)),
             CellText(Fmt.money(r.advances)),
             CellText(Fmt.money(r.paid)),

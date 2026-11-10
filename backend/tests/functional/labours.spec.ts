@@ -1,4 +1,5 @@
 import { test } from '@japa/runner'
+import Attendance from '#models/attendance'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { API, createUser } from '#tests/helpers'
 
@@ -25,7 +26,7 @@ test.group('Labours & attendance', (group) => {
       wage_amount: 500,
       joining_date: '2026-10-01',
     })
-    assert.containsSubset(labour, { wage_amount: '500.00', is_active: true, today_status: null })
+    assert.containsSubset(labour, { wage_amount: '500.00', is_active: true, present_today: false })
 
     const status = await client
       .patch(`${API}/labours/${labour.id}/status`)
@@ -59,22 +60,31 @@ test.group('Labours & attendance', (group) => {
     })
 
     const day = await mark(client, user, '2026-10-02', [
-      { labour_id: a.id, status: 'present' },
-      { labour_id: b.id, status: 'half_day' },
+      { labour_id: a.id, present: true },
+      { labour_id: b.id, present: true },
     ])
-    assert.containsSubset(day.summary, { present: 1, half_day: 1 })
+    assert.containsSubset(day.summary, { total: 2, present: 2, absent: 0 })
+    assert.isTrue(day.items.find((i: any) => i.labour_id === a.id).present)
     assert.notInclude(
       day.items.map((i: any) => i.labour_id),
       late.id
     )
 
-    const cleared = await mark(client, user, '2026-10-02', [{ labour_id: b.id, status: null }])
-    assert.equal(cleared.items.find((i: any) => i.labour_id === b.id).status, null)
+    // Absent removes the row; marking present twice keeps one row
+    const absent = await mark(client, user, '2026-10-02', [{ labour_id: b.id, present: false }])
+    assert.isFalse(absent.items.find((i: any) => i.labour_id === b.id).present)
+    assert.containsSubset(absent.summary, { present: 1, absent: 1 })
+    await mark(client, user, '2026-10-02', [{ labour_id: a.id, present: true }])
+    const rows = await Attendance.query().where('date', '2026-10-02')
+    assert.deepEqual(
+      rows.map((r) => r.labourId),
+      [a.id]
+    )
 
     const notEmployed = await client
       .put(`${API}/attendance`)
       .loginAs(user)
-      .json({ date: '2026-10-02', records: [{ labour_id: late.id, status: 'present' }] })
+      .json({ date: '2026-10-02', records: [{ labour_id: late.id, present: true }] })
     notEmployed.assertStatus(400)
 
     const future = await client
@@ -88,13 +98,18 @@ test.group('Labours & attendance', (group) => {
       .loginAs(user)
     assert.lengthOf(calendar.body().data.days, 31)
     assert.equal(calendar.body().data.summary.present, 1)
+    assert.isTrue(calendar.body().data.days[1].present) // 2 Oct
+    assert.isFalse(calendar.body().data.days[0].present)
   })
 })
 
 test.group('Wages', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('daily wage: half day, advances, payments, balance, status', async ({ client, assert }) => {
+  test('daily wage: present days, absent days, advances, payments, balance', async ({
+    client,
+    assert,
+  }) => {
     const user = await createUser()
     const labour = await addLabour(client, user, {
       name: 'Daily Worker',
@@ -103,17 +118,17 @@ test.group('Wages', (group) => {
       joining_date: '2026-10-01',
     })
 
-    await mark(client, user, '2026-10-01', [{ labour_id: labour.id, status: 'present' }])
-    await mark(client, user, '2026-10-02', [{ labour_id: labour.id, status: 'half_day' }])
-    await mark(client, user, '2026-10-03', [{ labour_id: labour.id, status: 'absent' }])
+    await mark(client, user, '2026-10-01', [{ labour_id: labour.id, present: true }])
+    await mark(client, user, '2026-10-02', [{ labour_id: labour.id, present: true }])
+    await mark(client, user, '2026-10-03', [{ labour_id: labour.id, present: false }])
 
     let sheet = await client.get(`${API}/wages?month=2026-10`).loginAs(user)
     let row = sheet.body().data.items.find((r: any) => r.labour_id === labour.id)
     assert.containsSubset(row, {
-      worked_days: '1.50',
-      earned: '750.00',
+      present_days: 2,
+      absent_days: 29, // October so far (today is after October): 31 − 2
+      earned: '1000.00',
       status: 'due',
-      not_marked_days: 28,
     })
 
     const adv = await client
@@ -133,13 +148,13 @@ test.group('Wages', (group) => {
     assert.containsSubset(row, {
       advances: '200.00',
       paid: '300.00',
-      balance: '250.00',
+      balance: '500.00',
       status: 'partial',
     })
     assert.property(sheet.body().data, 'totals')
 
     const detail = await client.get(`${API}/labours/${labour.id}/wages?month=2026-10`).loginAs(user)
-    assert.lengthOf(detail.body().data.days, 3)
+    assert.lengthOf(detail.body().data.days, 2)
     assert.lengthOf(detail.body().data.advances, 1)
     assert.equal(detail.body().data.payments[0].created_by.id, user.id)
   })
@@ -157,8 +172,8 @@ test.group('Wages', (group) => {
       joining_date: '2026-10-01',
     })
 
-    await mark(client, user, '2026-10-01', [{ labour_id: labour.id, status: 'present' }])
-    await mark(client, user, '2026-10-02', [{ labour_id: labour.id, status: 'present' }])
+    await mark(client, user, '2026-10-01', [{ labour_id: labour.id, present: true }])
+    await mark(client, user, '2026-10-02', [{ labour_id: labour.id, present: true }])
 
     // Wage doubles: only newly saved days use the new wage
     const update = await client.put(`${API}/labours/${labour.id}`).loginAs(user).json({
@@ -169,11 +184,12 @@ test.group('Wages', (group) => {
     })
     update.assertStatus(200)
 
-    await mark(client, user, '2026-10-03', [{ labour_id: labour.id, status: 'present' }]) // 2000
-    await mark(client, user, '2026-10-01', [{ labour_id: labour.id, status: 'half_day' }]) // 500 (old snapshot)
+    await mark(client, user, '2026-10-03', [{ labour_id: labour.id, present: true }]) // 2000
+    // Marking an already present day again keeps its old snapshot
+    await mark(client, user, '2026-10-01', [{ labour_id: labour.id, present: true }]) // 1000
 
     const detail = await client.get(`${API}/labours/${labour.id}/wages?month=2026-10`).loginAs(user)
-    // 500 + 1000 + 2000
-    assert.equal(detail.body().data.earned, '3500.00')
+    // 1000 + 1000 + 2000
+    assert.equal(detail.body().data.earned, '4000.00')
   })
 })

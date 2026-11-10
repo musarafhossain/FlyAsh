@@ -199,11 +199,10 @@ export default class extends BaseSeeder {
     for (let d = 60; d >= 1; d--) {
       const date = days(d)
       for (const labour of labours) {
-        const roll = this.random()
+        if (this.random() >= 0.88) continue // absent: no row
         await Attendance.create({
           labourId: labour.id,
           date,
-          status: roll < 0.85 ? 'present' : roll < 0.93 ? 'half_day' : 'absent',
           wageType: labour.wageType,
           wageAmount: labour.wageAmount,
           createdBy: userId,

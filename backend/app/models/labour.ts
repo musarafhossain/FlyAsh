@@ -28,11 +28,11 @@ export default class Labour extends compose(LabourSchema, withUuid) {
     })
   }
 
-  /** API shape: model fields + today's attendance status (when selected as an extra). */
+  /** API shape: model fields + whether they are marked present today (when selected as an extra). */
   toResponse() {
     return {
       ...this.serialize(),
-      today_status: this.$extras.today_status ?? null,
+      present_today: Boolean(Number(this.$extras.present_today ?? 0)),
     }
   }
 }

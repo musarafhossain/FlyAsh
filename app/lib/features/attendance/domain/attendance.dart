@@ -2,9 +2,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/network/api_response.dart';
 
-/// Attendance statuses, in the order of the P / H / A toggle.
-const kAttendanceStatuses = ['present', 'half_day', 'absent'];
-
 /// One labour on the attendance sheet.
 @immutable
 class AttendanceEntry {
@@ -13,7 +10,7 @@ class AttendanceEntry {
     required this.name,
     required this.wageType,
     required this.wageAmount,
-    this.status,
+    this.present = false,
   });
 
   final String labourId;
@@ -21,15 +18,15 @@ class AttendanceEntry {
   final String wageType;
   final String wageAmount;
 
-  /// present | half_day | absent | null (not marked)
-  final String? status;
+  /// Present = a row is saved for that day; absent = no row.
+  final bool present;
 
   factory AttendanceEntry.fromJson(Json json) => AttendanceEntry(
     labourId: idOf(json['labour_id']),
     name: json['name'] as String? ?? '',
     wageType: json['wage_type'] as String? ?? 'daily',
     wageAmount: '${json['wage_amount'] ?? '0'}',
-    status: json['status'] as String?,
+    present: json['present'] == true,
   );
 }
 
@@ -55,7 +52,7 @@ abstract interface class AttendanceRepository {
   /// GET /attendance?date
   Future<AttendanceDay> day(String date);
 
-  /// PUT /attendance → the saved day and the message. A null status clears
-  /// that labour's day.
-  Future<(AttendanceDay, String)> save(String date, Map<String, String?> statuses);
+  /// PUT /attendance: labour id → present (true) or absent (false).
+  /// Returns the saved day.
+  Future<AttendanceDay> save(String date, Map<String, bool> present);
 }

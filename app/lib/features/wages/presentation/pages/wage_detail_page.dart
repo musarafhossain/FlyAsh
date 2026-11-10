@@ -239,15 +239,9 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
         title: l.wageBreakdown,
         lines: [
           SummaryLine(
-            l.workedDaysLine(
-              '${r.presentDays}',
-              '${r.halfDays}',
-              '${r.absentDays}',
-            ),
-            daysText(l, r.workedDays),
+            l.workedDaysLine('${r.presentDays}', '${r.absentDays}'),
+            daysText(l, r.presentDays),
           ),
-          if (r.notMarkedDays > 0)
-            SummaryLine(l.attNotMarked, '${r.notMarkedDays}'),
           SummaryLine(l.earned, money(r.earned), emphasis: true),
           SummaryLine(l.advances, '− ${money(r.advances)}'),
           SummaryLine(l.paid, '− ${money(r.paid)}', color: t.success),
@@ -359,14 +353,9 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
                       ),
                       Expanded(
                         child: Text(
-                          l.attendanceText(day.status),
+                          l.attendanceText(true),
                           style: AppTypography.caption.copyWith(
-                            color: switch (day.status) {
-                              'present' => t.success,
-                              'half_day' => t.warning,
-                              'absent' => t.error,
-                              _ => t.textTertiary,
-                            },
+                            color: t.success,
                           ),
                         ),
                       ),

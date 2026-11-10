@@ -110,7 +110,7 @@ export default class LaboursController {
       .select('labours.*')
       .select(
         db.raw(
-          '(SELECT a.status FROM attendances a WHERE a.labour_id = labours.id AND a.date = ?) AS today_status',
+          'EXISTS (SELECT 1 FROM attendances a WHERE a.labour_id = labours.id AND a.date = ?) AS present_today',
           [today()]
         )
       )

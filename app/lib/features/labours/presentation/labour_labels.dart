@@ -8,18 +8,6 @@ extension LabourLabels on AppLocalizations {
       ? perMonth(Fmt.money(amount))
       : perDay(Fmt.money(amount));
 
-  /// present | half_day | absent | null
-  String attendanceText(String? status) => switch (status) {
-    'present' => attPresent,
-    'half_day' => attHalfDay,
-    'absent' => attAbsent,
-    _ => attNotMarked,
-  };
-
-  /// One letter for the P / H / A toggle.
-  String attendanceLetter(String status) => switch (status) {
-    'present' => attPresentShort,
-    'half_day' => attHalfDayShort,
-    _ => attAbsentShort,
-  };
+  /// "Present" or "Absent".
+  String attendanceText(bool present) => present ? attPresent : attAbsent;
 }

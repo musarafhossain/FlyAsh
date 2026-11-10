@@ -5,13 +5,14 @@ import Labour from '#models/labour'
 import Attendance from '#models/attendance'
 import AppError from '#exceptions/app_error'
 import { ok } from '#helpers/api_response'
+import WageService from '#services/wage_service'
 import { currentMonth, monthRange, today } from '#helpers/dates'
 import { attendanceDayValidator, monthValidator, saveAttendanceValidator } from '#validators/labour'
 
 export default class AttendanceController {
   /**
-   * GET /attendance?date=YYYY-MM-DD: all labours employed on that date with
-   * their saved status (null = not marked).
+   * GET /attendance?date=YYYY-MM-DD: all labours employed on that date and
+   * whether each is present.
    */
   async show({ request, response }: HttpContext) {
     const { date = today() } = await request.validateUsing(attendanceDayValidator)
@@ -19,9 +20,9 @@ export default class AttendanceController {
   }
 
   /**
-   * PUT /attendance { date, records: [{ labour_id, status }] }
-   * New rows store the labour's current wage as a snapshot; existing rows
-   * keep their snapshot and only change status. status null clears the day.
+   * PUT /attendance { date, records: [{ labour_id, present }] }
+   * present → a row is saved with the labour's current wage as a snapshot
+   * (an existing row keeps its snapshot); absent → the row is removed.
    */
   async save({ auth, request, response }: HttpContext) {
     const { date, records } = await request.validateUsing(saveAttendanceValidator)
@@ -43,21 +44,14 @@ export default class AttendanceController {
           .where('date', date)
           .first()
 
-        if (record.status === null) {
+        if (!record.present) {
           if (existing) await existing.delete()
-          continue
-        }
-
-        if (existing) {
-          existing.merge({ status: record.status, createdBy: userId })
-          await existing.save()
-        } else {
+        } else if (!existing) {
           const labour = byId.get(record.labour_id)!
           await Attendance.create(
             {
               labourId: labour.id,
               date,
-              status: record.status,
               wageType: labour.wageType,
               wageAmount: labour.wageAmount,
               createdBy: userId,
@@ -73,6 +67,7 @@ export default class AttendanceController {
 
   /**
    * GET /labours/:id/attendance?month=YYYY-MM: one labour's calendar.
+   * Absent = an employed day (up to today) without a present mark.
    */
   async labourMonth({ params, request, response }: HttpContext) {
     const labour = await Labour.findOrFail(params.id)
@@ -82,12 +77,12 @@ export default class AttendanceController {
     const rows = await Attendance.query()
       .where('labour_id', labour.id)
       .whereBetween('date', [start, end])
-    const byDate = new Map(rows.map((r) => [r.date, r.status]))
+    const presentOn = new Set(rows.map((r) => r.date))
 
-    const days: { date: string; status: string | null }[] = []
+    const days: { date: string; present: boolean }[] = []
     for (let d = DateTime.fromISO(start); d.toISODate()! <= end; d = d.plus({ days: 1 })) {
       const date = d.toISODate()!
-      days.push({ date, status: byDate.get(date) ?? null })
+      days.push({ date, present: presentOn.has(date) })
     }
 
     return ok(
@@ -97,9 +92,8 @@ export default class AttendanceController {
         month,
         days,
         summary: {
-          present: rows.filter((r) => r.status === 'present').length,
-          half_day: rows.filter((r) => r.status === 'half_day').length,
-          absent: rows.filter((r) => r.status === 'absent').length,
+          present: rows.length,
+          absent: Math.max(0, WageService.employedDays(labour, start, end) - rows.length),
         },
       },
       'attendance.fetched'
@@ -114,25 +108,20 @@ export default class AttendanceController {
         'labour_id',
         labours.map((l) => l.id)
       )
-    const statusOf = new Map(rows.map((r) => [r.labourId, r.status]))
+    const present = new Set(rows.map((r) => r.labourId))
 
     const items = labours.map((labour) => ({
       labour_id: labour.id,
       name: labour.name,
       wage_type: labour.wageType,
       wage_amount: labour.wageAmount,
-      status: statusOf.get(labour.id) ?? null,
+      present: present.has(labour.id),
     }))
 
+    const presentCount = items.filter((i) => i.present).length
     return {
       date,
-      summary: {
-        total: items.length,
-        present: items.filter((i) => i.status === 'present').length,
-        half_day: items.filter((i) => i.status === 'half_day').length,
-        absent: items.filter((i) => i.status === 'absent').length,
-        not_marked: items.filter((i) => i.status === null).length,
-      },
+      summary: { total: items.length, present: presentCount, absent: items.length - presentCount },
       items,
     }
   }

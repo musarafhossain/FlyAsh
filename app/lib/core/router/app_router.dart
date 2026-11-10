@@ -193,8 +193,7 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
           path: ':id',
           redirect: (_, state) =>
               _idParam(state, 'id') == null ? '/users' : null,
-          builder: (_, state) =>
-              UserDetailPage(userId: _idParam(state, 'id')!),
+          builder: (_, state) => UserDetailPage(userId: _idParam(state, 'id')!),
           routes: [
             GoRoute(
               path: 'edit',
@@ -258,8 +257,7 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
           path: ':id',
           redirect: (_, state) =>
               _idParam(state, 'id') == null ? '/sales' : null,
-          builder: (_, state) =>
-              SaleDetailPage(saleId: _idParam(state, 'id')!),
+          builder: (_, state) => SaleDetailPage(saleId: _idParam(state, 'id')!),
           routes: [
             GoRoute(
               path: 'edit',

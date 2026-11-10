@@ -37,7 +37,7 @@ Map<String, Object?> labour(
   'joining_date': joined,
   'left_date': left,
   'is_active': active,
-  'today_status': today,
+  'present_today': today == 'present',
 };
 
 /// In-memory Labours API (07-API §10).
@@ -85,7 +85,7 @@ class FakeLabours {
       'labour_id': 30,
       'month': '2026-11',
       'days': const [],
-      'summary': {'present': 0, 'half_day': 0, 'absent': 0},
+      'summary': {'present': 0, 'absent': 0},
     }),
     for (final lb in labours) ...{
       'GET /labours/${lb['id']}': (_) => _ok(lb),
@@ -106,12 +106,12 @@ class FakeLabours {
           'labour_id': lb['id'],
           'month': month,
           'days': [
-            {'date': '$month-03', 'status': 'present'},
-            {'date': '$month-04', 'status': 'half_day'},
-            {'date': '$month-05', 'status': 'absent'},
-            {'date': '$month-06', 'status': 'present'},
+            {'date': '$month-03', 'present': true},
+            {'date': '$month-04', 'present': false},
+            {'date': '$month-05', 'present': false},
+            {'date': '$month-06', 'present': true},
           ],
-          'summary': {'present': 2, 'half_day': 1, 'absent': 1},
+          'summary': {'present': 2, 'absent': 1},
         });
       },
     },
@@ -173,7 +173,7 @@ void main() {
     expect(find.text('₹450 / day'), findsOneWidget);
     expect(find.text('₹15,000 / month'), findsOneWidget);
     expect(find.text('Present'), findsOneWidget);
-    expect(find.text('Not marked'), findsOneWidget);
+    expect(find.text('Absent'), findsOneWidget);
     expect(find.byType(DataTableCard), findsNothing);
   });
 
@@ -251,7 +251,6 @@ void main() {
     );
     expect(find.text('Nov 2026'), findsOneWidget);
     expect(find.text('Present 2'), findsOneWidget);
-    expect(find.text('Half day 1'), findsOneWidget);
     expect(find.text('Absent 1'), findsOneWidget);
     expect(find.bySemanticsLabel('03 Nov 2026: Present'), findsOneWidget);
     expect(find.bySemanticsLabel('05 Nov 2026: Absent'), findsOneWidget);

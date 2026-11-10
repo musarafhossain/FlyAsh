@@ -43,8 +43,8 @@ export const saveAttendanceValidator = vine.create({
     .array(
       vine.object({
         labour_id: idRule(),
-        /** null clears the day for that labour ("not marked") */
-        status: vine.enum(['present', 'half_day', 'absent'] as const).nullable(),
+        /** true = present (a row is saved), false = absent (the row is removed) */
+        present: vine.boolean(),
       })
     )
     .maxLength(500),

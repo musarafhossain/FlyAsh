@@ -1150,51 +1150,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attPresent => 'Present';
 
   @override
-  String get attHalfDay => 'Half day';
-
-  @override
   String get attAbsent => 'Absent';
-
-  @override
-  String get attNotMarked => 'Not marked';
-
-  @override
-  String get attPresentShort => 'P';
-
-  @override
-  String get attHalfDayShort => 'H';
-
-  @override
-  String get attAbsentShort => 'A';
-
-  @override
-  String get markAllPresent => 'Mark all present';
-
-  @override
-  String get saveAttendance => 'Save attendance';
-
-  @override
-  String get noChanges => 'No changes';
-
-  @override
-  String changesCount(String count) {
-    return '$count changed';
-  }
-
-  @override
-  String attendanceSaved(String date) {
-    return 'Attendance saved for $date';
-  }
-
-  @override
-  String saveChangesFor(String date) {
-    return 'Save changes for $date?';
-  }
-
-  @override
-  String unsavedAttendance(String count) {
-    return '$count labours changed and not saved yet.';
-  }
 
   @override
   String todayWithDate(String date) {
@@ -1262,8 +1218,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wageBreakdown => 'Wage for the month';
 
   @override
-  String workedDaysLine(String present, String half, String absent) {
-    return 'Worked (P $present · H $half · A $absent)';
+  String workedDaysLine(String present, String absent) {
+    return 'Present $present · Absent $absent';
   }
 
   @override
@@ -1437,4 +1393,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goodEvening => 'Good evening';
+
+  @override
+  String get selectDate => 'Select date';
+
+  @override
+  String attendanceCount(String present, String absent) {
+    return '$present present · $absent absent';
+  }
 }

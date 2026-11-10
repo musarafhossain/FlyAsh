@@ -1146,51 +1146,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get attPresent => 'উপস্থিত';
 
   @override
-  String get attHalfDay => 'অর্ধদিন';
-
-  @override
   String get attAbsent => 'অনুপস্থিত';
-
-  @override
-  String get attNotMarked => 'হাজিরা হয়নি';
-
-  @override
-  String get attPresentShort => 'উ';
-
-  @override
-  String get attHalfDayShort => 'অর্ধ';
-
-  @override
-  String get attAbsentShort => 'অনু';
-
-  @override
-  String get markAllPresent => 'সবাই উপস্থিত';
-
-  @override
-  String get saveAttendance => 'হাজিরা সেভ করুন';
-
-  @override
-  String get noChanges => 'কোনো পরিবর্তন নেই';
-
-  @override
-  String changesCount(String count) {
-    return '$countটি পরিবর্তন';
-  }
-
-  @override
-  String attendanceSaved(String date) {
-    return '$date-এর হাজিরা সেভ হয়েছে';
-  }
-
-  @override
-  String saveChangesFor(String date) {
-    return '$date-এর পরিবর্তন সেভ করবেন?';
-  }
-
-  @override
-  String unsavedAttendance(String count) {
-    return '$count জনের হাজিরা বদলেছে, এখনো সেভ হয়নি।';
-  }
 
   @override
   String todayWithDate(String date) {
@@ -1258,8 +1214,8 @@ class AppLocalizationsBn extends AppLocalizations {
   String get wageBreakdown => 'মাসের মজুরি';
 
   @override
-  String workedDaysLine(String present, String half, String absent) {
-    return 'কাজ (উ $present · অর্ধ $half · অনু $absent)';
+  String workedDaysLine(String present, String absent) {
+    return 'উপস্থিত $present · অনুপস্থিত $absent';
   }
 
   @override
@@ -1431,4 +1387,12 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get goodEvening => 'শুভ সন্ধ্যা';
+
+  @override
+  String get selectDate => 'তারিখ বাছুন';
+
+  @override
+  String attendanceCount(String present, String absent) {
+    return '$present জন উপস্থিত · $absent জন অনুপস্থিত';
+  }
 }

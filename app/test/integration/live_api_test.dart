@@ -552,7 +552,7 @@ void main() {
       ),
     );
     expect(created.wageAmount, '450.00');
-    expect(created.todayStatus, isNull);
+    expect(created.presentToday, isFalse);
 
     final edited = await labours.update(
       created.id,
@@ -568,27 +568,26 @@ void main() {
     final day = await attendance.day(today);
     expect(day.entries.map((e) => e.labourId), contains(created.id));
 
-    final (saved, msg) = await attendance.save(today, {created.id: 'present'});
-    expect(msg, isNotEmpty);
+    final saved = await attendance.save(today, {created.id: true});
     expect(
-      saved.entries.firstWhere((e) => e.labourId == created.id).status,
-      'present',
+      saved.entries.firstWhere((e) => e.labourId == created.id).present,
+      isTrue,
     );
-    expect((await labours.get(created.id)).todayStatus, 'present');
+    expect((await labours.get(created.id)).presentToday, isTrue);
 
     final month = await labours.month(created.id, today.substring(0, 7));
-    expect(month.days[today], 'present');
+    expect(month.days[today], isTrue);
     expect(month.present, 1);
 
-    final (cleared, _) = await attendance.save(today, {created.id: null});
+    final absent = await attendance.save(today, {created.id: false});
     expect(
-      cleared.entries.firstWhere((e) => e.labourId == created.id).status,
-      isNull,
+      absent.entries.firstWhere((e) => e.labourId == created.id).present,
+      isFalse,
     );
 
     // Before joining → refused
     await expectLater(
-      attendance.save(Ymd.addDays(today, -30), {created.id: 'present'}),
+      attendance.save(Ymd.addDays(today, -30), {created.id: true}),
       throwsA(isA<ServerFailure>().having((f) => f.statusCode, 'code', 400)),
     );
 
@@ -635,11 +634,11 @@ void main() {
         joiningDate: Ymd.monthStart(today),
       ),
     );
-    await attendance.save(today, {lb.id: 'present'});
+    await attendance.save(today, {lb.id: true});
     if (today != Ymd.monthStart(today)) {
-      await attendance.save(Ymd.addDays(today, -1), {lb.id: 'half_day'});
+      await attendance.save(Ymd.addDays(today, -1), {lb.id: true});
     }
-    final expected = today == Ymd.monthStart(today) ? '400.00' : '600.00';
+    final expected = today == Ymd.monthStart(today) ? '400.00' : '800.00';
 
     final sheet = await wages.sheet(month: month, search: lb.name);
     final row = sheet.items.singleWhere((r) => r.labourId == lb.id);
@@ -669,7 +668,7 @@ void main() {
     expect(after.row.balance, expected);
 
     // Clear the attendance again (the labour is removed in the database).
-    await attendance.save(today, {lb.id: null});
+    await attendance.save(today, {lb.id: false});
 
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);

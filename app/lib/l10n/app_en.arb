@@ -563,47 +563,7 @@
   "wkSat": "Sat",
   "wkSun": "Sun",
   "attPresent": "Present",
-  "attHalfDay": "Half day",
   "attAbsent": "Absent",
-  "attNotMarked": "Not marked",
-  "attPresentShort": "P",
-  "attHalfDayShort": "H",
-  "attAbsentShort": "A",
-  "markAllPresent": "Mark all present",
-  "saveAttendance": "Save attendance",
-  "noChanges": "No changes",
-  "changesCount": "{count} changed",
-  "@changesCount": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "attendanceSaved": "Attendance saved for {date}",
-  "@attendanceSaved": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "saveChangesFor": "Save changes for {date}?",
-  "@saveChangesFor": {
-    "placeholders": {
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "unsavedAttendance": "{count} labours changed and not saved yet.",
-  "@unsavedAttendance": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
   "todayWithDate": "Today, {date}",
   "@todayWithDate": {
     "placeholders": {
@@ -663,13 +623,10 @@
   "noWagesThisMonthMessage": "Labours employed in this month and their attendance make the wage sheet.",
   "wageDetails": "Wage",
   "wageBreakdown": "Wage for the month",
-  "workedDaysLine": "Worked (P {present} · H {half} · A {absent})",
+  "workedDaysLine": "Present {present} · Absent {absent}",
   "@workedDaysLine": {
     "placeholders": {
       "present": {
-        "type": "String"
-      },
-      "half": {
         "type": "String"
       },
       "absent": {
@@ -782,5 +739,17 @@
   },
   "goodMorning": "Good morning",
   "goodAfternoon": "Good afternoon",
-  "goodEvening": "Good evening"
+  "goodEvening": "Good evening",
+  "selectDate": "Select date",
+  "attendanceCount": "{present} present · {absent} absent",
+  "@attendanceCount": {
+    "placeholders": {
+      "present": {
+        "type": "String"
+      },
+      "absent": {
+        "type": "String"
+      }
+    }
+  }
 }

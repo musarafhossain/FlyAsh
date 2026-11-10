@@ -31,8 +31,7 @@ class FakeWages {
       'type': 'daily',
       'amount': '450.00',
       'earned': '3150.00',
-      'p': 6,
-      'h': 2,
+      'p': 7,
       'a': 1,
     },
     1: {
@@ -41,7 +40,6 @@ class FakeWages {
       'amount': '15000.00',
       'earned': '4000.00',
       'p': 8,
-      'h': 0,
       'a': 0,
     },
   };
@@ -77,13 +75,7 @@ class FakeWages {
       'wage_amount': l['amount'],
       'is_active': true,
       'present_days': l['p'],
-      'half_days': l['h'],
       'absent_days': l['a'],
-      'not_marked_days': 0,
-      'worked_days': m(
-        Decimal.fromInt(l['p']! as int) +
-            Decimal.parse('0.5') * Decimal.fromInt(l['h']! as int),
-      ),
       'earned': m(earned),
       'advances': m(adv),
       'paid': m(paid),
@@ -132,9 +124,8 @@ class FakeWages {
               if (p['wage_month'] == '$month-01') p,
           ],
           'days': [
-            {'date': '$month-01', 'status': 'present', 'earned': '450.00'},
-            {'date': '$month-02', 'status': 'half_day', 'earned': '225.00'},
-            {'date': '$month-03', 'status': null, 'earned': '0.00'},
+            {'date': '$month-01', 'earned': '450.00'},
+            {'date': '$month-02', 'earned': '450.00'},
           ],
         });
       },
@@ -266,7 +257,7 @@ void main() {
     tester,
   ) async {
     await openAt(tester, '/labours/wages/1?month=2026-11');
-    expect(find.text('Worked (P 8 · H 0 · A 0)'), findsOneWidget);
+    expect(find.text('Present 8 · Absent 0'), findsOneWidget);
     expect(find.text('₹4,000.00'), findsOneWidget); // earned
     expect(find.text('− ₹500.00'), findsOneWidget); // advance
     expect(find.text('₹3,500.00'), findsOneWidget); // balance
@@ -347,8 +338,9 @@ void main() {
     expect(find.text('01 Nov 2026'), findsNothing);
     await tapVisible(tester, find.text('Day by day'));
     expect(find.text('01 Nov 2026'), findsOneWidget);
-    expect(find.text('Half day'), findsOneWidget);
-    expect(find.text('₹225.00'), findsOneWidget);
+    expect(find.text('02 Nov 2026'), findsOneWidget);
+    expect(find.text('Present'), findsNWidgets(2));
+    expect(find.text('₹450.00'), findsNWidgets(2));
   });
 
   testWidgets('labour page shows this month\'s wage and opens the detail', (

@@ -64,11 +64,8 @@ class CustomersRepositoryImpl implements CustomersRepository {
       (await _api.delete('/customers/$id', parse: (d) => d)).message;
 
   @override
-  Future<Paginated<SaleSummary>> sales(String id, {int page = 1}) => _api.getPage(
-    '/customers/$id/sales',
-    page: page,
-    item: SaleSummary.fromJson,
-  );
+  Future<Paginated<SaleSummary>> sales(String id, {int page = 1}) => _api
+      .getPage('/customers/$id/sales', page: page, item: SaleSummary.fromJson);
 }
 
 final customersRepositoryProvider = Provider<CustomersRepository>(

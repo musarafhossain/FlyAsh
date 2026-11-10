@@ -35,11 +35,12 @@ class ProductsRepositoryImpl implements ProductsRepository {
   )).data;
 
   @override
-  Future<Product> update(String id, ProductInput input) async => (await _api.put(
-    '/products/$id',
-    body: input.toJson(),
-    parse: _product,
-  )).data;
+  Future<Product> update(String id, ProductInput input) async =>
+      (await _api.put(
+        '/products/$id',
+        body: input.toJson(),
+        parse: _product,
+      )).data;
 
   @override
   Future<(Product, String)> setActive(String id, bool active) async {

@@ -17,10 +17,7 @@ class WageRow {
     required this.wageAmount,
     this.isActive = true,
     required this.presentDays,
-    required this.halfDays,
     required this.absentDays,
-    required this.notMarkedDays,
-    required this.workedDays,
     required this.earned,
     required this.advances,
     required this.paid,
@@ -34,12 +31,9 @@ class WageRow {
   final String wageAmount;
   final bool isActive;
   final int presentDays;
-  final int halfDays;
-  final int absentDays;
-  final int notMarkedDays;
 
-  /// present + half × 0.5 ("26.00")
-  final String workedDays;
+  /// Employed days so far in the month without a present mark.
+  final int absentDays;
   final String earned;
 
   /// Total advances given in the month.
@@ -62,10 +56,7 @@ class WageRow {
       wageAmount: m('wage_amount'),
       isActive: json['is_active'] as bool? ?? true,
       presentDays: n('present_days'),
-      halfDays: n('half_days'),
       absentDays: n('absent_days'),
-      notMarkedDays: n('not_marked_days'),
-      workedDays: m('worked_days'),
       earned: m('earned'),
       advances: advancesTotal ?? m('advances'),
       paid: m('paid'),
@@ -158,15 +149,14 @@ class WagePayment {
 /// One day of the month with what it earned.
 @immutable
 class WageDay {
-  const WageDay({required this.date, this.status, required this.earned});
+  const WageDay({required this.date, required this.earned});
 
+  /// A present day.
   final String date;
-  final String? status;
   final String earned;
 
   factory WageDay.fromJson(Json json) => WageDay(
     date: json['date'] as String? ?? '',
-    status: json['status'] as String?,
     earned: '${json['earned'] ?? '0'}',
   );
 }
