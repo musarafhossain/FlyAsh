@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
+import 'state_views.dart';
 
 /// Categorical tints for KPI chips (04-UI-UX §5.4).
 enum KpiTint { rose, green, amber, sky }
@@ -17,6 +18,7 @@ class HeroCard extends StatelessWidget {
     required this.value,
     this.caption,
     this.onTap,
+    this.loading = false,
   });
 
   final IconData icon;
@@ -24,6 +26,9 @@ class HeroCard extends StatelessWidget {
   final String value;
   final String? caption;
   final VoidCallback? onTap;
+
+  /// A pulsing placeholder instead of the value (still loading).
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -64,17 +69,23 @@ class HeroCard extends StatelessWidget {
                         color: t.textSecondary,
                       ),
                     ),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        value,
-                        style: AppTypography.display.copyWith(
-                          color: fg,
-                          fontFeatures: AppTypography.tabular,
+                    if (loading)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: Space.s1),
+                        child: SkeletonBox(width: 150, height: 32),
+                      )
+                    else
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          value,
+                          style: AppTypography.display.copyWith(
+                            color: fg,
+                            fontFeatures: AppTypography.tabular,
+                          ),
                         ),
                       ),
-                    ),
                     if (caption != null)
                       Text(
                         caption!,
@@ -104,6 +115,7 @@ class KpiChip extends StatelessWidget {
     required this.value,
     this.tint = KpiTint.sky,
     this.onTap,
+    this.loading = false,
   });
 
   final IconData icon;
@@ -111,6 +123,9 @@ class KpiChip extends StatelessWidget {
   final String value;
   final KpiTint tint;
   final VoidCallback? onTap;
+
+  /// A pulsing placeholder instead of the value (still loading).
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -138,17 +153,26 @@ class KpiChip extends StatelessWidget {
                   style: AppTypography.caption.copyWith(color: t.textSecondary),
                 ),
                 const SizedBox(height: Space.s1),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    value,
-                    style: AppTypography.h3.copyWith(
-                      color: t.textPrimary,
-                      fontFeatures: AppTypography.tabular,
+                if (loading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 2),
+                    child: FractionallySizedBox(
+                      widthFactor: 0.8,
+                      child: SkeletonBox(height: 20),
+                    ),
+                  )
+                else
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: AppTypography.h3.copyWith(
+                        color: t.textPrimary,
+                        fontFeatures: AppTypography.tabular,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),

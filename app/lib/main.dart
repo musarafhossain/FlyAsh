@@ -9,11 +9,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'core/config/preferences.dart';
 import 'core/network/session.dart';
+import 'core/theme/app_theme.dart';
 
 Future<void> main() async {
   // Web: clean URLs (/expenses instead of /#/expenses). No effect on other platforms.
   usePathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
+  // Screens without an app bar (login, splash) too.
+  SystemChrome.setSystemUIOverlayStyle(kStatusBarStyle);
   _registerFontLicenses();
 
   // Loaded before the first frame so the saved theme is used immediately.

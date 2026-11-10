@@ -87,6 +87,9 @@ class _WagesTabState extends ConsumerState<WagesTab> {
   late String _month = _validMonth(widget.initialMonth);
   WageTotals? _totals;
 
+  /// True while page 1 (which carries the totals) is loading.
+  bool _totalsLoading = true;
+
   String get _thisMonth => ref.read(businessDateProvider).substring(0, 7);
 
   String _validMonth(String? ym) {
@@ -107,21 +110,29 @@ class _WagesTabState extends ConsumerState<WagesTab> {
     setState(() {
       _month = Ymd.addMonths('$_month-01', by).substring(0, 7);
       _totals = null;
+      _totalsLoading = true;
     });
     _list.refresh();
   }
 
   Future<Paginated<WageRow>> _fetch(int page) async {
     final month = _month;
-    final result = await ref
-        .read(wagesRepositoryProvider)
-        .sheet(month: month, page: page, search: _search.text);
-    if (page == 1 && mounted && month == _month) {
-      setState(
-        () => _totals = WageTotals.fromJson(result.extra['totals'] as Json?),
-      );
+    try {
+      final result = await ref
+          .read(wagesRepositoryProvider)
+          .sheet(month: month, page: page, search: _search.text);
+      if (page == 1 && mounted && month == _month) {
+        setState(
+          () => _totals = WageTotals.fromJson(result.extra['totals'] as Json?),
+        );
+      }
+      return result;
+    } finally {
+      // Loaded or failed: stop the placeholder (a failure shows "—").
+      if (page == 1 && mounted && month == _month) {
+        setState(() => _totalsLoading = false);
+      }
     }
-    return result;
   }
 
   Future<void> _open(WageRow row) async {
@@ -234,7 +245,8 @@ class _WagesTabState extends ConsumerState<WagesTab> {
           HeroCard(
             icon: Icons.payments_outlined,
             label: l.earnedInMonth(Fmt.month(_month)),
-            value: totals == null ? '…' : Fmt.money(totals.earned),
+            value: totals == null ? '—' : Fmt.money(totals.earned),
+            loading: totals == null && _totalsLoading,
           ),
           const SizedBox(height: Space.s2),
           KpiRow(
@@ -242,19 +254,22 @@ class _WagesTabState extends ConsumerState<WagesTab> {
               KpiChip(
                 icon: Icons.request_quote_outlined,
                 label: l.advances,
-                value: totals == null ? '…' : Fmt.money(totals.advances),
+                value: totals == null ? '—' : Fmt.money(totals.advances),
+                loading: totals == null && _totalsLoading,
                 tint: KpiTint.amber,
               ),
               KpiChip(
                 icon: Icons.check_circle_outline,
                 label: l.paid,
-                value: totals == null ? '…' : Fmt.money(totals.paid),
+                value: totals == null ? '—' : Fmt.money(totals.paid),
+                loading: totals == null && _totalsLoading,
                 tint: KpiTint.green,
               ),
               KpiChip(
                 icon: Icons.account_balance_wallet_outlined,
                 label: l.balance,
-                value: totals == null ? '…' : Fmt.money(totals.balance),
+                value: totals == null ? '—' : Fmt.money(totals.balance),
+                loading: totals == null && _totalsLoading,
                 tint: KpiTint.rose,
               ),
             ],

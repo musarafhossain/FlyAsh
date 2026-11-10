@@ -254,6 +254,21 @@ Future<void> longPress(WidgetTester tester, String text) async {
 }
 
 void main() {
+  testWidgets('a section in the sidebar opens its list, not a detail page '
+      'left open earlier', (tester) async {
+    await openCustomers(tester, size: const Size(1440, 900));
+    testContainer.read(routerProvider).go('/customers/1');
+    await tester.pumpAndSettle();
+    expect(currentPath(), '/customers/1');
+
+    await tester.tap(find.text('Products'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Customers'));
+    await tester.pumpAndSettle();
+    expect(currentPath(), '/customers');
+    expect(find.text('Habib Enterprise'), findsOneWidget, reason: 'the list');
+  });
+
   testWidgets('long press: View · Edit | Call · WhatsApp | Deactivate | '
       'Delete; Deactivate asks and saves', (tester) async {
     final api = await openCustomers(tester);

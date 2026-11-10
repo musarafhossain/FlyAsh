@@ -8,6 +8,7 @@ import '../../features/settings/data/settings_repository_impl.dart';
 import '../config/env.dart';
 import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_theme.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import '../theme/theme_controller.dart';
@@ -35,8 +36,9 @@ class _AppShellState extends State<AppShell> {
   int get _index => widget.shell.currentIndex;
 
   void _go(int index) {
-    // Tapping the current section again goes back to its first screen.
-    widget.shell.goBranch(index, initialLocation: index == _index);
+    // A section always opens on its first screen (the list), also when a
+    // detail page of it was left open earlier.
+    widget.shell.goBranch(index, initialLocation: true);
     _scaffoldKey.currentState?.closeDrawer();
   }
 
@@ -211,9 +213,7 @@ class _AppDrawer extends StatelessWidget {
       child: Column(
         children: [
           AnnotatedRegion<SystemUiOverlayStyle>(
-            value: light
-                ? SystemUiOverlayStyle.light
-                : SystemUiOverlayStyle.dark,
+            value: kStatusBarStyle,
             child: Material(
               color: headerBg,
               child: InkWell(

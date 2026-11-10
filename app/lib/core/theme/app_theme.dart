@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_tokens.dart';
 import 'app_typography.dart';
+
+/// The phone's status bar (time, battery, notifications): black with light
+/// icons in every theme.
+const kStatusBarStyle = SystemUiOverlayStyle(
+  statusBarColor: Colors.black,
+  statusBarIconBrightness: Brightness.light, // Android
+  statusBarBrightness: Brightness.dark, // iOS
+);
 
 /// Builds the Material theme for one accent in one mode (10 combinations).
 abstract final class AppTheme {
@@ -75,6 +84,7 @@ abstract final class AppTheme {
         backgroundColor: t.surface,
         foregroundColor: t.textPrimary,
         surfaceTintColor: Colors.transparent,
+        systemOverlayStyle: kStatusBarStyle,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,

@@ -56,6 +56,9 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
   String? _categoryId;
   String? _periodTotal;
 
+  /// True while page 1 (which carries the period total) is loading.
+  bool _totalLoading = true;
+
   String get _today => ref.read(businessDateProvider);
 
   @override
@@ -67,7 +70,10 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
   }
 
   void _reload() {
-    setState(() => _periodTotal = null);
+    setState(() {
+      _periodTotal = null;
+      _totalLoading = true;
+    });
     _list.refresh();
   }
 
@@ -105,18 +111,25 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
 
   Future<Paginated<Expense>> _fetch(int page) async {
     final range = _range;
-    final result = await ref
-        .read(expensesRepositoryProvider)
-        .list(
-          page: page,
-          range: range,
-          categoryId: _categoryId,
-          search: _search.text,
-        );
-    if (page == 1 && mounted && range == _range) {
-      setState(() => _periodTotal = '${result.extra['period_total'] ?? '0'}');
+    try {
+      final result = await ref
+          .read(expensesRepositoryProvider)
+          .list(
+            page: page,
+            range: range,
+            categoryId: _categoryId,
+            search: _search.text,
+          );
+      if (page == 1 && mounted && range == _range) {
+        setState(() => _periodTotal = '${result.extra['period_total'] ?? '0'}');
+      }
+      return result;
+    } finally {
+      // Loaded or failed: stop the placeholder (a failure shows "—").
+      if (page == 1 && mounted && range == _range) {
+        setState(() => _totalLoading = false);
+      }
     }
-    return result;
   }
 
   Future<void> _open(String location) async {
@@ -231,7 +244,8 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
             HeroCard(
               icon: Icons.receipt_long_outlined,
               label: l.spentIn(_periodLabel(l)),
-              value: _periodTotal == null ? '…' : Fmt.money(_periodTotal),
+              value: _periodTotal == null ? '—' : Fmt.money(_periodTotal),
+              loading: _periodTotal == null && _totalLoading,
             ),
             ...[
               const SizedBox(height: Space.s3),
