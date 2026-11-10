@@ -5,6 +5,7 @@ import '../config/env.dart';
 import '../error/failure.dart';
 import '../l10n/locale_controller.dart';
 import 'api_response.dart';
+import 'data_changed.dart';
 import 'session.dart';
 
 /// One Dio instance for the whole app (02-TRD §7.3):
@@ -52,15 +53,22 @@ final dioProvider = Provider<Dio>((ref) {
 });
 
 final apiClientProvider = Provider<ApiClient>(
-  (ref) => ApiClient(ref.watch(dioProvider)),
+  (ref) => ApiClient(
+    ref.watch(dioProvider),
+    onChanged: () => ref.read(dataChangedProvider.notifier).bump(),
+  ),
 );
 
 /// Thin wrapper over Dio that parses the envelope and throws a [Failure]
 /// for anything that is not a success.
 class ApiClient {
-  ApiClient(this._dio);
+  ApiClient(this._dio, {this.onChanged});
 
   final Dio _dio;
+
+  /// Called after a successful POST / PUT / PATCH / DELETE (not for sign-in
+  /// and account calls under `/auth`), so lists can load again.
+  final void Function()? onChanged;
 
   Future<ApiResponse<T>> get<T>(
     String path, {
@@ -137,7 +145,11 @@ class ApiClient {
     final status =
         (json['status_code'] as num?)?.toInt() ?? res.statusCode ?? 0;
     final message = json['message'] as String? ?? '';
-    if (json['success'] == true) return ApiResponse.fromJson(json, parse);
+    if (json['success'] == true) {
+      final result = ApiResponse.fromJson(json, parse);
+      if (method != 'GET' && !path.startsWith('/auth')) onChanged?.call();
+      return result;
+    }
 
     final data = json['data'];
     throw switch (status) {

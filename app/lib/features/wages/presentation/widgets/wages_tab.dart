@@ -19,6 +19,7 @@ import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
+import '../../../../core/network/data_changed.dart';
 import '../../../sales/presentation/sale_labels.dart';
 import '../../data/wages_repository_impl.dart';
 import '../../domain/wages.dart';
@@ -121,12 +122,12 @@ class _WagesTabState extends ConsumerState<WagesTab> {
 
   Future<void> _open(WageRow row) async {
     await context.push('/labours/wages/${row.labourId}?month=$_month');
-    if (mounted) _list.refresh();
   }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final totals = _totals;
 

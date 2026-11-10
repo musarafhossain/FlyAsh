@@ -17,8 +17,6 @@ import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
-import '../../../sales/domain/sale.dart';
-import '../../../sales/presentation/pages/sale_form_page.dart' show kReturnSale;
 import '../../../sales/domain/sale_summary.dart';
 import '../../../sales/presentation/widgets/sale_list_items.dart';
 import '../../data/customers_repository_impl.dart';
@@ -74,16 +72,12 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
     if (updated != null && mounted) setState(() => _customer = updated);
   }
 
-  /// New sale with this customer selected → the saved sale.
+  /// New sale with this customer selected → back here with fresh totals.
   Future<void> _newSale() async {
-    final sale = await context.push<Object?>(
-      '/sales/new?customer=${widget.customerId}',
-      extra: kReturnSale,
-    );
+    await context.push('/sales/new?customer=${widget.customerId}');
     if (!mounted) return;
     _sales.refresh();
     unawaited(_load()); // fresh totals
-    if (sale is Sale) await context.push('/sales/${sale.id}');
   }
 
   Future<void> _contact(Future<bool> Function(String) open) async {

@@ -11,12 +11,13 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
-import '../../../../core/widgets/action_sheet.dart';
+import '../../../../core/widgets/action_menu.dart';
 import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
+import '../../../../core/network/data_changed.dart';
 import '../../data/products_repository_impl.dart';
 import '../../domain/product.dart';
 import '../product_actions.dart';
@@ -71,41 +72,37 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
   /// Opens a page and reloads the list when the user comes back.
   Future<void> _open(String location) async {
     await context.push(location);
-    if (mounted) _list.refresh();
   }
 
-  /// Long press: Edit · Deactivate / Activate · Delete.
-  Future<void> _actions(Product p) {
+  /// Long press: Edit | Deactivate / Activate | Delete, next to the row.
+  /// The list reloads by itself after a change (see `dataChangedProvider`).
+  Future<void> _actions(BuildContext row, Product p) {
     final l = context.l10n;
-    return showActionSheet(
-      context,
-      leading: ProductIcon(seed: p.name, active: p.isActive, size: 40),
-      title: p.name,
-      subtitle: l.perUnit(unitText(l, p.unit, p.unitLabel)),
-      actions: [
-        SheetAction(
-          icon: Icons.edit_outlined,
-          label: l.edit,
-          onSelected: () => _open('/products/${p.id}/edit'),
-        ),
-        SheetAction(
-          icon: p.isActive ? Icons.block : Icons.check_circle_outline,
-          label: p.isActive ? l.deactivate : l.activate,
-          destructive: p.isActive,
-          onSelected: () async {
-            if (await toggleProductActive(context, ref, p) != null) {
-              _list.refresh();
-            }
-          },
-        ),
-        SheetAction(
-          icon: Icons.delete_outline,
-          label: l.delete,
-          destructive: true,
-          onSelected: () async {
-            if (await deleteProduct(context, ref, p)) _list.refresh();
-          },
-        ),
+    return showActionMenu(
+      row,
+      groups: [
+        [
+          ActionMenuItem(
+            icon: Icons.edit_outlined,
+            label: l.edit,
+            onSelected: () => _open('/products/${p.id}/edit'),
+          ),
+        ],
+        [
+          ActionMenuItem(
+            icon: p.isActive ? Icons.block : Icons.check_circle_outline,
+            label: p.isActive ? l.deactivate : l.activate,
+            onSelected: () => toggleProductActive(context, ref, p),
+          ),
+        ],
+        [
+          ActionMenuItem(
+            icon: Icons.delete_outline,
+            label: l.delete,
+            destructive: true,
+            onSelected: () => deleteProduct(context, ref, p),
+          ),
+        ],
       ],
     );
   }
@@ -113,6 +110,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
     final repo = ref.watch(productsRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final searching = _search.text.trim().isNotEmpty;
@@ -203,7 +201,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
                     ProductTile(
                       product: p,
                       onTap: () => _open('/products/${p.id}/edit'),
-                      onLongPress: () => _actions(p),
+                      onLongPress: (row) => _actions(row, p),
                     ),
                 ],
               ),
@@ -246,8 +244,8 @@ class ProductTile extends StatelessWidget {
   final Product product;
   final VoidCallback? onTap;
 
-  /// Opens the action menu.
-  final VoidCallback? onLongPress;
+  /// Opens the action menu next to this row (gets the row's context).
+  final ValueChanged<BuildContext>? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +258,7 @@ class ProductTile extends StatelessWidget {
       opacity: p.isActive ? 1 : 0.6,
       child: ListRowSurface(
         onTap: onTap,
-        onLongPress: onLongPress,
+        onLongPress: onLongPress == null ? null : () => onLongPress!(context),
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,
           vertical: Space.s3,

@@ -14,12 +14,12 @@ import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/controls.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
+import '../../../../core/network/data_changed.dart';
 import '../../data/sales_repository_impl.dart';
 import '../../domain/sale.dart';
 import '../../domain/sale_summary.dart';
 import '../sale_labels.dart';
 import '../widgets/sale_filter_sheet.dart';
-import 'sale_form_page.dart' show kReturnSale;
 import '../widgets/sale_list_items.dart';
 
 /// Sales list (03-AppFlow §5.3): tabs All / Instant / Booking, search by
@@ -96,24 +96,18 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
 
   Future<void> _open(String location) async {
     await context.push(location);
-    if (mounted) _list.refresh();
   }
 
-  /// Form → (saved) → the new sale's detail; Back returns here.
-  Future<void> _newSale() async {
+  /// Form → (saved) → back here; the list reloads with the new sale.
+  Future<void> _newSale() {
     final type = _filter.type == 'booking' ? 'booking' : 'instant';
-    final sale = await context.push<Sale>(
-      '/sales/new?type=$type',
-      extra: kReturnSale,
-    );
-    if (!mounted) return;
-    _list.refresh();
-    if (sale != null) await _open('/sales/${sale.id}');
+    return _open('/sales/new?type=$type');
   }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
     final repo = ref.watch(salesRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final searching = _search.text.trim().isNotEmpty;

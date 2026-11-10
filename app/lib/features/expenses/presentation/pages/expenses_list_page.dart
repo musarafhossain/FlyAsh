@@ -19,6 +19,7 @@ import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
+import '../../../../core/network/data_changed.dart';
 import '../../../sales/presentation/widgets/sale_filter_sheet.dart'
     show presetText;
 import '../../data/expenses_repository_impl.dart';
@@ -119,7 +120,6 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
     await context.push(location);
     if (!mounted) return;
     ref.invalidate(activeExpenseCategoriesProvider);
-    _reload();
   }
 
   String _periodLabel(AppLocalizations l) {
@@ -131,6 +131,7 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    ref.listen(dataChangedProvider, (_, _) => _reload());
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final categories = ref.watch(activeExpenseCategoriesProvider).value ?? [];
     final filtered = _categoryId != null || _search.text.trim().isNotEmpty;

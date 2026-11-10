@@ -196,8 +196,8 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('add: wage type + amount required, monthly, then the new '
-      'labour opens', (tester) async {
+  testWidgets('add: wage type + amount required, monthly, then back to the '
+      'list with the new labour', (tester) async {
     await openLabours(tester);
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
@@ -233,9 +233,9 @@ void main() {
       'wage_amount': '12000',
       'joining_date': '2026-11-09',
     });
-    expect(currentPath(), '/labours/30');
+    expect(currentPath(), '/labours');
     expect(find.text('Labour added'), findsOneWidget);
-    expect(find.text('₹12,000 / month'), findsOneWidget);
+    expect(find.text('Motiur'), findsOneWidget, reason: 'reloaded');
   });
 
   testWidgets('detail: calendar with colours and totals, months, Call', (

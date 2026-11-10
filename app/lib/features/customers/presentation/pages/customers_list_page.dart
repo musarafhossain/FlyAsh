@@ -16,6 +16,7 @@ import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
+import '../../../../core/network/data_changed.dart';
 import '../../data/customers_repository_impl.dart';
 import '../../domain/customer.dart';
 
@@ -74,20 +75,15 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
 
   Future<void> _open(String location) async {
     await context.push(location);
-    if (mounted) _list.refresh();
   }
 
-  /// Add form → (saved) → the new customer's detail page; Back returns here.
-  Future<void> _add() async {
-    final created = await context.push<Customer>('/customers/new');
-    if (!mounted) return;
-    _list.refresh();
-    if (created != null) await _open('/customers/${created.id}');
-  }
+  /// Add form → (saved) → back here; the list reloads with the new one.
+  Future<void> _add() => _open('/customers/new');
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
     final repo = ref.watch(customersRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final searching = _search.text.trim().isNotEmpty;

@@ -34,10 +34,6 @@ import '../sale_labels.dart';
 /// Payment methods the API accepts.
 const kPaymentMethods = ['cash', 'upi', 'bank', 'other'];
 
-/// Route `extra` meaning "pop with the saved sale; I open it myself".
-/// Without it (deep link) the form opens the saved sale itself.
-const kReturnSale = 'return-sale';
-
 Decimal _dec(String text) => Decimal.tryParse(text.trim()) ?? Decimal.zero;
 
 /// One item card in the form.
@@ -84,7 +80,6 @@ class SaleFormPage extends ConsumerStatefulWidget {
     this.saleId,
     this.initialType = 'instant',
     this.customerId,
-    this.returnResult = false,
   });
 
   /// Null = new sale.
@@ -95,9 +90,6 @@ class SaleFormPage extends ConsumerStatefulWidget {
 
   /// Start with this customer selected (from `?customer=`).
   final String? customerId;
-
-  /// Pop with the saved sale (the caller opens it), see [kReturnSale].
-  final bool returnResult;
 
   @override
   ConsumerState<SaleFormPage> createState() => _SaleFormPageState();
@@ -410,11 +402,12 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
     final (sale, message) = result;
     setState(() => _dirty = false);
     showMessage(context, message);
-    if (_isEdit || widget.returnResult) {
+    // Back to where the form was opened from (list or detail). A form
+    // opened on its own (nothing behind it) goes to the sales list.
+    if (context.canPop()) {
       context.pop(sale);
     } else {
-      // Opened by a link: show the saved sale (Back → sales list).
-      context.go('/sales/${sale.id}');
+      context.go('/sales');
     }
   }
 

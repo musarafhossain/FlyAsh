@@ -460,7 +460,7 @@ RequestOptions last(String method, String path) =>
 
 void main() {
   testWidgets('New sale from the list: checks, live totals, saves strings, '
-      'opens the saved sale', (tester) async {
+      'back to the list with the new sale', (tester) async {
     await openAt(tester, '/sales');
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
@@ -522,13 +522,14 @@ void main() {
       'payment': {'amount': '10000', 'method': 'upi', 'note': null},
       'notes': null,
     });
-    expect(currentPath(), '/sales/200');
-    expect(find.text('Sale saved successfully'), findsOneWidget);
-    expect(find.text('INV-000200'), findsWidgets);
-
-    testContainer.read(routerProvider).pop();
-    await tester.pumpAndSettle();
     expect(currentPath(), '/sales');
+    expect(find.text('Sale saved successfully'), findsOneWidget);
+    expect(
+      find.textContaining('INV-000200'),
+      findsOneWidget,
+      reason: 'reloaded',
+    );
+    expect(testContainer.read(routerProvider).canPop(), isFalse);
   });
 
   testWidgets('Booking: delivery date and address, advance; two items, one '
@@ -560,7 +561,9 @@ void main() {
     expect(b['delivery_address'], 'Bongaon');
     expect((b['payment']! as Map)['amount'], '5000');
     expect((b['items']! as List).length, 1);
-    expect(find.text('Booked'), findsOneWidget);
+    // Opened on its own (/sales/new): saved → the sales list
+    expect(currentPath(), '/sales');
+    expect(find.textContaining('INV-000200'), findsOneWidget);
   });
 
   testWidgets('Inline new customer; a taken phone offers "Use this customer"', (
@@ -584,7 +587,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save sale'));
     await tester.pumpAndSettle();
     expect(body(last('POST', '/sales'))['customer_id'], '2');
-    expect(currentPath(), '/sales/200');
+    expect(currentPath(), '/sales');
   });
 
   testWidgets('Leaving with changes asks first; untouched form leaves', (

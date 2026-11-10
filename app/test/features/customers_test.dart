@@ -310,7 +310,9 @@ void main() {
     expect(find.text('Habib Enterprise'), findsWidgets);
   });
 
-  testWidgets('add: saves and opens the new customer', (tester) async {
+  testWidgets('add: saves, back to the list, which shows the new one', (
+    tester,
+  ) async {
     final api = await openCustomers(tester);
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
@@ -333,15 +335,14 @@ void main() {
       'phone': '9123456780',
       'address': 'Habra',
     });
-    expect(currentPath(), '/customers/70');
-    expect(find.text('Customer added'), findsOneWidget);
-    expect(find.text('No sales yet'), findsOneWidget);
-
-    // Back goes to the list (the form was replaced), which now has them.
-    testContainer.read(routerProvider).pop();
-    await tester.pumpAndSettle();
     expect(currentPath(), '/customers');
-    expect(find.text('New Brick Buyer'), findsOneWidget);
+    expect(find.text('Customer added'), findsOneWidget);
+    expect(find.text('New Brick Buyer'), findsOneWidget, reason: 'reloaded');
+    expect(
+      testContainer.read(routerProvider).canPop(),
+      isFalse,
+      reason: 'the form is gone, no detail page was added',
+    );
   });
 
   testWidgets('detail: totals, sales with their status, Call and WhatsApp', (

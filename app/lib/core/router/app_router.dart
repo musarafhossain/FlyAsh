@@ -250,7 +250,6 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
           builder: (_, state) => SaleFormPage(
             initialType: state.uri.queryParameters['type'] ?? 'instant',
             customerId: _idOrNull(state.uri.queryParameters['customer']),
-            returnResult: state.extra == kReturnSale,
           ),
         ),
         GoRoute(

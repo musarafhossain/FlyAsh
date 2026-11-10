@@ -10,6 +10,7 @@ import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
+import '../../../../core/network/data_changed.dart';
 import '../../data/sales_repository_impl.dart';
 import '../../domain/sale_summary.dart';
 import '../widgets/sale_action_sheets.dart';
@@ -38,7 +39,6 @@ class _UpcomingDeliveriesPageState
 
   Future<void> _open(SaleSummary s) async {
     await context.push('/sales/${s.id}');
-    if (mounted) _list.refresh();
   }
 
   Future<void> _deliver(SaleSummary s) async {
@@ -69,6 +69,7 @@ class _UpcomingDeliveriesPageState
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
     final l = context.l10n;
     final repo = ref.watch(salesRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;

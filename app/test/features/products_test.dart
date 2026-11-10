@@ -391,25 +391,40 @@ void main() {
     expect(find.text('Red Brick'), findsNothing);
   });
 
-  Finder sheet(String text) =>
-      find.descendant(of: find.byType(BottomSheet), matching: find.text(text));
+  Finder sheet(String text) => find.descendant(
+    of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+    matching: find.text(text),
+  );
+  final menu = find.byWidgetPredicate((w) => w is PopupMenuItem);
 
-  testWidgets('long press opens the action menu: Edit, Deactivate, Delete', (
-    tester,
-  ) async {
+  testWidgets('long press opens the menu: Edit | Deactivate | Delete; edit '
+      'returns to the list', (tester) async {
     await openProducts(tester);
     await tester.longPress(find.text('Fly Ash Brick 9×4×3'));
     await tester.pumpAndSettle();
-    expect(find.byType(BottomSheet), findsOneWidget);
-    expect(sheet('Fly Ash Brick 9×4×3'), findsOneWidget);
+    expect(menu, findsNWidgets(3));
+    expect(
+      find.byType(PopupMenuDivider),
+      findsNWidgets(2),
+      reason: 'Edit | Deactivate | Delete',
+    );
     expect(sheet('Edit'), findsOneWidget);
     expect(sheet('Deactivate'), findsOneWidget);
     expect(sheet('Delete'), findsOneWidget);
 
     await tester.tap(sheet('Edit'));
     await tester.pumpAndSettle();
-    expect(find.byType(BottomSheet), findsNothing);
+    expect(menu, findsNothing);
     expect(currentPath(), '/products/1/edit');
+
+    // Saving an edit opened from the list goes back to the list
+    await tester.enterText(
+      find.byType(TextFormField).first,
+      'Fly Ash Brick 10×4×3',
+    );
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Save'));
+    expect(currentPath(), '/products');
+    expect(find.text('Fly Ash Brick 10×4×3'), findsOneWidget);
   });
 
   testWidgets('menu: Deactivate asks, saves, and the row shows Inactive', (

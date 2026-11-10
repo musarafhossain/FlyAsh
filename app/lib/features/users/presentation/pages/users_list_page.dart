@@ -14,6 +14,7 @@ import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
+import '../../../../core/network/data_changed.dart';
 import '../../../auth/domain/app_user.dart';
 import '../../data/users_repository_impl.dart';
 
@@ -48,12 +49,12 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
   /// Opens a page and reloads the list when the user comes back.
   Future<void> _open(String location) async {
     await context.push(location);
-    if (mounted) _list.refresh();
   }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
     final repo = ref.watch(usersRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final searching = _search.text.trim().isNotEmpty;
