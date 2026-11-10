@@ -218,7 +218,12 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
       ];
     }
     if (day == null) {
-      return [Padding(padding: pad, child: const SkeletonList(count: 6))];
+      return [
+        Padding(
+          padding: pad,
+          child: const SkeletonList(count: 6, leading: false, toggle: true),
+        ),
+      ];
     }
     if (day.entries.isEmpty) {
       return [

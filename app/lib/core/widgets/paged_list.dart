@@ -6,6 +6,7 @@ import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import 'state_views.dart';
+import 'skeletons.dart';
 
 /// Tells a [PagedList] to load again from page 1 (after a search change,
 /// an edit, a new item …).
@@ -132,7 +133,10 @@ class _PagedListState<T> extends State<PagedList<T>> {
 
     final Widget content;
     if (firstLoad && _loading) {
-      content = const SkeletonList();
+      // Desktop lists are tables; phones and tablets show rows.
+      content = MediaQuery.sizeOf(context).width >= Breakpoints.expanded
+          ? const SkeletonTable()
+          : const SkeletonList();
     } else if (firstLoad && _error != null) {
       content = ErrorState(
         message: failureText(context, _error!),

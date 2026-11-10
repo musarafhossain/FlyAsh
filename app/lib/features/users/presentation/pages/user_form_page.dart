@@ -12,6 +12,7 @@ import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../auth/domain/app_user.dart';
 import '../../data/users_repository_impl.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Add a user (name, phone, email, password) or edit one (no password).
 /// Pops with the saved [AppUser].
@@ -113,7 +114,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> with FormSubmit {
                     message: failureText(context, _loadError!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const FormSkeleton(fields: 3))
           : Form(
               key: formKey,
               child: PageBody(

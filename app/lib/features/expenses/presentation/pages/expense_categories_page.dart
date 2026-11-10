@@ -77,7 +77,10 @@ class _ExpenseCategoriesPageState extends ConsumerState<ExpenseCategoriesPage> {
                     message: failureText(context, _error!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const Padding(
+                    padding: EdgeInsets.all(Space.s4),
+                    child: SkeletonList(),
+                  ))
           : PageBody(
               children: [
                 Text(

@@ -18,6 +18,7 @@ import '../../data/products_repository_impl.dart';
 import '../../domain/product.dart';
 import '../product_actions.dart';
 import 'products_list_page.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Add a product, or edit one (with Activate/Deactivate and Delete).
 /// Form: name, unit (+ label for "Other"), default cost, default price,
@@ -151,7 +152,7 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
                     message: failureText(context, _loadError!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const FormSkeleton(fields: 5, big: {4}))
           : Form(
               key: formKey,
               child: PageBody(children: _fields(context)),

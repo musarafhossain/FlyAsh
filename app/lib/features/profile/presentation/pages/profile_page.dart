@@ -15,6 +15,7 @@ import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../users/presentation/pages/users_list_page.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// My profile (03-AppFlow §10): details → Edit profile · Change password.
 class ProfilePage extends ConsumerStatefulWidget {
@@ -64,7 +65,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     message: failureText(context, _error!),
                     onRetry: _reload,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const DetailSkeleton(
+                    children: [
+                      SkeletonHeader(),
+                      SizedBox(height: Space.s3),
+                      SkeletonLines(count: 3),
+                      SizedBox(height: Space.s3),
+                      SkeletonLines(count: 3),
+                    ],
+                  ))
           : PageBody(
               children: [
                 AppCard(

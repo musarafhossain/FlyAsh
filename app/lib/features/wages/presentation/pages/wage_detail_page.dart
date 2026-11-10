@@ -22,6 +22,7 @@ import '../../data/wages_repository_impl.dart';
 import '../../domain/wages.dart';
 import '../widgets/wage_sheets.dart';
 import '../widgets/wages_tab.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// A labour's wage for a month (03-AppFlow §7.3): breakdown
 /// worked days × rate − advances − paid = balance, Give advance / Pay
@@ -190,9 +191,17 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
           if (_error != null)
             ErrorState(message: failureText(context, _error!), onRetry: _load)
           else if (d == null)
-            const Padding(
-              padding: EdgeInsets.all(Space.s8),
-              child: Center(child: CircularProgressIndicator()),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SkeletonHeader(),
+                SizedBox(height: Space.s3),
+                SkeletonLines(count: 6, title: true),
+                SizedBox(height: Space.s3),
+                SkeletonLines(count: 2, title: true),
+                SizedBox(height: Space.s3),
+                SkeletonLines(count: 2, title: true),
+              ],
             )
           else
             ..._content(context, d),

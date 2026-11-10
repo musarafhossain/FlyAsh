@@ -22,6 +22,7 @@ import '../../domain/sale.dart';
 import '../../domain/sale_summary.dart';
 import '../sale_labels.dart';
 import '../widgets/sale_action_sheets.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Sale detail (04-UI-UX "Sale detail"): invoice no. and status pills →
 /// customer card (Call / WhatsApp, opens the customer) → items → money
@@ -227,7 +228,7 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
                     message: failureText(context, _error!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const SaleDetailSkeleton())
           : RefreshIndicator(
               onRefresh: _load,
               child: wide ? _wide(sale) : _narrow(sale),
@@ -766,6 +767,46 @@ class _Actions extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Sale detail while loading: header, customer, items, money and payments;
+/// two columns on wide screens like the real page.
+class SaleDetailSkeleton extends StatelessWidget {
+  const SaleDetailSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const header = SkeletonHeader(avatar: false);
+    const customer = SkeletonHeader(buttons: 2);
+    const items = SkeletonLines(count: 3, title: true);
+    const money = SkeletonLines(count: 6, title: true);
+    const payments = SkeletonLines(count: 2, title: true);
+    const gap = SizedBox(height: Space.s3);
+    if (MediaQuery.sizeOf(context).width >= Breakpoints.expanded) {
+      return const DetailSkeleton(
+        maxWidth: 1200,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Column(children: [header, gap, items, gap, payments]),
+              ),
+              SizedBox(width: Space.s5),
+              Expanded(
+                flex: 2,
+                child: Column(children: [customer, gap, money]),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+    return const DetailSkeleton(
+      children: [header, gap, customer, gap, items, gap, money, gap, payments],
     );
   }
 }

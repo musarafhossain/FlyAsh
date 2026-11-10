@@ -143,7 +143,13 @@ class _SkeletonBoxState extends State<SkeletonBox>
 
   @override
   Widget build(BuildContext context) {
-    final color = context.tokens.surfaceVariant;
+    final t = context.tokens;
+    // A touch darker than surfaceVariant, so it shows on cards and on the
+    // page background alike (flat lists sit on the page).
+    final color = Color.alphaBlend(
+      t.textTertiary.withValues(alpha: 0.14),
+      t.surfaceVariant,
+    );
     final reduceMotion = MediaQuery.of(context).disableAnimations;
     return FadeTransition(
       opacity: reduceMotion
@@ -161,47 +167,64 @@ class _SkeletonBoxState extends State<SkeletonBox>
   }
 }
 
-/// Loading placeholder shaped like a list of entity rows.
+/// Loading placeholder shaped like the flat lists: rows split by thin
+/// lines, each with a round avatar, two text lines and a value + pill on
+/// the right. [leading] false: no avatar; [toggle] true: a switch on the
+/// right instead (attendance).
 class SkeletonList extends StatelessWidget {
-  const SkeletonList({super.key, this.count = 6});
+  const SkeletonList({
+    super.key,
+    this.count = 6,
+    this.leading = true,
+    this.toggle = false,
+  });
 
   final int count;
+  final bool leading;
+  final bool toggle;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Column(
-      children: [
-        for (var i = 0; i < count; i++)
-          Container(
-            margin: const EdgeInsets.only(bottom: Space.s2),
-            padding: const EdgeInsets.all(Space.s4),
-            decoration: BoxDecoration(
-              color: t.surface,
-              borderRadius: Radii.mdAll,
-              border: Border.all(color: t.border),
-            ),
-            child: const Row(
-              children: [
-                SkeletonBox(width: 40, height: 40, radius: 20),
-                SizedBox(width: Space.s3),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SkeletonBox(width: 160),
-                      SizedBox(height: Space.s2),
-                      SkeletonBox(width: 100, height: 12),
-                    ],
-                  ),
-                ),
-                SkeletonBox(width: 64),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (var i = 0; i < count; i++) ...[
+        if (i > 0) const Divider(height: 1),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: Space.s3),
+          child: Row(
+            children: [
+              if (leading) ...[
+                const SkeletonBox(width: 48, height: 48, radius: 24),
+                const SizedBox(width: Space.s3),
               ],
-            ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SkeletonBox(width: i.isEven ? 170 : 140, height: 16),
+                    const SizedBox(height: Space.s2),
+                    SkeletonBox(width: i.isEven ? 110 : 130, height: 12),
+                  ],
+                ),
+              ),
+              const SizedBox(width: Space.s3),
+              if (toggle)
+                const SkeletonBox(width: 52, height: 32, radius: 16)
+              else
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SkeletonBox(width: 64, height: 16),
+                    SizedBox(height: Space.s2),
+                    SkeletonBox(width: 52, height: 18, radius: 9),
+                  ],
+                ),
+            ],
           ),
+        ),
       ],
-    );
-  }
+    ],
+  );
 }
 
 /// Confirm dialog (§9.15). Returns true when confirmed.

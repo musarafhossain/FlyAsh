@@ -11,6 +11,7 @@ import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../data/settings_repository_impl.dart';
 import '../../domain/factory_settings.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Settings → Factory profile (PUT /settings/factory). Shown on receipts.
 class FactoryProfilePage extends ConsumerWidget {
@@ -24,7 +25,7 @@ class FactoryProfilePage extends ConsumerWidget {
       appBar: AppBar(title: Text(l.factoryProfile)),
       body: async.when(
         data: (settings) => _FactoryForm(initial: settings),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const FormSkeleton(fields: 6, big: {4}),
         error: (e, _) => ErrorState(
           message: failureText(context, e),
           onRetry: () => ref.invalidate(factorySettingsProvider),

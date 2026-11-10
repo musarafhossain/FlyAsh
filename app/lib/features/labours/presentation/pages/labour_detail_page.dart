@@ -27,6 +27,7 @@ import '../../../wages/presentation/widgets/wages_tab.dart';
 import '../../data/labours_repository_impl.dart';
 import '../../domain/labour.dart';
 import '../labour_labels.dart';
+import '../../../../core/widgets/skeletons.dart';
 import '../widgets/labours_tab.dart' show TodayPill;
 
 /// Labour detail (03-AppFlow §7.1): info, Call / WhatsApp, the month's
@@ -193,7 +194,15 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
                     message: failureText(context, _error!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const DetailSkeleton(
+                    children: [
+                      SkeletonHeader(),
+                      SizedBox(height: Space.s3),
+                      SkeletonLines(count: 3, title: true),
+                      SkeletonSectionTitle(),
+                      SkeletonCalendar(),
+                    ],
+                  ))
           : PageBody(
               maxWidth: 720,
               children: [
@@ -222,10 +231,7 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
                     onRetry: _loadMonth,
                   )
                 else if (_calendar == null)
-                  const Padding(
-                    padding: EdgeInsets.all(Space.s6),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+                  const SkeletonCalendar()
                 else
                   _MonthCalendar(
                     month: _month,

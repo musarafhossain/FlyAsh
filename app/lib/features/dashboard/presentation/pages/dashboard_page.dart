@@ -13,6 +13,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/list_items.dart';
+import '../../../../core/widgets/skeletons.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../sales/presentation/widgets/sale_list_items.dart';
@@ -123,13 +124,35 @@ class _Loading extends StatelessWidget {
   const _Loading();
 
   @override
+  /// Greeting, Today's sales card, the KPI tiles, quick actions and
+  /// recent sales, in the same places as the real Home.
   Widget build(BuildContext context) => const Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      SkeletonBox(height: 56),
-      SizedBox(height: Space.s3),
+      SkeletonBox(width: 90, height: 12),
+      SizedBox(height: Space.s2),
+      SkeletonBox(width: 200, height: 24),
+      SizedBox(height: Space.s2),
+      SkeletonBox(width: 220, height: 12),
+      SizedBox(height: Space.s4),
       SkeletonBox(height: 120, radius: Radii.lg),
       SizedBox(height: Space.s3),
+      SkeletonKpis(count: 2),
+      SizedBox(height: Space.s2),
+      SkeletonKpis(count: 2),
+      SkeletonSectionTitle(),
+      Row(
+        children: [
+          Expanded(child: SkeletonBox(height: 84, radius: Radii.md)),
+          SizedBox(width: Space.s2),
+          Expanded(child: SkeletonBox(height: 84, radius: Radii.md)),
+          SizedBox(width: Space.s2),
+          Expanded(child: SkeletonBox(height: 84, radius: Radii.md)),
+          SizedBox(width: Space.s2),
+          Expanded(child: SkeletonBox(height: 84, radius: Radii.md)),
+        ],
+      ),
+      SkeletonSectionTitle(action: true),
       SkeletonList(count: 3),
     ],
   );

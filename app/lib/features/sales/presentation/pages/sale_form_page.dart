@@ -30,6 +30,7 @@ import '../../../products/presentation/pages/products_list_page.dart';
 import '../../data/sales_repository_impl.dart';
 import '../../domain/sale.dart';
 import '../sale_labels.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Payment methods the API accepts.
 const kPaymentMethods = ['cash', 'upi', 'bank', 'other'];
@@ -467,7 +468,16 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
                       message: failureText(context, _loadError!),
                       onRetry: _loadSale,
                     )
-                  : const Center(child: CircularProgressIndicator()))
+                  : const DetailSkeleton(
+                      maxWidth: 760,
+                      children: [
+                        SkeletonLines(count: 2, title: true),
+                        SizedBox(height: Space.s3),
+                        SkeletonLines(count: 3, title: true),
+                        SizedBox(height: Space.s3),
+                        SkeletonLines(count: 4, title: true),
+                      ],
+                    ))
             : Form(
                 key: formKey,
                 child: PageBody(maxWidth: 760, children: _sections(context)),

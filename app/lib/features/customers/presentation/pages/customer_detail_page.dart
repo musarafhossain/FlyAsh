@@ -23,6 +23,7 @@ import '../../data/customers_repository_impl.dart';
 import '../../domain/customer.dart';
 import '../../../sales/presentation/sale_actions.dart';
 import '../../../../core/network/data_changed.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 enum _MenuAction { toggleActive, delete }
 
@@ -192,7 +193,16 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                     message: failureText(context, _error!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const DetailSkeleton(
+                    maxWidth: 960,
+                    children: [
+                      SkeletonHeader(buttons: 2),
+                      SizedBox(height: Space.s3),
+                      SkeletonKpis(),
+                      SkeletonSectionTitle(action: true),
+                      SkeletonList(count: 4),
+                    ],
+                  ))
           : PagedList<SaleSummary>(
               showCount: false,
               controller: _sales,

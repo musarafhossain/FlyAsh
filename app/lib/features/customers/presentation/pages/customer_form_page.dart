@@ -16,6 +16,7 @@ import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../data/customers_repository_impl.dart';
 import '../../domain/customer.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Add or edit a customer; pops with the saved [Customer] (the list then
 /// opens a new customer's detail page).
@@ -113,7 +114,7 @@ class _CustomerFormPageState extends ConsumerState<CustomerFormPage>
                     message: failureText(context, _loadError!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const FormSkeleton(fields: 3, big: {2}))
           : Form(
               key: formKey,
               child: PageBody(

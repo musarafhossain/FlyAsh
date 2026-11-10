@@ -20,6 +20,7 @@ import '../../data/expenses_repository_impl.dart';
 import '../../domain/expense.dart';
 import '../widgets/category_dialog.dart';
 import '../widgets/expense_icons.dart';
+import '../../../../core/widgets/skeletons.dart';
 import 'expenses_list_page.dart' show activeExpenseCategoriesProvider;
 
 /// Add or edit an expense (03-AppFlow §8): date (not future), category
@@ -176,7 +177,7 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
                     message: failureText(context, _loadError!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const FormSkeleton(fields: 4, big: {3}))
           : Form(
               key: formKey,
               child: PageBody(
@@ -298,8 +299,8 @@ class _CategorySheet extends ConsumerWidget {
             Flexible(
               child: async.when(
                 loading: () => const Padding(
-                  padding: EdgeInsets.all(Space.s6),
-                  child: Center(child: CircularProgressIndicator()),
+                  padding: EdgeInsets.symmetric(horizontal: Space.s4),
+                  child: SkeletonList(count: 4),
                 ),
                 error: (e, _) => ErrorState(
                   message: failureText(context, e),

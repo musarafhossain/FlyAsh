@@ -19,6 +19,7 @@ import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../data/labours_repository_impl.dart';
 import '../../domain/labour.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Add or edit a labour (03-AppFlow §7.1): name, phone (optional),
 /// address, wage type Daily / Monthly + wage amount (both required),
@@ -126,7 +127,7 @@ class _LabourFormPageState extends ConsumerState<LabourFormPage>
                     message: failureText(context, _loadError!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const FormSkeleton(fields: 6, big: {2}))
           : Form(
               key: formKey,
               child: PageBody(

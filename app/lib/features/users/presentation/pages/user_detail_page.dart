@@ -18,6 +18,7 @@ import '../../../../core/widgets/status_pill.dart';
 import '../../../auth/domain/app_user.dart';
 import '../../data/users_repository_impl.dart';
 import 'users_list_page.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// One user: details and actions Edit · Reset password · Deactivate/Activate.
 class UserDetailPage extends ConsumerStatefulWidget {
@@ -118,7 +119,15 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
                     message: failureText(context, _error!),
                     onRetry: _load,
                   )
-                : const Center(child: CircularProgressIndicator()))
+                : const DetailSkeleton(
+                    children: [
+                      SkeletonHeader(),
+                      SizedBox(height: Space.s3),
+                      SkeletonLines(count: 4),
+                      SizedBox(height: Space.s3),
+                      SkeletonLines(count: 2),
+                    ],
+                  ))
           : PageBody(
               maxWidth: 720,
               children: [
