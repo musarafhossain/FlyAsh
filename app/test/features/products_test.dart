@@ -391,6 +391,95 @@ void main() {
     expect(find.text('Red Brick'), findsNothing);
   });
 
+  Finder sheet(String text) =>
+      find.descendant(of: find.byType(BottomSheet), matching: find.text(text));
+
+  testWidgets('long press opens the action menu: Edit, Deactivate, Delete', (
+    tester,
+  ) async {
+    await openProducts(tester);
+    await tester.longPress(find.text('Fly Ash Brick 9×4×3'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomSheet), findsOneWidget);
+    expect(sheet('Fly Ash Brick 9×4×3'), findsOneWidget);
+    expect(sheet('Edit'), findsOneWidget);
+    expect(sheet('Deactivate'), findsOneWidget);
+    expect(sheet('Delete'), findsOneWidget);
+
+    await tester.tap(sheet('Edit'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(currentPath(), '/products/1/edit');
+  });
+
+  testWidgets('menu: Deactivate asks, saves, and the row shows Inactive', (
+    tester,
+  ) async {
+    final api = await openProducts(tester);
+    await tester.longPress(find.text('Red Brick'));
+    await tester.pumpAndSettle();
+    await tester.tap(sheet('Deactivate'));
+    await tester.pumpAndSettle();
+    expect(find.text('Deactivate Red Brick?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Deactivate'));
+    await tester.pumpAndSettle();
+    expect(
+      api.requests.lastWhere((r) => r.method == 'PATCH').path,
+      '/products/2/status',
+    );
+    expect(find.text('Product deactivated'), findsOneWidget);
+    expect(
+      find.text('Inactive'),
+      findsNWidgets(3),
+      reason: 'filter chip + Red + Old Brick',
+    );
+
+    // An inactive product offers Activate
+    await tester.longPress(find.text('Red Brick'));
+    await tester.pumpAndSettle();
+    expect(sheet('Activate'), findsOneWidget);
+  });
+
+  testWidgets('menu: Delete; a product used in sales gets the server message', (
+    tester,
+  ) async {
+    await openProducts(tester);
+    await tester.longPress(find.text('Old Brick'));
+    await tester.pumpAndSettle();
+    await tester.tap(sheet('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Product is used in sales. Deactivate it instead'),
+      findsOneWidget,
+    );
+    expect(find.text('Old Brick'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    await tester.longPress(find.text('Red Brick'));
+    await tester.pumpAndSettle();
+    await tester.tap(sheet('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(find.text('Product deleted successfully'), findsOneWidget);
+    expect(find.text('Red Brick'), findsNothing);
+  });
+
+  testWidgets('menu: Cancel in the dialog changes nothing', (tester) async {
+    final api = await openProducts(tester);
+    await tester.longPress(find.text('Red Brick'));
+    await tester.pumpAndSettle();
+    await tester.tap(sheet('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
+    await tester.pumpAndSettle();
+    expect(api.requests.where((r) => r.method == 'DELETE'), isEmpty);
+    expect(find.text('Red Brick'), findsOneWidget);
+  });
+
   for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {
     for (final dark in [false, true]) {
       testWidgets('no overflow at ${size.width.toInt()} px '

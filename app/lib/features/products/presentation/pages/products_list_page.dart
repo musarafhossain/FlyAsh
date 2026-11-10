@@ -11,6 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/action_sheet.dart';
 import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/paged_list.dart';
@@ -18,6 +19,7 @@ import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
 import '../../data/products_repository_impl.dart';
 import '../../domain/product.dart';
+import '../product_actions.dart';
 
 /// Unit name in the current language ("Piece", "1000 pieces", "cft" …).
 String unitText(AppLocalizations l, ProductUnit unit, [String? label]) =>
@@ -70,6 +72,42 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
   Future<void> _open(String location) async {
     await context.push(location);
     if (mounted) _list.refresh();
+  }
+
+  /// Long press: Edit · Deactivate / Activate · Delete.
+  Future<void> _actions(Product p) {
+    final l = context.l10n;
+    return showActionSheet(
+      context,
+      leading: ProductIcon(seed: p.name, active: p.isActive, size: 40),
+      title: p.name,
+      subtitle: l.perUnit(unitText(l, p.unit, p.unitLabel)),
+      actions: [
+        SheetAction(
+          icon: Icons.edit_outlined,
+          label: l.edit,
+          onSelected: () => _open('/products/${p.id}/edit'),
+        ),
+        SheetAction(
+          icon: p.isActive ? Icons.block : Icons.check_circle_outline,
+          label: p.isActive ? l.deactivate : l.activate,
+          destructive: p.isActive,
+          onSelected: () async {
+            if (await toggleProductActive(context, ref, p) != null) {
+              _list.refresh();
+            }
+          },
+        ),
+        SheetAction(
+          icon: Icons.delete_outline,
+          label: l.delete,
+          destructive: true,
+          onSelected: () async {
+            if (await deleteProduct(context, ref, p)) _list.refresh();
+          },
+        ),
+      ],
+    );
   }
 
   @override
@@ -165,6 +203,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
                     ProductTile(
                       product: p,
                       onTap: () => _open('/products/${p.id}/edit'),
+                      onLongPress: () => _actions(p),
                     ),
                 ],
               ),
@@ -197,10 +236,18 @@ class ProductIcon extends StatelessWidget {
 
 /// Phone/tablet row: icon · name · "per Piece" · cost → price · margin.
 class ProductTile extends StatelessWidget {
-  const ProductTile({super.key, required this.product, this.onTap});
+  const ProductTile({
+    super.key,
+    required this.product,
+    this.onTap,
+    this.onLongPress,
+  });
 
   final Product product;
   final VoidCallback? onTap;
+
+  /// Opens the action menu.
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -213,6 +260,7 @@ class ProductTile extends StatelessWidget {
       opacity: p.isActive ? 1 : 0.6,
       child: ListRowSurface(
         onTap: onTap,
+        onLongPress: onLongPress,
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,
           vertical: Space.s3,

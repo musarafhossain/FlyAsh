@@ -130,6 +130,7 @@ class ListRowSurface extends StatelessWidget {
     super.key,
     required this.child,
     this.onTap,
+    this.onLongPress,
     this.padding = const EdgeInsets.symmetric(
       horizontal: Space.s4,
       vertical: Space.s3,
@@ -138,6 +139,9 @@ class ListRowSurface extends StatelessWidget {
 
   final Widget child;
   final VoidCallback? onTap;
+
+  /// Opens the row's action menu (edit, deactivate, delete …).
+  final VoidCallback? onLongPress;
   final EdgeInsetsGeometry padding;
 
   @override
@@ -145,6 +149,7 @@ class ListRowSurface extends StatelessWidget {
     type: MaterialType.transparency,
     child: InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Padding(
         // Flat lists: no side padding, so rows line up with the page.
         padding: _FlatScope.of(context)

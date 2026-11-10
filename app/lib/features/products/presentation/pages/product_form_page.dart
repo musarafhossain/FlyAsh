@@ -16,6 +16,7 @@ import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
 import '../../data/products_repository_impl.dart';
 import '../../domain/product.dart';
+import '../product_actions.dart';
 import 'products_list_page.dart';
 
 /// Add a product, or edit one (with Activate/Deactivate and Delete).
@@ -119,60 +120,23 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
     Navigator.of(context).pop(_product);
   }
 
+  void _busy(bool v) {
+    if (mounted) setState(() => _acting = v);
+  }
+
   Future<void> _toggleActive() async {
-    final p = _product!;
-    final l = context.l10n;
-    final deactivate = p.isActive;
-    final ok = await showConfirmDialog(
+    final updated = await toggleProductActive(
       context,
-      title: deactivate
-          ? l.deactivateProductTitle(p.name)
-          : l.activateProductTitle(p.name),
-      message: deactivate
-          ? l.deactivateProductMessage
-          : l.activateProductMessage,
-      confirmLabel: deactivate ? l.deactivate : l.activate,
-      destructive: deactivate,
+      ref,
+      _product!,
+      onBusy: _busy,
     );
-    if (!ok || !mounted) return;
-    setState(() => _acting = true);
-    try {
-      final (updated, message) = await ref
-          .read(productsRepositoryProvider)
-          .setActive(p.id, !deactivate);
-      if (!mounted) return;
-      setState(() => _product = updated);
-      showMessage(context, message);
-    } on Failure catch (f) {
-      if (mounted) showMessage(context, failureText(context, f));
-    } finally {
-      if (mounted) setState(() => _acting = false);
-    }
+    if (updated != null && mounted) setState(() => _product = updated);
   }
 
   Future<void> _delete() async {
-    final p = _product!;
-    final l = context.l10n;
-    final ok = await showConfirmDialog(
-      context,
-      title: l.deleteProductTitle(p.name),
-      message: l.deleteProductMessage,
-      confirmLabel: l.delete,
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    setState(() => _acting = true);
-    try {
-      final message = await ref.read(productsRepositoryProvider).delete(p.id);
-      if (!mounted) return;
-      showMessage(context, message);
-      Navigator.of(context).pop();
-    } on Failure catch (f) {
-      // 409: used in sales → the server says to deactivate instead.
-      if (mounted) showMessage(context, failureText(context, f));
-    } finally {
-      if (mounted) setState(() => _acting = false);
-    }
+    final deleted = await deleteProduct(context, ref, _product!, onBusy: _busy);
+    if (deleted && mounted) Navigator.of(context).pop();
   }
 
   @override
