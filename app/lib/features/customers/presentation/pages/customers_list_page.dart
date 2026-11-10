@@ -19,6 +19,7 @@ import '../../../../core/widgets/status_pill.dart';
 import '../../../../core/network/data_changed.dart';
 import '../../data/customers_repository_impl.dart';
 import '../../domain/customer.dart';
+import '../customer_actions.dart';
 
 /// Which customers the list shows.
 enum CustomerFilter { all, hasDue, inactive }
@@ -101,6 +102,7 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
         label: Text(l.addCustomer),
       ),
       body: PagedList<Customer>(
+        showCount: false,
         controller: _list,
         fetch: (page) => repo.list(
           page: page,
@@ -165,11 +167,18 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
                 onOpen: (c) => _open('/customers/${c.id}'),
               )
             : ListGroup(
+                flat: true,
                 children: [
                   for (final c in customers)
                     CustomerTile(
                       customer: c,
                       onTap: () => _open('/customers/${c.id}'),
+                      onLongPress: (row) => showCustomerMenu(
+                        row,
+                        ref,
+                        c,
+                        onOpen: () => _open('/customers/${c.id}'),
+                      ),
                     ),
                 ],
               ),
@@ -209,10 +218,18 @@ class DueText extends StatelessWidget {
 
 /// Phone/tablet row: initials · name · phone · address | due.
 class CustomerTile extends StatelessWidget {
-  const CustomerTile({super.key, required this.customer, this.onTap});
+  const CustomerTile({
+    super.key,
+    required this.customer,
+    this.onTap,
+    this.onLongPress,
+  });
 
   final Customer customer;
   final VoidCallback? onTap;
+
+  /// Opens the action menu next to this row (gets the row's context).
+  final ValueChanged<BuildContext>? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -223,6 +240,7 @@ class CustomerTile extends StatelessWidget {
       opacity: c.isActive ? 1 : 0.6,
       child: ListRowSurface(
         onTap: onTap,
+        onLongPress: onLongPress == null ? null : () => onLongPress!(context),
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,
           vertical: Space.s3,

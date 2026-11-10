@@ -2629,6 +2629,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{present} present · {absent} absent'**
   String attendanceCount(String present, String absent);
+
+  /// No description provided for @view.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get view;
 }
 
 class _AppLocalizationsDelegate

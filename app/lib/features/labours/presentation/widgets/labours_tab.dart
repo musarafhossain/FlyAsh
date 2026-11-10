@@ -18,6 +18,7 @@ import '../../../../core/network/data_changed.dart';
 import '../../data/labours_repository_impl.dart';
 import '../../domain/labour.dart';
 import '../labour_labels.dart';
+import '../labour_actions.dart';
 
 enum _LabourFilter { active, inactive, all }
 
@@ -68,6 +69,7 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
         label: Text(l.addLabour),
       ),
       body: PagedList<Labour>(
+        showCount: false,
         controller: _list,
         fetch: (page) => repo.list(
           page: page,
@@ -145,11 +147,18 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
                 onOpen: (lb) => _open('/labours/${lb.id}'),
               )
             : ListGroup(
+                flat: true,
                 children: [
                   for (final lb in labours)
                     LabourTile(
                       labour: lb,
                       onTap: () => _open('/labours/${lb.id}'),
+                      onLongPress: (row) => showLabourMenu(
+                        row,
+                        ref,
+                        lb,
+                        onOpen: () => _open('/labours/${lb.id}'),
+                      ),
                     ),
                 ],
               ),
@@ -173,10 +182,18 @@ class TodayPill extends StatelessWidget {
 
 /// Phone/tablet row: avatar · name · wage | today's status.
 class LabourTile extends StatelessWidget {
-  const LabourTile({super.key, required this.labour, this.onTap});
+  const LabourTile({
+    super.key,
+    required this.labour,
+    this.onTap,
+    this.onLongPress,
+  });
 
   final Labour labour;
   final VoidCallback? onTap;
+
+  /// Opens the action menu next to this row (gets the row's context).
+  final ValueChanged<BuildContext>? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +204,7 @@ class LabourTile extends StatelessWidget {
       opacity: lb.isActive ? 1 : 0.6,
       child: ListRowSurface(
         onTap: onTap,
+        onLongPress: onLongPress == null ? null : () => onLongPress!(context),
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,
           vertical: Space.s3,

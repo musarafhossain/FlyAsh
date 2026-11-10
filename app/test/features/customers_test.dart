@@ -226,7 +226,61 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// Labels in the open row menu (long press), top to bottom.
+List<String> rowMenu(WidgetTester tester) => [
+  for (final e
+      in find
+          .descendant(
+            of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+            matching: find.byType(Text),
+          )
+          .evaluate())
+    (e.widget as Text).data ?? '',
+];
+
+Future<void> tapMenu(WidgetTester tester, String label) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      matching: find.text(label),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> longPress(WidgetTester tester, String text) async {
+  await tester.longPress(find.text(text).first);
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets('long press: View · Edit | Call · WhatsApp | Deactivate | '
+      'Delete; Deactivate asks and saves', (tester) async {
+    final api = await openCustomers(tester);
+    expect(find.textContaining('Showing'), findsNothing);
+    await longPress(tester, 'Rahim Biswas Traders');
+    expect(rowMenu(tester), [
+      'View',
+      'Edit',
+      'Call',
+      'WhatsApp',
+      'Deactivate',
+      'Delete',
+    ]);
+    await tapMenu(tester, 'Deactivate');
+    await tester.tap(find.widgetWithText(FilledButton, 'Deactivate'));
+    await tester.pumpAndSettle();
+    expect(
+      api.requests.lastWhere((r) => r.method == 'PATCH').path,
+      '/customers/1/status',
+    );
+    expect(find.text('Customer deactivated'), findsOneWidget);
+
+    await longPress(tester, 'Habib Enterprise');
+    await tapMenu(tester, 'Edit');
+    expect(currentPath(), '/customers/2/edit');
+  });
+
   late List<Uri> launched;
   setUp(() {
     launched = [];

@@ -217,7 +217,47 @@ RequestOptions lastList() =>
 RequestOptions last(String method, String path) =>
     api.requests.lastWhere((r) => r.method == method && r.path == path);
 
+/// Labels in the open row menu (long press), top to bottom.
+List<String> rowMenu(WidgetTester tester) => [
+  for (final e
+      in find
+          .descendant(
+            of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+            matching: find.byType(Text),
+          )
+          .evaluate())
+    (e.widget as Text).data ?? '',
+];
+
+Future<void> tapMenu(WidgetTester tester, String label) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      matching: find.text(label),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> longPress(WidgetTester tester, String text) async {
+  await tester.longPress(find.text(text).first);
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets('long press: Edit | Delete; Delete asks and removes the row', (
+    tester,
+  ) async {
+    await openAt(tester, '/expenses');
+    await longPress(tester, 'Tiffin for 15 labours');
+    expect(rowMenu(tester), ['Edit', 'Delete']);
+    await tapMenu(tester, 'Delete');
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(find.text('Expense deleted'), findsOneWidget);
+    expect(find.text('Tiffin for 15 labours'), findsNothing);
+  });
+
   testWidgets('this month by default: total, category chips, rows', (
     tester,
   ) async {

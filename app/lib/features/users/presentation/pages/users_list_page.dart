@@ -17,6 +17,7 @@ import '../../../../core/widgets/status_pill.dart';
 import '../../../../core/network/data_changed.dart';
 import '../../../auth/domain/app_user.dart';
 import '../../data/users_repository_impl.dart';
+import '../user_actions.dart';
 
 /// Users list (03-AppFlow §10): everyone except the logged-in user.
 /// Phone/tablet: cards. Desktop: a table.
@@ -71,6 +72,7 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
         label: Text(l.addUser),
       ),
       body: PagedList<AppUser>(
+        showCount: false,
         controller: _list,
         fetch: (page) => repo.list(page: page, search: _search.text),
         header: TextField(
@@ -104,6 +106,7 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
         builder: (context, users) => desktop
             ? _UsersTable(users: users, onOpen: (u) => _open('/users/${u.id}'))
             : ListGroup(
+                flat: true,
                 children: [
                   for (final u in users)
                     EntityListTile(
@@ -116,6 +119,12 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
                           ? StatusTone.success
                           : StatusTone.neutral,
                       onTap: () => _open('/users/${u.id}'),
+                      onLongPress: (row) => showUserMenu(
+                        row,
+                        ref,
+                        u,
+                        onOpen: () => _open('/users/${u.id}'),
+                      ),
                     ),
                 ],
               ),

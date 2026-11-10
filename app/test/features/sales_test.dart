@@ -215,7 +215,53 @@ String currentPath() =>
 RequestOptions lastList(List<RequestOptions> r) =>
     r.lastWhere((o) => o.path == '/sales');
 
+/// Labels in the open row menu (long press), top to bottom.
+List<String> rowMenu(WidgetTester tester) => [
+  for (final e
+      in find
+          .descendant(
+            of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+            matching: find.byType(Text),
+          )
+          .evaluate())
+    (e.widget as Text).data ?? '',
+];
+
+Future<void> tapMenu(WidgetTester tester, String label) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      matching: find.text(label),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> longPress(WidgetTester tester, String text) async {
+  await tester.longPress(find.text(text).first);
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets('long press shows only what the sale allows', (tester) async {
+    await openSales(tester);
+    expect(find.textContaining('Showing'), findsNothing);
+    await tester.longPress(find.textContaining('INV-000104'));
+    await tester.pumpAndSettle();
+    expect(rowMenu(tester), ['View', 'Edit', 'Add payment', 'Delete']);
+    await tapMenu(tester, 'Edit');
+    expect(currentPath(), '/sales/104/edit');
+
+    testContainer.read(routerProvider).go('/sales');
+    await tester.pumpAndSettle();
+    await tester.longPress(find.textContaining('INV-000105'));
+    await tester.pumpAndSettle();
+    expect(
+      rowMenu(tester),
+      containsAllInOrder(['Mark delivered', 'Cancel booking', 'Delete']),
+    );
+  });
+
   late List<Uri> launched;
   setUp(() {
     launched = [];

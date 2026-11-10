@@ -21,6 +21,8 @@ import '../../../sales/domain/sale_summary.dart';
 import '../../../sales/presentation/widgets/sale_list_items.dart';
 import '../../data/customers_repository_impl.dart';
 import '../../domain/customer.dart';
+import '../../../sales/presentation/sale_actions.dart';
+import '../../../../core/network/data_changed.dart';
 
 enum _MenuAction { toggleActive, delete }
 
@@ -136,6 +138,10 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    ref.listen(dataChangedProvider, (_, _) {
+      _sales.refresh();
+      unawaited(_load());
+    });
     final c = _customer;
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
 
@@ -188,6 +194,7 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                   )
                 : const Center(child: CircularProgressIndicator()))
           : PagedList<SaleSummary>(
+              showCount: false,
               controller: _sales,
               maxWidth: 960,
               fetch: (page) => ref
@@ -241,11 +248,18 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                       onOpen: (sale) => context.push('/sales/${sale.id}'),
                     )
                   : ListGroup(
+                      flat: true,
                       children: [
                         for (final s in sales)
                           SaleTile(
                             sale: s,
                             onTap: () => context.push('/sales/${s.id}'),
+                            onLongPress: (row) => showSaleMenu(
+                              row,
+                              ref,
+                              s,
+                              onOpen: () => context.push('/sales/${s.id}'),
+                            ),
                           ),
                       ],
                     ),

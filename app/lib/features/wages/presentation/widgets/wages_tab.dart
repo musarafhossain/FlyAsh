@@ -23,6 +23,10 @@ import '../../../../core/network/data_changed.dart';
 import '../../../sales/presentation/sale_labels.dart';
 import '../../data/wages_repository_impl.dart';
 import '../../domain/wages.dart';
+import '../../../../core/widgets/action_menu.dart';
+import '../../../../core/widgets/form_submit.dart';
+import '../../../../core/error/failure.dart';
+import 'wage_sheets.dart';
 
 /// "26 days" (days present).
 String daysText(AppLocalizations l, int presentDays) =>
@@ -124,6 +128,87 @@ class _WagesTabState extends ConsumerState<WagesTab> {
     await context.push('/labours/wages/${row.labourId}?month=$_month');
   }
 
+  /// Runs a wage action and shows the server's message (or the error).
+  Future<void> _run(Future<String> Function() action) async {
+    try {
+      final message = await action();
+      if (mounted) showMessage(context, message);
+    } on Failure catch (f) {
+      if (mounted) showMessage(context, failureText(context, f));
+    }
+  }
+
+  /// Long press: View | Give advance · Pay wage (while something is owed).
+  Future<void> _actions(BuildContext row, WageRow r) {
+    final l = context.l10n;
+    final today = ref.read(businessDateProvider);
+    final month = _month;
+    final repo = ref.read(wagesRepositoryProvider);
+    return showActionMenu(
+      row,
+      groups: [
+        [
+          ActionMenuItem(
+            icon: Icons.visibility_outlined,
+            label: l.view,
+            onSelected: () => _open(r),
+          ),
+        ],
+        [
+          ActionMenuItem(
+            icon: Icons.payments_outlined,
+            label: l.giveAdvance,
+            onSelected: () async {
+              // A past month's advance is dated in that month.
+              final entry = await showAdvanceSheet(
+                context,
+                labourName: r.name,
+                defaultDate: month == _thisMonth
+                    ? today
+                    : Ymd.monthEnd('$month-01'),
+                today: today,
+              );
+              if (entry == null) return;
+              await _run(
+                () => repo.giveAdvance(
+                  r.labourId,
+                  amount: entry.amount,
+                  date: entry.date,
+                  note: entry.note,
+                ),
+              );
+            },
+          ),
+          if (r.hasBalance)
+            ActionMenuItem(
+              icon: Icons.account_balance_wallet_outlined,
+              label: l.payWage,
+              onSelected: () async {
+                final entry = await showPayWageSheet(
+                  context,
+                  labourName: r.name,
+                  month: month,
+                  balance: r.balance,
+                  today: today,
+                );
+                if (entry == null) return;
+                await _run(
+                  () => repo.pay(
+                    r.labourId,
+                    month: month,
+                    amount: entry.amount,
+                    date: entry.date,
+                    method: entry.method,
+                    note: entry.note,
+                  ),
+                );
+              },
+            ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -132,6 +217,7 @@ class _WagesTabState extends ConsumerState<WagesTab> {
     final totals = _totals;
 
     return PagedList<WageRow>(
+      showCount: false,
       controller: _list,
       fetch: _fetch,
       header: Column(
@@ -199,8 +285,14 @@ class _WagesTabState extends ConsumerState<WagesTab> {
       builder: (context, rows) => desktop
           ? _WagesTable(rows: rows, onOpen: _open)
           : ListGroup(
+              flat: true,
               children: [
-                for (final r in rows) _WageTile(row: r, onTap: () => _open(r)),
+                for (final r in rows)
+                  _WageTile(
+                    row: r,
+                    onTap: () => _open(r),
+                    onLongPress: (row) => _actions(row, r),
+                  ),
               ],
             ),
     );
@@ -208,10 +300,13 @@ class _WagesTabState extends ConsumerState<WagesTab> {
 }
 
 class _WageTile extends StatelessWidget {
-  const _WageTile({required this.row, required this.onTap});
+  const _WageTile({required this.row, required this.onTap, this.onLongPress});
 
   final WageRow row;
   final VoidCallback onTap;
+
+  /// Opens the action menu next to this row (gets the row's context).
+  final ValueChanged<BuildContext>? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -219,6 +314,7 @@ class _WageTile extends StatelessWidget {
     final t = context.tokens;
     return ListRowSurface(
       onTap: onTap,
+      onLongPress: onLongPress == null ? null : () => onLongPress!(context),
       padding: const EdgeInsets.symmetric(
         horizontal: Space.s4,
         vertical: Space.s3,

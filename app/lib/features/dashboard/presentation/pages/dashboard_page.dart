@@ -231,6 +231,7 @@ class _Body extends ConsumerWidget {
           ),
         if (d.recentSales.isNotEmpty)
           ListGroup(
+            flat: true,
             children: [
               for (final s in d.recentSales)
                 SaleTile(

@@ -155,7 +155,44 @@ Future<FakeUsers> openUsers(
 String currentPath() =>
     testContainer.read(routerProvider).routeInformationProvider.value.uri.path;
 
+/// Labels in the open row menu (long press), top to bottom.
+List<String> rowMenu(WidgetTester tester) => [
+  for (final e
+      in find
+          .descendant(
+            of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+            matching: find.byType(Text),
+          )
+          .evaluate())
+    (e.widget as Text).data ?? '',
+];
+
+Future<void> tapMenu(WidgetTester tester, String label) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      matching: find.text(label),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> longPress(WidgetTester tester, String text) async {
+  await tester.longPress(find.text(text).first);
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets('long press: View · Edit | Reset password | Deactivate', (
+    tester,
+  ) async {
+    await openUsers(tester);
+    await longPress(tester, 'Munshi Kalam');
+    expect(rowMenu(tester), ['View', 'Edit', 'Reset password', 'Deactivate']);
+    await tapMenu(tester, 'Reset password');
+    expect(find.byType(AlertDialog), findsOneWidget);
+  });
+
   testWidgets('phone: users are cards with status and last login', (
     tester,
   ) async {
@@ -165,7 +202,7 @@ void main() {
     expect(find.text('Active'), findsOneWidget);
     expect(find.text('Inactive'), findsOneWidget);
     expect(find.text('Last login: Never'), findsOneWidget);
-    expect(find.text('Showing 2 of 2'), findsOneWidget);
+    expect(find.textContaining('Showing'), findsNothing);
     expect(find.byType(DataTableCard), findsNothing);
   });
 

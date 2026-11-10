@@ -25,6 +25,9 @@ import '../../../sales/presentation/widgets/sale_filter_sheet.dart'
 import '../../data/expenses_repository_impl.dart';
 import '../../domain/expense.dart';
 import '../widgets/expense_icons.dart';
+import '../../../../core/widgets/action_menu.dart';
+import '../../../../core/widgets/form_submit.dart';
+import '../../../../core/error/failure.dart';
 
 /// Active categories (chips, form picker). Invalidate after changes.
 final activeExpenseCategoriesProvider = FutureProvider<List<ExpenseCategory>>(
@@ -122,6 +125,48 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
     ref.invalidate(activeExpenseCategoriesProvider);
   }
 
+  /// Long press: Edit | Delete. The list reloads by itself after a change.
+  Future<void> _actions(BuildContext row, Expense e) {
+    final l = context.l10n;
+    return showActionMenu(
+      row,
+      groups: [
+        [
+          ActionMenuItem(
+            icon: Icons.edit_outlined,
+            label: l.edit,
+            onSelected: () => _open('/expenses/${e.id}/edit'),
+          ),
+        ],
+        [
+          ActionMenuItem(
+            icon: Icons.delete_outline,
+            label: l.delete,
+            destructive: true,
+            onSelected: () async {
+              final ok = await showConfirmDialog(
+                context,
+                title: l.deleteExpenseTitle,
+                message: l.deleteExpenseMessage,
+                confirmLabel: l.delete,
+                destructive: true,
+              );
+              if (!ok || !mounted) return;
+              try {
+                final message = await ref
+                    .read(expensesRepositoryProvider)
+                    .delete(e.id);
+                if (mounted) showMessage(context, message);
+              } on Failure catch (f) {
+                if (mounted) showMessage(context, failureText(context, f));
+              }
+            },
+          ),
+        ],
+      ],
+    );
+  }
+
   String _periodLabel(AppLocalizations l) {
     if (_preset != DatePreset.custom) return presetText(l, _preset);
     if (_range.from == _range.to) return Fmt.date(_range.from);
@@ -148,6 +193,7 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
         label: Text(l.addExpense),
       ),
       body: PagedList<Expense>(
+        showCount: false,
         controller: _list,
         fetch: _fetch,
         header: Column(
@@ -254,11 +300,13 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
                 onOpen: (e) => _open('/expenses/${e.id}/edit'),
               )
             : ListGroup(
+                flat: true,
                 children: [
                   for (final e in expenses)
                     ExpenseTile(
                       expense: e,
                       onTap: () => _open('/expenses/${e.id}/edit'),
+                      onLongPress: (row) => _actions(row, e),
                     ),
                 ],
               ),
@@ -269,10 +317,18 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
 
 /// Row: category icon · note (or category) · date · category | amount.
 class ExpenseTile extends StatelessWidget {
-  const ExpenseTile({super.key, required this.expense, this.onTap});
+  const ExpenseTile({
+    super.key,
+    required this.expense,
+    this.onTap,
+    this.onLongPress,
+  });
 
   final Expense expense;
   final VoidCallback? onTap;
+
+  /// Opens the action menu next to this row (gets the row's context).
+  final ValueChanged<BuildContext>? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -281,6 +337,7 @@ class ExpenseTile extends StatelessWidget {
     final hasNote = (e.note ?? '').isNotEmpty;
     return ListRowSurface(
       onTap: onTap,
+      onLongPress: onLongPress == null ? null : () => onLongPress!(context),
       padding: const EdgeInsets.symmetric(
         horizontal: Space.s4,
         vertical: Space.s3,

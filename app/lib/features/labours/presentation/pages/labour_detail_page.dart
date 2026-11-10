@@ -131,7 +131,7 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
     if (lb.isActive) {
       leftDate = await showDialog<String>(
         context: context,
-        builder: (_) => _LeavingDateDialog(labour: lb, today: _today),
+        builder: (_) => LeavingDateDialog(labour: lb, today: _today),
       );
       if (leftDate == null) return;
     } else {
@@ -490,17 +490,21 @@ class _Legend extends StatelessWidget {
 
 /// Deactivate: asks for the leaving date (today by default, not before
 /// joining). Pops with the date.
-class _LeavingDateDialog extends StatefulWidget {
-  const _LeavingDateDialog({required this.labour, required this.today});
+class LeavingDateDialog extends StatefulWidget {
+  const LeavingDateDialog({
+    super.key,
+    required this.labour,
+    required this.today,
+  });
 
   final Labour labour;
   final String today;
 
   @override
-  State<_LeavingDateDialog> createState() => _LeavingDateDialogState();
+  State<LeavingDateDialog> createState() => _LeavingDateDialogState();
 }
 
-class _LeavingDateDialogState extends State<_LeavingDateDialog> {
+class _LeavingDateDialogState extends State<LeavingDateDialog> {
   late String _date = widget.today;
 
   @override

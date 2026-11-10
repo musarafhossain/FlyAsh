@@ -90,7 +90,7 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
   Future<void> _resetPassword() async {
     final message = await showDialog<String>(
       context: context,
-      builder: (_) => _ResetPasswordDialog(user: _user!),
+      builder: (_) => ResetPasswordDialog(user: _user!),
     );
     if (message != null && mounted) showMessage(context, message);
   }
@@ -224,17 +224,17 @@ class _UserHeader extends StatelessWidget {
 }
 
 /// New password + confirm for another user. Pops with the server message.
-class _ResetPasswordDialog extends ConsumerStatefulWidget {
-  const _ResetPasswordDialog({required this.user});
+class ResetPasswordDialog extends ConsumerStatefulWidget {
+  const ResetPasswordDialog({super.key, required this.user});
 
   final AppUser user;
 
   @override
-  ConsumerState<_ResetPasswordDialog> createState() =>
+  ConsumerState<ResetPasswordDialog> createState() =>
       _ResetPasswordDialogState();
 }
 
-class _ResetPasswordDialogState extends ConsumerState<_ResetPasswordDialog>
+class _ResetPasswordDialogState extends ConsumerState<ResetPasswordDialog>
     with FormSubmit {
   final _password = TextEditingController();
   final _confirm = TextEditingController();

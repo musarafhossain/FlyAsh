@@ -1401,4 +1401,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String attendanceCount(String present, String absent) {
     return '$present present · $absent absent';
   }
+
+  @override
+  String get view => 'View';
 }

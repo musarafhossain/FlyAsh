@@ -154,7 +154,51 @@ Future<void> tapVisible(WidgetTester tester, Finder f) async {
 RequestOptions last(String method, String path) =>
     api.requests.lastWhere((r) => r.method == method && r.path == path);
 
+/// Labels in the open row menu (long press), top to bottom.
+List<String> rowMenu(WidgetTester tester) => [
+  for (final e
+      in find
+          .descendant(
+            of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+            matching: find.byType(Text),
+          )
+          .evaluate())
+    (e.widget as Text).data ?? '',
+];
+
+Future<void> tapMenu(WidgetTester tester, String label) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      matching: find.text(label),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> longPress(WidgetTester tester, String text) async {
+  await tester.longPress(find.text(text).first);
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets('long press: View · Edit | Call | Deactivate (asks the leaving '
+      'date); no Call without a phone', (tester) async {
+    await openLabours(tester);
+    expect(find.textContaining('Showing'), findsNothing);
+    await longPress(tester, 'Abdul Karim');
+    expect(rowMenu(tester), ['View', 'Edit', 'Call', 'Deactivate']);
+    await tapMenu(tester, 'Deactivate');
+    expect(find.byType(AlertDialog), findsOneWidget);
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
+    await tester.pumpAndSettle();
+
+    await longPress(tester, 'Kartik Mondal');
+    expect(rowMenu(tester), ['View', 'Edit', 'Deactivate']);
+    await tapMenu(tester, 'View');
+    expect(currentPath(), '/labours/1');
+  });
+
   late List<Uri> launched;
   setUp(() {
     launched = [];

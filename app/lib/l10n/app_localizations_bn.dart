@@ -1395,4 +1395,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String attendanceCount(String present, String absent) {
     return '$present জন উপস্থিত · $absent জন অনুপস্থিত';
   }
+
+  @override
+  String get view => 'দেখুন';
 }

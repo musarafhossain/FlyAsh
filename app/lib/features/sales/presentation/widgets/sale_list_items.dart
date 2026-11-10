@@ -21,6 +21,7 @@ class SaleTile extends StatelessWidget {
     super.key,
     required this.sale,
     this.onTap,
+    this.onLongPress,
     this.showCustomer = false,
     this.showDelivery = false,
     this.action,
@@ -28,6 +29,9 @@ class SaleTile extends StatelessWidget {
 
   final SaleSummary sale;
   final VoidCallback? onTap;
+
+  /// Opens the action menu next to this row (gets the row's context).
+  final ValueChanged<BuildContext>? onLongPress;
   final bool showCustomer;
 
   /// A button shown under the row (e.g. "Mark delivered").
@@ -54,6 +58,7 @@ class SaleTile extends StatelessWidget {
       opacity: s.isCancelled ? 0.6 : 1,
       child: ListRowSurface(
         onTap: onTap,
+        onLongPress: onLongPress == null ? null : () => onLongPress!(context),
         padding: const EdgeInsets.symmetric(
           horizontal: Space.s4,
           vertical: Space.s3,

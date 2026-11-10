@@ -21,6 +21,7 @@ import '../../domain/sale_summary.dart';
 import '../sale_labels.dart';
 import '../widgets/sale_filter_sheet.dart';
 import '../widgets/sale_list_items.dart';
+import '../sale_actions.dart';
 
 /// Sales list (03-AppFlow §5.3): tabs All / Instant / Booking, search by
 /// invoice no., customer or phone (400 ms debounce), filter sheet (date
@@ -133,6 +134,7 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
         label: Text(l.newSale),
       ),
       body: PagedList<SaleSummary>(
+        showCount: false,
         controller: _list,
         fetch: (page) => repo.list(page: page, filter: _filter),
         header: Column(
@@ -234,12 +236,19 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
                 onOpen: (s) => _open('/sales/${s.id}'),
               )
             : ListGroup(
+                flat: true,
                 children: [
                   for (final s in sales)
                     SaleTile(
                       sale: s,
                       showCustomer: true,
                       onTap: () => _open('/sales/${s.id}'),
+                      onLongPress: (row) => showSaleMenu(
+                        row,
+                        ref,
+                        s,
+                        onOpen: () => _open('/sales/${s.id}'),
+                      ),
                     ),
                 ],
               ),

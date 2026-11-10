@@ -210,7 +210,43 @@ Future<void> tapVisible(WidgetTester tester, Finder f) async {
 RequestOptions last(String method, String path) =>
     api.requests.lastWhere((r) => r.method == method && r.path == path);
 
+/// Labels in the open row menu (long press), top to bottom.
+List<String> rowMenu(WidgetTester tester) => [
+  for (final e
+      in find
+          .descendant(
+            of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+            matching: find.byType(Text),
+          )
+          .evaluate())
+    (e.widget as Text).data ?? '',
+];
+
+Future<void> tapMenu(WidgetTester tester, String label) async {
+  await tester.tap(
+    find.descendant(
+      of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      matching: find.text(label),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+Future<void> longPress(WidgetTester tester, String text) async {
+  await tester.longPress(find.text(text).first);
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  testWidgets('long press: View | Give advance · Pay wage', (tester) async {
+    await openAt(tester, '/labours/wages');
+    expect(find.textContaining('Showing'), findsNothing);
+    await longPress(tester, 'Abdul Karim');
+    expect(rowMenu(tester), ['View', 'Give advance', 'Pay wage']);
+    await tapMenu(tester, 'Give advance');
+    expect(find.text('Advance to Abdul Karim'), findsOneWidget);
+  });
+
   testWidgets('wage sheet: month, totals, rows; no future months', (
     tester,
   ) async {

@@ -421,5 +421,6 @@
   "goodAfternoon": "শুভ দুপুর",
   "goodEvening": "শুভ সন্ধ্যা",
   "selectDate": "তারিখ বাছুন",
-  "attendanceCount": "{present} জন উপস্থিত · {absent} জন অনুপস্থিত"
+  "attendanceCount": "{present} জন উপস্থিত · {absent} জন অনুপস্থিত",
+  "view": "দেখুন"
 }

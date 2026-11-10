@@ -178,6 +178,7 @@ class EntityListTile extends StatelessWidget {
     this.status,
     this.statusTone = StatusTone.neutral,
     this.onTap,
+    this.onLongPress,
   });
 
   final String title;
@@ -194,11 +195,15 @@ class EntityListTile extends StatelessWidget {
   final StatusTone statusTone;
   final VoidCallback? onTap;
 
+  /// Opens the action menu next to this row (gets the row's context).
+  final ValueChanged<BuildContext>? onLongPress;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     return ListRowSurface(
       onTap: onTap,
+      onLongPress: onLongPress == null ? null : () => onLongPress!(context),
       child: Row(
         children: [
           if (leading != null) ...[leading!, const SizedBox(width: Space.s3)],

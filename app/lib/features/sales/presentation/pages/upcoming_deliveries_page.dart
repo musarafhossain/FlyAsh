@@ -15,6 +15,7 @@ import '../../data/sales_repository_impl.dart';
 import '../../domain/sale_summary.dart';
 import '../widgets/sale_action_sheets.dart';
 import '../widgets/sale_list_items.dart';
+import '../sale_actions.dart';
 
 /// Upcoming deliveries (03-AppFlow §5.4): booked sales by delivery date,
 /// overdue ones on top with an "Overdue" pill. Tap → sale detail;
@@ -77,6 +78,7 @@ class _UpcomingDeliveriesPageState
     return Scaffold(
       appBar: AppBar(title: Text(l.upcomingDeliveries)),
       body: PagedList<SaleSummary>(
+        showCount: false,
         controller: _list,
         fetch: (page) => repo.upcoming(page: page),
         empty: EmptyState(
@@ -93,6 +95,7 @@ class _UpcomingDeliveriesPageState
                 actionBuilder: _deliverButton,
               )
             : ListGroup(
+                flat: true,
                 children: [
                   for (final s in sales)
                     SaleTile(
@@ -100,6 +103,8 @@ class _UpcomingDeliveriesPageState
                       showCustomer: true,
                       showDelivery: true,
                       onTap: () => _open(s),
+                      onLongPress: (row) =>
+                          showSaleMenu(row, ref, s, onOpen: () => _open(s)),
                       action: _deliverButton(s),
                     ),
                 ],
