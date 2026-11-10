@@ -448,8 +448,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get resetToDefault => 'আগের মতো করুন';
 
   @override
-  String get languageHint =>
-      'অ্যাপের লেখা ও সার্ভারের বার্তা বদলাবে। আপনার অ্যাকাউন্টে সেভ থাকবে।';
+  String get languageHint => 'অ্যাপের লেখা আর সার্ভারের বার্তা';
 
   @override
   String get aboutApp => 'অ্যাপ সম্পর্কে';

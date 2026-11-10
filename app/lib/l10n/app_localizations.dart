@@ -929,7 +929,7 @@ abstract class AppLocalizations {
   /// No description provided for @languageHint.
   ///
   /// In en, this message translates to:
-  /// **'Changes the app text and server messages. Saved to your account.'**
+  /// **'App text and server messages'**
   String get languageHint;
 
   /// No description provided for @aboutApp.

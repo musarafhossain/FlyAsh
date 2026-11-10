@@ -190,7 +190,7 @@
   "previewDue": "Due",
   "previewButton": "New sale",
   "resetToDefault": "Reset to default",
-  "languageHint": "Changes the app text and server messages. Saved to your account.",
+  "languageHint": "App text and server messages",
   "aboutApp": "About",
   "version": "Version",
   "buildNumber": "Build",

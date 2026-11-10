@@ -7,8 +7,8 @@ import '../theme/app_typography.dart';
 /// Categorical tints for KPI chips (04-UI-UX §5.4).
 enum KpiTint { rose, green, amber, sky }
 
-/// Big accent card with the screen's most important number (§9.2).
-/// Solid accent in light mode, accent container in dark mode.
+/// Big card with the screen's most important number (§9.2): a soft accent
+/// tint (accent container) with the accent icon, in light and dark mode.
 class HeroCard extends StatelessWidget {
   const HeroCard({
     super.key,
@@ -28,13 +28,15 @@ class HeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final light = Theme.of(context).brightness == Brightness.light;
-    final bg = light ? t.primary : t.primaryContainer;
-    final fg = light ? t.onPrimary : t.onPrimaryContainer;
+    final fg = t.onPrimaryContainer;
 
     return Material(
-      color: bg,
-      borderRadius: Radii.lgAll,
+      color: t.primaryContainer,
+      shape: RoundedRectangleBorder(
+        borderRadius: Radii.lgAll,
+        side: BorderSide(color: t.primary.withValues(alpha: 0.18)),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: Radii.lgAll,
@@ -46,10 +48,10 @@ class HeroCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: fg.withValues(alpha: 0.18),
+                  color: t.primary,
                   borderRadius: Radii.mdAll,
                 ),
-                child: Icon(icon, color: fg),
+                child: Icon(icon, color: t.onPrimary),
               ),
               const SizedBox(width: Space.s4),
               Expanded(
@@ -58,7 +60,9 @@ class HeroCard extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: AppTypography.caption.copyWith(color: fg),
+                      style: AppTypography.caption.copyWith(
+                        color: t.textSecondary,
+                      ),
                     ),
                     FittedBox(
                       fit: BoxFit.scaleDown,
@@ -74,12 +78,15 @@ class HeroCard extends StatelessWidget {
                     if (caption != null)
                       Text(
                         caption!,
-                        style: AppTypography.caption.copyWith(color: fg),
+                        style: AppTypography.caption.copyWith(
+                          color: t.textSecondary,
+                        ),
                       ),
                   ],
                 ),
               ),
-              if (onTap != null) Icon(Icons.chevron_right, color: fg),
+              if (onTap != null)
+                Icon(Icons.chevron_right, color: t.textSecondary),
             ],
           ),
         ),
@@ -117,32 +124,40 @@ class KpiChip extends StatelessWidget {
     return AppCard(
       onTap: onTap,
       padding: const EdgeInsets.all(Space.s3),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      // Label and value on the left, the tinted icon on the right.
+      child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(color: bg, borderRadius: Radii.smAll),
-            child: Icon(icon, size: 18, color: fg),
-          ),
-          const SizedBox(height: Space.s2),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.caption.copyWith(color: t.textSecondary),
-          ),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              value,
-              style: AppTypography.h3.copyWith(
-                color: t.textPrimary,
-                fontFeatures: AppTypography.tabular,
-              ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption.copyWith(color: t.textSecondary),
+                ),
+                const SizedBox(height: Space.s1),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: AppTypography.h3.copyWith(
+                      color: t.textPrimary,
+                      fontFeatures: AppTypography.tabular,
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
+          const SizedBox(width: Space.s2),
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(color: bg, borderRadius: Radii.mdAll),
+            child: Icon(icon, size: 20, color: fg),
           ),
         ],
       ),

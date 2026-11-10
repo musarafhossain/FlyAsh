@@ -449,8 +449,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetToDefault => 'Reset to default';
 
   @override
-  String get languageHint =>
-      'Changes the app text and server messages. Saved to your account.';
+  String get languageHint => 'App text and server messages';
 
   @override
   String get aboutApp => 'About';

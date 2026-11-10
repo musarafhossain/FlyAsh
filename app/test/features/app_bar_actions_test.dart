@@ -105,6 +105,37 @@ void main() {
     expect(find.byTooltip('চেহারা'), findsOneWidget);
   });
 
+  for (final size in const [Size(360, 800), Size(1440, 900)]) {
+    testWidgets('language popover: title, two cards, the chosen one ticked; '
+        'picking closes it (${size.width.toInt()} px)', (tester) async {
+      await openHome(tester, size);
+      final button = tester.getRect(find.byTooltip('Language'));
+      await tester.tap(find.byTooltip('Language'));
+      await tester.pumpAndSettle();
+      expect(find.text('App text and server messages'), findsOneWidget);
+      expect(find.text('English'), findsOneWidget);
+      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      expect(find.byIcon(Icons.radio_button_unchecked), findsOneWidget);
+      expect(find.byType(CheckedPopupMenuItem<String>), findsNothing);
+      final card = tester.getRect(
+        find
+            .ancestor(of: find.text('English'), matching: find.byType(Material))
+            .first,
+      );
+      expect(size.width - card.right, greaterThanOrEqualTo(8), reason: 'gap');
+      expect(card.top, greaterThan(button.bottom - 1), reason: 'below');
+
+      await tester.tap(find.text('বাংলা').last);
+      await tester.pumpAndSettle();
+      expect(testContainer.read(localeProvider), 'bn');
+      expect(
+        find.text('অ্যাপের লেখা আর সার্ভারের বার্তা'),
+        findsNothing,
+        reason: 'closed',
+      );
+    });
+  }
+
   // Popovers line up with their button and never touch the screen edge.
   for (final size in const [Size(360, 800), Size(1440, 900)]) {
     for (final (tooltip, item) in [
