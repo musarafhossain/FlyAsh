@@ -120,9 +120,7 @@
     "fetched": "Expense fetched successfully",
     "updated": "Expense updated",
     "deleted": "Expense deleted",
-    "categories": "Categories fetched successfully",
-    "category_created": "Category created",
-    "category_updated": "Category updated"
+    "categories": "Categories fetched successfully"
   },
   "reports": {
     "dashboard": "Dashboard fetched successfully",

@@ -79,7 +79,7 @@
       "month": "month",
       "wage_month": "wage month",
       "advance_date": "advance date",
-      "expense_category_id": "category",
+      "category": "category",
       "expense_date": "expense date",
       "category_id": "category",
       "icon": "icon",

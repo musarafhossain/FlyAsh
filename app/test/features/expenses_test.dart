@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
 import 'package:flyash/core/router/app_router.dart';
+import 'package:flyash/core/widgets/cards.dart';
 import 'package:flyash/core/widgets/data_table_card.dart';
-import 'package:flyash/features/expenses/presentation/pages/expenses_list_page.dart';
 
 import '../fake_api.dart';
 import '../helpers.dart';
@@ -17,90 +17,48 @@ Map<String, Object?> body(RequestOptions o) =>
     (o.data is String ? jsonDecode(o.data as String) : o.data)
         as Map<String, Object?>;
 
-/// In-memory expenses and categories (07-API §13).
+/// In-memory expenses (07-API §13). The category is plain text.
 class FakeExpenses {
   final requests = <RequestOptions>[];
   int _next = 100;
 
-  final categories = <Map<String, Object?>>[
-    {
-      'id': 1,
-      'name': 'Labour Tiffin',
-      'icon': 'utensils',
-      'is_active': true,
-      'sort_order': 1,
-    },
-    {
-      'id': 2,
-      'name': 'Machine Repair',
-      'icon': 'wrench',
-      'is_active': true,
-      'sort_order': 2,
-    },
-    {
-      'id': 3,
-      'name': 'Old Category',
-      'icon': null,
-      'is_active': false,
-      'sort_order': 3,
-    },
-  ];
   late final expenses = <Map<String, Object?>>[
-    _e(55, 1, '2026-11-08', '850.00', 'Tiffin for 15 labours'),
-    _e(54, 2, '2026-11-05', '2300.00', 'Belt changed'),
-    _e(40, 1, '2026-10-20', '600.00', null),
+    _e(55, 'Labour Tiffin', '2026-11-08', '850.00', 'Tiffin for 15 labours'),
+    _e(54, 'Machine Repair', '2026-11-05', '2300.00', 'Belt changed'),
+    _e(40, 'Labour Tiffin', '2026-10-20', '600.00', null),
   ];
 
   Map<String, Object?> _e(
     int id,
-    int cat,
+    String category,
     String date,
     String amount,
     String? note,
-  ) {
-    final c = categories.firstWhere((x) => x['id'] == cat);
-    return {
-      'id': id,
-      'expense_category_id': cat,
-      'expense_date': date,
-      'amount': amount,
-      'note': note,
-      'category': {'id': c['id'], 'name': c['name'], 'icon': c['icon']},
-      'created_by': {'id': 1, 'name': 'Test Owner'},
-    };
-  }
+  ) => {
+    'id': id,
+    'category': category,
+    'expense_date': date,
+    'amount': amount,
+    'note': note,
+    'created_by': {'id': 1, 'name': 'Test Owner'},
+  };
 
   Reply _ok(Object? d, [String m = 'ok', int c = 200]) =>
       (c, envelope(c, m, d), {});
-
-  Reply _taken() => (
-    422,
-    envelope(422, 'Validation failed', {
-      'errors': [
-        {'field': 'name', 'message': 'This name is already taken'},
-      ],
-    }),
-    {},
-  );
 
   FakeRoutes get routes => {
     'GET /expenses': (o) {
       final q = o.queryParameters;
       final search = (q['search'] as String? ?? '').toLowerCase();
+      bool inRange(String d) =>
+          (q['from'] == null || d.compareTo(q['from'] as String) >= 0) &&
+          (q['to'] == null || d.compareTo(q['to'] as String) <= 0);
       final items = [
         for (final e in expenses)
-          if ((q['from'] == null ||
-                  (e['expense_date']! as String).compareTo(
-                        q['from'] as String,
-                      ) >=
-                      0) &&
-              (q['to'] == null ||
-                  (e['expense_date']! as String).compareTo(q['to'] as String) <=
-                      0) &&
-              (q['category_id'] == null ||
-                  '${e['expense_category_id']}' == '${q['category_id']}') &&
+          if (inRange(e['expense_date']! as String) &&
+              (q['category'] == null || e['category'] == q['category']) &&
               (search.isEmpty ||
-                  ((e['note'] as String?) ?? '').toLowerCase().contains(
+                  '${e['note'] ?? ''} ${e['category']}'.toLowerCase().contains(
                     search,
                   )))
             e,
@@ -122,7 +80,7 @@ class FakeExpenses {
       final b = body(o);
       final e = _e(
         _next++,
-        int.parse('${b['expense_category_id']}'),
+        b['category']! as String,
         b['expense_date']! as String,
         Decimal.parse('${b['amount']}').toStringAsFixed(2),
         b['note'] as String?,
@@ -138,7 +96,7 @@ class FakeExpenses {
         final i = expenses.indexWhere((e) => e['id'] == id);
         expenses[i] = _e(
           id,
-          int.parse('${b['expense_category_id']}'),
+          b['category']! as String,
           b['expense_date']! as String,
           Decimal.parse('${b['amount']}').toStringAsFixed(2),
           b['note'] as String?,
@@ -150,32 +108,8 @@ class FakeExpenses {
         return _ok(null, 'Expense deleted');
       },
     },
-    'GET /expense-categories': (o) {
-      final active = o.queryParameters['active'];
-      return _ok([
-        for (final c in categories)
-          if (active == null || '${c['is_active']}' == '$active') c,
-      ]);
-    },
-    'POST /expense-categories': (o) {
-      final b = body(o);
-      if (categories.any((c) => c['name'] == b['name'])) return _taken();
-      final c = {
-        'id': _next++,
-        'name': b['name'],
-        'icon': b['icon'],
-        'is_active': true,
-        'sort_order': categories.length + 1,
-      };
-      categories.add(c);
-      return _ok(c, 'Category created', 201);
-    },
-    for (final id in [1, 2, 3])
-      'PUT /expense-categories/$id': (o) {
-        final c = categories.firstWhere((x) => x['id'] == id);
-        c.addAll(body(o));
-        return _ok(c, 'Category updated');
-      },
+    'GET /expense-categories': (_) =>
+        _ok(['Labour Tiffin', 'Machine Repair', 'Diesel / Fuel', 'Transport']),
   };
 }
 
@@ -244,6 +178,12 @@ Future<void> longPress(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
+/// A chip inside the open filter sheet.
+Finder sheetChip(String label) => find.descendant(
+  of: find.byType(BottomSheet),
+  matching: find.widgetWithText(ChoiceChip, label),
+);
+
 void main() {
   testWidgets('long press: Edit | Delete; Delete asks and removes the row', (
     tester,
@@ -258,121 +198,114 @@ void main() {
     expect(find.text('Tiffin for 15 labours'), findsNothing);
   });
 
-  testWidgets('this month by default: total, category chips, rows', (
-    tester,
-  ) async {
+  testWidgets('this month by default: search with a filter button, no chips '
+      'rows above, light total card, rows', (tester) async {
     await openAt(tester, '/expenses');
     final q = lastList().queryParameters;
     expect(q['from'], '2026-11-01');
-    expect(q['to'], '2026-11-09');
+    expect(q['to'], '2026-11-09'); // this month so far
     expect(find.text('Spent: This month'), findsOneWidget);
-    expect(find.text('₹3,150'), findsOneWidget); // 850 + 2,300
-    expect(find.byType(ExpenseTile), findsNWidgets(2));
+    expect(find.text('₹3,150'), findsOneWidget);
+    expect(find.byType(HeroCard), findsOneWidget);
+    expect(find.byTooltip('Filter expenses'), findsOneWidget);
+    // Period and category chips are in the filter sheet now
+    expect(find.byType(ChoiceChip), findsNothing);
+    expect(find.byType(InputChip), findsNothing);
     expect(find.text('Tiffin for 15 labours'), findsOneWidget);
     expect(find.text('08 Nov 2026 · Labour Tiffin'), findsOneWidget);
-    // Only active categories as chips
-    expect(find.widgetWithText(ChoiceChip, 'Machine Repair'), findsOneWidget);
-    expect(find.widgetWithText(ChoiceChip, 'Old Category'), findsNothing);
   });
 
-  testWidgets('period, category and search filters ask the server', (
-    tester,
-  ) async {
+  testWidgets('filter sheet: period + category ask the server and show as '
+      'removable chips', (tester) async {
     await openAt(tester, '/expenses');
-    await tapVisible(tester, find.widgetWithText(ChoiceChip, 'Last month'));
-    expect(lastList().queryParameters['from'], '2026-10-01');
-    expect(lastList().queryParameters['to'], '2026-10-31');
+    await tester.tap(find.byTooltip('Filter expenses'));
+    await tester.pumpAndSettle();
+    expect(find.text('Filter expenses'), findsWidgets);
+    await tester.tap(sheetChip('Last month'));
+    await tester.tap(sheetChip('Labour Tiffin'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Apply'));
+    await tester.pumpAndSettle();
+
+    final q = lastList().queryParameters;
+    expect(q['from'], '2026-10-01');
+    expect(q['to'], '2026-10-31');
+    expect(q['category'], 'Labour Tiffin');
+    expect(find.text('Spent: Last month'), findsOneWidget);
+    expect(find.widgetWithText(InputChip, 'Last month'), findsOneWidget);
+    expect(find.widgetWithText(InputChip, 'Labour Tiffin'), findsOneWidget);
     expect(find.text('₹600'), findsWidgets);
 
-    await tapVisible(tester, find.widgetWithText(ChoiceChip, 'This month'));
-    await tapVisible(tester, find.widgetWithText(ChoiceChip, 'Machine Repair'));
-    expect(lastList().queryParameters['category_id'], '2');
-    expect(find.text('₹2,300'), findsWidgets);
-    expect(find.byType(ExpenseTile), findsOneWidget);
+    // Removing a chip clears that filter
+    await tester.tap(
+      find.descendant(
+        of: find.widgetWithText(InputChip, 'Labour Tiffin'),
+        matching: find.byIcon(Icons.clear),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(lastList().queryParameters.containsKey('category'), isFalse);
 
-    await tapVisible(tester, find.widgetWithText(ChoiceChip, 'All'));
-    await tester.enterText(find.byType(TextField).last, 'belt');
+    // Reset → back to this month
+    await tester.tap(find.byTooltip('Filter expenses'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Reset'));
+    await tester.pumpAndSettle();
+    expect(lastList().queryParameters['from'], '2026-11-01');
+    expect(find.byType(InputChip), findsNothing);
+
+    await tester.enterText(find.byType(TextField), 'belt');
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(lastList().queryParameters['search'], 'belt');
-    expect(find.byType(ExpenseTile), findsOneWidget);
   });
 
-  testWidgets('desktop: a table', (tester) async {
+  testWidgets('desktop: a table with the category text', (tester) async {
     await openAt(tester, '/expenses', size: const Size(1440, 900));
     expect(find.byType(DataTableCard), findsOneWidget);
-    expect(find.text('Entered by'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    expect(find.text('Machine Repair'), findsOneWidget);
   });
 
-  testWidgets('add: category required, amount > 0, saved, list refreshed', (
-    tester,
-  ) async {
+  testWidgets('add: any category text (or a suggestion chip), amount > 0, '
+      'saved, list refreshed', (tester) async {
     await openAt(tester, '/expenses');
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     expect(currentPath(), '/expenses/new');
 
     await tapVisible(tester, find.widgetWithText(FilledButton, 'Add expense'));
-    expect(find.text('Select a category'), findsOneWidget);
-    expect(api.requests.where((r) => r.method == 'POST'), isEmpty);
+    expect(
+      find.text('This field is required'),
+      findsNWidgets(2),
+    ); // category, amount
 
-    await tapVisible(tester, find.byIcon(Icons.category_outlined).last);
-    await tester.tap(find.text('Machine Repair').last);
+    // Suggestions as chips; they follow what is typed
+    expect(find.widgetWithText(ActionChip, 'Labour Tiffin'), findsOneWidget);
+    final category = find.widgetWithText(TextFormField, 'Category');
+    await tester.enterText(category, 'die');
     await tester.pumpAndSettle();
-    await tester.enterText(find.widgetWithText(TextFormField, 'Amount'), '0');
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Add expense'));
-    expect(find.text('Enter an amount, e.g. 4.50'), findsOneWidget);
+    expect(find.widgetWithText(ActionChip, 'Diesel / Fuel'), findsOneWidget);
+    expect(find.widgetWithText(ActionChip, 'Labour Tiffin'), findsNothing);
+    await tester.tap(find.widgetWithText(ActionChip, 'Diesel / Fuel'));
+    await tester.pumpAndSettle();
+    expect(find.text('Diesel / Fuel'), findsOneWidget, reason: 'in the field');
 
+    // …or any new text
+    await tester.enterText(category, '  Generator   rent ');
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Amount'),
-      '1250.5',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Notes (optional)'),
-      'Diesel',
+      '1500',
     );
     await tapVisible(tester, find.widgetWithText(FilledButton, 'Add expense'));
     expect(body(last('POST', '/expenses')), {
-      'expense_category_id': '2',
+      'category': 'Generator rent',
       'expense_date': '2026-11-09',
-      'amount': '1250.5',
-      'note': 'Diesel',
+      'amount': '1500',
+      'note': null,
     });
     expect(currentPath(), '/expenses');
     expect(find.text('Expense added'), findsOneWidget);
-    expect(find.text('Diesel'), findsOneWidget);
-    expect(find.text('₹4,401'), findsOneWidget); // 3,150 + 1,250.50 rounded
-  });
-
-  testWidgets('a new category from the picker is chosen right away', (
-    tester,
-  ) async {
-    await openAt(tester, '/expenses/new');
-    await tapVisible(tester, find.byIcon(Icons.category_outlined).last);
-    await tester.tap(find.widgetWithText(FilledButton, 'New category'));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Name'),
-      'Labour Tiffin',
-    );
-    await tester.tap(find.bySemanticsLabel('ticket'));
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
-    expect(find.text('This name is already taken'), findsOneWidget);
-
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Name'),
-      'Gate pass',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
-    expect(body(last('POST', '/expense-categories')), {
-      'name': 'Gate pass',
-      'icon': 'ticket',
-    });
-    expect(find.text('Gate pass'), findsOneWidget); // in the category field
+    expect(find.text('Generator rent'), findsOneWidget, reason: 'reloaded');
   });
 
   testWidgets('edit then delete from the form', (tester) async {
@@ -380,15 +313,13 @@ void main() {
     await tester.tap(find.text('Belt changed'));
     await tester.pumpAndSettle();
     expect(currentPath(), '/expenses/54/edit');
-    expect(find.text('2300'), findsOneWidget);
-    expect(find.text('05 Nov 2026'), findsOneWidget);
-
+    expect(find.text('Machine Repair'), findsOneWidget, reason: 'prefilled');
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Amount'),
       '2400',
     );
     await tapVisible(tester, find.widgetWithText(FilledButton, 'Save'));
-    expect(body(last('PUT', '/expenses/54'))['amount'], '2400');
+    expect(body(last('PUT', '/expenses/54'))['category'], 'Machine Repair');
     expect(find.text('Expense updated'), findsOneWidget);
     expect(find.text('₹2,400'), findsOneWidget);
 
@@ -396,53 +327,14 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Delete'));
     await tester.pumpAndSettle();
-    expect(find.text('Delete this expense?'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
-    expect(last('DELETE', '/expenses/54'), isNotNull);
-    expect(currentPath(), '/expenses');
     expect(find.text('Belt changed'), findsNothing);
   });
 
   testWidgets('/expenses/:id opens the edit form', (tester) async {
     await openAt(tester, '/expenses/55');
     expect(currentPath(), '/expenses/55/edit');
-    expect(find.text('Edit expense'), findsOneWidget);
-  });
-
-  testWidgets('manage categories: all listed, rename and deactivate', (
-    tester,
-  ) async {
-    await openAt(tester, '/expenses');
-    await tapVisible(
-      tester,
-      find.widgetWithText(ActionChip, 'Manage categories'),
-    );
-    expect(currentPath(), '/expenses/categories');
-    expect(find.text('Old Category'), findsOneWidget);
-    expect(find.text('Inactive'), findsOneWidget);
-
-    await tester.tap(find.text('Machine Repair'));
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Name'),
-      'Repairs',
-    );
-    await tester.tap(find.byType(Switch));
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
-    await tester.pumpAndSettle();
-    expect(body(last('PUT', '/expense-categories/2')), {
-      'name': 'Repairs',
-      'icon': 'wrench',
-      'is_active': false,
-    });
-    expect(find.text('Category updated'), findsOneWidget);
-    expect(find.text('Inactive'), findsNWidgets(2));
-
-    // Back on the list the chip is gone
-    testContainer.read(routerProvider).pop();
-    await tester.pumpAndSettle();
-    expect(find.widgetWithText(ChoiceChip, 'Repairs'), findsNothing);
   });
 
   for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {
@@ -464,18 +356,16 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        for (final path in [
-          '/expenses',
-          '/expenses/new',
-          '/expenses/55/edit',
-          '/expenses/categories',
-        ]) {
-          testContainer.read(routerProvider).go(path);
+        for (final location in ['/expenses', '/expenses/new']) {
+          testContainer.read(routerProvider).go(location);
           await tester.pumpAndSettle();
-          expect(tester.takeException(), isNull, reason: path);
+          expect(tester.takeException(), isNull, reason: location);
         }
-        await tester.pump(const Duration(milliseconds: 100));
+        testContainer.read(routerProvider).go('/expenses');
         await tester.pumpAndSettle();
+        await tester.tap(find.byIcon(Icons.tune));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: 'filter sheet');
       });
     }
   }

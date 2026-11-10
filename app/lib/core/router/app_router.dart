@@ -14,7 +14,6 @@ import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/dev/presentation/pages/section_placeholder_page.dart';
 import '../../features/dev/presentation/pages/theme_gallery_page.dart';
 import '../../features/dev/presentation/pages/widget_gallery_page.dart';
-import '../../features/expenses/presentation/pages/expense_categories_page.dart';
 import '../../features/expenses/presentation/pages/expense_form_page.dart';
 import '../../features/expenses/presentation/pages/expenses_list_page.dart';
 import '../../features/labours/presentation/pages/labour_detail_page.dart';
@@ -375,10 +374,6 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
       builder: (_, _) => const ExpensesListPage(),
       routes: [
         GoRoute(path: 'new', builder: (_, _) => const ExpenseFormPage()),
-        GoRoute(
-          path: 'categories',
-          builder: (_, _) => const ExpenseCategoriesPage(),
-        ),
         // No separate detail page: /expenses/:id opens the edit form.
         GoRoute(
           path: ':id',

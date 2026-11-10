@@ -2,7 +2,6 @@ import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
 import Product from '#models/product'
 import Customer from '#models/customer'
-import ExpenseCategory from '#models/expense_category'
 import { API, createUser } from '#tests/helpers'
 
 /**
@@ -66,13 +65,8 @@ async function seedOctober(client: any) {
       items: [{ product_id: brick.id, quantity: 100 }],
     })
 
-  const category = await ExpenseCategory.create({
-    name: 'Report Cat',
-    isActive: true,
-    sortOrder: 1,
-  })
   await client.post(`${API}/expenses`).loginAs(user).json({
-    expense_category_id: category.id,
+    category: 'Report Cat',
     expense_date: '2026-10-15',
     amount: 850,
   })
@@ -128,7 +122,7 @@ test.group('Reports', (group) => {
     const expenses = (await client.get(`${API}/reports/expenses?${range}`).loginAs(user)).body()
       .data
     assert.equal(expenses.total, '850.00')
-    assert.equal(expenses.by_category[0].percent, 100)
+    assert.containsSubset(expenses.by_category[0], { name: 'Report Cat', percent: 100 })
 
     const collections = (
       await client.get(`${API}/reports/collections?${range}`).loginAs(user)

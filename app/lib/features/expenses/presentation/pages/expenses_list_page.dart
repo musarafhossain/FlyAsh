@@ -20,23 +20,17 @@ import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/network/data_changed.dart';
-import '../../../sales/presentation/widgets/sale_filter_sheet.dart'
-    show presetText;
 import '../../data/expenses_repository_impl.dart';
 import '../../domain/expense.dart';
+import '../widgets/expense_filter_sheet.dart';
 import '../widgets/expense_icons.dart';
 import '../../../../core/widgets/action_menu.dart';
 import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/error/failure.dart';
 
-/// Active categories (chips, form picker). Invalidate after changes.
-final activeExpenseCategoriesProvider = FutureProvider<List<ExpenseCategory>>(
-  (ref) => ref.watch(expensesRepositoryProvider).categories(active: true),
-);
-
-/// Expenses (03-AppFlow §8): period (Today … Last month, Custom; default
-/// this month), the period total, category chips, search by note, and
-/// expense rows. Cards on phones/tablets, a table on desktop. Tap → edit.
+/// Expenses (03-AppFlow §8): search, a filter button (period, default
+/// this month, and category) with the active filters as chips, the period
+/// total, and expense rows. A table on desktop. Tap → edit.
 class ExpensesListPage extends ConsumerStatefulWidget {
   const ExpensesListPage({super.key});
 
@@ -48,12 +42,7 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
   final _list = PagedListController();
   final _search = TextEditingController();
   Timer? _debounce;
-  DatePreset _preset = DatePreset.thisMonth;
-  late DateRange _range = DateRange.preset(
-    DatePreset.thisMonth,
-    ref.read(businessDateProvider),
-  );
-  String? _categoryId;
+  late ExpenseFilter _filter = ExpenseFilter.initial(_today);
   String? _periodTotal;
 
   /// True while page 1 (which carries the period total) is loading.
@@ -77,56 +66,39 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
     _list.refresh();
   }
 
-  Future<void> _choosePreset(DatePreset preset) async {
-    if (preset != DatePreset.custom) {
-      setState(() {
-        _preset = preset;
-        _range = DateRange.preset(preset, _today);
-      });
-      _reload();
-      return;
-    }
-    DateTime local(String ymd) {
-      final d = Ymd.parse(ymd);
-      return DateTime(d.year, d.month, d.day);
-    }
-
-    final picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2020),
-      lastDate: local(_today),
-      initialDateRange: DateTimeRange(
-        start: local(_range.from ?? _today),
-        end: local(_range.to ?? _today),
-      ),
-    );
-    if (picked == null) return;
-    String ymd(DateTime d) => Ymd.format(DateTime.utc(d.year, d.month, d.day));
-    setState(() {
-      _preset = DatePreset.custom;
-      _range = DateRange(from: ymd(picked.start), to: ymd(picked.end));
-    });
+  void _apply(ExpenseFilter filter) {
+    setState(() => _filter = filter);
     _reload();
   }
 
+  Future<void> _openFilters() async {
+    final next = await showExpenseFilterSheet(
+      context,
+      filter: _filter,
+      categories: ref.read(expenseCategoriesProvider).value ?? const [],
+      today: _today,
+    );
+    if (next != null) _apply(next);
+  }
+
   Future<Paginated<Expense>> _fetch(int page) async {
-    final range = _range;
+    final filter = _filter;
     try {
       final result = await ref
           .read(expensesRepositoryProvider)
           .list(
             page: page,
-            range: range,
-            categoryId: _categoryId,
+            range: filter.range,
+            category: filter.category,
             search: _search.text,
           );
-      if (page == 1 && mounted && range == _range) {
+      if (page == 1 && mounted && filter == _filter) {
         setState(() => _periodTotal = '${result.extra['period_total'] ?? '0'}');
       }
       return result;
     } finally {
       // Loaded or failed: stop the placeholder (a failure shows "—").
-      if (page == 1 && mounted && range == _range) {
+      if (page == 1 && mounted && filter == _filter) {
         setState(() => _totalLoading = false);
       }
     }
@@ -134,8 +106,6 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
 
   Future<void> _open(String location) async {
     await context.push(location);
-    if (!mounted) return;
-    ref.invalidate(activeExpenseCategoriesProvider);
   }
 
   /// Long press: Edit | Delete. The list reloads by itself after a change.
@@ -180,19 +150,13 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
     );
   }
 
-  String _periodLabel(AppLocalizations l) {
-    if (_preset != DatePreset.custom) return presetText(l, _preset);
-    if (_range.from == _range.to) return Fmt.date(_range.from);
-    return '${Fmt.date(_range.from)} – ${Fmt.date(_range.to)}';
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     ref.listen(dataChangedProvider, (_, _) => _reload());
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
-    final categories = ref.watch(activeExpenseCategoriesProvider).value ?? [];
-    final filtered = _categoryId != null || _search.text.trim().isNotEmpty;
+    ref.watch(expenseCategoriesProvider); // ready for the filter sheet
+    final filtered = _filter.category != null || _search.text.trim().isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -212,90 +176,72 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
         header: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (final p in [
-                    DatePreset.today,
-                    DatePreset.thisWeek,
-                    DatePreset.thisMonth,
-                    DatePreset.lastMonth,
-                    DatePreset.custom,
-                  ]) ...[
-                    ChoiceChip(
-                      avatar: p == DatePreset.custom
-                          ? const Icon(Icons.date_range, size: 18)
-                          : null,
-                      label: Text(
-                        p == DatePreset.custom && _preset == p
-                            ? _periodLabel(l)
-                            : presetText(l, p),
-                      ),
-                      selected: _preset == p,
-                      onSelected: (_) => _choosePreset(p),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _search,
+                    onChanged: (_) {
+                      _debounce?.cancel();
+                      _debounce = Timer(
+                        const Duration(milliseconds: 350),
+                        _reload,
+                      );
+                    },
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: l.searchNote,
+                      prefixIcon: const Icon(Icons.search),
                     ),
-                    const SizedBox(width: Space.s2),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: Space.s3),
-            HeroCard(
-              icon: Icons.receipt_long_outlined,
-              label: l.spentIn(_periodLabel(l)),
-              value: _periodTotal == null ? '—' : Fmt.money(_periodTotal),
-              loading: _periodTotal == null && _totalLoading,
-            ),
-            ...[
-              const SizedBox(height: Space.s3),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    ChoiceChip(
-                      label: Text(l.allCategories),
-                      selected: _categoryId == null,
-                      onSelected: (_) {
-                        setState(() => _categoryId = null);
-                        _reload();
-                      },
-                    ),
-                    for (final c in categories) ...[
-                      const SizedBox(width: Space.s2),
-                      ChoiceChip(
-                        avatar: Icon(expenseIcon(c.icon), size: 18),
-                        label: Text(c.name),
-                        selected: _categoryId == c.id,
-                        onSelected: (_) {
-                          setState(() => _categoryId = c.id);
-                          _reload();
-                        },
-                      ),
-                    ],
-                    const SizedBox(width: Space.s2),
-                    ActionChip(
-                      avatar: const Icon(Icons.tune, size: 18),
-                      label: Text(l.manageCategories),
-                      tooltip: l.manageCategories,
-                      onPressed: () => _open('/expenses/categories'),
-                    ),
-                  ],
+                  ),
                 ),
+                const SizedBox(width: Space.s2),
+                Badge.count(
+                  count: _filter.activeCount,
+                  isLabelVisible: _filter.activeCount > 0,
+                  child: IconButton.outlined(
+                    tooltip: l.filterExpenses,
+                    onPressed: _openFilters,
+                    icon: const Icon(Icons.tune),
+                  ),
+                ),
+              ],
+            ),
+            if (_filter.activeCount > 0) ...[
+              const SizedBox(height: Space.s2),
+              Wrap(
+                spacing: Space.s2,
+                runSpacing: Space.s2,
+                children: [
+                  if (_filter.preset != DatePreset.thisMonth)
+                    InputChip(
+                      avatar: const Icon(Icons.event, size: 18),
+                      label: Text(_filter.periodText(l)),
+                      onPressed: _openFilters,
+                      onDeleted: () => _apply(
+                        _filter.copyWith(
+                          preset: DatePreset.thisMonth,
+                          range: DateRange.preset(DatePreset.thisMonth, _today),
+                        ),
+                      ),
+                    ),
+                  if (_filter.category != null)
+                    InputChip(
+                      avatar: const Icon(Icons.sell_outlined, size: 18),
+                      label: Text(_filter.category!),
+                      onPressed: _openFilters,
+                      onDeleted: () =>
+                          _apply(_filter.copyWith(category: () => null)),
+                    ),
+                ],
               ),
             ],
             const SizedBox(height: Space.s3),
-            TextField(
-              controller: _search,
-              onChanged: (_) {
-                _debounce?.cancel();
-                _debounce = Timer(const Duration(milliseconds: 350), _reload);
-              },
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: l.searchNote,
-                prefixIcon: const Icon(Icons.search),
-              ),
+            HeroCard(
+              icon: Icons.receipt_long_outlined,
+              label: l.spentIn(_filter.periodText(l)),
+              value: _periodTotal == null ? '—' : Fmt.money(_periodTotal),
+              loading: _periodTotal == null && _totalLoading,
             ),
           ],
         ),
@@ -358,23 +304,20 @@ class ExpenseTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          ExpenseIcon(e.categoryIcon),
+          ExpenseIcon(e.category),
           const SizedBox(width: Space.s3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  hasNote ? e.note! : (e.categoryName ?? ''),
+                  hasNote ? e.note! : e.category,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.title.copyWith(color: t.textPrimary),
                 ),
                 Text(
-                  [
-                    Fmt.date(e.date),
-                    if (hasNote && e.categoryName != null) e.categoryName!,
-                  ].join(' · '),
+                  [Fmt.date(e.date), if (hasNote) e.category].join(' · '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.caption.copyWith(color: t.textSecondary),
@@ -419,9 +362,9 @@ class _ExpensesTable extends StatelessWidget {
             CellText(Fmt.date(e.date)),
             Row(
               children: [
-                ExpenseIcon(e.categoryIcon, size: 32),
+                ExpenseIcon(e.category, size: 32),
                 const SizedBox(width: Space.s3),
-                Expanded(child: CellText(e.categoryName ?? '—', strong: true)),
+                Expanded(child: CellText(e.category, strong: true)),
               ],
             ),
             CellText(e.note ?? '—'),

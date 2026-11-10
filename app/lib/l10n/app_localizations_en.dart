@@ -1312,38 +1312,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expenseNoteHint => 'e.g. Tiffin for 15 labours';
 
   @override
-  String get selectCategory => 'Select category';
-
-  @override
-  String get selectCategoryError => 'Select a category';
-
-  @override
-  String get newCategory => 'New category';
-
-  @override
-  String get editCategory => 'Edit category';
-
-  @override
-  String get manageCategories => 'Manage categories';
-
-  @override
-  String get categoryNameHint => 'e.g. Gate pass';
-
-  @override
-  String get inactiveCategoryHint =>
-      'Turn off to hide it from new expenses. Old expenses keep it.';
-
-  @override
-  String get categoriesHint =>
-      'Categories are never deleted. Turn one off to hide it from new expenses.';
-
-  @override
-  String get categoryCreated => 'Category added';
-
-  @override
-  String get categoryUpdated => 'Category updated';
-
-  @override
   String get deleteExpenseTitle => 'Delete this expense?';
 
   @override
@@ -1403,4 +1371,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get view => 'View';
+
+  @override
+  String get filterExpenses => 'Filter expenses';
+
+  @override
+  String get categoryHint => 'Type or pick one, e.g. Labour Tiffin';
 }

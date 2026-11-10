@@ -79,7 +79,7 @@
       "month": "মাস",
       "wage_month": "মজুরির মাস",
       "advance_date": "অগ্রিমের তারিখ",
-      "expense_category_id": "ক্যাটাগরি",
+      "category": "ক্যাটাগরি",
       "expense_date": "খরচের তারিখ",
       "category_id": "ক্যাটাগরি",
       "icon": "আইকন",

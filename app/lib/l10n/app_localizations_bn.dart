@@ -1307,38 +1307,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get expenseNoteHint => 'যেমন ১৫ জন শ্রমিকের টিফিন';
 
   @override
-  String get selectCategory => 'ক্যাটাগরি বাছুন';
-
-  @override
-  String get selectCategoryError => 'একটা ক্যাটাগরি বাছুন';
-
-  @override
-  String get newCategory => 'নতুন ক্যাটাগরি';
-
-  @override
-  String get editCategory => 'ক্যাটাগরি এডিট';
-
-  @override
-  String get manageCategories => 'ক্যাটাগরি ব্যবস্থাপনা';
-
-  @override
-  String get categoryNameHint => 'যেমন গেট পাস';
-
-  @override
-  String get inactiveCategoryHint =>
-      'বন্ধ করলে নতুন খরচে দেখাবে না। আগের খরচে থেকে যাবে।';
-
-  @override
-  String get categoriesHint =>
-      'ক্যাটাগরি কখনো মোছা হয় না। নতুন খরচ থেকে লুকাতে বন্ধ করে দিন।';
-
-  @override
-  String get categoryCreated => 'ক্যাটাগরি যোগ হয়েছে';
-
-  @override
-  String get categoryUpdated => 'ক্যাটাগরি আপডেট হয়েছে';
-
-  @override
   String get deleteExpenseTitle => 'এই খরচ মুছবেন?';
 
   @override
@@ -1397,4 +1365,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get view => 'দেখুন';
+
+  @override
+  String get filterExpenses => 'খরচ ফিল্টার';
+
+  @override
+  String get categoryHint => 'লিখুন বা বেছে নিন, যেমন শ্রমিকের টিফিন';
 }

@@ -103,15 +103,10 @@ export default class ReportService {
   static async expenses(from: string, to: string) {
     const rows = await db
       .from('expenses')
-      .join('expense_categories', 'expense_categories.id', 'expenses.expense_category_id')
-      .whereBetween('expenses.expense_date', [from, to])
-      .groupBy('expense_categories.id', 'expense_categories.name', 'expense_categories.icon')
-      .select(
-        'expense_categories.id as category_id',
-        'expense_categories.name',
-        'expense_categories.icon'
-      )
-      .sum('expenses.amount as amount')
+      .whereBetween('expense_date', [from, to])
+      .groupBy('category')
+      .select('category')
+      .sum('amount as amount')
       .orderBy('amount', 'desc')
 
     const total = rows.reduce((sum, row) => sum + toPaise(row.amount), 0)
@@ -120,9 +115,7 @@ export default class ReportService {
       to,
       total: fromPaise(total),
       by_category: rows.map((row) => ({
-        category_id: row.category_id,
-        name: row.name,
-        icon: row.icon,
+        name: row.category,
         amount: money(row.amount),
         percent: total === 0 ? 0 : Math.round((toPaise(row.amount) / total) * 1000) / 10,
       })),

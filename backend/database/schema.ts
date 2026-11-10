@@ -100,41 +100,22 @@ export class CustomerSchema extends BaseModel {
 }
 
 export class ExpenseSchema extends BaseModel {
-  static $columns = ['amount', 'createdAt', 'createdBy', 'expenseCategoryId', 'expenseDate', 'id', 'note', 'updatedAt'] as const
+  static $columns = ['amount', 'category', 'createdAt', 'createdBy', 'expenseDate', 'id', 'note', 'updatedAt'] as const
   $columns = ExpenseSchema.$columns
   @column()
   declare amount: string
+  @column()
+  declare category: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
   declare createdBy: string | null
-  @column()
-  declare expenseCategoryId: string
   @column()
   declare expenseDate: string
   @column({ isPrimary: true })
   declare id: string
   @column()
   declare note: string | null
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
-}
-
-export class ExpenseCategorySchema extends BaseModel {
-  static $columns = ['createdAt', 'icon', 'id', 'isActive', 'name', 'sortOrder', 'updatedAt'] as const
-  $columns = ExpenseCategorySchema.$columns
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-  @column()
-  declare icon: string | null
-  @column({ isPrimary: true })
-  declare id: string
-  @column()
-  declare isActive: boolean
-  @column()
-  declare name: string
-  @column()
-  declare sortOrder: number
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }

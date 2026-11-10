@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_response.dart';
+import '../../../core/network/data_changed.dart';
 import '../../../core/utils/dates.dart';
 import '../domain/expense.dart';
 
@@ -11,14 +12,12 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
   final ApiClient _api;
 
   static Expense _expense(Object? d) => Expense.fromJson(d as Json);
-  static ExpenseCategory _category(Object? d) =>
-      ExpenseCategory.fromJson(d as Json);
 
   @override
   Future<Paginated<Expense>> list({
     int page = 1,
     DateRange range = const DateRange(),
-    String? categoryId,
+    String? category,
     String? search,
   }) => _api.getPage(
     '/expenses',
@@ -26,7 +25,7 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
     query: {
       'from': range.from,
       'to': range.to,
-      'category_id': categoryId,
+      'category': category,
       'search': search?.trim(),
     },
     item: Expense.fromJson,
@@ -61,38 +60,19 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
       (await _api.delete('/expenses/$id', parse: (d) => d)).message;
 
   @override
-  Future<List<ExpenseCategory>> categories({bool? active}) async {
-    final res = await _api.get(
-      '/expense-categories',
-      query: {'active': active},
-      parse: (d) => [for (final c in d! as List<Object?>) _category(c)],
-    );
-    return res.data;
-  }
-
-  @override
-  Future<ExpenseCategory> createCategory({
-    required String name,
-    String? icon,
-  }) async => (await _api.post(
+  Future<List<String>> categories() async => (await _api.get(
     '/expense-categories',
-    body: {'name': name.trim(), 'icon': icon},
-    parse: _category,
-  )).data;
-
-  @override
-  Future<ExpenseCategory> updateCategory(
-    String id, {
-    required String name,
-    String? icon,
-    required bool isActive,
-  }) async => (await _api.put(
-    '/expense-categories/$id',
-    body: {'name': name.trim(), 'icon': icon, 'is_active': isActive},
-    parse: _category,
+    parse: (d) => [for (final c in d! as List<Object?>) '$c'],
   )).data;
 }
 
 final expensesRepositoryProvider = Provider<ExpensesRepository>(
   (ref) => ExpensesRepositoryImpl(ref.watch(apiClientProvider)),
 );
+
+/// Category names for suggestions and the filter. Loads again after any
+/// change (a new category typed in an expense shows up next time).
+final expenseCategoriesProvider = FutureProvider<List<String>>((ref) {
+  ref.watch(dataChangedProvider);
+  return ref.watch(expensesRepositoryProvider).categories();
+});

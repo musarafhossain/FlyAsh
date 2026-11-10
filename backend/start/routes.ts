@@ -133,8 +133,6 @@ router
         router.put('expenses/:id', [ExpensesController, 'update'])
         router.delete('expenses/:id', [ExpensesController, 'destroy'])
         router.get('expense-categories', [ExpensesController, 'categories'])
-        router.post('expense-categories', [ExpensesController, 'storeCategory'])
-        router.put('expense-categories/:id', [ExpensesController, 'updateCategory'])
 
         // Dashboard & reports
         router.get('dashboard', [ReportsController, 'dashboard'])

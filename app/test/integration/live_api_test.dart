@@ -673,9 +673,8 @@ void main() {
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);
 
-  // F14: a test category and expenses; removed afterwards in the database
-  // (categories cannot be deleted through the API).
-  test('F14: expenses and categories', () async {
+  // F14: an expense with a free-text category (deleted at the end).
+  test('F14: expenses with a free-text category', () async {
     final api = c.read(apiClientProvider);
     final res = await api.post(
       '/auth/login',
@@ -687,23 +686,11 @@ void main() {
     final today = c.read(businessDateProvider);
     final stamp = DateTime.now().millisecondsSinceEpoch;
 
-    final category = await repo.createCategory(
-      name: 'Live test $stamp',
-      icon: 'ticket',
-    );
-    expect(category.isActive, isTrue);
-    await expectLater(
-      repo.createCategory(name: category.name),
-      throwsA(
-        isA<ValidationFailure>().having((f) => f['name'], 'name', isNotNull),
-      ),
-    );
-    final active = await repo.categories(active: true);
-    expect(active.map((x) => x.id), contains(category.id));
-
+    // The category is any text; a new one shows up in the suggestions.
+    final category = 'Live test $stamp';
     final (created, msg) = await repo.create(
       ExpenseInput(
-        categoryId: category.id,
+        category: category,
         date: today,
         amount: '1250.5',
         note: 'Live test $stamp',
@@ -711,42 +698,31 @@ void main() {
     );
     expect(msg, isNotEmpty);
     expect(created.amount, '1250.50');
-    expect(created.categoryName, category.name);
+    expect(created.category, category);
+    expect(await repo.categories(), contains(category));
 
     final list = await repo.list(
       range: DateRange(from: today, to: today),
-      categoryId: category.id,
+      category: category,
     );
     expect(list.items.single.id, created.id);
     expect(list.extra['period_total'], '1250.50');
 
     final (edited, _) = await repo.update(
       created.id,
-      ExpenseInput(categoryId: category.id, date: today, amount: '900'),
+      ExpenseInput(category: category, date: today, amount: '900'),
     );
     expect(edited.amount, '900.00');
 
     await expectLater(
       repo.create(
         ExpenseInput(
-          categoryId: category.id,
+          category: category,
           date: Ymd.addDays(today, 3),
           amount: '1',
         ),
       ),
       throwsA(isA<ValidationFailure>()),
-    );
-
-    final off = await repo.updateCategory(
-      category.id,
-      name: category.name,
-      icon: 'ticket',
-      isActive: false,
-    );
-    expect(off.isActive, isFalse);
-    expect(
-      (await repo.categories(active: true)).map((x) => x.id),
-      isNot(contains(category.id)),
     );
 
     expect(await repo.delete(created.id), isNotEmpty);

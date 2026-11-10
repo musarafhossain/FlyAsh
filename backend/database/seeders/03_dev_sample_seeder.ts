@@ -7,7 +7,6 @@ import Labour from '#models/labour'
 import Attendance from '#models/attendance'
 import LabourAdvance from '#models/labour_advance'
 import Expense from '#models/expense'
-import ExpenseCategory from '#models/expense_category'
 import Sale from '#models/sale'
 import SaleService from '#services/sale_service'
 import { now, today } from '#helpers/dates'
@@ -220,7 +219,6 @@ export default class extends BaseSeeder {
     }
 
     // Expenses
-    const categories = await ExpenseCategory.query().where('is_active', true)
     const notes: Record<string, string[]> = {
       'Labour Tiffin': ['Tiffin for labours', 'Tea and snacks'],
       'Machine Repair': ['Mixer belt changed', 'Press machine repair', 'Welding work'],
@@ -230,12 +228,12 @@ export default class extends BaseSeeder {
       'Others': ['Office supplies', 'Miscellaneous'],
     }
     for (let i = 0; i < 50; i++) {
-      const category = this.pick(categories)
+      const category = this.pick(Object.keys(notes))
       await Expense.create({
-        expenseCategoryId: category.id,
+        category,
         expenseDate: days(this.int(0, 60)),
         amount: String(this.int(2, 60) * 50) + '.00',
-        note: this.pick(notes[category.name] ?? ['Expense']),
+        note: this.pick(notes[category]),
         createdBy: userId,
       })
     }

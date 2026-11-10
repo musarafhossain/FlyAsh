@@ -2468,66 +2468,6 @@ abstract class AppLocalizations {
   /// **'e.g. Tiffin for 15 labours'**
   String get expenseNoteHint;
 
-  /// No description provided for @selectCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'Select category'**
-  String get selectCategory;
-
-  /// No description provided for @selectCategoryError.
-  ///
-  /// In en, this message translates to:
-  /// **'Select a category'**
-  String get selectCategoryError;
-
-  /// No description provided for @newCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'New category'**
-  String get newCategory;
-
-  /// No description provided for @editCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit category'**
-  String get editCategory;
-
-  /// No description provided for @manageCategories.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage categories'**
-  String get manageCategories;
-
-  /// No description provided for @categoryNameHint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. Gate pass'**
-  String get categoryNameHint;
-
-  /// No description provided for @inactiveCategoryHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn off to hide it from new expenses. Old expenses keep it.'**
-  String get inactiveCategoryHint;
-
-  /// No description provided for @categoriesHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Categories are never deleted. Turn one off to hide it from new expenses.'**
-  String get categoriesHint;
-
-  /// No description provided for @categoryCreated.
-  ///
-  /// In en, this message translates to:
-  /// **'Category added'**
-  String get categoryCreated;
-
-  /// No description provided for @categoryUpdated.
-  ///
-  /// In en, this message translates to:
-  /// **'Category updated'**
-  String get categoryUpdated;
-
   /// No description provided for @deleteExpenseTitle.
   ///
   /// In en, this message translates to:
@@ -2635,6 +2575,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View'**
   String get view;
+
+  /// No description provided for @filterExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter expenses'**
+  String get filterExpenses;
+
+  /// No description provided for @categoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type or pick one, e.g. Labour Tiffin'**
+  String get categoryHint;
 }
 
 class _AppLocalizationsDelegate

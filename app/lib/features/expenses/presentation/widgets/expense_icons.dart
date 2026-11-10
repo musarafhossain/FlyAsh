@@ -2,34 +2,44 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/list_items.dart';
 
-/// Icon keys a category can use (stored in `expense_categories.icon`).
-const Map<String, IconData> kExpenseIcons = {
-  'utensils': Icons.restaurant_outlined,
-  'wrench': Icons.build_outlined,
-  'fuel': Icons.local_gas_station_outlined,
-  'zap': Icons.bolt_outlined,
-  'truck': Icons.local_shipping_outlined,
-  'ticket': Icons.confirmation_number_outlined,
-  'home': Icons.home_work_outlined,
-  'water': Icons.water_drop_outlined,
-  'phone': Icons.phone_android_outlined,
-  'tools': Icons.handyman_outlined,
-  'gift': Icons.card_giftcard_outlined,
-  'circle-dot': Icons.radio_button_checked,
-};
+/// An icon that fits a category typed by the user, from words in it
+/// ("Labour Tiffin" → food, "Diesel" → fuel …); a receipt otherwise.
+IconData expenseIcon(String category) {
+  final c = category.toLowerCase();
+  bool has(List<String> words) => words.any(c.contains);
+  if (has(['tiffin', 'food', 'tea', 'snack', 'lunch', 'meal'])) {
+    return Icons.restaurant_outlined;
+  }
+  if (has(['repair', 'machine', 'service', 'welding', 'spare'])) {
+    return Icons.build_outlined;
+  }
+  if (has(['diesel', 'fuel', 'petrol', 'oil', 'gas'])) {
+    return Icons.local_gas_station_outlined;
+  }
+  if (has(['electric', 'power', 'light'])) return Icons.bolt_outlined;
+  if (has(['transport', 'truck', 'tractor', 'freight', 'delivery'])) {
+    return Icons.local_shipping_outlined;
+  }
+  if (has(['rent', 'house', 'office'])) return Icons.home_work_outlined;
+  if (has(['water'])) return Icons.water_drop_outlined;
+  if (has(['phone', 'mobile', 'recharge', 'internet'])) {
+    return Icons.phone_android_outlined;
+  }
+  return Icons.receipt_long_outlined;
+}
 
-IconData expenseIcon(String? key) =>
-    kExpenseIcons[key] ?? Icons.receipt_long_outlined;
-
-/// Category icon in a tinted square.
+/// The category's icon in a coloured circle; the same category always
+/// gets the same colour.
 class ExpenseIcon extends StatelessWidget {
-  const ExpenseIcon(this.iconKey, {super.key, this.size = 48});
+  const ExpenseIcon(this.category, {super.key, this.size = 48});
 
-  final String? iconKey;
+  final String category;
   final double size;
 
-  /// A coloured circle; each category icon keeps its own colour.
   @override
-  Widget build(BuildContext context) =>
-      ColorAvatar(seed: iconKey ?? '', icon: expenseIcon(iconKey), size: size);
+  Widget build(BuildContext context) => ColorAvatar(
+    seed: category.toLowerCase(),
+    icon: expenseIcon(category),
+    size: size,
+  );
 }

@@ -1,23 +1,27 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 import Expense from '#models/expense'
-import ExpenseCategory from '#models/expense_category'
 import { created, ok, paginated } from '#helpers/api_response'
 import { money } from '#helpers/money'
 import { today } from '#helpers/dates'
 import { DEFAULT_LIMIT } from '#validators/rules'
-import {
-  categoryValidator,
-  expenseValidator,
-  listCategoriesValidator,
-  listExpensesValidator,
-} from '#validators/expense'
+import { expenseValidator, listExpensesValidator } from '#validators/expense'
 
-type Filters = { from?: string; to?: string; category_id?: string; search?: string }
+type Filters = { from?: string; to?: string; category?: string; search?: string }
+
+/** Offered while typing a category until the factory has its own. */
+export const DEFAULT_CATEGORIES = [
+  'Labour Tiffin',
+  'Machine Repair',
+  'Diesel / Fuel',
+  'Electricity Bill',
+  'Transport',
+  'Others',
+]
 
 export default class ExpensesController {
   /**
-   * GET /expenses?from&to&category_id&search → paginated + period_total
+   * GET /expenses?from&to&category&search → paginated + period_total
    */
   async index({ request, response }: HttpContext) {
     const {
@@ -27,7 +31,6 @@ export default class ExpensesController {
     } = await request.validateUsing(listExpensesValidator)
 
     const expenses = await this.applyFilters(Expense.query(), filters)
-      .preload('category', (q) => q.select('id', 'name', 'icon'))
       .preload('creator', (q) => q.select('id', 'name'))
       .orderBy('expense_date', 'desc')
       .orderBy('id', 'desc')
@@ -45,7 +48,7 @@ export default class ExpensesController {
   async store({ auth, request, response }: HttpContext) {
     const data = await request.validateUsing(expenseValidator)
     const expense = await Expense.create({
-      expenseCategoryId: data.expense_category_id,
+      category: await this.spelling(data.category),
       expenseDate: data.expense_date ?? today(),
       amount: money(data.amount),
       note: data.note ?? null,
@@ -62,7 +65,7 @@ export default class ExpensesController {
     const expense = await Expense.findOrFail(params.id)
     const data = await request.validateUsing(expenseValidator)
     expense.merge({
-      expenseCategoryId: data.expense_category_id,
+      category: await this.spelling(data.category),
       expenseDate: data.expense_date ?? expense.expenseDate,
       amount: money(data.amount),
       note: data.note ?? null,
@@ -78,57 +81,54 @@ export default class ExpensesController {
   }
 
   /**
-   * GET /expense-categories?active (small list, not paginated)
+   * GET /expense-categories → category names for suggestions and the
+   * filter: the ones used most first, then the defaults not used yet.
    */
-  async categories({ request, response }: HttpContext) {
-    const { active } = await request.validateUsing(listCategoriesValidator)
-    const categories = await ExpenseCategory.query()
-      .if(active !== undefined, (q) => q.where('is_active', active!))
-      .orderBy('sort_order', 'asc')
-      .orderBy('name', 'asc')
-    return ok(response, categories, 'expenses.categories')
+  async categories({ response }: HttpContext) {
+    const rows = await db
+      .from('expenses')
+      .select('category')
+      .count('* as uses')
+      .groupBy('category')
+      .orderBy('uses', 'desc')
+      .orderBy('category', 'asc')
+    const used = rows.map((r) => String(r.category))
+    const seen = new Set(used.map((c) => c.toLowerCase()))
+    const names = [...used, ...DEFAULT_CATEGORIES.filter((c) => !seen.has(c.toLowerCase()))]
+    return ok(response, names, 'expenses.categories')
   }
 
-  async storeCategory({ request, response }: HttpContext) {
-    const data = await request.validateUsing(categoryValidator)
-    const maxOrder = await db.from('expense_categories').max('sort_order as max').first()
-    const category = await ExpenseCategory.create({
-      name: data.name,
-      icon: data.icon ?? null,
-      isActive: data.is_active ?? true,
-      sortOrder: data.sort_order ?? Number(maxOrder?.max ?? 0) + 1,
-    })
-    await category.refresh()
-    return created(response, category, 'expenses.category_created')
-  }
-
-  async updateCategory({ params, request, response }: HttpContext) {
-    const category = await ExpenseCategory.findOrFail(params.id)
-    const data = await request.validateUsing(categoryValidator, {
-      meta: { categoryId: category.id },
-    })
-    category.merge({
-      name: data.name,
-      icon: data.icon === undefined ? category.icon : data.icon,
-      isActive: data.is_active ?? category.isActive,
-      sortOrder: data.sort_order ?? category.sortOrder,
-    })
-    await category.save()
-    return ok(response, category, 'expenses.category_updated')
+  /**
+   * "labour tiffin" is saved as "Labour Tiffin" when that is already used,
+   * so the same category is not split by letter case.
+   */
+  private async spelling(category: string) {
+    const known = await db
+      .from('expenses')
+      .whereRaw('LOWER(category) = ?', [category.toLowerCase()])
+      .select('category')
+      .first()
+    if (known) return String(known.category)
+    return DEFAULT_CATEGORIES.find((c) => c.toLowerCase() === category.toLowerCase()) ?? category
   }
 
   private applyFilters<Q extends { where: any; if: any }>(query: Q, filters: Filters): Q {
     return query
       .if(filters.from, (q: any) => q.where('expense_date', '>=', filters.from))
       .if(filters.to, (q: any) => q.where('expense_date', '<=', filters.to))
-      .if(filters.category_id, (q: any) => q.where('expense_category_id', filters.category_id))
-      .if(filters.search, (q: any) => q.where('note', 'like', `%${filters.search}%`))
+      .if(filters.category, (q: any) => q.where('category', filters.category))
+      .if(filters.search, (q: any) =>
+        q.where((w: any) =>
+          w
+            .where('note', 'like', `%${filters.search}%`)
+            .orWhere('category', 'like', `%${filters.search}%`)
+        )
+      )
   }
 
   private find(id: string) {
     return Expense.query()
       .where('id', id)
-      .preload('category', (q) => q.select('id', 'name', 'icon'))
       .preload('creator', (q) => q.select('id', 'name'))
       .firstOrFail()
   }

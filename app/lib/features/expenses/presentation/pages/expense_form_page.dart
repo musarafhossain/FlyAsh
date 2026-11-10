@@ -8,9 +8,7 @@ import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/session.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/date_field.dart';
 import '../../../../core/widgets/form_fields.dart';
 import '../../../../core/widgets/form_submit.dart';
@@ -18,14 +16,12 @@ import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../data/expenses_repository_impl.dart';
 import '../../domain/expense.dart';
-import '../widgets/category_dialog.dart';
 import '../widgets/expense_icons.dart';
 import '../../../../core/widgets/skeletons.dart';
-import 'expenses_list_page.dart' show activeExpenseCategoriesProvider;
 
 /// Add or edit an expense (03-AppFlow §8): date (not future), category
-/// (sheet with "+ New category"), amount, note. Edit has ⋮ Delete.
-/// Pops with true when something changed.
+/// (any text; earlier categories are suggested as chips), amount, note.
+/// Edit has a Delete button. Pops with true when something changed.
 class ExpenseFormPage extends ConsumerStatefulWidget {
   const ExpenseFormPage({super.key, this.expenseId});
 
@@ -40,9 +36,8 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
     with FormSubmit {
   final _amount = TextEditingController();
   final _note = TextEditingController();
+  final _category = TextEditingController();
   late String _date = ref.read(businessDateProvider);
-  ExpenseCategory? _category;
-  bool _categoryMissing = false;
   bool _loaded = false;
   Object? _loadError;
 
@@ -62,6 +57,7 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
   void dispose() {
     _amount.dispose();
     _note.dispose();
+    _category.dispose();
     super.dispose();
   }
 
@@ -76,11 +72,7 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
         _date = e.date;
         _amount.text = (Decimal.tryParse(e.amount) ?? Decimal.zero).toString();
         _note.text = e.note ?? '';
-        _category = ExpenseCategory(
-          id: e.categoryId,
-          name: e.categoryName ?? '',
-          icon: e.categoryIcon,
-        );
+        _category.text = e.category;
         _loaded = true;
       });
     } on Failure catch (e) {
@@ -88,32 +80,10 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
     }
   }
 
-  Future<void> _pickCategory() async {
-    final picked = await showModalBottomSheet<ExpenseCategory>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      useSafeArea: true,
-      constraints: const BoxConstraints(maxWidth: 560),
-      builder: (_) => const _CategorySheet(),
-    );
-    if (picked != null) {
-      setState(() {
-        _category = picked;
-        _categoryMissing = false;
-      });
-    }
-  }
-
   Future<void> _save() async {
-    setState(() => _categoryMissing = _category == null);
-    if (_category == null) {
-      formKey.currentState?.validate();
-      return;
-    }
     final repo = ref.read(expensesRepositoryProvider);
     final input = ExpenseInput(
-      categoryId: _category!.id,
+      category: _category.text.trim().replaceAll(RegExp(r'\s+'), ' '),
       date: _date,
       amount: _amount.text.trim(),
       note: textOrNull(_note),
@@ -191,37 +161,10 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
                     onChanged: (d) => setState(() => _date = d),
                   ),
                   const SizedBox(height: Space.s3),
-                  Semantics(
-                    button: true,
-                    label: l.category,
-                    child: InkWell(
-                      borderRadius: Radii.mdAll,
-                      onTap: _pickCategory,
-                      child: InputDecorator(
-                        isEmpty: _category == null,
-                        decoration: InputDecoration(
-                          labelText: l.category,
-                          prefixIcon: Padding(
-                            padding: const EdgeInsets.all(Space.s2),
-                            child: _category == null
-                                ? const Icon(Icons.category_outlined)
-                                : ExpenseIcon(_category!.icon, size: 32),
-                          ),
-                          suffixIcon: const Icon(Icons.arrow_drop_down),
-                          errorText: _categoryMissing
-                              ? l.selectCategoryError
-                              : fieldErrors['expense_category_id'],
-                        ),
-                        child: _category == null
-                            ? null
-                            : Text(
-                                _category!.name,
-                                style: AppTypography.body.copyWith(
-                                  color: t.textPrimary,
-                                ),
-                              ),
-                      ),
-                    ),
+                  _CategoryField(
+                    controller: _category,
+                    validator: v.required,
+                    errorText: fieldErrors['category'],
                   ),
                   const SizedBox(height: Space.s3),
                   MoneyField(
@@ -266,104 +209,79 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
   }
 }
 
-/// Active categories to choose from, "+ New category" and
-/// "Manage categories". Pops with the chosen category.
-class _CategorySheet extends ConsumerWidget {
-  const _CategorySheet();
+/// Category: a text field for any category, with earlier ones (most
+/// used first) as chips below; tapping a chip fills the field. The chips
+/// follow what is typed.
+class _CategoryField extends ConsumerStatefulWidget {
+  const _CategoryField({
+    required this.controller,
+    required this.validator,
+    this.errorText,
+  });
+
+  final TextEditingController controller;
+  final FormFieldValidator<String> validator;
+  final String? errorText;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CategoryField> createState() => _CategoryFieldState();
+}
+
+class _CategoryFieldState extends ConsumerState<_CategoryField> {
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    final async = ref.watch(activeExpenseCategoriesProvider);
+    final typed = widget.controller.text.trim().toLowerCase();
+    final all = ref.watch(expenseCategoriesProvider).value ?? const [];
+    final shown = [
+      for (final c in all)
+        if (c.toLowerCase().contains(typed) && c.toLowerCase() != typed) c,
+    ].take(8).toList();
 
-    Future<void> addNew() async {
-      final created = await showCategoryDialog(context);
-      if (created == null) return;
-      ref.invalidate(activeExpenseCategoriesProvider);
-      if (context.mounted) Navigator.of(context).pop(created);
-    }
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(Space.s4, 0, Space.s4, Space.s4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              l.selectCategory,
-              style: AppTypography.h3.copyWith(color: t.textPrimary),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextFormField(
+          controller: widget.controller,
+          maxLength: 60,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.next,
+          onChanged: (_) => setState(() {}),
+          validator: widget.validator,
+          decoration: InputDecoration(
+            labelText: l.category,
+            hintText: l.categoryHint,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(Space.s2),
+              child: typed.isEmpty
+                  ? const Icon(Icons.sell_outlined)
+                  : ExpenseIcon(widget.controller.text, size: 32),
             ),
-            const SizedBox(height: Space.s3),
-            Flexible(
-              child: async.when(
-                loading: () => const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: Space.s4),
-                  child: SkeletonList(count: 4),
-                ),
-                error: (e, _) => ErrorState(
-                  message: failureText(context, e),
-                  onRetry: () =>
-                      ref.invalidate(activeExpenseCategoriesProvider),
-                ),
-                data: (categories) => ListView(
-                  shrinkWrap: true,
-                  children: [
-                    for (final c in categories) ...[
-                      AppCard(
-                        onTap: () => Navigator.of(context).pop(c),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: Space.s3,
-                          vertical: Space.s2,
-                        ),
-                        child: Row(
-                          children: [
-                            ExpenseIcon(c.icon, size: 36),
-                            const SizedBox(width: Space.s3),
-                            Expanded(
-                              child: Text(
-                                c.name,
-                                style: AppTypography.body.copyWith(
-                                  color: t.textPrimary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: Space.s2),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: Space.s2),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.tonalIcon(
-                    onPressed: addNew,
-                    icon: const Icon(Icons.add),
-                    label: Text(l.newCategory),
-                  ),
-                ),
-                const SizedBox(width: Space.s2),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      context.push('/expenses/categories');
-                    },
-                    icon: const Icon(Icons.tune),
-                    label: Text(l.manageCategories),
-                  ),
-                ),
-              ],
-            ),
-          ],
+            counterText: '',
+            errorText: widget.errorText,
+          ),
         ),
-      ),
+        if (shown.isNotEmpty) ...[
+          const SizedBox(height: Space.s2),
+          Wrap(
+            spacing: Space.s2,
+            runSpacing: Space.s2,
+            children: [
+              for (final c in shown)
+                ActionChip(
+                  avatar: Icon(expenseIcon(c), size: 18),
+                  label: Text(c),
+                  onPressed: () => setState(() {
+                    widget.controller.text = c;
+                    widget.controller.selection = TextSelection.collapsed(
+                      offset: c.length,
+                    );
+                  }),
+                ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

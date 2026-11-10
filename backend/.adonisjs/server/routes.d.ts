@@ -64,8 +64,6 @@ export type ScannedRoutes = {
     'expenses.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.categories': { paramsTuple?: []; params?: {} }
-    'expenses.store_category': { paramsTuple?: []; params?: {} }
-    'expenses.update_category': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'reports.dashboard': { paramsTuple?: []; params?: {} }
     'reports.sales': { paramsTuple?: []; params?: {} }
     'reports.dues': { paramsTuple?: []; params?: {} }
@@ -157,7 +155,6 @@ export type ScannedRoutes = {
     'wages.store_advance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.store_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.store': { paramsTuple?: []; params?: {} }
-    'expenses.store_category': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'auth.update_me': { paramsTuple?: []; params?: {} }
@@ -171,7 +168,6 @@ export type ScannedRoutes = {
     'labours.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'attendance.save': { paramsTuple?: []; params?: {} }
     'expenses.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'expenses.update_category': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'settings.update_factory': { paramsTuple?: []; params?: {} }
   }
   PATCH: {

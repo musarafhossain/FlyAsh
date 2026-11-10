@@ -43,12 +43,11 @@ erDiagram
     labours ||--o{ attendances : has
     labours ||--o{ labour_advances : takes
     labours ||--o{ wage_payments : receives
-    expense_categories ||--o{ expenses : groups
     users ||--o{ sales : "created_by"
     users ||--o{ expenses : "created_by"
 ```
 
-All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory_settings` · `products` · `customers` · `sales` · `sale_items` · `sale_payments` · `labours` · `attendances` · `labour_advances` · `wage_payments` · `expense_categories` · `expenses` · `app_versions`
+All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory_settings` · `products` · `customers` · `sales` · `sale_items` · `sale_payments` · `labours` · `attendances` · `labour_advances` · `wage_payments` · `expenses` · `app_versions`
 
 ---
 
@@ -263,25 +262,16 @@ A row means the labour was **present** that day. No row means absent (there is n
 
 **Index:** `(labour_id, wage_month)`.
 
-### 3.14 `expense_categories`
+### 3.14 (removed) `expense_categories`
 
-| Column | Type | Null | Default | Notes |
-|---|---|---|---|---|
-| id | CHAR(36) PK (UUID v7) | | app | |
-| name | VARCHAR(50) | no | | **unique** |
-| icon | VARCHAR(30) | yes | NULL | Icon key for the app (e.g. `utensils`, `wrench`) |
-| is_active | TINYINT(1) | no | 1 | |
-| sort_order | INT | no | 0 | |
-| created_at / updated_at | DATETIME | no | | |
-
-**Seed:** Labour Tiffin (`utensils`) · Machine Repair (`wrench`) · Diesel / Fuel (`fuel`) · Electricity Bill (`zap`) · Transport (`truck`) · Others (`circle-dot`).
+Dropped by migration 0020. An expense's category is now plain text on the expense (below), so the user can type any category. Suggestions come from the categories used before, then the defaults: Labour Tiffin · Machine Repair · Diesel / Fuel · Electricity Bill · Transport · Others.
 
 ### 3.15 `expenses`
 
 | Column | Type | Null | Default | Notes |
 |---|---|---|---|---|
 | id | CHAR(36) PK (UUID v7) | | app | |
-| expense_category_id | CHAR(36) FK → expense_categories.id | no | | index |
+| category | VARCHAR(60) | no | | Free text, index. Extra spaces removed; the spelling already used is kept ("labour tiffin" → "Labour Tiffin") |
 | expense_date | DATE | no | | index |
 | amount | DECIMAL(12,2) | no | | > 0 |
 | note | VARCHAR(500) | yes | NULL | |
@@ -515,11 +505,10 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 
 | Endpoint | Request body | `data` |
 |---|---|---|
-| `GET /expenses?page&limit&from&to&category_id` | — | Paginated `Expense` + `period_total` |
-| `POST /expenses` · `PUT /expenses/:id` | `{ expense_category_id, expense_date, amount, note? }` | `Expense` |
+| `GET /expenses?page&limit&from&to&category&search` | — | Paginated `Expense` + `period_total` (search: note or category) |
+| `POST /expenses` · `PUT /expenses/:id` | `{ category, expense_date, amount, note? }` | `Expense` (`category` is text) |
 | `GET /expenses/:id` · `DELETE /expenses/:id` | — | `Expense` / `null` |
-| `GET /expense-categories?active` | — | `ExpenseCategory[]` (not paginated, small list) |
-| `POST /expense-categories` · `PUT /expense-categories/:id` | `{ name, icon?, is_active? }` | `ExpenseCategory` |
+| `GET /expense-categories` | — | `string[]`: category names used before (most used first), then the defaults. For suggestions and the filter |
 
 ```jsonc
 // Expense
@@ -579,7 +568,6 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 
 | Seeder | Content | Environment |
 |---|---|---|
-| `expense_category_seeder` | The 6 default categories | all |
 | `factory_settings_seeder` | One row with defaults | all |
 | `dev_sample_seeder` | 5 products, 30 customers, 80 sales, 12 labours with 2 months of attendance, 50 expenses | development only |
 
