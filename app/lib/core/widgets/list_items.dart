@@ -86,17 +86,20 @@ class InitialsAvatar extends StatelessWidget {
       ColorAvatar(seed: name, text: Fmt.initials(name), size: size);
 }
 
-/// A list of rows on one surface, split by thin lines (like a phone
-/// contacts list). Use with [ListRowSurface] rows.
+/// A list of rows split by thin lines (like a phone contacts list). Use
+/// with [ListRowSurface] rows.
+///
+/// [flat]: no card, border or background of its own; the rows sit on the
+/// page and line up with the search field above them.
 class ListGroup extends StatelessWidget {
-  const ListGroup({super.key, required this.children});
+  const ListGroup({super.key, required this.children, this.flat = false});
 
   final List<Widget> children;
+  final bool flat;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: EdgeInsets.zero,
-    child: Column(
+  Widget build(BuildContext context) {
+    final rows = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (i, child) in children.indexed) ...[
@@ -104,8 +107,21 @@ class ListGroup extends StatelessWidget {
           child,
         ],
       ],
-    ),
-  );
+    );
+    if (flat) return _FlatScope(child: rows);
+    return AppCard(padding: EdgeInsets.zero, child: rows);
+  }
+}
+
+/// Tells [ListRowSurface] it is in a flat [ListGroup].
+class _FlatScope extends InheritedWidget {
+  const _FlatScope({required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_FlatScope>() != null;
+
+  @override
+  bool updateShouldNotify(_FlatScope old) => false;
 }
 
 /// One flat, tappable row inside a [ListGroup] (no border of its own).
@@ -129,7 +145,13 @@ class ListRowSurface extends StatelessWidget {
     type: MaterialType.transparency,
     child: InkWell(
       onTap: onTap,
-      child: Padding(padding: padding, child: child),
+      child: Padding(
+        // Flat lists: no side padding, so rows line up with the page.
+        padding: _FlatScope.of(context)
+            ? const EdgeInsets.symmetric(vertical: Space.s3)
+            : padding,
+        child: child,
+      ),
     ),
   );
 }

@@ -28,6 +28,7 @@ class PagedList<T> extends StatefulWidget {
     this.controller,
     this.header,
     this.maxWidth = 1200,
+    this.showCount = true,
   });
 
   final Future<Paginated<T>> Function(int page) fetch;
@@ -40,6 +41,10 @@ class PagedList<T> extends StatefulWidget {
   /// Above the items (e.g. a search field); scrolls with the list.
   final Widget? header;
   final double maxWidth;
+
+  /// "Showing 20 of 54" under the items. Off for endless lists, which only
+  /// show a spinner while the next page loads.
+  final bool showCount;
 
   @override
   State<PagedList<T>> createState() => _PagedListState<T>();
@@ -140,14 +145,16 @@ class _PagedListState<T> extends State<PagedList<T>> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           widget.builder(context, _items),
-          const SizedBox(height: Space.s3),
-          _Footer(
-            loading: _loading,
-            error: _error,
-            shown: _items.length,
-            total: _total,
-            onRetry: _loadMore,
-          ),
+          if (widget.showCount || _loading || _error != null) ...[
+            const SizedBox(height: Space.s3),
+            _Footer(
+              loading: _loading,
+              error: _error,
+              shown: _items.length,
+              total: _total,
+              onRetry: _loadMore,
+            ),
+          ],
         ],
       );
     }

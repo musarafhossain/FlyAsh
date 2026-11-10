@@ -92,6 +92,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
         label: Text(l.addProduct),
       ),
       body: PagedList<Product>(
+        showCount: false,
         controller: _list,
         fetch: (page) => repo.list(
           page: page,
@@ -158,6 +159,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
                 onOpen: (p) => _open('/products/${p.id}/edit'),
               )
             : ListGroup(
+                flat: true,
                 children: [
                   for (final p in products)
                     ProductTile(

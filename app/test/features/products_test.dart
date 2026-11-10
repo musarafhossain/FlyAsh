@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
+import 'package:flyash/core/widgets/cards.dart';
 import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/core/widgets/data_table_card.dart';
 import 'package:flyash/features/products/presentation/pages/products_list_page.dart';
@@ -55,14 +56,19 @@ class FakeProducts {
             (active == null || '${p['is_active']}' == '$active'))
           p,
     ];
+    // Real paging: 20 per page.
+    final page = int.tryParse('${o.queryParameters['page'] ?? 1}') ?? 1;
+    const limit = 20;
+    final from = ((page - 1) * limit).clamp(0, items.length);
+    final to = (from + limit).clamp(0, items.length);
     return (
       200,
       envelope(200, 'Products fetched successfully', {
-        'items': items,
-        'page': 1,
-        'limit': 20,
+        'items': items.sublist(from, to),
+        'page': page,
+        'limit': limit,
         'total': items.length,
-        'last_page': 1,
+        'last_page': items.isEmpty ? 1 : (items.length / limit).ceil(),
       }),
       {},
     );
@@ -186,6 +192,47 @@ void main() {
     expect(find.text('−₹0.50'), findsOneWidget, reason: 'loss in red');
     expect(find.text('Inactive'), findsWidgets);
     expect(find.byType(DataTableCard), findsNothing);
+  });
+
+  testWidgets('flat list: no card around the rows, no "Showing" line', (
+    tester,
+  ) async {
+    await openProducts(tester);
+    expect(
+      find.ancestor(
+        of: find.byType(ProductTile).first,
+        matching: find.byType(AppCard),
+      ),
+      findsNothing,
+    );
+    expect(find.textContaining('Showing'), findsNothing);
+  });
+
+  testWidgets('endless scroll: the next page loads near the end', (
+    tester,
+  ) async {
+    final api = await openProducts(
+      tester,
+      fake: FakeProducts([
+        for (var i = 1; i <= 45; i++)
+          product(i, 'Brick ${i.toString().padLeft(2, '0')}'),
+      ]),
+    );
+    List<String?> pages() => [
+      for (final r in api.requests)
+        if (r.path == '/products') '${r.queryParameters['page']}',
+    ];
+    expect(pages(), ['1']);
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -3000));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, -3000));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, -3000));
+    await tester.pumpAndSettle();
+    expect(pages(), ['1', '2', '3']);
+    expect(find.text('Brick 45'), findsOneWidget);
+    expect(find.textContaining('Showing'), findsNothing);
   });
 
   testWidgets('desktop: products are a table', (tester) async {
