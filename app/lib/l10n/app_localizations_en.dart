@@ -1319,15 +1319,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get goodMorning => 'Good morning';
-
-  @override
-  String get goodAfternoon => 'Good afternoon';
-
-  @override
-  String get goodEvening => 'Good evening';
-
-  @override
   String get selectDate => 'Select date';
 
   @override

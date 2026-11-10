@@ -697,9 +697,6 @@
       }
     }
   },
-  "goodMorning": "Good morning",
-  "goodAfternoon": "Good afternoon",
-  "goodEvening": "Good evening",
   "selectDate": "Select date",
   "attendanceCount": "{present} present · {absent} absent",
   "@attendanceCount": {

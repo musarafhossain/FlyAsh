@@ -2486,24 +2486,6 @@ abstract class AppLocalizations {
   /// **'{count} sales · profit {profit}'**
   String todaysSalesCaption(String count, String profit);
 
-  /// No description provided for @goodMorning.
-  ///
-  /// In en, this message translates to:
-  /// **'Good morning'**
-  String get goodMorning;
-
-  /// No description provided for @goodAfternoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Good afternoon'**
-  String get goodAfternoon;
-
-  /// No description provided for @goodEvening.
-  ///
-  /// In en, this message translates to:
-  /// **'Good evening'**
-  String get goodEvening;
-
   /// No description provided for @selectDate.
   ///
   /// In en, this message translates to:

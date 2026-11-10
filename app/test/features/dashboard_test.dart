@@ -119,13 +119,14 @@ Future<void> tapVisible(WidgetTester tester, Finder f) async {
 }
 
 void main() {
-  testWidgets('shows greeting, today, KPIs, quick actions, recent sales', (
+  testWidgets('shows today, KPIs, quick actions, recent sales (no greeting)', (
     tester,
   ) async {
     await openHome(tester);
     expect(currentLocation(), '/home');
-    expect(find.text('Test Owner'), findsWidgets);
-    expect(find.text('Maa Tara Fly Ash Bricks · 09 Nov 2026'), findsOneWidget);
+    // No greeting, name, factory or date line any more
+    expect(find.text('Good morning'), findsNothing);
+    expect(find.text('Maa Tara Fly Ash Bricks · 09 Nov 2026'), findsNothing);
     expect(find.text("Today's sales"), findsOneWidget);
     expect(find.text('₹3,13,800'), findsOneWidget);
     expect(find.text('11 sales · profit ₹1,16,400'), findsOneWidget);

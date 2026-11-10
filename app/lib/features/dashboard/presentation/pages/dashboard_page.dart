@@ -15,9 +15,7 @@ import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/list_items.dart';
 import '../../../../core/widgets/skeletons.dart';
 import '../../../../core/widgets/state_views.dart';
-import '../../../auth/presentation/auth_controller.dart';
 import '../../../sales/presentation/widgets/sale_list_items.dart';
-import '../../../settings/data/settings_repository_impl.dart';
 import '../../data/dashboard_repository_impl.dart';
 import '../../domain/dashboard.dart';
 
@@ -124,17 +122,11 @@ class _Loading extends StatelessWidget {
   const _Loading();
 
   @override
-  /// Greeting, Today's sales card, the KPI tiles, quick actions and
+  /// Today's sales card, the KPI tiles, quick actions and
   /// recent sales, in the same places as the real Home.
   Widget build(BuildContext context) => const Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      SkeletonBox(width: 90, height: 12),
-      SizedBox(height: Space.s2),
-      SkeletonBox(width: 200, height: 24),
-      SizedBox(height: Space.s2),
-      SkeletonBox(width: 220, height: 12),
-      SizedBox(height: Space.s4),
       SkeletonBox(height: 120, radius: Radii.lg),
       SizedBox(height: Space.s3),
       SkeletonKpis(count: 2),
@@ -270,8 +262,6 @@ class _Body extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Greeting(date: d.date),
-        const SizedBox(height: Space.s4),
         HeroCard(
           icon: Icons.trending_up,
           label: l.todaysSales,
@@ -298,53 +288,6 @@ class _Body extends ConsumerWidget {
           recent,
         ],
         const SizedBox(height: Space.s6),
-      ],
-    );
-  }
-}
-
-/// "Good morning, Test Owner" · factory name · today's date.
-class _Greeting extends ConsumerWidget {
-  const _Greeting({required this.date});
-
-  final String date;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final user = ref.watch(authControllerProvider.select((s) => s.user));
-    final factory = ref.watch(factorySettingsProvider).value?.factoryName;
-    final hour = DateTime.now().hour;
-    final greeting = hour < 12
-        ? l.goodMorning
-        : (hour < 17 ? l.goodAfternoon : l.goodEvening);
-
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                greeting,
-                style: AppTypography.caption.copyWith(color: t.textSecondary),
-              ),
-              Text(
-                user?.name ?? '',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.h2.copyWith(color: t.textPrimary),
-              ),
-              Text(
-                [?factory, Fmt.date(date)].join(' · '),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.caption.copyWith(color: t.textTertiary),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }

@@ -1314,15 +1314,6 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get goodMorning => 'শুভ সকাল';
-
-  @override
-  String get goodAfternoon => 'শুভ দুপুর';
-
-  @override
-  String get goodEvening => 'শুভ সন্ধ্যা';
-
-  @override
   String get selectDate => 'তারিখ বাছুন';
 
   @override
