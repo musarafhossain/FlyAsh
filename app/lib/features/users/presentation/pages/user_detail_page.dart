@@ -129,6 +129,7 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
                     ],
                   ))
           : PageBody(
+              onRefresh: _load,
               maxWidth: 720,
               children: [
                 _UserHeader(user: user),

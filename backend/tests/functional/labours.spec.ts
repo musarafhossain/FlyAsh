@@ -106,7 +106,7 @@ test.group('Labours & attendance', (group) => {
 test.group('Wages', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('daily wage: present days, absent days, advances, payments, balance', async ({
+  test('daily wage: present days, absent days, payments, balance (no advances)', async ({
     client,
     assert,
   }) => {
@@ -131,11 +131,12 @@ test.group('Wages', (group) => {
       status: 'due',
     })
 
-    const adv = await client
-      .post(`${API}/labours/${labour.id}/advances`)
+    // An advance is just a wage payment made early
+    const early = await client
+      .post(`${API}/labours/${labour.id}/wage-payments`)
       .loginAs(user)
-      .json({ amount: 200, advance_date: '2026-10-05' })
-    adv.assertStatus(201)
+      .json({ wage_month: '2026-10', amount: 200, payment_date: '2026-10-05' })
+    early.assertStatus(201)
 
     const pay = await client
       .post(`${API}/labours/${labour.id}/wage-payments`)
@@ -143,19 +144,26 @@ test.group('Wages', (group) => {
       .json({ wage_month: '2026-10', amount: 300 })
     pay.assertStatus(201)
 
+    const gone = await client
+      .post(`${API}/labours/${labour.id}/advances`)
+      .loginAs(user)
+      .json({ amount: 200 })
+    gone.assertStatus(404)
+
     sheet = await client.get(`${API}/wages?month=2026-10`).loginAs(user)
     row = sheet.body().data.items.find((r: any) => r.labour_id === labour.id)
     assert.containsSubset(row, {
-      advances: '200.00',
-      paid: '300.00',
+      paid: '500.00',
       balance: '500.00',
       status: 'partial',
     })
-    assert.property(sheet.body().data, 'totals')
+    assert.notProperty(row, 'advances')
+    assert.notProperty(sheet.body().data.totals, 'advances')
 
     const detail = await client.get(`${API}/labours/${labour.id}/wages?month=2026-10`).loginAs(user)
     assert.lengthOf(detail.body().data.days, 2)
-    assert.lengthOf(detail.body().data.advances, 1)
+    assert.lengthOf(detail.body().data.payments, 2)
+    assert.notProperty(detail.body().data, 'advances')
     assert.equal(detail.body().data.payments[0].created_by.id, user.id)
   })
 

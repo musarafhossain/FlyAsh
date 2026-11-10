@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +11,7 @@ import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/contact_launcher.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/action_menu.dart';
 import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/widgets/list_items.dart';
@@ -19,7 +21,6 @@ import '../../../../core/widgets/status_pill.dart';
 import '../../../products/presentation/pages/products_list_page.dart';
 import '../../data/sales_repository_impl.dart';
 import '../../domain/sale.dart';
-import '../../domain/sale_summary.dart';
 import '../sale_labels.dart';
 import '../widgets/sale_action_sheets.dart';
 import '../../../../core/widgets/skeletons.dart';
@@ -201,23 +202,41 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
               icon: const Icon(Icons.edit_outlined),
             ),
           if (sale != null)
-            PopupMenuButton<void>(
+            ActionMenuButton(
               tooltip: l.moreActions,
               enabled: !_busy,
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  onTap: _delete,
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.delete_outline,
-                      color: context.tokens.error,
+              groups: [
+                [
+                  if (!sale.summary.isCancelled &&
+                      !Sale.isZeroAmount(sale.summary.dueAmount))
+                    ActionMenuItem(
+                      icon: Icons.add_card,
+                      label: l.addPayment,
+                      onSelected: _addPayment,
                     ),
-                    title: Text(
-                      l.deleteSale,
-                      style: TextStyle(color: context.tokens.error),
+                  if (sale.summary.status == 'booked')
+                    ActionMenuItem(
+                      icon: Icons.local_shipping_outlined,
+                      label: l.markDelivered,
+                      onSelected: _deliver,
                     ),
+                ],
+                [
+                  if (sale.summary.status == 'booked')
+                    ActionMenuItem(
+                      icon: Icons.cancel_outlined,
+                      label: l.cancelBooking,
+                      onSelected: _cancel,
+                    ),
+                ],
+                [
+                  ActionMenuItem(
+                    icon: Icons.delete_outline,
+                    label: l.deleteSale,
+                    destructive: true,
+                    onSelected: _delete,
                   ),
-                ),
+                ],
               ],
             ),
         ],
@@ -241,13 +260,6 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
     maxWidth: 720,
     children: [
       _Header(sale: sale),
-      _Actions(
-        summary: sale.summary,
-        busy: _busy,
-        onAddPayment: _addPayment,
-        onDeliver: _deliver,
-        onCancel: _cancel,
-      ),
       const SizedBox(height: Space.s3),
       _CustomerCard(sale: sale),
       const SizedBox(height: Space.s3),
@@ -273,13 +285,6 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _Header(sale: sale),
-                _Actions(
-                  summary: sale.summary,
-                  busy: _busy,
-                  onAddPayment: _addPayment,
-                  onDeliver: _deliver,
-                  onCancel: _cancel,
-                ),
                 const SizedBox(height: Space.s3),
                 _Items(sale: sale),
                 const SizedBox(height: Space.s3),
@@ -503,58 +508,20 @@ class _Items extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l.itemsCount('${sale.items.length}'),
-            style: AppTypography.title.copyWith(color: t.textPrimary),
+    return DetailSection(
+      title: l.itemsCount('${sale.items.length}'),
+      children: [
+        for (final item in sale.items)
+          DetailRow(
+            leading: ProductIcon(seed: item.productName, size: 44),
+            title: item.productName,
+            subtitle:
+                '${Fmt.count(item.quantity)} × '
+                '${Fmt.money(item.unitPrice, decimals: true)} '
+                '${l.perUnit(unitText(l, item.unit))}',
+            amount: Fmt.money(item.lineTotal),
           ),
-          for (final (i, item) in sale.items.indexed) ...[
-            if (i > 0) Divider(height: Space.s5, color: t.border),
-            if (i == 0) const SizedBox(height: Space.s3),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const ProductIcon(size: 36),
-                const SizedBox(width: Space.s3),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.productName,
-                        style: AppTypography.bodyStrong.copyWith(
-                          color: t.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        '${Fmt.count(item.quantity)} × '
-                        '${Fmt.money(item.unitPrice, decimals: true)} '
-                        '${l.perUnit(unitText(l, item.unit))}',
-                        style: AppTypography.caption.copyWith(
-                          color: t.textSecondary,
-                          fontFeatures: AppTypography.tabular,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: Space.s2),
-                Text(
-                  Fmt.money(item.lineTotal),
-                  style: AppTypography.bodyStrong.copyWith(
-                    color: t.textPrimary,
-                    fontFeatures: AppTypography.tabular,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
+      ],
     );
   }
 }
@@ -580,6 +547,13 @@ class _Summary extends StatelessWidget {
           SummaryLine(l.transport, '+ ${money(sale.transportCharge)}'),
         if (!Sale.isZeroAmount(sale.discount))
           SummaryLine(l.discount, '− ${money(sale.discount)}'),
+        if (!Sale.isZeroAmount(sale.taxAmount))
+          SummaryLine(
+            l.taxLine(
+              (Decimal.tryParse(sale.taxPercent) ?? Decimal.zero).toString(),
+            ),
+            '+ ${money(sale.taxAmount)}',
+          ),
         SummaryLine(
           l.total,
           money(s.total),
@@ -614,159 +588,45 @@ class _Payments extends StatelessWidget {
 
   final Sale sale;
 
-  /// ⋮ → Delete on each payment (null while an action runs).
+  /// Long press → Delete on each payment (null while an action runs).
   final ValueChanged<SalePayment>? onDelete;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l.paymentsCount('${sale.payments.length}'),
-            style: AppTypography.title.copyWith(color: t.textPrimary),
-          ),
-          const SizedBox(height: Space.s2),
-          if (sale.payments.isEmpty)
-            Text(
-              l.noPaymentsYet,
-              style: AppTypography.body.copyWith(color: t.textTertiary),
-            ),
-          for (final p in sale.payments)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: Space.s2),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: t.successBg,
-                      borderRadius: Radii.smAll,
-                    ),
-                    child: Icon(
-                      _methodIcon(p.method),
-                      size: 20,
-                      color: t.success,
-                    ),
-                  ),
-                  const SizedBox(width: Space.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${Fmt.date(p.paymentDate)} · '
-                          '${l.paymentMethodText(p.method)}',
-                          style: AppTypography.body.copyWith(
-                            color: t.textPrimary,
-                          ),
+    return DetailSection(
+      title: l.paymentsCount('${sale.payments.length}'),
+      empty: l.noPaymentsYet,
+      children: [
+        for (final p in sale.payments)
+          DetailRow(
+            leading: PaymentAvatar(paymentMethodIcon(p.method)),
+            title:
+                '${Fmt.date(p.paymentDate)} · ${l.paymentMethodText(p.method)}',
+            subtitle: [
+              if ((p.note ?? '').isNotEmpty) p.note!,
+              if (p.createdBy != null) l.byUser(p.createdBy!),
+            ].join(' · '),
+            amount: Fmt.money(p.amount, decimals: true),
+            amountColor: t.success,
+            onLongPress: onDelete == null
+                ? null
+                : (row) => showActionMenu(
+                    row,
+                    groups: [
+                      [
+                        ActionMenuItem(
+                          icon: Icons.delete_outline,
+                          label: l.deletePayment,
+                          destructive: true,
+                          onSelected: () => onDelete!(p),
                         ),
-                        if ((p.note ?? '').isNotEmpty || p.createdBy != null)
-                          Text(
-                            [
-                              if ((p.note ?? '').isNotEmpty) p.note!,
-                              if (p.createdBy != null) l.byUser(p.createdBy!),
-                            ].join(' · '),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.caption.copyWith(
-                              color: t.textTertiary,
-                            ),
-                          ),
                       ],
-                    ),
-                  ),
-                  Text(
-                    Fmt.money(p.amount, decimals: true),
-                    style: AppTypography.bodyStrong.copyWith(
-                      color: t.success,
-                      fontFeatures: AppTypography.tabular,
-                    ),
-                  ),
-                  PopupMenuButton<void>(
-                    tooltip: l.paymentActions,
-                    enabled: onDelete != null,
-                    itemBuilder: (_) => [
-                      PopupMenuItem(
-                        onTap: () => onDelete?.call(p),
-                        child: Text(
-                          l.deletePayment,
-                          style: TextStyle(color: t.error),
-                        ),
-                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  static IconData _methodIcon(String method) => switch (method) {
-    'upi' => Icons.qr_code_2,
-    'bank' => Icons.account_balance_outlined,
-    'cheque' => Icons.receipt_outlined,
-    'cash' => Icons.payments_outlined,
-    _ => Icons.more_horiz,
-  };
-}
-
-/// Add payment · Mark delivered · Cancel booking, shown when they apply.
-class _Actions extends StatelessWidget {
-  const _Actions({
-    required this.summary,
-    required this.busy,
-    required this.onAddPayment,
-    required this.onDeliver,
-    required this.onCancel,
-  });
-
-  final SaleSummary summary;
-  final bool busy;
-  final VoidCallback onAddPayment;
-  final VoidCallback onDeliver;
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final s = summary;
-    final canPay = !s.isCancelled && !Sale.isZeroAmount(s.dueAmount);
-    final booked = s.status == 'booked';
-    if (!canPay && !booked) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(top: Space.s3),
-      child: Wrap(
-        spacing: Space.s2,
-        runSpacing: Space.s2,
-        children: [
-          if (canPay)
-            FilledButton.icon(
-              onPressed: busy ? null : onAddPayment,
-              icon: const Icon(Icons.add_card),
-              label: Text(l.addPayment),
-            ),
-          if (booked)
-            FilledButton.tonalIcon(
-              onPressed: busy ? null : onDeliver,
-              icon: const Icon(Icons.local_shipping_outlined),
-              label: Text(l.markDelivered),
-            ),
-          if (booked)
-            OutlinedButton.icon(
-              onPressed: busy ? null : onCancel,
-              icon: const Icon(Icons.cancel_outlined),
-              label: Text(l.cancelBooking),
-            ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

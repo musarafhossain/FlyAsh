@@ -119,6 +119,54 @@ test.group('Sales: calculations', (group) => {
     bad.assertStatus(422)
   })
 
+  test('tax: a percent of subtotal + transport − discount; not profit', async ({
+    client,
+    assert,
+  }) => {
+    const { user, brick, customer } = await setup()
+    // 1000 × 6.50 = 6500 (cost 4200) + 500 transport − 0 discount = 7000
+    const res = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 1000 }],
+        transport_charge: 500,
+        tax_percent: 5,
+      })
+    res.assertStatus(201)
+    assert.containsSubset(res.body().data, {
+      tax_percent: '5.00',
+      tax_amount: '350.00',
+      total: '7350.00',
+      profit: '2800.00', // 7000 − 4200
+      due_amount: '7350.00',
+    })
+
+    const id = res.body().data.id
+    const edited = await client
+      .put(`${API}/sales/${id}`)
+      .loginAs(user)
+      .json({
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 1000 }],
+        transport_charge: 500,
+      })
+    assert.containsSubset(edited.body().data, { tax_amount: '0.00', total: '7000.00' })
+
+    const tooMuch = await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        customer_id: customer.id,
+        items: [{ product_id: brick.id, quantity: 1 }],
+        tax_percent: 120,
+      })
+    tooMuch.assertStatus(422)
+  })
+
   test('payments: no overpayment, paying the rest makes it paid', async ({ client, assert }) => {
     const { user, brick, customer } = await setup()
     const created = await client
@@ -290,6 +338,20 @@ test.group('Sales: customers, list and delete', (group) => {
       })
     dup.assertStatus(422)
     assert.equal(dup.body().data.existing_customer_id, customer.id)
+
+    // Phone is optional; two customers without a phone are fine
+    for (const name of ['No Phone A', 'No Phone B']) {
+      const noPhone = await client
+        .post(`${API}/sales`)
+        .loginAs(user)
+        .json({
+          type: 'instant',
+          new_customer: { name },
+          items: [{ product_id: brick.id, quantity: 10 }],
+        })
+      noPhone.assertStatus(201)
+      assert.isNull(noPhone.body().data.customer.phone)
+    }
   })
 
   test('list filters and soft delete', async ({ client, assert }) => {

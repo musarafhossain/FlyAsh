@@ -22,13 +22,14 @@ export type SaleItemInput = {
 
 export type SaleInput = {
   customer_id?: string
-  new_customer?: { name: string; phone: string; address?: string | null }
+  new_customer?: { name: string; phone?: string | null; address?: string | null }
   sale_date?: string
   delivery_date?: string
   delivery_address?: string | null
   items: SaleItemInput[]
   transport_charge?: number
   discount?: number
+  tax_percent?: number
   notes?: string | null
 }
 
@@ -70,6 +71,7 @@ export default class SaleService {
         deliveryAddress: input.delivery_address ?? null,
         transportCharge: money(input.transport_charge),
         discount: money(input.discount),
+        taxPercent: money(input.tax_percent),
         notes: input.notes ?? null,
         createdBy: userId,
       })
@@ -125,6 +127,7 @@ export default class SaleService {
         deliveryAddress: input.delivery_address ?? null,
         transportCharge: money(input.transport_charge),
         discount: money(input.discount),
+        taxPercent: money(input.tax_percent),
         notes: input.notes ?? null,
       })
       await sale.save()
@@ -212,10 +215,13 @@ export default class SaleService {
 
     const subtotal = items.reduce((sum, item) => sum + toPaise(item.lineTotal), 0)
     const totalCost = items.reduce((sum, item) => sum + toPaise(item.lineCost), 0)
-    const total = subtotal + toPaise(sale.transportCharge) - toPaise(sale.discount)
+    // Tax is a percent of the amount after transport and discount.
+    const taxable = subtotal + toPaise(sale.transportCharge) - toPaise(sale.discount)
+    const tax = Math.round((taxable * Number(sale.taxPercent || 0)) / 100)
+    const total = taxable + tax
     const paid = payments.reduce((sum, payment) => sum + toPaise(payment.amount), 0)
 
-    if (total < 0) {
+    if (taxable < 0) {
       throw new AppError('sales.discount_too_big')
     }
     if (paid > total) {
@@ -228,9 +234,11 @@ export default class SaleService {
     const due = total - paid
     sale.merge({
       subtotal: fromPaise(subtotal),
+      taxAmount: fromPaise(Math.max(0, tax)),
       total: fromPaise(total),
       totalCost: fromPaise(totalCost),
-      profit: fromPaise(total - totalCost),
+      // Tax is collected for the government: not profit.
+      profit: fromPaise(taxable - totalCost),
       paidAmount: fromPaise(paid),
       dueAmount: fromPaise(due),
       paymentStatus: paid === 0 ? 'due' : due === 0 ? 'paid' : 'partial',
@@ -303,7 +311,7 @@ export default class SaleService {
     const customer = await Customer.create(
       {
         name: input.new_customer.name,
-        phone: input.new_customer.phone,
+        phone: input.new_customer.phone ?? null,
         address: input.new_customer.address ?? null,
         isActive: true,
         createdBy: userId,

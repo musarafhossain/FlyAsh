@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/status_pill.dart';
@@ -54,3 +54,11 @@ class SaleStatusPill extends StatelessWidget {
     );
   }
 }
+
+/// Icon for a payment method (cash, UPI, bank, other).
+IconData paymentMethodIcon(String method) => switch (method) {
+  'upi' => Icons.qr_code_2,
+  'bank' => Icons.account_balance_outlined,
+  'other' => Icons.payments_outlined,
+  _ => Icons.money,
+};

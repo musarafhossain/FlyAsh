@@ -7,17 +7,28 @@ import '../theme/app_typography.dart';
 /// Scrollable page body: screen-size side padding and a centered column no
 /// wider than [maxWidth] (forms 560, detail pages 720 — 04-UI-UX §11).
 class PageBody extends StatelessWidget {
-  const PageBody({super.key, required this.children, this.maxWidth = 560});
+  const PageBody({
+    super.key,
+    required this.children,
+    this.maxWidth = 560,
+    this.onRefresh,
+  });
 
   final List<Widget> children;
   final double maxWidth;
 
+  /// Pull down to load again (detail pages).
+  final Future<void> Function()? onRefresh;
+
   @override
   Widget build(BuildContext context) {
     final gutter = Breakpoints.gutter(MediaQuery.sizeOf(context).width);
-    return SafeArea(
+    final body = SafeArea(
       top: false,
       child: SingleChildScrollView(
+        physics: onRefresh == null
+            ? null
+            : const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.all(gutter),
         child: Center(
           child: ConstrainedBox(
@@ -30,6 +41,9 @@ class PageBody extends StatelessWidget {
         ),
       ),
     );
+    return onRefresh == null
+        ? body
+        : RefreshIndicator(onRefresh: onRefresh!, child: body);
   }
 }
 

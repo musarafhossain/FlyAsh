@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -45,18 +47,16 @@ class AppearanceButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
+    final width = popoverWidth(context, _appearanceWidth);
     return MenuAnchor(
-      // Right edge lines up with the button's right edge, so the popover
-      // keeps the button's gap from the screen edge.
-      alignmentOffset: const Offset(-_appearanceWidth, Space.s1),
-      style: popoverStyle(context, width: _appearanceWidth),
+      style: popoverStyle(context, width: width),
       menuChildren: [
         Consumer(
           builder: (context, ref, _) {
             final settings = ref.watch(themeControllerProvider);
             final controller = ref.read(themeControllerProvider.notifier);
             return SizedBox(
-              width: _appearanceWidth,
+              width: width,
               child: Padding(
                 padding: const EdgeInsets.all(Space.s4),
                 child: Column(
@@ -118,7 +118,7 @@ class AppearanceButton extends ConsumerWidget {
         ),
         const Divider(height: 1),
         SizedBox(
-          width: _appearanceWidth,
+          width: width,
           child: MenuItemButton(
             leadingIcon: const Icon(Icons.tune),
             onPressed: () => context.go('/settings/appearance'),
@@ -128,7 +128,7 @@ class AppearanceButton extends ConsumerWidget {
       ],
       builder: (context, menu, _) => IconButton(
         tooltip: l.appearance,
-        onPressed: () => menu.isOpen ? menu.close() : menu.open(),
+        onPressed: () => togglePopover(context, menu, width),
         icon: const Icon(Icons.palette_outlined),
       ),
     );
@@ -147,7 +147,6 @@ class AccountMenu extends ConsumerWidget {
     final name = user?.name ?? l.myProfile;
 
     return MenuAnchor(
-      alignmentOffset: const Offset(-_accountWidth, Space.s1),
       style: popoverStyle(context, width: _accountWidth),
       menuChildren: [
         // Who is logged in
@@ -221,7 +220,7 @@ class AccountMenu extends ConsumerWidget {
           label: l.account,
           child: InkWell(
             customBorder: const CircleBorder(),
-            onTap: () => menu.isOpen ? menu.close() : menu.open(),
+            onTap: () => togglePopover(context, menu, _accountWidth),
             child: const Padding(
               padding: EdgeInsets.all(Space.s1),
               child: UserIconAvatar(size: 36),
@@ -270,8 +269,31 @@ Future<void> confirmLogout(BuildContext context, WidgetRef ref) async {
   if (ok) await ref.read(authControllerProvider.notifier).logout();
 }
 
-/// Rounded, bordered popover of a fixed [width], attached below the
-/// button's right corner (pair with `alignmentOffset: Offset(-width, 4)`).
+/// [preferred] width, but never wider than the screen minus a 16 px gap on
+/// each side (phones).
+double popoverWidth(BuildContext context, double preferred) =>
+    math.min(preferred, MediaQuery.sizeOf(context).width - 2 * Space.s4);
+
+/// Opens (or closes) a popover below its button: right-aligned with the
+/// button when there is room, and always at least 16 px from both screen
+/// edges. [anchor] is the button's context (inside the MenuAnchor).
+void togglePopover(BuildContext anchor, MenuController menu, double width) {
+  if (menu.isOpen) {
+    menu.close();
+    return;
+  }
+  final box = anchor.findRenderObject()! as RenderBox;
+  final topLeft = box.localToGlobal(Offset.zero);
+  final screen = MediaQuery.sizeOf(anchor).width;
+  final right = topLeft.dx + box.size.width;
+  final left = (right - width)
+      .clamp(Space.s4, math.max(Space.s4, screen - Space.s4 - width))
+      .toDouble();
+  menu.open(position: Offset(left - topLeft.dx, box.size.height + Space.s1));
+}
+
+/// Rounded, bordered popover of a fixed [width] (open it with
+/// [togglePopover], which places it below the button).
 MenuStyle popoverStyle(BuildContext context, {required double width}) {
   final t = context.tokens;
   return MenuStyle(

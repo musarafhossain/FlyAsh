@@ -67,7 +67,7 @@ class WageStatusPill extends StatelessWidget {
 }
 
 /// The "Wages" tab (03-AppFlow §7.3): ‹ month › (no future months), hero
-/// with the month's total earned, Advances · Paid · Balance, search, and a
+/// with the month's total earned, Paid · Balance, search, and a
 /// row per labour (days worked, earned, balance, status). Tap → the
 /// labour's wage detail for that month.
 class WagesTab extends ConsumerStatefulWidget {
@@ -149,7 +149,7 @@ class _WagesTabState extends ConsumerState<WagesTab> {
     }
   }
 
-  /// Long press: View | Give advance · Pay wage (while something is owed).
+  /// Long press: View | Pay wage (while something is owed).
   Future<void> _actions(BuildContext row, WageRow r) {
     final l = context.l10n;
     final today = ref.read(businessDateProvider);
@@ -166,30 +166,6 @@ class _WagesTabState extends ConsumerState<WagesTab> {
           ),
         ],
         [
-          ActionMenuItem(
-            icon: Icons.payments_outlined,
-            label: l.giveAdvance,
-            onSelected: () async {
-              // A past month's advance is dated in that month.
-              final entry = await showAdvanceSheet(
-                context,
-                labourName: r.name,
-                defaultDate: month == _thisMonth
-                    ? today
-                    : Ymd.monthEnd('$month-01'),
-                today: today,
-              );
-              if (entry == null) return;
-              await _run(
-                () => repo.giveAdvance(
-                  r.labourId,
-                  amount: entry.amount,
-                  date: entry.date,
-                  note: entry.note,
-                ),
-              );
-            },
-          ),
           if (r.hasBalance)
             ActionMenuItem(
               icon: Icons.account_balance_wallet_outlined,
@@ -251,13 +227,6 @@ class _WagesTabState extends ConsumerState<WagesTab> {
           const SizedBox(height: Space.s2),
           KpiRow(
             children: [
-              KpiChip(
-                icon: Icons.request_quote_outlined,
-                label: l.advances,
-                value: totals == null ? '—' : Fmt.money(totals.advances),
-                loading: totals == null && _totalsLoading,
-                tint: KpiTint.amber,
-              ),
               KpiChip(
                 icon: Icons.check_circle_outline,
                 label: l.paid,
@@ -387,7 +356,6 @@ class _WagesTable extends StatelessWidget {
         TableColumnDef(l.nameField, flex: 4),
         TableColumnDef(l.days, flex: 2, alignEnd: true),
         TableColumnDef(l.earned, flex: 2, alignEnd: true),
-        TableColumnDef(l.advances, flex: 2, alignEnd: true),
         TableColumnDef(l.paid, flex: 2, alignEnd: true),
         TableColumnDef(l.balance, flex: 2, alignEnd: true),
         TableColumnDef(l.status, flex: 2, alignEnd: true),
@@ -404,7 +372,6 @@ class _WagesTable extends StatelessWidget {
             ),
             CellText(Fmt.count('${r.presentDays}')),
             CellText(Fmt.money(r.earned)),
-            CellText(Fmt.money(r.advances)),
             CellText(Fmt.money(r.paid)),
             BalanceText(r),
             WageStatusPill(r.status),

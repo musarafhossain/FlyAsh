@@ -149,13 +149,16 @@ void main() {
         await tester.tap(find.byTooltip(tooltip));
         await tester.pumpAndSettle();
         final menu = tester.getRect(find.widgetWithText(MenuItemButton, item));
-        expect(size.width - menu.right, greaterThanOrEqualTo(8));
-        // Right-aligned with its button when there is room on the left;
-        // otherwise kept inside the screen from the left edge.
-        if (button.right >= menu.width) {
-          expect(menu.right, closeTo(button.right, 5), reason: 'aligned');
-        } else {
-          expect(menu.left, greaterThanOrEqualTo(0));
+        // At least 16 px from both screen edges (it never sticks to the
+        // left on phones), right-aligned with its button when there is room.
+        expect(size.width - menu.right, greaterThanOrEqualTo(16 - 1));
+        expect(menu.left, greaterThanOrEqualTo(16 - 1), reason: 'left gap');
+        if (button.right - menu.width >= 16) {
+          expect(
+            menu.right,
+            closeTo(button.right.clamp(0, size.width - 16), 5),
+            reason: 'aligned',
+          );
         }
       });
     }

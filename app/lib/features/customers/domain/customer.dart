@@ -20,12 +20,16 @@ class Customer {
 
   final String id;
   final String name;
+
+  /// "" when the customer has no phone (it is optional).
   final String phone;
   final String? address;
   final bool isActive;
   final String totalSales;
   final String totalPaid;
   final String totalDue;
+
+  bool get hasPhone => phone.isNotEmpty;
 
   bool get hasDue =>
       (Decimal.tryParse(totalDue) ?? Decimal.zero) > Decimal.zero;
@@ -48,12 +52,14 @@ class CustomerInput {
   const CustomerInput({required this.name, required this.phone, this.address});
 
   final String name;
+
+  /// Empty = no phone (sent as null).
   final String phone;
   final String? address;
 
   Json toJson() => {
     'name': name.trim(),
-    'phone': phone.trim(),
+    'phone': phone.trim().isEmpty ? null : phone.trim(),
     'address': address,
   };
 }

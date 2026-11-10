@@ -1171,9 +1171,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get earned => 'পাওনা';
 
   @override
-  String get advances => 'অগ্রিম';
-
-  @override
   String get balance => 'বাকি';
 
   @override
@@ -1226,34 +1223,7 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
-  String get giveAdvance => 'অগ্রিম দিন';
-
-  @override
-  String giveAdvanceTo(String name) {
-    return '$name-কে অগ্রিম';
-  }
-
-  @override
-  String get advanceHint => 'যে মাসের তারিখ, সেই মাসের মজুরি থেকে কাটা হবে।';
-
-  @override
-  String advancesCount(String count) {
-    return 'অগ্রিম ($count)';
-  }
-
-  @override
-  String get noAdvances => 'এই মাসে কোনো অগ্রিম নেই';
-
-  @override
   String get noWagePayments => 'এই মাসের জন্য এখনো কিছু দেওয়া হয়নি';
-
-  @override
-  String get deleteAdvance => 'অগ্রিম মুছুন';
-
-  @override
-  String deleteAdvanceTitle(String amount) {
-    return '$amount-এর অগ্রিম মুছবেন?';
-  }
 
   @override
   String get balanceRecalculated => 'বাকি আবার হিসাব হবে।';
@@ -1263,9 +1233,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get wageThisMonth => 'এই মাসের মজুরি';
-
-  @override
-  String get advanceOrPay => 'অগ্রিম / মজুরি দিন';
 
   @override
   String get note => 'নোট';
@@ -1371,4 +1338,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get categoryHint => 'লিখুন বা বেছে নিন, যেমন শ্রমিকের টিফিন';
+
+  @override
+  String get taxPercentField => 'ট্যাক্স (%)';
+
+  @override
+  String taxLine(String percent) {
+    return 'ট্যাক্স ($percent%)';
+  }
+
+  @override
+  String get invalidTaxPercent => '০ থেকে ১০০ লিখুন, যেমন 5 বা 12.5';
 }

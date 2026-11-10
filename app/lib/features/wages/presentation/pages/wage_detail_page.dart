@@ -23,10 +23,12 @@ import '../../domain/wages.dart';
 import '../widgets/wage_sheets.dart';
 import '../widgets/wages_tab.dart';
 import '../../../../core/widgets/skeletons.dart';
+import '../../../../core/widgets/action_menu.dart';
 
 /// A labour's wage for a month (03-AppFlow §7.3): breakdown
-/// worked days × rate − advances − paid = balance, Give advance / Pay
-/// wage, advances and payments (⋮ → Delete), and the day-by-day list.
+/// worked days × rate − paid = balance, ⋮ → Pay wage, the payments (an
+/// advance is just an early payment; long press → Delete), and the
+/// day-by-day list. Pull to refresh.
 class WageDetailPage extends ConsumerStatefulWidget {
   const WageDetailPage({super.key, required this.labourId, this.month});
 
@@ -97,31 +99,6 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
     }
   }
 
-  Future<void> _giveAdvance() async {
-    final row = _detail!.row;
-    // A past month's advance is dated in that month (deducted there).
-    final defaultDate = _month == _thisMonth
-        ? _today
-        : Ymd.monthEnd('$_month-01');
-    final entry = await showAdvanceSheet(
-      context,
-      labourName: row.name,
-      defaultDate: defaultDate,
-      today: _today,
-    );
-    if (entry == null) return;
-    await _run(
-      () => ref
-          .read(wagesRepositoryProvider)
-          .giveAdvance(
-            widget.labourId,
-            amount: entry.amount,
-            date: entry.date,
-            note: entry.note,
-          ),
-    );
-  }
-
   Future<void> _payWage() async {
     final row = _detail!.row;
     final entry = await showPayWageSheet(
@@ -170,15 +147,32 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
         title: Text(d?.row.name ?? l.wageDetails),
         actions: [
           if (d != null)
-            IconButton(
-              tooltip: l.labourDetails,
-              onPressed: () => context.push('/labours/${widget.labourId}'),
-              icon: const Icon(Icons.person_outline),
+            ActionMenuButton(
+              tooltip: l.moreActions,
+              enabled: !_busy,
+              groups: [
+                [
+                  ActionMenuItem(
+                    icon: Icons.payments_outlined,
+                    label: l.payWage,
+                    onSelected: _payWage,
+                  ),
+                ],
+                [
+                  ActionMenuItem(
+                    icon: Icons.person_outline,
+                    label: l.labourDetails,
+                    onSelected: () =>
+                        context.push('/labours/${widget.labourId}'),
+                  ),
+                ],
+              ],
             ),
         ],
       ),
       body: PageBody(
         maxWidth: 760,
+        onRefresh: _load,
         children: [
           PeriodSelector(
             label: Fmt.month(_month),
@@ -252,7 +246,6 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
             daysText(l, r.presentDays),
           ),
           SummaryLine(l.earned, money(r.earned), emphasis: true),
-          SummaryLine(l.advances, '− ${money(r.advances)}'),
           SummaryLine(l.paid, '− ${money(r.paid)}', color: t.success),
           SummaryLine(
             l.balance,
@@ -264,70 +257,39 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
         ],
       ),
       const SizedBox(height: Space.s3),
-      Wrap(
-        spacing: Space.s2,
-        runSpacing: Space.s2,
-        children: [
-          FilledButton.icon(
-            onPressed: _busy ? null : _payWage,
-            icon: const Icon(Icons.payments_outlined),
-            label: Text(l.payWage),
-          ),
-          FilledButton.tonalIcon(
-            onPressed: _busy ? null : _giveAdvance,
-            icon: const Icon(Icons.request_quote_outlined),
-            label: Text(l.giveAdvance),
-          ),
-        ],
-      ),
-      const SizedBox(height: Space.s3),
-      _MoneyList(
+      DetailSection(
         title: l.paymentsCount('${d.payments.length}'),
         empty: l.noWagePayments,
-        rows: [
+        children: [
           for (final p in d.payments)
-            _MoneyRow(
-              icon: Icons.payments_outlined,
-              color: t.success,
+            DetailRow(
+              leading: PaymentAvatar(paymentMethodIcon(p.method)),
               title: '${Fmt.date(p.date)} · ${l.paymentMethodText(p.method)}',
               subtitle: [
                 if ((p.note ?? '').isNotEmpty) p.note!,
                 if (p.createdBy != null) l.byUser(p.createdBy!),
               ].join(' · '),
               amount: money(p.amount),
-              deleteLabel: l.deletePayment,
-              onDelete: _busy
+              amountColor: t.success,
+              onLongPress: _busy
                   ? null
-                  : () => _delete(
-                      title: l.deletePaymentTitle(money(p.amount)),
-                      action: () =>
-                          ref.read(wagesRepositoryProvider).deletePayment(p.id),
-                    ),
-            ),
-        ],
-      ),
-      const SizedBox(height: Space.s3),
-      _MoneyList(
-        title: l.advancesCount('${d.advances.length}'),
-        empty: l.noAdvances,
-        rows: [
-          for (final a in d.advances)
-            _MoneyRow(
-              icon: Icons.request_quote_outlined,
-              color: t.warning,
-              title: Fmt.date(a.date),
-              subtitle: [
-                if ((a.note ?? '').isNotEmpty) a.note!,
-                if (a.createdBy != null) l.byUser(a.createdBy!),
-              ].join(' · '),
-              amount: money(a.amount),
-              deleteLabel: l.deleteAdvance,
-              onDelete: _busy
-                  ? null
-                  : () => _delete(
-                      title: l.deleteAdvanceTitle(money(a.amount)),
-                      action: () =>
-                          ref.read(wagesRepositoryProvider).deleteAdvance(a.id),
+                  : (row) => showActionMenu(
+                      row,
+                      groups: [
+                        [
+                          ActionMenuItem(
+                            icon: Icons.delete_outline,
+                            label: l.deletePayment,
+                            destructive: true,
+                            onSelected: () => _delete(
+                              title: l.deletePaymentTitle(money(p.amount)),
+                              action: () => ref
+                                  .read(wagesRepositoryProvider)
+                                  .deletePayment(p.id),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
             ),
         ],
@@ -383,111 +345,5 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
         ),
       ),
     ];
-  }
-}
-
-class _MoneyList extends StatelessWidget {
-  const _MoneyList({
-    required this.title,
-    required this.empty,
-    required this.rows,
-  });
-
-  final String title;
-  final String empty;
-  final List<Widget> rows;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            title,
-            style: AppTypography.title.copyWith(color: t.textPrimary),
-          ),
-          const SizedBox(height: Space.s2),
-          if (rows.isEmpty)
-            Text(
-              empty,
-              style: AppTypography.body.copyWith(color: t.textTertiary),
-            ),
-          ...rows,
-        ],
-      ),
-    );
-  }
-}
-
-class _MoneyRow extends StatelessWidget {
-  const _MoneyRow({
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
-    required this.amount,
-    required this.deleteLabel,
-    required this.onDelete,
-  });
-
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-  final String amount;
-  final String deleteLabel;
-  final VoidCallback? onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Space.s1),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: color),
-          const SizedBox(width: Space.s3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.body.copyWith(color: t.textPrimary),
-                ),
-                if (subtitle.isNotEmpty)
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.caption.copyWith(
-                      color: t.textTertiary,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Text(
-            amount,
-            style: AppTypography.bodyStrong.copyWith(
-              color: color,
-              fontFeatures: AppTypography.tabular,
-            ),
-          ),
-          PopupMenuButton<void>(
-            tooltip: deleteLabel,
-            enabled: onDelete != null,
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                onTap: onDelete,
-                child: Text(deleteLabel, style: TextStyle(color: t.error)),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

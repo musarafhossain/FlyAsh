@@ -112,6 +112,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
   final List<_ItemRow> _items = [_ItemRow()];
   final _transport = TextEditingController();
   final _discount = TextEditingController();
+  final _tax = TextEditingController();
   final _payAmount = TextEditingController();
   final _payNote = TextEditingController();
   String _payMethod = 'cash';
@@ -152,6 +153,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
       _deliveryAddress,
       _transport,
       _discount,
+      _tax,
       _payAmount,
       _payNote,
       _notes,
@@ -218,6 +220,9 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
         _discount.text = Sale.isZeroAmount(sale.discount)
             ? ''
             : plain(sale.discount);
+        _tax.text = Sale.isZeroAmount(sale.taxPercent)
+            ? ''
+            : plain(sale.taxPercent);
         _notes.text = sale.notes ?? '';
         _paidBefore = s.paidAmount;
         _loaded = true;
@@ -232,8 +237,16 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
   Decimal get _subtotal =>
       _items.fold(Decimal.zero, (sum, i) => sum + i.lineTotal);
   Decimal get _cost => _items.fold(Decimal.zero, (sum, i) => sum + i.lineCost);
-  Decimal get _total =>
+
+  /// Subtotal + transport − discount (what tax is a percent of).
+  Decimal get _taxable =>
       _subtotal + _dec(_transport.text) - _dec(_discount.text);
+
+  /// Tax rounded to paise, like the server.
+  Decimal get _taxAmount => (_taxable * _dec(_tax.text) / Decimal.fromInt(100))
+      .toDecimal(scaleOnInfinitePrecision: 6)
+      .round(scale: 2);
+  Decimal get _total => _taxable + _taxAmount;
   Decimal get _paid => _isEdit ? _dec(_paidBefore) : _dec(_payAmount.text);
 
   void _changed() => setState(() => _dirty = true);
@@ -268,7 +281,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
       itemBuilder: (context, c) => _PickTile(
         leading: InitialsAvatar(c.name),
         title: c.name,
-        subtitle: c.phone,
+        subtitle: c.hasPhone ? c.phone : (c.address ?? ''),
         trailing: c.hasDue ? l.dueAmount(Fmt.money(c.totalDue)) : null,
         onTap: () => Navigator.of(context).pop(c),
       ),
@@ -382,6 +395,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
           ? '0'
           : _transport.text.trim(),
       discount: _discount.text.trim().isEmpty ? '0' : _discount.text.trim(),
+      taxPercent: _tax.text.trim().isEmpty ? '0' : _tax.text.trim(),
       payment: !_isEdit && _dec(_payAmount.text) > Decimal.zero
           ? PaymentInput(
               amount: _payAmount.text.trim(),
@@ -485,7 +499,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
         bottomNavigationBar: _loaded
             ? _SummaryBar(
                 total: _total,
-                profit: _total - _cost,
+                profit: _taxable - _cost, // tax is not profit
                 due: _total - _paid,
                 busy: busy,
                 saveLabel: _isEdit ? l.save : l.saveSale,
@@ -572,10 +586,10 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(10),
                     ],
-                    validator: v.phone,
+                    validator: v.optionalPhone,
                     onChanged: (_) => _changed(),
                     decoration: InputDecoration(
-                      labelText: l.phoneField,
+                      labelText: l.phoneOptional,
                       prefixText: '+91 ',
                       prefixIcon: const Icon(Icons.phone_outlined),
                       errorText: fieldErrors['new_customer.phone'],
@@ -614,7 +628,10 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
                 label: l.selectCustomer,
                 value: _customer == null
                     ? null
-                    : '${_customer!.name} · ${_customer!.phone}',
+                    : [
+                        _customer!.name,
+                        if (_customer!.hasPhone) _customer!.phone,
+                      ].join(' · '),
                 icon: Icons.person_search_outlined,
                 errorText: _customerError ?? fieldErrors['customer_id'],
                 onTap: _isEdit ? null : _pickCustomer,
@@ -754,12 +771,47 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
               ],
             ),
             const SizedBox(height: Space.s3),
+            TextFormField(
+              controller: _tax,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+              ],
+              validator: (x) {
+                final s = (x ?? '').trim();
+                if (s.isEmpty) return null;
+                final d = Decimal.tryParse(s);
+                if (d == null ||
+                    d < Decimal.zero ||
+                    d > Decimal.fromInt(100) ||
+                    d.scale > 2) {
+                  return l.invalidTaxPercent;
+                }
+                return null;
+              },
+              onChanged: (_) => _changed(),
+              decoration: InputDecoration(
+                labelText: l.taxPercentField,
+                hintText: '0',
+                suffixText: '%',
+                prefixIcon: const Icon(Icons.percent),
+                errorText: fieldErrors['tax_percent'],
+              ),
+            ),
+            const SizedBox(height: Space.s3),
             LineItemSummaryCard(
               lines: [
                 SummaryLine(
                   l.subtotal,
                   Fmt.money(_subtotal.toString(), decimals: true),
                 ),
+                if (_taxAmount > Decimal.zero)
+                  SummaryLine(
+                    l.taxLine(_dec(_tax.text).toString()),
+                    '+ ${Fmt.money(_taxAmount.toString(), decimals: true)}',
+                  ),
                 SummaryLine(
                   l.total,
                   Fmt.money(_total.toString(), decimals: true),

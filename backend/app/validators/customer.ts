@@ -10,7 +10,8 @@ export const listCustomersValidator = vine.create({
 /** Phone uniqueness is checked in Customer.assertPhoneFree (to return the existing customer id). */
 export const customerFields = {
   name: nameRule(),
-  phone: phoneRule(),
+  /** Optional; unique when given */
+  phone: phoneRule().nullable().optional(),
   address: vine.string().trim().maxLength(500).nullable().optional(),
 }
 

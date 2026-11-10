@@ -142,9 +142,9 @@ class _CustomerFormPageState extends ConsumerState<CustomerFormPage>
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(10),
                     ],
-                    validator: v.phone,
+                    validator: v.optionalPhone,
                     decoration: InputDecoration(
-                      labelText: l.phoneField,
+                      labelText: l.phoneOptional,
                       prefixIcon: const Icon(Icons.phone_outlined),
                       prefixText: '+91 ',
                       errorText: fieldErrors['phone'],

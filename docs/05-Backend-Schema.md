@@ -41,13 +41,12 @@ erDiagram
     sales ||--o{ sale_payments : receives
     products ||--o{ sale_items : "sold as"
     labours ||--o{ attendances : has
-    labours ||--o{ labour_advances : takes
     labours ||--o{ wage_payments : receives
     users ||--o{ sales : "created_by"
     users ||--o{ expenses : "created_by"
 ```
 
-All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory_settings` · `products` · `customers` · `sales` · `sale_items` · `sale_payments` · `labours` · `attendances` · `labour_advances` · `wage_payments` · `expenses` · `app_versions`
+All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory_settings` · `products` · `customers` · `sales` · `sale_items` · `sale_payments` · `labours` · `attendances` · `wage_payments` · `expenses` · `app_versions`
 
 ---
 
@@ -134,7 +133,7 @@ The row is deleted after a successful reset, so the reset token is single use. O
 |---|---|---|---|---|
 | id | CHAR(36) PK (UUID v7) | | app | |
 | name | VARCHAR(100) | no | | index |
-| phone | VARCHAR(15) | no | | **unique** |
+| phone | VARCHAR(15) | yes | NULL | Optional; **unique** when given (migration 0022) |
 | address | VARCHAR(500) | yes | NULL | |
 | is_active | TINYINT(1) | no | 1 | |
 | created_by | CHAR(36) FK → users.id | yes | NULL | |
@@ -158,6 +157,8 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 | subtotal | DECIMAL(12,2) | no | 0.00 | Σ `sale_items.line_total` |
 | transport_charge | DECIMAL(12,2) | no | 0.00 | |
 | discount | DECIMAL(12,2) | no | 0.00 | |
+| tax_percent | DECIMAL(5,2) | no | 0.00 | 0–100, of (subtotal + transport − discount) (migration 0021) |
+| tax_amount | DECIMAL(12,2) | no | 0.00 | Rounded to paise. total = subtotal + transport − discount + tax; **profit excludes tax** |
 | total | DECIMAL(12,2) | no | 0.00 | `subtotal + transport_charge − discount` |
 | total_cost | DECIMAL(12,2) | no | 0.00 | Σ `sale_items.line_cost` |
 | profit | DECIMAL(12,2) | no | 0.00 | `total − total_cost` |
@@ -234,17 +235,9 @@ A row means the labour was **present** that day. No row means absent (there is n
 
 **Unique:** `(labour_id, date)`. **Index:** `(date)`. "Not marked" = no row.
 
-### 3.12 `labour_advances`
+### 3.12 (removed) `labour_advances`
 
-| Column | Type | Null | Default | Notes |
-|---|---|---|---|---|
-| id | CHAR(36) PK (UUID v7) | | app | |
-| labour_id | CHAR(36) FK → labours.id | no | | index |
-| amount | DECIMAL(12,2) | no | | > 0 |
-| advance_date | DATE | no | | Deducted in the month of this date. index |
-| note | VARCHAR(500) | yes | NULL | |
-| created_by | CHAR(36) FK → users.id | yes | NULL | |
-| created_at / updated_at | DATETIME | no | | |
+Dropped by migration 0023. Money given to a labour before the month ends is just a wage payment (below), so there is one place for all payments.
 
 ### 3.13 `wage_payments`
 
@@ -323,10 +316,9 @@ WHERE a.date BETWEEN :month_start AND :month_end
 GROUP BY a.labour_id;
 ```
 
-- `advances` = Σ `labour_advances.amount` where `advance_date` is in the month
 - `paid` = Σ `wage_payments.amount` where `wage_month = :month_start`
-- `balance = earned − advances − paid`, and `not_marked_days` = active days in the month up to today − marked rows
-- `status`: earned > 0 and advances + paid = 0 → `due` · balance > 0 → `partial` · balance ≤ 0 → `paid`
+- `balance = earned − paid` (an advance is an early wage payment)
+- `status`: earned > 0 and paid = 0 → `due` · balance > 0 → `partial` · balance ≤ 0 → `paid`
 - Money is rounded to 2 decimals at the end (`ROUND(earned, 2)`).
 
 ### 4.3 Net profit for a period
@@ -475,9 +467,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 | `PUT /attendance` | `{ date, records: [{ labour_id, status }] }` | `AttendanceDay` |
 | `GET /labours/:id/attendance?month=2026-11` | — | `{ month, days: [{ date, status }] , summary }` |
 | `GET /wages?month&page&limit` | — | Paginated `WageRow` + `totals` |
-| `GET /labours/:id/wages?month` | — | `WageRow` + `days[]`, `advances[]`, `payments[]` |
-| `GET /labours/:id/advances?page&limit` · `POST` | `{ amount, advance_date, note? }` | Paginated / `Advance` |
-| `DELETE /advances/:id` | — | `null` |
+| `GET /labours/:id/wages?month` | — | `WageRow` + `days[]`, `payments[]` |
 | `POST /labours/:id/wage-payments` | `{ wage_month: "2026-11", amount, payment_date, method, note? }` | `WagePayment` |
 | `DELETE /wage-payments/:id` | — | `null` |
 
@@ -498,7 +488,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 // WageRow
 { "labour_id": 5, "name": "Kartik Mondal", "wage_type": "daily", "wage_amount": "500.00",
   "present_days": 23, "absent_days": 3,
-  "earned": "11500.00", "advances": "2000.00", "paid": "5000.00", "balance": "4500.00", "status": "partial" }
+  "earned": "11500.00", "paid": "7000.00", "balance": "4500.00", "status": "partial" }
 ```
 
 ### 5.7 Expenses
@@ -536,7 +526,7 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 | `GET /reports/sales?from&to` | `{ count, amount, cost, profit, by_product: [{ product_id, product_name, quantity, amount, profit }], daily: [{ date, amount, profit }] }` |
 | `GET /reports/dues?page&limit` | Paginated `{ customer_id, name, phone, total_due, oldest_due_date }` + `grand_total` |
 | `GET /reports/expenses?from&to` | `{ total, by_category: [{ category_id, name, amount, percent }] }` |
-| `GET /reports/wages?month` | `{ earned, advances, paid, balance, rows: WageRow[] }` |
+| `GET /reports/wages?month` | `{ earned, paid, balance, rows: WageRow[] }` |
 | `GET /reports/net-profit?from&to` | `{ sales_profit, expenses, wages, net_profit, monthly: [{ month, sales_profit, expenses, wages, net_profit }] }` |
 | `GET /reports/collections?from&to` | `{ total, by_method: [{ method, amount }], daily: [{ date, amount }] }` |
 
@@ -557,9 +547,9 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 | phone | Exactly 10 digits, starts with 6–9 |
 | email | Valid email, lower-cased, trimmed |
 | password | 6–64 characters |
-| money fields | ≥ 0 (amounts of payments, advances, expenses: > 0), max 2 decimals |
+| money fields | ≥ 0 (amounts of payments and expenses: > 0), max 2 decimals |
 | quantity | > 0, max 2 decimals |
-| dates | `YYYY-MM-DD`. Attendance, payments, advances and expenses cannot be in the future |
+| dates | `YYYY-MM-DD`. Attendance, payments and expenses cannot be in the future |
 | sale | ≥ 1 item. Booking needs `delivery_date ≥ sale_date`. `discount ≤ subtotal + transport_charge` |
 | names | Trimmed, 1–100 characters |
 | `limit` | 1–100, default 20. `page` ≥ 1 |

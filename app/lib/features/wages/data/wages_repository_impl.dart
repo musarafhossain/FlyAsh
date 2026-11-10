@@ -32,22 +32,6 @@ class WagesRepositoryImpl implements WagesRepository {
   }
 
   @override
-  Future<String> giveAdvance(
-    String labourId, {
-    required String amount,
-    required String date,
-    String? note,
-  }) async => (await _api.post(
-    '/labours/$labourId/advances',
-    body: {'amount': amount, 'advance_date': date, 'note': note},
-    parse: (d) => d,
-  )).message;
-
-  @override
-  Future<String> deleteAdvance(String id) async =>
-      (await _api.delete('/advances/$id', parse: (d) => d)).message;
-
-  @override
   Future<String> pay(
     String labourId, {
     required String month,

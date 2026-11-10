@@ -41,16 +41,18 @@ Future<void> showCustomerMenu(
         ),
       ],
       [
-        ActionMenuItem(
-          icon: Icons.call_outlined,
-          label: l.call,
-          onSelected: () => contact(ContactLauncher.call),
-        ),
-        ActionMenuItem(
-          icon: Icons.chat_outlined,
-          label: l.whatsApp,
-          onSelected: () => contact(ContactLauncher.whatsApp),
-        ),
+        if (c.hasPhone) ...[
+          ActionMenuItem(
+            icon: Icons.call_outlined,
+            label: l.call,
+            onSelected: () => contact(ContactLauncher.call),
+          ),
+          ActionMenuItem(
+            icon: Icons.chat_outlined,
+            label: l.whatsApp,
+            onSelected: () => contact(ContactLauncher.whatsApp),
+          ),
+        ],
       ],
       [
         ActionMenuItem(

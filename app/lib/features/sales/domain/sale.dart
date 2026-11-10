@@ -87,6 +87,8 @@ class Sale {
     required this.subtotal,
     required this.transportCharge,
     required this.discount,
+    this.taxPercent = '0',
+    this.taxAmount = '0',
     required this.totalCost,
     required this.profit,
     this.notes,
@@ -102,6 +104,10 @@ class Sale {
   final String subtotal;
   final String transportCharge;
   final String discount;
+
+  /// Tax as a percent of (subtotal + transport − discount), e.g. "5.00".
+  final String taxPercent;
+  final String taxAmount;
   final String totalCost;
   final String profit;
   final String? notes;
@@ -123,6 +129,8 @@ class Sale {
     subtotal: '${json['subtotal'] ?? '0'}',
     transportCharge: '${json['transport_charge'] ?? '0'}',
     discount: '${json['discount'] ?? '0'}',
+    taxPercent: '${json['tax_percent'] ?? '0'}',
+    taxAmount: '${json['tax_amount'] ?? '0'}',
     totalCost: '${json['total_cost'] ?? '0'}',
     profit: '${json['profit'] ?? '0'}',
     notes: json['notes'] as String?,
@@ -212,12 +220,14 @@ class NewCustomerInput {
   });
 
   final String name;
+
+  /// Empty = no phone (optional; sent as null).
   final String phone;
   final String? address;
 
   Json toJson() => {
     'name': name.trim(),
-    'phone': phone.trim(),
+    'phone': phone.trim().isEmpty ? null : phone.trim(),
     'address': address,
   };
 }
@@ -262,6 +272,7 @@ class SaleInput {
     required this.items,
     this.transportCharge = '0',
     this.discount = '0',
+    this.taxPercent = '0',
     this.payment,
     this.notes,
   });
@@ -276,6 +287,9 @@ class SaleInput {
   final List<SaleItemInput> items;
   final String transportCharge;
   final String discount;
+
+  /// Percent, e.g. "5" or "0".
+  final String taxPercent;
   final PaymentInput? payment;
   final String? notes;
 
@@ -289,6 +303,7 @@ class SaleInput {
     'items': [for (final i in items) i.toJson()],
     'transport_charge': transportCharge,
     'discount': discount,
+    'tax_percent': taxPercent,
     if (!forEdit && payment != null) 'payment': payment!.toJson(),
     'notes': notes,
   };

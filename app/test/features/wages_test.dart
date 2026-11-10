@@ -20,7 +20,8 @@ Map<String, Object?> body(RequestOptions o) =>
 Decimal d(Object? v) => Decimal.parse('${v ?? 0}');
 String m(Decimal v) => v.toStringAsFixed(2);
 
-/// In-memory wages for two labours; balance = earned − advances − paid.
+/// In-memory wages for two labours; balance = earned − paid (no advances:
+/// an advance is an early wage payment).
 class FakeWages {
   final requests = <RequestOptions>[];
   int _next = 100;
@@ -44,30 +45,29 @@ class FakeWages {
     },
   };
 
-  /// labourId → advances / payments (each with month "YYYY-MM").
-  final advances = <int, List<Map<String, Object?>>>{
+  /// labourId → wage payments (month "YYYY-MM-01"). Kartik got ₹500 early.
+  final payments = <int, List<Map<String, Object?>>>{
     9: [],
     1: [
       {
         'id': 2,
+        'wage_month': '2026-11-01',
         'amount': '500.00',
-        'advance_date': '2026-11-03',
+        'payment_date': '2026-11-03',
+        'method': 'cash',
         'note': 'Medical',
+        'created_by': {'id': 1, 'name': 'Test Owner'},
       },
     ],
   };
-  final payments = <int, List<Map<String, Object?>>>{9: [], 1: []};
 
   Map<String, Object?> row(int id, String month) {
     final l = labours[id]!;
     final earned = month == '2026-11' ? d(l['earned']) : Decimal.fromInt(9000);
-    final adv = advances[id]!
-        .where((a) => (a['advance_date']! as String).startsWith(month))
-        .fold(Decimal.zero, (s, a) => s + d(a['amount']));
     final paid = payments[id]!
         .where((p) => p['wage_month'] == '$month-01')
         .fold(Decimal.zero, (s, p) => s + d(p['amount']));
-    final balance = earned - adv - paid;
+    final balance = earned - paid;
     return {
       'labour_id': id,
       'name': l['name'],
@@ -77,7 +77,6 @@ class FakeWages {
       'present_days': l['p'],
       'absent_days': l['a'],
       'earned': m(earned),
-      'advances': m(adv),
       'paid': m(paid),
       'balance': m(balance),
       'status': paid == Decimal.zero
@@ -103,7 +102,6 @@ class FakeWages {
         'month': month,
         'totals': {
           'earned': m(sum('earned')),
-          'advances': m(sum('advances')),
           'paid': m(sum('paid')),
           'balance': m(sum('balance')),
         },
@@ -115,10 +113,6 @@ class FakeWages {
         return _ok({
           ...row(id, month),
           'month': month,
-          'advances': [
-            for (final a in advances[id]!)
-              if ((a['advance_date']! as String).startsWith(month)) a,
-          ],
           'payments': [
             for (final p in payments[id]!)
               if (p['wage_month'] == '$month-01') p,
@@ -128,16 +122,6 @@ class FakeWages {
             {'date': '$month-02', 'earned': '450.00'},
           ],
         });
-      },
-      'POST /labours/$id/advances': (o) {
-        final b = body(o);
-        advances[id]!.add({
-          'id': _next++,
-          'amount': m(d(b['amount'])),
-          'advance_date': b['advance_date'],
-          'note': b['note'],
-        });
-        return _ok(null, 'Advance recorded', 201);
       },
       'POST /labours/$id/wage-payments': (o) {
         final b = body(o);
@@ -153,14 +137,7 @@ class FakeWages {
         return _ok(null, 'Wage payment recorded', 201);
       },
     },
-    for (final aid in [2, 100, 101, 102])
-      'DELETE /advances/$aid': (_) {
-        for (final list in advances.values) {
-          list.removeWhere((a) => a['id'] == aid);
-        }
-        return _ok(null, 'Advance deleted');
-      },
-    for (final pid in [100, 101, 102])
+    for (final pid in [2, 100, 101, 102])
       'DELETE /wage-payments/$pid': (_) {
         for (final list in payments.values) {
           list.removeWhere((p) => p['id'] == pid);
@@ -238,13 +215,13 @@ Future<void> longPress(WidgetTester tester, String text) async {
 }
 
 void main() {
-  testWidgets('long press: View | Give advance · Pay wage', (tester) async {
+  testWidgets('long press: View | Pay wage (no advance)', (tester) async {
     await openAt(tester, '/labours/wages');
     expect(find.textContaining('Showing'), findsNothing);
     await longPress(tester, 'Abdul Karim');
-    expect(rowMenu(tester), ['View', 'Give advance', 'Pay wage']);
-    await tapMenu(tester, 'Give advance');
-    expect(find.text('Advance to Abdul Karim'), findsOneWidget);
+    expect(rowMenu(tester), ['View', 'Pay wage']);
+    await tapMenu(tester, 'Pay wage');
+    expect(find.text('Pay Abdul Karim for Nov 2026'), findsOneWidget);
   });
 
   testWidgets('wage sheet: month, totals, rows; no future months', (
@@ -255,11 +232,12 @@ void main() {
     expect(find.text('Nov 2026'), findsOneWidget);
     expect(find.text('Earned in Nov 2026'), findsOneWidget);
     expect(find.text('₹7,150'), findsOneWidget); // 3,150 + 4,000
-    expect(find.text('₹500'), findsWidgets); // advances
+    expect(find.text('₹500'), findsWidgets); // paid
     expect(find.text('₹6,650'), findsOneWidget); // balance
     expect(find.text('7 days · earned ₹3,150'), findsOneWidget);
     expect(find.text('₹3,500'), findsOneWidget); // Kartik's balance
-    expect(find.text('Due'), findsNWidgets(2));
+    expect(find.text('Due'), findsOneWidget); // Abdul
+    expect(find.text('Partial'), findsOneWidget); // Kartik (paid early)
 
     final next = find.ancestor(
       of: find.byIcon(Icons.chevron_right),
@@ -295,11 +273,17 @@ void main() {
     await openAt(tester, '/labours/wages/1?month=2026-11');
     expect(find.text('Present 8 · Absent 0'), findsOneWidget);
     expect(find.text('₹4,000.00'), findsOneWidget); // earned
-    expect(find.text('− ₹500.00'), findsOneWidget); // advance
+    expect(find.text('− ₹500.00'), findsOneWidget); // paid early
     expect(find.text('₹3,500.00'), findsOneWidget); // balance
-    expect(find.text('Medical'), findsOneWidget);
+    expect(find.textContaining('Medical'), findsOneWidget);
+    expect(find.textContaining('dvance'), findsNothing);
+    expect(find.widgetWithText(FilledButton, 'Pay wage'), findsNothing);
 
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Pay wage'));
+    // Pay wage is in the ⋮ menu
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pay wage'));
+    await tester.pumpAndSettle();
     expect(find.text('Pay Kartik Mondal for Nov 2026'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, '3500'), findsOneWidget);
     await tester.enterText(
@@ -323,49 +307,22 @@ void main() {
     expect(find.text('09 Nov 2026 · UPI'), findsOneWidget);
   });
 
-  testWidgets('give advance: today in this month, month end in a past one', (
-    tester,
-  ) async {
-    await openAt(tester, '/labours/wages/9?month=2026-11');
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Give advance'));
-    expect(find.text('Advance to Abdul Karim'), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextFormField, 'Amount'), '0');
-    await tester.tap(find.widgetWithText(FilledButton, 'Give advance').last);
-    await tester.pumpAndSettle();
-    expect(find.text('Enter an amount, e.g. 4.50'), findsOneWidget);
-
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Amount'),
-      '1000',
-    );
-    await tester.tap(find.widgetWithText(FilledButton, 'Give advance').last);
-    await tester.pumpAndSettle();
-    expect(body(last('POST', '/labours/9/advances')), {
-      'amount': '1000',
-      'advance_date': '2026-11-09',
-      'note': null,
-    });
-    expect(find.text('Advance recorded'), findsOneWidget);
-    expect(find.text('₹2,150.00'), findsOneWidget); // 3,150 − 1,000
-
-    await tapVisible(tester, find.byTooltip('Previous'));
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Give advance'));
-    expect(find.text('31 Oct 2026'), findsOneWidget);
-  });
-
-  testWidgets('delete an advance asks first, then the balance goes up', (
+  testWidgets('delete a payment (long press) asks first; balance goes up', (
     tester,
   ) async {
     await openAt(tester, '/labours/wages/1?month=2026-11');
-    await tapVisible(tester, find.byTooltip('Delete advance'));
-    await tester.tap(find.text('Delete advance').last);
+    final row = find.text('03 Nov 2026 · Cash');
+    await tester.ensureVisible(row);
     await tester.pumpAndSettle();
-    expect(find.text('Delete advance of ₹500.00?'), findsOneWidget);
+    await tester.longPress(row);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete payment'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete payment of ₹500.00?'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
-    expect(last('DELETE', '/advances/2'), isNotNull);
-    expect(find.text('Advance deleted'), findsOneWidget);
-    expect(find.text('No advance this month'), findsOneWidget);
+    expect(last('DELETE', '/wage-payments/2'), isNotNull);
+    expect(find.text('Wage payment deleted'), findsOneWidget);
     expect(find.text('₹4,000.00'), findsNWidgets(2)); // earned = balance
   });
 
@@ -385,7 +342,19 @@ void main() {
     await openAt(tester, '/labours/1');
     expect(find.text('Wage this month'), findsOneWidget);
     expect(find.text('₹3,500'), findsOneWidget); // balance tile
-    await tapVisible(tester, find.text('Advance / pay'));
+    expect(find.text('₹500'), findsOneWidget); // paid tile
+
+    // ⋮ → Pay wage on the labour page itself
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pay wage'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pay Kartik Mondal for Nov 2026'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Pay wage').last);
+    await tester.pumpAndSettle();
+    expect(last('POST', '/labours/1/wage-payments'), isNotNull);
+
+    await tapVisible(tester, find.text('View all'));
     expect(currentLocation(), '/labours/wages/1?month=2026-11');
   });
 

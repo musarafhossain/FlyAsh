@@ -21,7 +21,7 @@ Map<String, Object?> body(RequestOptions o) =>
 Map<String, Object?> customer(
   int id,
   String name,
-  String phone, {
+  String? phone, {
   String? address,
   String sales = '0.00',
   String paid = '0.00',
@@ -93,7 +93,7 @@ class FakeCustomers {
   /// Phone taken → 422 with existing_customer_id.
   Reply? _phoneTaken(Map<String, Object?> b, Object? selfId) {
     for (final c in customers) {
-      if (c['phone'] == b['phone'] && c['id'] != selfId) {
+      if (b['phone'] != null && c['phone'] == b['phone'] && c['id'] != selfId) {
         return (
           422,
           envelope(422, 'Validation failed', {
@@ -121,7 +121,7 @@ class FakeCustomers {
       final created = customer(
         70,
         b['name']! as String,
-        b['phone']! as String,
+        b['phone'] as String?,
         address: b['address'] as String?,
       );
       customers.add(created);
@@ -254,6 +254,48 @@ Future<void> longPress(WidgetTester tester, String text) async {
 }
 
 void main() {
+  testWidgets('phone is optional: saved as null; no Call / WhatsApp on the '
+      'page or in the menu', (tester) async {
+    final api = await openCustomers(tester);
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Phone (optional)'), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField).at(0), 'Walk-in Buyer');
+    await tapVisible(tester, find.widgetWithText(FilledButton, 'Add customer'));
+    expect(body(api.requests.lastWhere((r) => r.method == 'POST')), {
+      'name': 'Walk-in Buyer',
+      'phone': null,
+      'address': null,
+    });
+    expect(currentPath(), '/customers');
+
+    await tester.longPress(find.text('Walk-in Buyer'));
+    await tester.pumpAndSettle();
+    expect(find.text('Call'), findsNothing);
+    expect(find.text('WhatsApp'), findsNothing);
+    await tester.tap(find.text('View'));
+    await tester.pumpAndSettle();
+    expect(currentPath(), '/customers/70');
+    expect(find.widgetWithText(FilledButton, 'Call'), findsNothing);
+  });
+
+  testWidgets('customer page: pull to refresh loads the customer again', (
+    tester,
+  ) async {
+    final api = await openCustomers(tester);
+    testContainer.read(routerProvider).go('/customers/1');
+    await tester.pumpAndSettle();
+    int gets() => api.requests.where((r) => r.path == '/customers/1').length;
+    final before = gets();
+    await tester.fling(
+      find.byType(Scrollable).first,
+      const Offset(0, 400),
+      1000,
+    );
+    await tester.pumpAndSettle();
+    expect(gets(), before + 1);
+  });
+
   testWidgets('a section in the sidebar opens its list, not a detail page '
       'left open earlier', (tester) async {
     await openCustomers(tester, size: const Size(1440, 900));

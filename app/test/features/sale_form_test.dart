@@ -498,8 +498,7 @@ void main() {
     expect(find.text('Cannot be more than total ₹33,500.00'), findsOneWidget);
 
     await tester.enterText(field('Amount (optional)'), '10000');
-    await tester.tap(find.widgetWithText(ChoiceChip, 'UPI'));
-    await tester.pumpAndSettle();
+    await tapVisible(tester, find.widgetWithText(ChoiceChip, 'UPI'));
     expect(find.text('₹23,500'), findsOneWidget); // due
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save sale'));
@@ -519,6 +518,7 @@ void main() {
       ],
       'transport_charge': '1500',
       'discount': '500',
+      'tax_percent': '0',
       'payment': {'amount': '10000', 'method': 'upi', 'note': null},
       'notes': null,
     });
@@ -575,7 +575,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(field('Name'), 'Someone');
-    await tester.enterText(field('Phone'), '9774686411');
+    await tester.enterText(field('Phone (optional)'), '9774686411');
     await pickProduct(tester, 'Fly Ash Brick 9×4×3');
     await tester.enterText(field('Quantity'), '10');
     await tester.tap(find.widgetWithText(FilledButton, 'Save sale'));
@@ -588,6 +588,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(body(last('POST', '/sales'))['customer_id'], '2');
     expect(currentPath(), '/sales');
+  });
+
+  testWidgets('Tax %: added on subtotal + transport − discount, shown live '
+      'and sent', (tester) async {
+    await openAt(tester, '/sales/new?customer=1');
+    await pickProduct(tester, 'Fly Ash Brick 9×4×3');
+    await tester.enterText(field('Quantity'), '1000');
+    await tester.pumpAndSettle();
+    final tax = find.widgetWithText(TextFormField, 'Tax (%)');
+    await tester.ensureVisible(tax);
+    await tester.enterText(tax, '150');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save sale'));
+    await tester.pumpAndSettle();
+    expect(find.text('Enter 0 to 100, e.g. 5 or 12.5'), findsOneWidget);
+
+    await tester.enterText(tax, '5');
+    await tester.pumpAndSettle();
+    expect(find.text('Tax (5%)'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Save sale'));
+    await tester.pumpAndSettle();
+    expect(body(last('POST', '/sales'))['tax_percent'], '5');
   });
 
   testWidgets('Leaving with changes asks first; untouched form leaves', (

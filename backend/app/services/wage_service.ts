@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import Labour from '#models/labour'
 import Attendance from '#models/attendance'
-import LabourAdvance from '#models/labour_advance'
 import WagePayment from '#models/wage_payment'
 import { fromPaise, toPaise } from '#helpers/money'
 import { daysInMonthOf, monthRange, today } from '#helpers/dates'
@@ -27,7 +26,6 @@ export type WageRow = {
   /** Employed days so far in the month without a present mark */
   absent_days: number
   earned: string
-  advances: string
   paid: string
   balance: string
   status: 'paid' | 'partial' | 'due'
@@ -36,7 +34,7 @@ export type WageRow = {
 /**
  * Monthly wages (01-PRD §6.3).
  *   earned  = Σ daily rate of each present day (from attendance snapshots)
- *   balance = earned − advances given in the month − payments for the month
+ *   balance = earned − wage payments for the month (no separate advances)
  */
 export default class WageService {
   /** Wage rows for every labour employed at any time in the month. */
@@ -51,7 +49,7 @@ export default class WageService {
     return this.rowsFor(labours, month)
   }
 
-  /** Wage row for one labour plus day-by-day attendance, advances and payments. */
+  /** Wage row for one labour plus day-by-day attendance and payments. */
   static async detail(labour: Labour, month: string) {
     const { start, end } = monthRange(month)
     const [row] = await this.rowsFor([labour], month)
@@ -60,12 +58,6 @@ export default class WageService {
       .where('labour_id', labour.id)
       .whereBetween('date', [start, end])
       .orderBy('date', 'asc')
-
-    const advances = await LabourAdvance.query()
-      .where('labour_id', labour.id)
-      .whereBetween('advance_date', [start, end])
-      .preload('creator', (q) => q.select('id', 'name'))
-      .orderBy('advance_date', 'asc')
 
     const payments = await WagePayment.query()
       .where('labour_id', labour.id)
@@ -80,7 +72,6 @@ export default class WageService {
         date: a.date,
         earned: fromPaise(Math.round(earnedPaise(a))),
       })),
-      advances,
       payments,
     }
   }
@@ -106,21 +97,15 @@ export default class WageService {
     const attendances = await Attendance.query()
       .whereIn('labour_id', ids)
       .whereBetween('date', [start, end])
-    const advances = await LabourAdvance.query()
-      .whereIn('labour_id', ids)
-      .whereBetween('advance_date', [start, end])
     const payments = await WagePayment.query().whereIn('labour_id', ids).where('wage_month', start)
 
     return labours.map((labour) => {
       const mine = attendances.filter((a) => a.labourId === labour.id)
       const earned = Math.round(mine.reduce((sum, a) => sum + earnedPaise(a), 0))
-      const advanced = advances
-        .filter((a) => a.labourId === labour.id)
-        .reduce((sum, a) => sum + toPaise(a.amount), 0)
       const paid = payments
         .filter((p) => p.labourId === labour.id)
         .reduce((sum, p) => sum + toPaise(p.amount), 0)
-      const balance = earned - advanced - paid
+      const balance = earned - paid
 
       return {
         labour_id: labour.id,
@@ -131,10 +116,9 @@ export default class WageService {
         present_days: mine.length,
         absent_days: Math.max(0, this.employedDays(labour, start, end) - mine.length),
         earned: fromPaise(earned),
-        advances: fromPaise(advanced),
         paid: fromPaise(paid),
         balance: fromPaise(balance),
-        status: earned > 0 && advanced + paid === 0 ? 'due' : balance > 0 ? 'partial' : 'paid',
+        status: earned > 0 && paid === 0 ? 'due' : balance > 0 ? 'partial' : 'paid',
       }
     })
   }

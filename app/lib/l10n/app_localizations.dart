@@ -2240,12 +2240,6 @@ abstract class AppLocalizations {
   /// **'Earned'**
   String get earned;
 
-  /// No description provided for @advances.
-  ///
-  /// In en, this message translates to:
-  /// **'Advances'**
-  String get advances;
-
   /// No description provided for @balance.
   ///
   /// In en, this message translates to:
@@ -2324,53 +2318,11 @@ abstract class AppLocalizations {
   /// **'Pay {name} for {month}'**
   String payWageTitle(String name, String month);
 
-  /// No description provided for @giveAdvance.
-  ///
-  /// In en, this message translates to:
-  /// **'Give advance'**
-  String get giveAdvance;
-
-  /// No description provided for @giveAdvanceTo.
-  ///
-  /// In en, this message translates to:
-  /// **'Advance to {name}'**
-  String giveAdvanceTo(String name);
-
-  /// No description provided for @advanceHint.
-  ///
-  /// In en, this message translates to:
-  /// **'It is taken off the wage of the month of its date.'**
-  String get advanceHint;
-
-  /// No description provided for @advancesCount.
-  ///
-  /// In en, this message translates to:
-  /// **'Advances ({count})'**
-  String advancesCount(String count);
-
-  /// No description provided for @noAdvances.
-  ///
-  /// In en, this message translates to:
-  /// **'No advance this month'**
-  String get noAdvances;
-
   /// No description provided for @noWagePayments.
   ///
   /// In en, this message translates to:
   /// **'Nothing paid for this month yet'**
   String get noWagePayments;
-
-  /// No description provided for @deleteAdvance.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete advance'**
-  String get deleteAdvance;
-
-  /// No description provided for @deleteAdvanceTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete advance of {amount}?'**
-  String deleteAdvanceTitle(String amount);
 
   /// No description provided for @balanceRecalculated.
   ///
@@ -2389,12 +2341,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wage this month'**
   String get wageThisMonth;
-
-  /// No description provided for @advanceOrPay.
-  ///
-  /// In en, this message translates to:
-  /// **'Advance / pay'**
-  String get advanceOrPay;
 
   /// No description provided for @note.
   ///
@@ -2587,6 +2533,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Type or pick one, e.g. Labour Tiffin'**
   String get categoryHint;
+
+  /// No description provided for @taxPercentField.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax (%)'**
+  String get taxPercentField;
+
+  /// No description provided for @taxLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax ({percent}%)'**
+  String taxLine(String percent);
+
+  /// No description provided for @invalidTaxPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 0 to 100, e.g. 5 or 12.5'**
+  String get invalidTaxPercent;
 }
 
 class _AppLocalizationsDelegate

@@ -584,7 +584,6 @@
   "noLaboursOnDateMessage": "Only labours who had joined and not left on this date are listed.",
   "days": "Days",
   "earned": "Earned",
-  "advances": "Advances",
   "balance": "Balance",
   "daysWorked": "{count} days",
   "@daysWorked": {
@@ -646,39 +645,10 @@
       }
     }
   },
-  "giveAdvance": "Give advance",
-  "giveAdvanceTo": "Advance to {name}",
-  "@giveAdvanceTo": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "advanceHint": "It is taken off the wage of the month of its date.",
-  "advancesCount": "Advances ({count})",
-  "@advancesCount": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "noAdvances": "No advance this month",
   "noWagePayments": "Nothing paid for this month yet",
-  "deleteAdvance": "Delete advance",
-  "deleteAdvanceTitle": "Delete advance of {amount}?",
-  "@deleteAdvanceTitle": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "balanceRecalculated": "The balance is worked out again.",
   "dayByDay": "Day by day",
   "wageThisMonth": "Wage this month",
-  "advanceOrPay": "Advance / pay",
   "note": "Note",
   "category": "Category",
   "icon": "Icon",
@@ -744,5 +714,15 @@
   },
   "view": "View",
   "filterExpenses": "Filter expenses",
-  "categoryHint": "Type or pick one, e.g. Labour Tiffin"
+  "categoryHint": "Type or pick one, e.g. Labour Tiffin",
+  "taxPercentField": "Tax (%)",
+  "taxLine": "Tax ({percent}%)",
+  "@taxLine": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidTaxPercent": "Enter 0 to 100, e.g. 5 or 12.5"
 }

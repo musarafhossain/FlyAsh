@@ -75,6 +75,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ],
                   ))
           : PageBody(
+              onRefresh: _reload,
               children: [
                 AppCard(
                   child: Column(

@@ -60,13 +60,6 @@ export const wageSheetValidator = vine.create({
   month: monthRule().optional(),
 })
 
-export const advanceValidator = vine.create({
-  amount: positiveMoneyRule(),
-  /** Defaults to today */
-  advance_date: pastDateRule().optional(),
-  note: vine.string().trim().maxLength(500).nullable().optional(),
-})
-
 export const wagePaymentValidator = vine.create({
   /** Month being paid: "YYYY-MM" */
   wage_month: monthRule(),

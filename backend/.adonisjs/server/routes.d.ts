@@ -53,9 +53,6 @@ export type ScannedRoutes = {
     'attendance.labour_month': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.sheet': { paramsTuple?: []; params?: {} }
     'wages.labour': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'wages.advances': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'wages.store_advance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'wages.destroy_advance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.store_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.destroy_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.index': { paramsTuple?: []; params?: {} }
@@ -93,7 +90,6 @@ export type ScannedRoutes = {
     'attendance.labour_month': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.sheet': { paramsTuple?: []; params?: {} }
     'wages.labour': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'wages.advances': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.index': { paramsTuple?: []; params?: {} }
     'expenses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.categories': { paramsTuple?: []; params?: {} }
@@ -125,7 +121,6 @@ export type ScannedRoutes = {
     'attendance.labour_month': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.sheet': { paramsTuple?: []; params?: {} }
     'wages.labour': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
-    'wages.advances': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.index': { paramsTuple?: []; params?: {} }
     'expenses.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.categories': { paramsTuple?: []; params?: {} }
@@ -152,7 +147,6 @@ export type ScannedRoutes = {
     'sales.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'sales.add_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'labours.store': { paramsTuple?: []; params?: {} }
-    'wages.store_advance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.store_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.store': { paramsTuple?: []; params?: {} }
   }
@@ -181,7 +175,6 @@ export type ScannedRoutes = {
     'customers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'sales.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'sales.delete_payment': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'paymentId': ParamValue} }
-    'wages.destroy_advance': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'wages.destroy_payment': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'expenses.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }

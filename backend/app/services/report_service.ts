@@ -124,12 +124,11 @@ export default class ReportService {
 
   static async wages(month: string) {
     const rows = await WageService.sheet(month)
-    const sum = (key: 'earned' | 'advances' | 'paid' | 'balance') =>
+    const sum = (key: 'earned' | 'paid' | 'balance') =>
       fromPaise(rows.reduce((total, row) => total + toPaise(row[key]), 0))
     return {
       month,
       earned: sum('earned'),
-      advances: sum('advances'),
       paid: sum('paid'),
       balance: sum('balance'),
       rows,

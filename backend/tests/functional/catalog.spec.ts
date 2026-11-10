@@ -82,6 +82,20 @@ test.group('Customers', (group) => {
       .json({ name: 'Someone', phone: '9800000001' })
     duplicate.assertStatus(422)
     assert.equal(duplicate.body().data.existing_customer_id, first.body().data.id)
+
+    // Phone is optional
+    const noPhone = await client
+      .post(`${API}/customers`)
+      .loginAs(user)
+      .json({ name: 'Walk-in Buyer' })
+    noPhone.assertStatus(201)
+    assert.isNull(noPhone.body().data.phone)
+    const cleared = await client
+      .put(`${API}/customers/${first.body().data.id}`)
+      .loginAs(user)
+      .json({ name: 'Rahim Traders', phone: null })
+    cleared.assertStatus(200)
+    assert.isNull(cleared.body().data.phone)
   })
 
   test('list, search and update', async ({ client, assert }) => {

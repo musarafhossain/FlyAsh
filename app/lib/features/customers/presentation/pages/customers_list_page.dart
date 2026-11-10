@@ -259,13 +259,14 @@ class CustomerTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.title.copyWith(color: t.textPrimary),
                   ),
-                  Text(
-                    c.phone,
-                    style: AppTypography.caption.copyWith(
-                      color: t.textSecondary,
-                      fontFeatures: AppTypography.tabular,
+                  if (c.hasPhone)
+                    Text(
+                      c.phone,
+                      style: AppTypography.caption.copyWith(
+                        color: t.textSecondary,
+                        fontFeatures: AppTypography.tabular,
+                      ),
                     ),
-                  ),
                   if (c.address != null && c.address!.isNotEmpty)
                     Text(
                       c.address!,
@@ -333,7 +334,7 @@ class _CustomersTable extends StatelessWidget {
                 ],
               ],
             ),
-            CellText(c.phone),
+            CellText(c.hasPhone ? c.phone : '—'),
             CellText(c.address ?? '—'),
             CellText(Fmt.money(c.totalSales)),
             CellText(Fmt.money(c.totalPaid)),

@@ -5,7 +5,6 @@ import { hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import Attendance from '#models/attendance'
-import LabourAdvance from '#models/labour_advance'
 import WagePayment from '#models/wage_payment'
 
 export default class Labour extends compose(LabourSchema, withUuid) {
@@ -14,9 +13,6 @@ export default class Labour extends compose(LabourSchema, withUuid) {
 
   @hasMany(() => Attendance)
   declare attendances: HasMany<typeof Attendance>
-
-  @hasMany(() => LabourAdvance)
-  declare advances: HasMany<typeof LabourAdvance>
 
   @hasMany(() => WagePayment)
   declare wagePayments: HasMany<typeof WagePayment>

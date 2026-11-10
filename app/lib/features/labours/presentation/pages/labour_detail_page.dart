@@ -23,17 +23,18 @@ import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
 import '../../../wages/data/wages_repository_impl.dart';
 import '../../../wages/domain/wages.dart';
-import '../../../wages/presentation/widgets/wages_tab.dart';
 import '../../data/labours_repository_impl.dart';
 import '../../domain/labour.dart';
 import '../labour_labels.dart';
 import '../../../../core/widgets/skeletons.dart';
+import '../../../../core/widgets/action_menu.dart';
+import '../../../wages/presentation/widgets/wage_sheets.dart';
 import '../widgets/labours_tab.dart' show TodayPill;
 
 /// Labour detail (03-AppFlow §7.1): info, Call / WhatsApp, the month's
 /// attendance calendar (‹ month ›), Edit, and Deactivate (asks for the
-/// leaving date) / Activate, and this month's wage (earned, advances, paid,
-/// balance) with a link to the wage detail (advance, pay).
+/// leaving date) / Activate, ⋮ → Pay wage, and this month's wage (earned,
+/// paid, balance) as stat cards → the wage detail. Pull to refresh.
 class LabourDetailPage extends ConsumerStatefulWidget {
   const LabourDetailPage({super.key, required this.labourId});
 
@@ -69,6 +70,39 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
       if (mounted) setState(() => _wage = d.row);
     } on Failure {
       // The card is just left out; the wage detail page shows errors.
+    }
+  }
+
+  /// Pull to refresh: the labour, this month's wage and the calendar.
+  Future<void> _refresh() => Future.wait([_load(), _loadWage(), _loadMonth()]);
+
+  /// ⋮ → Pay wage for this month (prefilled with the balance).
+  Future<void> _payWage() async {
+    final lb = _labour!;
+    final month = _today.substring(0, 7);
+    final entry = await showPayWageSheet(
+      context,
+      labourName: lb.name,
+      month: month,
+      balance: _wage?.balance ?? '0',
+      today: _today,
+    );
+    if (entry == null || !mounted) return;
+    try {
+      final message = await ref
+          .read(wagesRepositoryProvider)
+          .pay(
+            lb.id,
+            month: month,
+            amount: entry.amount,
+            date: entry.date,
+            method: entry.method,
+            note: entry.note,
+          );
+      if (mounted) showMessage(context, message);
+      await _loadWage();
+    } on Failure catch (f) {
+      if (mounted) showMessage(context, failureText(context, f));
     }
   }
 
@@ -171,18 +205,31 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
               onPressed: _edit,
               icon: const Icon(Icons.edit_outlined),
             ),
-            PopupMenuButton<void>(
+            ActionMenuButton(
               tooltip: l.moreActions,
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  onTap: _toggleActive,
-                  child: ListTile(
-                    leading: Icon(
-                      lb.isActive ? Icons.block : Icons.check_circle_outline,
+              groups: [
+                [
+                  if (lb.isActive)
+                    ActionMenuItem(
+                      icon: Icons.payments_outlined,
+                      label: l.payWage,
+                      onSelected: _payWage,
                     ),
-                    title: Text(lb.isActive ? l.deactivate : l.activate),
+                  ActionMenuItem(
+                    icon: Icons.receipt_long_outlined,
+                    label: l.wageDetails,
+                    onSelected: _openWages,
                   ),
-                ),
+                ],
+                [
+                  ActionMenuItem(
+                    icon: lb.isActive
+                        ? Icons.block
+                        : Icons.check_circle_outline,
+                    label: lb.isActive ? l.deactivate : l.activate,
+                    onSelected: _toggleActive,
+                  ),
+                ],
               ],
             ),
           ],
@@ -205,16 +252,14 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
                   ))
           : PageBody(
               maxWidth: 720,
+              onRefresh: _refresh,
               children: [
                 _InfoCard(
                   labour: lb,
                   onCall: () => _contact(ContactLauncher.call),
                   onWhatsApp: () => _contact(ContactLauncher.whatsApp),
                 ),
-                if (_wage != null) ...[
-                  const SizedBox(height: Space.s4),
-                  _WageCard(row: _wage!, onOpen: _openWages),
-                ],
+                if (_wage != null) _WageStats(row: _wage!, onOpen: _openWages),
                 const SizedBox(height: Space.s4),
                 SectionHeader(l.attendanceThisMonth),
                 PeriodSelector(
@@ -559,9 +604,10 @@ class _LeavingDateDialogState extends State<LeavingDateDialog> {
   }
 }
 
-/// This month: earned, advances, paid and balance → wage detail.
-class _WageCard extends StatelessWidget {
-  const _WageCard({required this.row, required this.onOpen});
+/// This month's wage as stat cards like Home: Earned · Paid · Balance,
+/// with the status and a link to the wage detail.
+class _WageStats extends StatelessWidget {
+  const _WageStats({required this.row, required this.onOpen});
 
   final WageRow row;
   final VoidCallback onOpen;
@@ -569,57 +615,39 @@ class _WageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    return AppCard(
-      onTap: onOpen,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l.wageThisMonth,
-                  style: AppTypography.title.copyWith(color: t.textPrimary),
-                ),
-              ),
-              WageStatusPill(row.status),
-              Icon(Icons.chevron_right, color: t.textTertiary),
-            ],
-          ),
-          const SizedBox(height: Space.s3),
-          KpiRow(
-            children: [
-              KpiChip(
-                icon: Icons.payments_outlined,
-                label: l.earned,
-                value: Fmt.money(row.earned),
-              ),
-              KpiChip(
-                icon: Icons.request_quote_outlined,
-                label: l.advances,
-                value: Fmt.money(row.advances),
-                tint: KpiTint.amber,
-              ),
-              KpiChip(
-                icon: Icons.account_balance_wallet_outlined,
-                label: l.balance,
-                value: Fmt.money(row.balance),
-                tint: row.hasBalance ? KpiTint.rose : KpiTint.green,
-              ),
-            ],
-          ),
-          const SizedBox(height: Space.s2),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: onOpen,
-              icon: const Icon(Icons.payments_outlined, size: 18),
-              label: Text(l.advanceOrPay),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(
+          l.wageThisMonth,
+          actionLabel: l.viewAll,
+          onAction: onOpen,
+        ),
+        KpiRow(
+          children: [
+            KpiChip(
+              icon: Icons.payments_outlined,
+              label: l.earned,
+              value: Fmt.money(row.earned),
+              onTap: onOpen,
             ),
-          ),
-        ],
-      ),
+            KpiChip(
+              icon: Icons.check_circle_outline,
+              label: l.paid,
+              value: Fmt.money(row.paid),
+              tint: KpiTint.green,
+              onTap: onOpen,
+            ),
+            KpiChip(
+              icon: Icons.account_balance_wallet_outlined,
+              label: l.balance,
+              value: Fmt.money(row.balance),
+              tint: row.hasBalance ? KpiTint.rose : KpiTint.green,
+              onTap: onOpen,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

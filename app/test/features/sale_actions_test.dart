@@ -1,7 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flyash/core/widgets/list_items.dart';
 
 import 'sale_form_test.dart';
+
+/// Opens the app bar ⋮ menu and taps [label].
+Future<void> fromMenu(WidgetTester tester, String label) async {
+  await tester.tap(find.byTooltip('More actions'));
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find.descendant(
+      of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      matching: find.text(label),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+/// Long-presses the first payment row and taps "Delete payment".
+Future<void> deleteFirstPayment(WidgetTester tester) async {
+  // Let a message from the step before go (it can cover the row).
+  await tester.pump(const Duration(seconds: 5));
+  await tester.pumpAndSettle();
+  final row = find.byType(PaymentAvatar).first;
+  await tester.ensureVisible(row);
+  await tester.pumpAndSettle();
+  await tester.longPress(row);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Delete payment'));
+  await tester.pumpAndSettle();
+}
 
 void main() {
   testWidgets('Add payment: prefilled with the due, checks the max, saves', (
@@ -10,7 +38,9 @@ void main() {
     await openAt(tester, '/sales/104');
     expect(find.text('₹23,500.00'), findsWidgets); // due before
 
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Add payment'));
+    // No action buttons on the page: they are in the ⋮ menu
+    expect(find.widgetWithText(FilledButton, 'Add payment'), findsNothing);
+    await fromMenu(tester, 'Add payment');
     expect(find.text('Due ₹23,500'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, '23500'), findsOneWidget);
 
@@ -43,9 +73,7 @@ void main() {
 
   testWidgets('Delete a payment asks first; the due goes up', (tester) async {
     await openAt(tester, '/sales/104');
-    await tapVisible(tester, find.byTooltip('Payment actions'));
-    await tester.tap(find.text('Delete payment'));
-    await tester.pumpAndSettle();
+    await deleteFirstPayment(tester);
     expect(find.text('Delete payment of ₹10,000.00?'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
@@ -59,10 +87,7 @@ void main() {
   ) async {
     await openAt(tester, '/sales/105');
     expect(find.text('Booked'), findsOneWidget);
-    await tapVisible(
-      tester,
-      find.widgetWithText(FilledButton, 'Mark delivered'),
-    );
+    await fromMenu(tester, 'Mark delivered');
     expect(find.text('Deliver INV-000105'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Mark delivered').last);
     await tester.pumpAndSettle();
@@ -71,7 +96,9 @@ void main() {
     });
     expect(find.text('Marked as delivered'), findsOneWidget);
     expect(find.text('Delivered'), findsOneWidget);
-    expect(find.text('Mark delivered'), findsNothing);
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
+    expect(find.text('Mark delivered'), findsNothing, reason: 'delivered');
   });
 
   testWidgets('Cancel booking: with payments explains; without asks, cancels', (
@@ -79,15 +106,12 @@ void main() {
   ) async {
     await openAt(tester, '/sales/105');
     // Add an advance first → cancel is refused with an explanation.
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Add payment'));
+    await fromMenu(tester, 'Add payment');
     await tester.enterText(find.widgetWithText(TextFormField, 'Amount'), '500');
     await tester.tap(find.widgetWithText(FilledButton, 'Add payment').last);
     await tester.pumpAndSettle();
 
-    await tapVisible(
-      tester,
-      find.widgetWithText(OutlinedButton, 'Cancel booking'),
-    );
+    await fromMenu(tester, 'Cancel booking');
     expect(find.textContaining('Delete them first'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'OK'));
     await tester.pumpAndSettle();
@@ -97,16 +121,11 @@ void main() {
     );
 
     // Remove the payment, then cancel.
-    await tapVisible(tester, find.byTooltip('Payment actions'));
-    await tester.tap(find.text('Delete payment'));
-    await tester.pumpAndSettle();
+    await deleteFirstPayment(tester);
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
 
-    await tapVisible(
-      tester,
-      find.widgetWithText(OutlinedButton, 'Cancel booking'),
-    );
+    await fromMenu(tester, 'Cancel booking');
     expect(find.text('Cancel INV-000105?'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Cancel booking'));
     await tester.pumpAndSettle();
@@ -128,10 +147,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(currentPath(), '/sales/104');
 
-    await tester.tap(find.byTooltip('More actions'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Delete sale'));
-    await tester.pumpAndSettle();
+    await fromMenu(tester, 'Delete sale');
     expect(find.text('Delete INV-000104?'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
@@ -163,11 +179,17 @@ void main() {
     ) async {
       await openAt(tester, '/sales/105', size: size);
       await testerSetBengali(tester);
-      await tapVisible(tester, find.byIcon(Icons.add_card));
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.add_card));
+      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await tester.tapAt(const Offset(10, 10)); // close
       await tester.pumpAndSettle();
-      await tapVisible(tester, find.byIcon(Icons.local_shipping_outlined).last);
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.local_shipping_outlined).last);
+      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });
   }

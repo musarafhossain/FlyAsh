@@ -94,7 +94,7 @@ export class CustomerSchema extends BaseModel {
   @column()
   declare name: string
   @column()
-  declare phone: string
+  declare phone: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
@@ -176,27 +176,6 @@ export class LabourSchema extends BaseModel {
   declare wageType: string
 }
 
-export class LabourAdvanceSchema extends BaseModel {
-  static $columns = ['advanceDate', 'amount', 'createdAt', 'createdBy', 'id', 'labourId', 'note', 'updatedAt'] as const
-  $columns = LabourAdvanceSchema.$columns
-  @column()
-  declare advanceDate: string
-  @column()
-  declare amount: string
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-  @column({ serializeAs: null })
-  declare createdBy: string | null
-  @column({ isPrimary: true })
-  declare id: string
-  @column()
-  declare labourId: string
-  @column()
-  declare note: string | null
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
-}
-
 export class PasswordResetOtpSchema extends BaseModel {
   static $columns = ['attempts', 'createdAt', 'expiresAt', 'id', 'otpHash', 'updatedAt', 'userId', 'verifiedAt'] as const
   $columns = PasswordResetOtpSchema.$columns
@@ -246,7 +225,7 @@ export class ProductSchema extends BaseModel {
 }
 
 export class SaleSchema extends BaseModel {
-  static $columns = ['cancelledAt', 'createdAt', 'createdBy', 'customerId', 'deletedAt', 'deliveredDate', 'deliveryAddress', 'deliveryDate', 'discount', 'dueAmount', 'id', 'invoiceNo', 'notes', 'paidAmount', 'paymentStatus', 'profit', 'saleDate', 'status', 'subtotal', 'total', 'totalCost', 'transportCharge', 'type', 'updatedAt'] as const
+  static $columns = ['cancelledAt', 'createdAt', 'createdBy', 'customerId', 'deletedAt', 'deliveredDate', 'deliveryAddress', 'deliveryDate', 'discount', 'dueAmount', 'id', 'invoiceNo', 'notes', 'paidAmount', 'paymentStatus', 'profit', 'saleDate', 'status', 'subtotal', 'taxAmount', 'taxPercent', 'total', 'totalCost', 'transportCharge', 'type', 'updatedAt'] as const
   $columns = SaleSchema.$columns
   @column.dateTime()
   declare cancelledAt: DateTime | null
@@ -286,6 +265,10 @@ export class SaleSchema extends BaseModel {
   declare status: string
   @column()
   declare subtotal: string
+  @column()
+  declare taxAmount: string
+  @column()
+  declare taxPercent: string
   @column()
   declare total: string
   @column()

@@ -46,25 +46,6 @@ Future<MoneyEntry?> _sheet(BuildContext context, Widget child) =>
       ),
     );
 
-/// Give advance (03-AppFlow §7.3): amount, date (not future; it decides the
-/// month it is deducted in), note.
-Future<MoneyEntry?> showAdvanceSheet(
-  BuildContext context, {
-  required String labourName,
-  required String defaultDate,
-  required String today,
-}) => _sheet(
-  context,
-  _MoneySheet(
-    title: context.l10n.giveAdvanceTo(labourName),
-    hint: context.l10n.advanceHint,
-    defaultDate: defaultDate,
-    today: today,
-    withMethod: false,
-    submitLabel: context.l10n.giveAdvance,
-  ),
-);
-
 /// Pay wage (03-AppFlow §7.3): amount prefilled with the balance, date,
 /// method, note. Partial payments are allowed.
 Future<MoneyEntry?> showPayWageSheet(

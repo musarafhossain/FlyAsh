@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/l10n.dart';
 import '../l10n/locale_controller.dart';
-import '../router/app_bar_actions.dart' show popoverStyle;
+import '../router/app_bar_actions.dart'
+    show popoverStyle, popoverWidth, togglePopover;
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
@@ -25,12 +26,12 @@ class LanguageSwitch extends ConsumerWidget {
     final code = ref.watch(localeProvider);
     final l = context.l10n;
     final t = context.tokens;
+    final width = popoverWidth(context, _width);
     return MenuAnchor(
-      alignmentOffset: const Offset(-_width, Space.s1),
-      style: popoverStyle(context, width: _width),
+      style: popoverStyle(context, width: width),
       menuChildren: [
         SizedBox(
-          width: _width,
+          width: width,
           child: Padding(
             padding: const EdgeInsets.all(Space.s4),
             child: Column(
@@ -70,7 +71,7 @@ class LanguageSwitch extends ConsumerWidget {
       ],
       builder: (context, menu, _) => InkWell(
         borderRadius: Radii.fullAll,
-        onTap: () => menu.isOpen ? menu.close() : menu.open(),
+        onTap: () => togglePopover(context, menu, width),
         child: Tooltip(
           message: l.language,
           child: Padding(

@@ -117,12 +117,9 @@ router
         router.put('attendance', [AttendanceController, 'save'])
         router.get('labours/:id/attendance', [AttendanceController, 'labourMonth'])
 
-        // Wages & advances
+        // Wages (a payment covers advances too)
         router.get('wages', [WagesController, 'sheet'])
         router.get('labours/:id/wages', [WagesController, 'labour'])
-        router.get('labours/:id/advances', [WagesController, 'advances'])
-        router.post('labours/:id/advances', [WagesController, 'storeAdvance'])
-        router.delete('advances/:id', [WagesController, 'destroyAdvance'])
         router.post('labours/:id/wage-payments', [WagesController, 'storePayment'])
         router.delete('wage-payments/:id', [WagesController, 'destroyPayment'])
 

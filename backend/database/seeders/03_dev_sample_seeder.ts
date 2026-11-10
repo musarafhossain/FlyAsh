@@ -5,7 +5,6 @@ import Product from '#models/product'
 import Customer from '#models/customer'
 import Labour from '#models/labour'
 import Attendance from '#models/attendance'
-import LabourAdvance from '#models/labour_advance'
 import Expense from '#models/expense'
 import Sale from '#models/sale'
 import SaleService from '#services/sale_service'
@@ -207,15 +206,6 @@ export default class extends BaseSeeder {
           createdBy: userId,
         })
       }
-    }
-    for (let i = 0; i < 10; i++) {
-      await LabourAdvance.create({
-        labourId: this.pick(labours).id,
-        amount: this.pick(['500.00', '1000.00', '2000.00']),
-        advanceDate: days(this.int(1, 45)),
-        note: 'Advance',
-        createdBy: userId,
-      })
     }
 
     // Expenses

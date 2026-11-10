@@ -52,7 +52,7 @@ export default class CustomersController {
 
     const customer = await Customer.create({
       name: data.name,
-      phone: data.phone,
+      phone: data.phone ?? null,
       address: data.address ?? null,
       isActive: true,
       createdBy: auth.getUserOrFail().id,
@@ -70,7 +70,7 @@ export default class CustomersController {
     const data = await request.validateUsing(customerValidator)
     await Customer.assertPhoneFree(data.phone, customer.id)
 
-    customer.merge({ name: data.name, phone: data.phone, address: data.address ?? null })
+    customer.merge({ name: data.name, phone: data.phone ?? null, address: data.address ?? null })
     await customer.save()
 
     return ok(response, await this.find(customer.id), 'customers.updated')

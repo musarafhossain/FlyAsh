@@ -205,6 +205,7 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                   ))
           : PagedList<SaleSummary>(
               showCount: false,
+              onRefresh: _load,
               controller: _sales,
               maxWidth: 960,
               fetch: (page) => ref
@@ -310,13 +311,14 @@ class _ContactCard extends StatelessWidget {
                       c.name,
                       style: AppTypography.h3.copyWith(color: t.textPrimary),
                     ),
-                    SelectableText(
-                      c.phone,
-                      style: AppTypography.body.copyWith(
-                        color: t.textSecondary,
-                        fontFeatures: AppTypography.tabular,
+                    if (c.hasPhone)
+                      SelectableText(
+                        c.phone,
+                        style: AppTypography.body.copyWith(
+                          color: t.textSecondary,
+                          fontFeatures: AppTypography.tabular,
+                        ),
                       ),
-                    ),
                     if (!c.isActive) ...[
                       const SizedBox(height: Space.s1),
                       StatusPill(l.inactive),
@@ -342,26 +344,28 @@ class _ContactCard extends StatelessWidget {
               ],
             ),
           ],
-          const SizedBox(height: Space.s4),
-          Row(
-            children: [
-              Expanded(
-                child: FilledButton.tonalIcon(
-                  onPressed: onCall,
-                  icon: const Icon(Icons.call_outlined),
-                  label: Text(l.call),
+          if (c.hasPhone) ...[
+            const SizedBox(height: Space.s4),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    onPressed: onCall,
+                    icon: const Icon(Icons.call_outlined),
+                    label: Text(l.call),
+                  ),
                 ),
-              ),
-              const SizedBox(width: Space.s3),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onWhatsApp,
-                  icon: const Icon(Icons.chat_outlined),
-                  label: Text(l.whatsApp),
+                const SizedBox(width: Space.s3),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onWhatsApp,
+                    icon: const Icon(Icons.chat_outlined),
+                    label: Text(l.whatsApp),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );

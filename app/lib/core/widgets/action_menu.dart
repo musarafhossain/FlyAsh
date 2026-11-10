@@ -96,3 +96,27 @@ Future<void> showActionMenu(
   );
   chosen?.onSelected();
 }
+
+/// ⋮ button in an app bar (detail pages) that opens [showActionMenu] with
+/// the page's actions, just below the button.
+class ActionMenuButton extends StatelessWidget {
+  const ActionMenuButton({
+    super.key,
+    required this.tooltip,
+    required this.groups,
+    this.enabled = true,
+  });
+
+  final String tooltip;
+  final List<List<ActionMenuItem>> groups;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) => Builder(
+    builder: (button) => IconButton(
+      tooltip: tooltip,
+      onPressed: enabled ? () => showActionMenu(button, groups: groups) : null,
+      icon: const Icon(Icons.more_vert),
+    ),
+  );
+}

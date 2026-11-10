@@ -608,10 +608,9 @@ void main() {
     await api.post('/auth/logout', parse: (d) => d);
   }, skip: !live);
 
-  // F13: a test labour with 1 present + 1 half day (₹400/day) → earned
-  // ₹600; advance and payment change the balance. Rows are removed
-  // afterwards in the database.
-  test('F13: wage sheet, detail, advance, payment', () async {
+  // F13: a test labour present 1–2 days (₹400/day); two wage payments
+  // (one early, like an advance) change the balance. No advances API.
+  test('F13: wage sheet, detail, payments', () async {
     final api = c.read(apiClientProvider);
     final res = await api.post(
       '/auth/login',
@@ -647,7 +646,7 @@ void main() {
     expect((sheet.extra['totals'] as Json)['earned'], isNotNull);
 
     expect(
-      await wages.giveAdvance(lb.id, amount: '100', date: today),
+      await wages.pay(lb.id, month: month, amount: '100', date: today),
       isNotEmpty,
     );
     expect(
@@ -655,15 +654,16 @@ void main() {
       isNotEmpty,
     );
     final detail = await wages.detail(lb.id, month);
-    expect(detail.row.advances, '100.00');
-    expect(detail.row.paid, '200.00');
+    expect(detail.row.paid, '300.00');
+    expect(detail.payments, hasLength(2));
     final balance = Decimal.parse(expected) - Decimal.parse('300');
     expect(detail.row.balance, balance.toStringAsFixed(2));
     expect(detail.row.status, 'partial');
     expect(detail.days.firstWhere((d) => d.date == today).earned, '400.00');
 
-    await wages.deleteAdvance(detail.advances.single.id);
-    await wages.deletePayment(detail.payments.single.id);
+    for (final p in detail.payments) {
+      await wages.deletePayment(p.id);
+    }
     final after = await wages.detail(lb.id, month);
     expect(after.row.balance, expected);
 

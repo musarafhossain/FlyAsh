@@ -30,6 +30,8 @@ const saleFields = {
   items: vine.array(item).minLength(1).maxLength(50),
   transport_charge: moneyRule().optional(),
   discount: moneyRule().optional(),
+  /** Percent of (subtotal + transport − discount), 0–100 */
+  tax_percent: vine.number().min(0).max(100).decimal([0, 2]).optional(),
   notes: vine.string().trim().maxLength(1000).nullable().optional(),
 }
 

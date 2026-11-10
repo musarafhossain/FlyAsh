@@ -30,6 +30,7 @@ class PagedList<T> extends StatefulWidget {
     this.header,
     this.maxWidth = 1200,
     this.showCount = true,
+    this.onRefresh,
   });
 
   final Future<Paginated<T>> Function(int page) fetch;
@@ -46,6 +47,9 @@ class PagedList<T> extends StatefulWidget {
   /// "Showing 20 of 54" under the items. Off for endless lists, which only
   /// show a spinner while the next page loads.
   final bool showCount;
+
+  /// Also run on pull to refresh (e.g. a detail page reloads its header).
+  final Future<void> Function()? onRefresh;
 
   @override
   State<PagedList<T>> createState() => _PagedListState<T>();
@@ -164,7 +168,10 @@ class _PagedListState<T> extends State<PagedList<T>> {
     }
 
     return RefreshIndicator(
-      onRefresh: _reload,
+      onRefresh: () => Future.wait([
+        _reload(),
+        if (widget.onRefresh != null) widget.onRefresh!(),
+      ]),
       child: NotificationListener<ScrollNotification>(
         onNotification: _onScroll,
         child: ListView(

@@ -350,3 +350,134 @@ class LineItemSummaryCard extends StatelessWidget {
     );
   }
 }
+
+/// A titled list inside a detail page (a sale's items, payments …): the
+/// title, then the rows on one card split by lines, or [empty] text.
+class DetailSection extends StatelessWidget {
+  const DetailSection({
+    super.key,
+    required this.title,
+    required this.children,
+    this.empty,
+  });
+
+  final String title;
+  final List<Widget> children;
+  final String? empty;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: Space.s2),
+          child: Text(
+            title,
+            style: AppTypography.title.copyWith(color: t.textPrimary),
+          ),
+        ),
+        if (children.isEmpty && empty != null)
+          AppCard(
+            child: Text(
+              empty!,
+              style: AppTypography.body.copyWith(color: t.textTertiary),
+            ),
+          )
+        else
+          ListGroup(children: children),
+      ],
+    );
+  }
+}
+
+/// One row in a [DetailSection]: round [leading], title, subtitle and an
+/// amount on the right. A long press opens [onLongPress] (its menu).
+class DetailRow extends StatelessWidget {
+  const DetailRow({
+    super.key,
+    required this.leading,
+    required this.title,
+    this.subtitle,
+    required this.amount,
+    this.amountColor,
+    this.onLongPress,
+  });
+
+  final Widget leading;
+  final String title;
+  final String? subtitle;
+  final String amount;
+  final Color? amountColor;
+
+  /// Gets the row's context, to open the action menu next to it.
+  final ValueChanged<BuildContext>? onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Builder(
+      builder: (row) => ListRowSurface(
+        onLongPress: onLongPress == null ? null : () => onLongPress!(row),
+        child: Row(
+          children: [
+            leading,
+            const SizedBox(width: Space.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodyStrong.copyWith(
+                      color: t.textPrimary,
+                    ),
+                  ),
+                  if ((subtitle ?? '').isNotEmpty)
+                    Text(
+                      subtitle!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.caption.copyWith(
+                        color: t.textSecondary,
+                        fontFeatures: AppTypography.tabular,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: Space.s2),
+            Text(
+              amount,
+              style: AppTypography.bodyStrong.copyWith(
+                color: amountColor ?? t.textPrimary,
+                fontFeatures: AppTypography.tabular,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Green round icon for a payment row.
+class PaymentAvatar extends StatelessWidget {
+  const PaymentAvatar(this.icon, {super.key});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(color: t.successBg, shape: BoxShape.circle),
+      child: Icon(icon, size: 22, color: t.success),
+    );
+  }
+}

@@ -108,9 +108,6 @@
   "wages": {
     "sheet": "Wage sheet fetched successfully",
     "detail": "Wage detail fetched successfully",
-    "advances": "Advances fetched successfully",
-    "advance_recorded": "Advance recorded",
-    "advance_deleted": "Advance deleted",
     "payment_recorded": "Wage payment recorded",
     "payment_deleted": "Wage payment deleted"
   },

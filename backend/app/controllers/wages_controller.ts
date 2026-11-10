@@ -1,19 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Labour from '#models/labour'
-import LabourAdvance from '#models/labour_advance'
 import WagePayment from '#models/wage_payment'
 import WageService from '#services/wage_service'
 import { created, ok, paginated } from '#helpers/api_response'
 import { fromPaise, money, toPaise } from '#helpers/money'
 import { currentMonth, monthRange, today } from '#helpers/dates'
 import { DEFAULT_LIMIT } from '#validators/rules'
-import { paginationValidator } from '#validators/sale'
-import {
-  advanceValidator,
-  monthValidator,
-  wagePaymentValidator,
-  wageSheetValidator,
-} from '#validators/labour'
+import { monthValidator, wagePaymentValidator, wageSheetValidator } from '#validators/labour'
 
 export default class WagesController {
   /**
@@ -33,7 +26,7 @@ export default class WagesController {
       rows = rows.filter((row) => row.name.toLowerCase().includes(term))
     }
 
-    const sum = (key: 'earned' | 'advances' | 'paid' | 'balance') =>
+    const sum = (key: 'earned' | 'paid' | 'balance') =>
       fromPaise(rows.reduce((total, row) => total + toPaise(row[key]), 0))
 
     const lastPage = Math.max(1, Math.ceil(rows.length / limit))
@@ -52,7 +45,6 @@ export default class WagesController {
           month,
           totals: {
             earned: sum('earned'),
-            advances: sum('advances'),
             paid: sum('paid'),
             balance: sum('balance'),
           },
@@ -68,41 +60,6 @@ export default class WagesController {
     const labour = await Labour.findOrFail(params.id)
     const { month = currentMonth() } = await request.validateUsing(monthValidator)
     return ok(response, await WageService.detail(labour, month), 'wages.detail')
-  }
-
-  /**
-   * GET /labours/:id/advances
-   */
-  async advances({ params, request, response }: HttpContext) {
-    const labour = await Labour.findOrFail(params.id)
-    const { page = 1, limit = DEFAULT_LIMIT } = await request.validateUsing(paginationValidator)
-    const advances = await LabourAdvance.query()
-      .where('labour_id', labour.id)
-      .preload('creator', (q) => q.select('id', 'name'))
-      .orderBy('advance_date', 'desc')
-      .orderBy('id', 'desc')
-      .paginate(page, limit)
-    return paginated(response, advances, 'wages.advances')
-  }
-
-  async storeAdvance({ auth, params, request, response }: HttpContext) {
-    const labour = await Labour.findOrFail(params.id)
-    const data = await request.validateUsing(advanceValidator)
-    const advance = await LabourAdvance.create({
-      labourId: labour.id,
-      amount: money(data.amount),
-      advanceDate: data.advance_date ?? today(),
-      note: data.note ?? null,
-      createdBy: auth.getUserOrFail().id,
-    })
-    await advance.load('creator', (q) => q.select('id', 'name'))
-    return created(response, advance, 'wages.advance_recorded')
-  }
-
-  async destroyAdvance({ params, response }: HttpContext) {
-    const advance = await LabourAdvance.findOrFail(params.id)
-    await advance.delete()
-    return ok(response, null, 'wages.advance_deleted')
   }
 
   async storePayment({ auth, params, request, response }: HttpContext) {

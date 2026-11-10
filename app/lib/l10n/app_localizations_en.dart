@@ -1175,9 +1175,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get earned => 'Earned';
 
   @override
-  String get advances => 'Advances';
-
-  @override
   String get balance => 'Balance';
 
   @override
@@ -1230,35 +1227,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get giveAdvance => 'Give advance';
-
-  @override
-  String giveAdvanceTo(String name) {
-    return 'Advance to $name';
-  }
-
-  @override
-  String get advanceHint =>
-      'It is taken off the wage of the month of its date.';
-
-  @override
-  String advancesCount(String count) {
-    return 'Advances ($count)';
-  }
-
-  @override
-  String get noAdvances => 'No advance this month';
-
-  @override
   String get noWagePayments => 'Nothing paid for this month yet';
-
-  @override
-  String get deleteAdvance => 'Delete advance';
-
-  @override
-  String deleteAdvanceTitle(String amount) {
-    return 'Delete advance of $amount?';
-  }
 
   @override
   String get balanceRecalculated => 'The balance is worked out again.';
@@ -1268,9 +1237,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wageThisMonth => 'Wage this month';
-
-  @override
-  String get advanceOrPay => 'Advance / pay';
 
   @override
   String get note => 'Note';
@@ -1377,4 +1343,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryHint => 'Type or pick one, e.g. Labour Tiffin';
+
+  @override
+  String get taxPercentField => 'Tax (%)';
+
+  @override
+  String taxLine(String percent) {
+    return 'Tax ($percent%)';
+  }
+
+  @override
+  String get invalidTaxPercent => 'Enter 0 to 100, e.g. 5 or 12.5';
 }

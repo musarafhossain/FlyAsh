@@ -35,7 +35,12 @@ export default class Customer extends compose(CustomerSchema, withUuid) {
    * Phone numbers are unique. Throws a 422 that also carries the existing
    * customer's id, so the app can offer "Use this customer".
    */
-  static async assertPhoneFree(phone: string, exceptId?: string, field = 'phone') {
+  static async assertPhoneFree(
+    phone: string | null | undefined,
+    exceptId?: string,
+    field = 'phone'
+  ) {
+    if (!phone) return
     const existing = await Customer.query()
       .where('phone', phone)
       .if(exceptId, (q) => q.whereNot('id', exceptId!))
