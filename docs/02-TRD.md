@@ -478,13 +478,55 @@ class Paginated<T> {
 
 ### 7.4 Pagination in lists
 
-One reusable `PaginatedListView<T>` widget + a `PaginatedNotifier<T>` base class:
+One reusable `PagedList<T>` widget (`core/widgets/paged_list.dart`) with a `PagedListController`:
 - Loads `page=1&limit=20`, then the next page when the user scrolls near the end, while `hasMore`.
-- Pull to refresh resets to page 1. Search and filter changes reset to page 1 (search is debounced 400 ms).
+- Pull to refresh resets to page 1 and skips the cache. Search and filter changes reset to page 1 with a skeleton (`controller.refresh()`; search is debounced 400 ms).
 - Built-in loading skeleton shaped like the list (a table skeleton on desktop), empty state, error + retry, and a spinner while the next page loads (no "Showing x of y" line).
-- Lists also reload when anything is created, changed or deleted through the API (`dataChangedProvider`, bumped by `ApiClient` after every successful write), so a change shows in every open list.
+- When their data changes, lists reload **in the background** (`controller.revalidate()`): the loaded pages are fetched again and swapped in, the rows stay on screen, and a failed reload keeps the old rows. See §7.5.
+- `itemId` turns on optimistic patches for the list (§7.5).
 
-### 7.5 Theming
+### 7.5 Caching, invalidation and optimistic updates
+
+All server data goes through `ApiClient`, so caching is done there once for every section (`core/network/query_cache.dart`, `data_changed.dart`, `optimistic.dart`).
+
+**Data tags.** Every endpoint belongs to one or more tags, taken from its path: `products`, `customers`, `sales`, `labours`, `attendance`, `wages`, `expenses`, `users`, `settings`, `dashboard`, `reports` (`/customers/7/sales` → customers + sales; `/wage-payments/3` → wages). `/auth/*`, `/health` and `/app/version` have no tag and are never cached.
+
+**Query cache.** Each successful GET answer is kept in memory for **60 seconds**, keyed by user + language + path + query. Opening a screen again in that time (switching tabs, going back, the same filter again) shows the data at once with no request. The cache lives only while the app runs; it is never written to disk.
+
+**Invalidation.** After a successful POST / PUT / PATCH / DELETE (not `/auth`), `ApiClient` works out which tags the change affects and:
+1. removes those entries from the cache, so the next read goes to the server;
+2. bumps those tags in `dataChangedProvider`, so the open screens that show them reload in the background.
+
+| Change to | Makes stale |
+|---|---|
+| products | products |
+| customers | customers, sales, dashboard, reports |
+| sales (incl. payments, deliver, cancel) | sales, customers, dashboard, reports |
+| labours | labours, attendance, wages, dashboard, reports |
+| attendance | attendance, labours, wages, dashboard, reports |
+| wage payments | wages, labours, dashboard, reports |
+| expenses | expenses, dashboard, reports |
+| users | users |
+| factory settings | settings |
+
+Screens listen only to their own tags: `ref.onDataChanged({DataTag.sales}, list.revalidate)`. For example, a new expense reloads the expense list and Home, but not the product list.
+
+**Skipping the cache.** Pull to refresh (`PagedList`, `PageBody`, Home, Sale detail, Attendance) and Retry run inside `QueryCache.fresh(...)`: every GET inside goes to the server and refreshes the cache. Changes made by **other users** show after a pull to refresh or once the 60 s are over.
+
+**Optimistic updates.** Quick actions change the screen first and roll back if the server refuses:
+
+| Action | On screen at once | On failure |
+|---|---|---|
+| Deactivate / activate (products, customers, labours, users), from the list or the detail page | Status pill and menu label change | Back to the old state + the server's message |
+| Delete (products, customers, sales, expenses) from a list or the detail page | The row disappears | The row comes back + the message (e.g. "Product is used in sales. Deactivate it instead") |
+| Delete a sale payment or a wage payment | The payment row disappears | The row comes back + the message |
+| Attendance switch | The switch moves and the count updates | The switch goes back + the message |
+
+How: the action calls `ref.optimistic(id, preview, request)` or `ref.optimisticRemove(id, request)`. The patch is stored by item id in `optimisticProvider` with a timestamp. `PagedList` (with `itemId`) and detail pages (`ref.patched(...)`, `ref.isRemoved(id)`) show patches made **after** their data was loaded. When the request succeeds, the tags are invalidated, the screen reloads in the background, and the server's data replaces the patch. When it fails, the patch is undone.
+
+Forms (create / edit) are **not** optimistic: they wait for the server, because it may return validation errors or computed values (totals, tax, invoice no.).
+
+### 7.6 Theming
 
 Implements 04-UI-UX §5–§8:
 - `AppTokens` as a `ThemeExtension` holding all semantic colors. There are 10 combinations (5 accents × light/dark).
@@ -492,18 +534,18 @@ Implements 04-UI-UX §5–§8:
 - **Theme mode and accent are saved to the account** (`users.theme_mode`, `users.accent_color`) with `PUT /auth/preferences` when changed. After login and on `/auth/me`, the app applies the account values and updates the local cache, so the theme follows the user to every device. Font size stays local.
 - Widgets use `context.tokens.xxx` only. No hard-coded colors.
 
-### 7.6 Localization and formatting
+### 7.7 Localization and formatting
 
 - ARB files for English and Bengali (`flutter gen-l10n`).
 - Money: `NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0)` in lists and 2 decimals on receipts → `₹1,00,000`.
 - Dates: `dd MMM yyyy`, plus "Today" / "Yesterday" (compared with the factory date from `X-Business-Date`, see §4.3).
 - A `BusinessDate` provider keeps the latest `X-Business-Date` (read by a Dio interceptor) and is the only source of "today" in the app. Timestamps are converted with `toLocal()`; business dates are never converted.
 
-### 7.7 Receipts and exports
+### 7.8 Receipts and exports
 
 Receipt PDFs and report exports are generated **in the app** (`pdf` / `excel`) from data the API already returns. They are shared with `share_plus` or printed with `printing`, so the server needs no PDF engine.
 
-### 7.8 Platform notes
+### 7.9 Platform notes
 
 | Platform | Notes |
 |---|---|

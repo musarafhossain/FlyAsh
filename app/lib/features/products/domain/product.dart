@@ -21,6 +21,15 @@ class Product {
   final String? notes;
   final bool isActive;
 
+  /// A copy with another active state (for optimistic updates).
+  Product withActive(bool active) => Product(
+    id: id,
+    name: name,
+    defaultPrice: defaultPrice,
+    notes: notes,
+    isActive: active,
+  );
+
   factory Product.fromJson(Json json) => Product(
     id: idOf(json['id']),
     name: json['name'] as String? ?? '',

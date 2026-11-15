@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
+import 'package:flyash/core/network/query_cache.dart';
 import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/features/sales/presentation/widgets/sale_list_items.dart';
 
@@ -208,12 +209,21 @@ void main() {
     expect(currentLocation(), '/sales/upcoming');
   });
 
-  testWidgets('coming back to Home reloads the numbers', (tester) async {
+  testWidgets('coming back to Home: cached numbers at once; after a change '
+      'the server is asked again', (tester) async {
     await openHome(tester);
     final before = dashboardCalls();
     testContainer.read(routerProvider).go('/expenses');
     await tester.pumpAndSettle();
     expect(dashboardCalls(), before, reason: 'not while away');
+    testContainer.read(routerProvider).go('/home');
+    await tester.pumpAndSettle();
+    expect(dashboardCalls(), before, reason: 'fresh in the cache');
+
+    // A change elsewhere (e.g. a new expense) makes the dashboard stale.
+    testContainer.read(routerProvider).go('/expenses');
+    await tester.pumpAndSettle();
+    testContainer.read(queryCacheProvider).invalidate({DataTag.dashboard});
     testContainer.read(routerProvider).go('/home');
     await tester.pumpAndSettle();
     expect(dashboardCalls(), before + 1);

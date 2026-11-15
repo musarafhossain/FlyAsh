@@ -73,6 +73,6 @@ final expensesRepositoryProvider = Provider<ExpensesRepository>(
 /// Category names for suggestions and the filter. Loads again after any
 /// change (a new category typed in an expense shows up next time).
 final expenseCategoriesProvider = FutureProvider<List<String>>((ref) {
-  ref.watch(dataChangedProvider);
+  ref.watch(dataChangedProvider.select((v) => v.of(DataTag.expenses)));
   return ref.watch(expensesRepositoryProvider).categories();
 });

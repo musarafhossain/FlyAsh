@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/query_cache.dart';
 import '../../../../core/network/session.dart';
 import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/router/app_shell.dart';
@@ -135,6 +137,9 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
+    // A labour added or deactivated elsewhere shows here (own switches
+    // are already on screen, so attendance changes are not listened to).
+    ref.onDataChanged({DataTag.labours}, () => unawaited(_load()));
     final l = context.l10n;
     final gutter = Breakpoints.gutter(MediaQuery.sizeOf(context).width);
 
@@ -145,7 +150,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
         actions: const [AppBarActions()],
       ),
       body: RefreshIndicator(
-        onRefresh: _load,
+        onRefresh: () => QueryCache.fresh(_load),
         child: ListView(
           padding: EdgeInsets.symmetric(vertical: gutter),
           children: [

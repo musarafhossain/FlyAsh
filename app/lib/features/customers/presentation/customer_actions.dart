@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/error/failure.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/network/optimistic.dart';
 import '../../../core/utils/contact_launcher.dart';
 import '../../../core/widgets/action_menu.dart';
 import '../../../core/widgets/form_submit.dart';
@@ -95,9 +96,12 @@ Future<Customer?> toggleCustomerActive(
   );
   if (!ok || !context.mounted) return null;
   try {
-    final (updated, message) = await ref
-        .read(customersRepositoryProvider)
-        .setActive(c.id, !deactivate);
+    // Optimistic: the new state shows at once and goes back on failure.
+    final (updated, message) = await ref.optimistic(
+      c.id,
+      c.withActive(!deactivate),
+      () => ref.read(customersRepositoryProvider).setActive(c.id, !deactivate),
+    );
     if (context.mounted) showMessage(context, message);
     return updated;
   } on Failure catch (f) {
@@ -123,7 +127,11 @@ Future<bool> deleteCustomer(
   );
   if (!ok || !context.mounted) return false;
   try {
-    final message = await ref.read(customersRepositoryProvider).delete(c.id);
+    // Optimistic: the row disappears at once and comes back on failure.
+    final message = await ref.optimisticRemove(
+      c.id,
+      () => ref.read(customersRepositoryProvider).delete(c.id),
+    );
     if (context.mounted) showMessage(context, message);
     return true;
   } on Failure catch (f) {

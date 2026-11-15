@@ -288,6 +288,7 @@ void main() {
 
   testWidgets('tabs All / Instant / Booking send ?type', (tester) async {
     final requests = await openSales(tester);
+    final allTiles = tester.widgetList(find.byType(SaleTile)).length;
     await tester.tap(find.text('Booking').first);
     await tester.pumpAndSettle();
     expect(lastList(requests).queryParameters['type'], 'booking');
@@ -297,9 +298,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(lastList(requests).queryParameters['type'], 'instant');
 
+    // "All" was loaded first, so it comes from the cache (no request).
+    final sent = requests.length;
     await tester.tap(find.text('All').first);
     await tester.pumpAndSettle();
-    expect(lastList(requests).queryParameters.containsKey('type'), isFalse);
+    expect(requests.length, sent, reason: 'served from the cache');
+    expect(find.byType(SaleTile), findsNWidgets(allTiles));
   });
 
   testWidgets('search waits 400 ms, then asks the server', (tester) async {
@@ -345,11 +349,13 @@ void main() {
     expect(q2['status'], 'partial');
 
     // Reset clears everything
+    final sent = requests.length;
     await tester.tap(find.byTooltip('Filter sales'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(OutlinedButton, 'Reset'));
     await tester.pumpAndSettle();
-    expect(lastList(requests).queryParameters.containsKey('status'), isFalse);
+    // No filters = the first list, still fresh in the cache.
+    expect(requests.length, sent, reason: 'served from the cache');
     expect(find.byType(InputChip), findsNothing);
   });
 

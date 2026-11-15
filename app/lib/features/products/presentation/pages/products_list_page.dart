@@ -65,7 +65,8 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
   }
 
   /// Long press: View · Edit | Deactivate / Activate | Delete, next to the row.
-  /// The list reloads by itself after a change (see `dataChangedProvider`).
+  /// The row changes at once (optimistic); the list then reloads in the
+  /// background (see `dataChangedProvider`).
   Future<void> _actions(BuildContext row, Product p) {
     final l = context.l10n;
     return showActionMenu(
@@ -105,7 +106,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
+    ref.onDataChanged({DataTag.products}, _list.revalidate);
     final repo = ref.watch(productsRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final searching = _search.text.trim().isNotEmpty;
@@ -123,6 +124,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
         label: Text(l.addProduct),
       ),
       body: PagedList<Product>(
+        itemId: (item) => item.id,
         showCount: false,
         controller: _list,
         fetch: (page) => repo.list(

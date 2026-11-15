@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/optimistic.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -32,6 +36,16 @@ class UserDetailPage extends ConsumerStatefulWidget {
 
 class _UserDetailPageState extends ConsumerState<UserDetailPage> {
   AppUser? _user;
+
+  /// When [_user] was set; optimistic changes made after that are shown on
+  /// top of it (see `OptimisticRef.patched`).
+  DateTime _loadedAt = DateTime.now();
+
+  void _show(AppUser value) {
+    _user = value;
+    _loadedAt = DateTime.now();
+  }
+
   Object? _error;
   bool _busy = false;
 
@@ -45,7 +59,7 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
     setState(() => _error = null);
     try {
       final user = await ref.read(usersRepositoryProvider).get(widget.userId);
-      if (mounted) setState(() => _user = user);
+      if (mounted) setState(() => _show(user));
     } on Failure catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -56,7 +70,7 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
       '/users/${widget.userId}/edit',
       extra: _user,
     );
-    if (updated != null && mounted) setState(() => _user = updated);
+    if (updated != null && mounted) setState(() => _show(updated));
   }
 
   Future<void> _toggleActive() async {
@@ -79,7 +93,7 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
           .read(usersRepositoryProvider)
           .setActive(user.id, !deactivate);
       if (!mounted) return;
-      setState(() => _user = updated);
+      setState(() => _show(updated));
       showMessage(context, message);
     } on Failure catch (f) {
       if (mounted) showMessage(context, failureText(context, f));
@@ -98,8 +112,10 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Reload in the background when this data changes anywhere.
+    ref.onDataChanged({DataTag.users}, () => unawaited(_load()));
     final l = context.l10n;
-    final user = _user;
+    final user = ref.patched(_user, (x) => x.id, _loadedAt);
 
     return Scaffold(
       appBar: AppBar(

@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/optimistic.dart';
 import '../../../../core/network/session.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -140,6 +144,11 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Reload in the background when this data changes anywhere.
+    ref.onDataChanged({
+      DataTag.wages,
+      DataTag.attendance,
+    }, () => unawaited(_load()));
     final l = context.l10n;
     final d = _detail;
     return Scaffold(
@@ -205,6 +214,10 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
   }
 
   List<Widget> _content(BuildContext context, WageDetail d) {
+    final payments = [
+      for (final p in d.payments)
+        if (!ref.isRemoved(p.id)) p,
+    ];
     final l = context.l10n;
     final t = context.tokens;
     final r = d.row;
@@ -258,10 +271,10 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
       ),
       const SizedBox(height: Space.s3),
       DetailSection(
-        title: l.paymentsCount('${d.payments.length}'),
+        title: l.paymentsCount('${payments.length}'),
         empty: l.noWagePayments,
         children: [
-          for (final p in d.payments)
+          for (final p in payments)
             DetailRow(
               leading: PaymentAvatar(paymentMethodIcon(p.method)),
               title: '${Fmt.date(p.date)} · ${l.paymentMethodText(p.method)}',
@@ -283,9 +296,13 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
                             destructive: true,
                             onSelected: () => _delete(
                               title: l.deletePaymentTitle(money(p.amount)),
-                              action: () => ref
-                                  .read(wagesRepositoryProvider)
-                                  .deletePayment(p.id),
+                              // Optimistic: the row disappears at once.
+                              action: () => ref.optimisticRemove(
+                                p.id,
+                                () => ref
+                                    .read(wagesRepositoryProvider)
+                                    .deletePayment(p.id),
+                              ),
                             ),
                           ),
                         ],

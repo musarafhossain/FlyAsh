@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/error/failure.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/network/optimistic.dart';
 import '../../../core/network/session.dart';
 import '../../../core/utils/contact_launcher.dart';
 import '../../../core/widgets/action_menu.dart';
@@ -87,9 +88,14 @@ Future<Labour?> toggleLabourActive(
   }
   if (!context.mounted) return null;
   try {
-    final (updated, message) = await ref
-        .read(laboursRepositoryProvider)
-        .setActive(lb.id, !lb.isActive, leftDate: leftDate);
+    // Optimistic: the new state shows at once and goes back on failure.
+    final (updated, message) = await ref.optimistic(
+      lb.id,
+      lb.withActive(!lb.isActive, leftDate: leftDate),
+      () => ref
+          .read(laboursRepositoryProvider)
+          .setActive(lb.id, !lb.isActive, leftDate: leftDate),
+    );
     if (context.mounted) showMessage(context, message);
     return updated;
   } on Failure catch (f) {

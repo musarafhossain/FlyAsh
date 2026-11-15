@@ -350,7 +350,10 @@ flowchart TD
 | Situation | Behaviour |
 |---|---|
 | First load | Skeleton placeholders shaped like the screen: list (with the search box), detail and form pages each have their own. No plain spinner |
-| Refresh | Pull to refresh on every list, every detail page and the dashboard. Lists and detail pages also reload after any create / change / delete |
+| Refresh | Pull to refresh on every list, every detail page and the dashboard; it always asks the server (skips the cache) |
+| Cache | A screen opened again within 60 s (tab switch, back, same filter) shows at once from the in-memory cache |
+| After a change | Only the screens showing the changed data reload, **in the background** (rows stay, no skeleton). E.g. a new sale reloads Sales, Customers and Home, not Products (02-TRD §7.5) |
+| Optimistic updates | Deactivate / activate, delete (rows and payments) and attendance switches change the screen at once; if the server refuses, the change is undone and its message is shown |
 | Pagination | Endless scroll: load the next page at 80% scroll, with a footer spinner. No "Showing x of y" line |
 | List rows | Flat (no border, no own background). Tap opens the item; **long press opens its action menu** (a popup next to the row) |
 | After save | Create → back to the list. Edit → back to where it was opened from (list or detail). Forms are popped, so no extra screens stay in the stack |

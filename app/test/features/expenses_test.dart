@@ -249,9 +249,11 @@ void main() {
     // Reset → back to this month
     await tester.tap(find.byTooltip('Filter expenses'));
     await tester.pumpAndSettle();
+    final sent = api.requests.length;
     await tester.tap(find.widgetWithText(OutlinedButton, 'Reset'));
     await tester.pumpAndSettle();
-    expect(lastList().queryParameters['from'], '2026-11-01');
+    // This month was the first list, so it comes from the cache.
+    expect(api.requests.length, sent, reason: 'served from the cache');
     expect(find.byType(InputChip), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'belt');

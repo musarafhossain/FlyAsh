@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/error/failure.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/network/optimistic.dart';
 import '../../../core/widgets/action_menu.dart';
 import '../../../core/widgets/form_submit.dart';
 import '../../../core/widgets/state_views.dart';
@@ -78,9 +79,12 @@ Future<AppUser?> toggleUserActive(
   );
   if (!ok || !context.mounted) return null;
   try {
-    final (updated, message) = await ref
-        .read(usersRepositoryProvider)
-        .setActive(user.id, !deactivate);
+    // Optimistic: the new state shows at once and goes back on failure.
+    final (updated, message) = await ref.optimistic(
+      user.id,
+      user.withActive(!deactivate),
+      () => ref.read(usersRepositoryProvider).setActive(user.id, !deactivate),
+    );
     if (context.mounted) showMessage(context, message);
     return updated;
   } on Failure catch (f) {

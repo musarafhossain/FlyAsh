@@ -37,6 +37,20 @@ class Labour {
 
   bool get isMonthly => wageType == 'monthly';
 
+  /// A copy with another active state (for optimistic updates).
+  Labour withActive(bool active, {String? leftDate}) => Labour(
+    id: id,
+    name: name,
+    phone: phone,
+    address: address,
+    wageType: wageType,
+    wageAmount: wageAmount,
+    joiningDate: joiningDate,
+    leftDate: active ? null : (leftDate ?? this.leftDate),
+    isActive: active,
+    presentToday: presentToday,
+  );
+
   factory Labour.fromJson(Json json) => Labour(
     id: idOf(json['id']),
     name: json['name'] as String? ?? '',

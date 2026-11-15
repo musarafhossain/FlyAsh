@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/query_cache.dart';
 import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/app_shell.dart';
@@ -69,6 +73,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Reload in the background when this data changes anywhere.
+    ref.onDataChanged({DataTag.dashboard}, () => unawaited(_load()));
     final l = context.l10n;
     final data = _data;
     final overdue = data?.overdueDeliveries ?? 0;
@@ -91,7 +97,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _load,
+        onRefresh: () => QueryCache.fresh(_load),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.all(

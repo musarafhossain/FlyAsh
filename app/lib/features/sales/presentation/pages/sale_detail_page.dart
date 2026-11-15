@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/optimistic.dart';
+import '../../../../core/network/query_cache.dart';
 import '../../../../core/network/session.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -101,9 +106,15 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
       destructive: true,
     );
     if (!ok || !mounted) return;
+    // Optimistic: the payment row disappears at once and comes back on
+    // failure.
     await _run(
-      () =>
-          ref.read(salesRepositoryProvider).deletePayment(widget.saleId, p.id),
+      () => ref.optimisticRemove(
+        p.id,
+        () => ref
+            .read(salesRepositoryProvider)
+            .deletePayment(widget.saleId, p.id),
+      ),
     );
   }
 
@@ -187,6 +198,8 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Reload in the background when this data changes anywhere.
+    ref.onDataChanged({DataTag.sales}, () => unawaited(_load()));
     final l = context.l10n;
     final sale = _sale;
     final wide = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
@@ -249,7 +262,7 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
                   )
                 : const SaleDetailSkeleton())
           : RefreshIndicator(
-              onRefresh: _load,
+              onRefresh: () => QueryCache.fresh(_load),
               child: wide ? _wide(sale) : _narrow(sale),
             ),
     );
@@ -576,7 +589,7 @@ class _Summary extends StatelessWidget {
   }
 }
 
-class _Payments extends StatelessWidget {
+class _Payments extends ConsumerWidget {
   const _Payments({required this.sale, this.onDelete});
 
   final Sale sale;
@@ -585,14 +598,18 @@ class _Payments extends StatelessWidget {
   final ValueChanged<SalePayment>? onDelete;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
+    final payments = [
+      for (final p in sale.payments)
+        if (!ref.isRemoved(p.id)) p,
+    ];
     return DetailSection(
-      title: l.paymentsCount('${sale.payments.length}'),
+      title: l.paymentsCount('${payments.length}'),
       empty: l.noPaymentsYet,
       children: [
-        for (final p in sale.payments)
+        for (final p in payments)
           DetailRow(
             leading: PaymentAvatar(paymentMethodIcon(p.method)),
             title:

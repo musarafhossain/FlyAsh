@@ -70,7 +70,7 @@ class _UpcomingDeliveriesPageState
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
+    ref.onDataChanged({DataTag.sales}, _list.revalidate);
     final l = context.l10n;
     final repo = ref.watch(salesRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
@@ -78,6 +78,7 @@ class _UpcomingDeliveriesPageState
     return Scaffold(
       appBar: AppBar(title: Text(l.upcomingDeliveries)),
       body: PagedList<SaleSummary>(
+        itemId: (item) => item.id,
         showCount: false,
         controller: _list,
         fetch: (page) => repo.upcoming(page: page),

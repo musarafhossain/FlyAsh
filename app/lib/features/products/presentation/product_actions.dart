@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/error/failure.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/network/optimistic.dart';
 import '../../../core/widgets/form_submit.dart';
 import '../../../core/widgets/state_views.dart';
 import '../data/products_repository_impl.dart';
@@ -33,9 +34,12 @@ Future<Product?> toggleProductActive(
   if (!ok || !context.mounted) return null;
   onBusy?.call(true);
   try {
-    final (updated, message) = await ref
-        .read(productsRepositoryProvider)
-        .setActive(p.id, !deactivate);
+    // Optimistic: the new state shows at once and goes back on failure.
+    final (updated, message) = await ref.optimistic(
+      p.id,
+      p.withActive(!deactivate),
+      () => ref.read(productsRepositoryProvider).setActive(p.id, !deactivate),
+    );
     if (context.mounted) showMessage(context, message);
     return updated;
   } on Failure catch (f) {
@@ -65,7 +69,11 @@ Future<bool> deleteProduct(
   if (!ok || !context.mounted) return false;
   onBusy?.call(true);
   try {
-    final message = await ref.read(productsRepositoryProvider).delete(p.id);
+    // Optimistic: the row disappears at once and comes back on failure.
+    final message = await ref.optimisticRemove(
+      p.id,
+      () => ref.read(productsRepositoryProvider).delete(p.id),
+    );
     if (context.mounted) showMessage(context, message);
     return true;
   } on Failure catch (f) {

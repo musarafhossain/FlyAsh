@@ -34,6 +34,18 @@ class Customer {
   bool get hasDue =>
       (Decimal.tryParse(totalDue) ?? Decimal.zero) > Decimal.zero;
 
+  /// A copy with another active state (for optimistic updates).
+  Customer withActive(bool active) => Customer(
+    id: id,
+    name: name,
+    phone: phone,
+    address: address,
+    isActive: active,
+    totalSales: totalSales,
+    totalPaid: totalPaid,
+    totalDue: totalDue,
+  );
+
   factory Customer.fromJson(Json json) => Customer(
     id: idOf(json['id']),
     name: json['name'] as String? ?? '',

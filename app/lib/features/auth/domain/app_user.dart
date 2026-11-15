@@ -34,6 +34,20 @@ class AppUser {
   /// The full JSON, e.g. for applying preferences.
   final Json raw;
 
+  /// A copy with another active state (for optimistic updates).
+  AppUser withActive(bool active) => AppUser(
+    id: id,
+    name: name,
+    phone: phone,
+    email: email,
+    locale: locale,
+    themeMode: themeMode,
+    accentColor: accentColor,
+    isActive: active,
+    lastLoginAt: lastLoginAt,
+    raw: raw,
+  );
+
   factory AppUser.fromJson(Json json) => AppUser(
     id: idOf(json['id']),
     name: json['name'] as String? ?? '',

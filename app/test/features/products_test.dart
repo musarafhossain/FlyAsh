@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
+import 'package:flyash/core/network/optimistic.dart';
 import 'package:flyash/core/widgets/cards.dart';
+import 'package:flyash/core/widgets/state_views.dart';
 import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/core/widgets/data_table_card.dart';
+import 'package:flyash/features/products/domain/product.dart';
 import 'package:flyash/features/products/presentation/pages/products_list_page.dart';
 
 import '../fake_api.dart';
@@ -525,4 +528,74 @@ void main() {
       });
     }
   }
+
+  testWidgets('optimistic patches show at once in the list and on the '
+      'detail page; undo puts the row back', (tester) async {
+    await openProducts(tester);
+    final store = testContainer.read(optimisticProvider.notifier);
+
+    final undoRemove = store.remove('2');
+    await tester.pump();
+    expect(find.text('Red Brick'), findsNothing, reason: 'hidden at once');
+    undoRemove();
+    await tester.pump();
+    expect(find.text('Red Brick'), findsOneWidget, reason: 'request failed');
+
+    store.replace(
+      '1',
+      const Product(
+        id: '1',
+        name: 'Fly Ash Brick 9×4×3',
+        defaultPrice: '7.00',
+        isActive: false,
+      ),
+    );
+    await tester.pump();
+    expect(
+      find.text('Inactive'),
+      findsNWidgets(3),
+      reason: 'filter chip + row 1 + row 3',
+    );
+
+    testContainer.read(routerProvider).go('/products/1');
+    await tester.pumpAndSettle();
+    // The detail page loaded after the patch: the server's data wins.
+    expect(find.text('Active'), findsWidgets);
+  });
+
+  testWidgets('long press Delete on a product used in sales: the row comes '
+      'back with the server message', (tester) async {
+    await openProducts(tester);
+    await tester.longPress(find.text('Old Brick'));
+    await tester.pumpAndSettle();
+    await tester.tap(sheet('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Product is used in sales. Deactivate it instead'),
+      findsOneWidget,
+    );
+    expect(find.text('Old Brick'), findsOneWidget, reason: 'undone');
+  });
+
+  testWidgets('after a change the list reloads in the background: rows stay '
+      '(no skeleton) and only products are asked again', (tester) async {
+    final api = await openProducts(tester);
+    await tester.longPress(find.text('Red Brick'));
+    await tester.pumpAndSettle();
+    await tester.tap(sheet('Deactivate'));
+    await tester.pumpAndSettle();
+    final sent = api.requests.length;
+    await tester.tap(find.widgetWithText(FilledButton, 'Deactivate'));
+    await tester.pump();
+    expect(find.byType(SkeletonList), findsNothing);
+    expect(find.text('Red Brick'), findsOneWidget);
+    await tester.pumpAndSettle();
+    final after = api.requests
+        .sublist(sent)
+        .map((r) => '${r.method} ${r.path}');
+    expect(after, ['PATCH /products/2/status', 'GET /products']);
+    expect(find.text('Inactive'), findsNWidgets(3)); // chip + 2 rows
+  });
 }

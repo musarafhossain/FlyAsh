@@ -68,7 +68,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Live API tests** (backend running): `flutter test test/integration --dart-define=LIVE_API=true`. Each run makes 2 wrong-password attempts; the login limit is 5 per 15 minutes.
 - **Commands** always pass the API URL: `--dart-define=API_BASE_URL=...` (emulator: `http://10.0.2.2:3333/api/v1`, real phone: the PC's LAN IP).
 - **Translations:** add every new UI string to both `app/lib/l10n/app_en.arb` and `app_bn.arb` (a test checks both files have the same keys). Numbers and dates stay in Latin digits.
-- **Shared building blocks from F7** (use them in F8+): `PagedList` (paginated API list with skeleton, error + retry, empty state, pull to refresh, endless scroll; reloads on `dataChangedProvider`), `DataTableCard` (desktop tables), `PageBody` (form/detail column, max 560/720 px), `MenuGroup`/`MenuRow`/`InfoRow`, `FormSubmit` mixin (validate → busy → 422 field errors / banner), `Validators` (phone, email, password, same-as), `showMessage`.
+- **Shared building blocks from F7** (use them in F8+): `PagedList` (paginated API list with skeleton, error + retry, empty state, pull to refresh, endless scroll; background `revalidate()` and optimistic patches, see 02-TRD §7.5), `DataTableCard` (desktop tables), `PageBody` (form/detail column, max 560/720 px), `MenuGroup`/`MenuRow`/`InfoRow`, `FormSubmit` mixin (validate → busy → 422 field errors / banner), `Validators` (phone, email, password, same-as), `showMessage`.
 - **Money input:** use `MoneyField` + `Validators.money` (digits, up to 2 decimals, ₹ prefix). Values are sent as strings ("4.5"), never doubles; compute previews with `Decimal`.
 - **Call / WhatsApp:** `ContactLauncher.call(phone)` / `.whatsApp(phone)` (tel:+91…, wa.me/91…); returns false when nothing can open it → show `couldNotOpen`. Tests replace `ContactLauncher.launch`.
 - **Sale labels:** `SaleSummary` (sales/domain) and `SaleStatusPill` + `l.paymentStatusText / saleStatusText / saleTypeText` (sales/presentation/sale_labels.dart) are shared by every sale list.
@@ -85,7 +85,8 @@ The app is built **one small step at a time**. Each step ends with a working app
   - Lists: `ListGroup(flat: true)` + `ListRowSurface(onLongPress:)`; long press calls `showActionMenu` (popup next to the row); no "Showing x of y".
   - Detail pages: ✏ Edit + `ActionMenuButton` (⋮) in the app bar; `PageBody(onRefresh:)` for pull to refresh; stat cards use `KpiChip`.
   - Skeletons (`core/widgets/skeletons.dart`): list (with the search box), detail and form skeletons; `KpiChip(loading:)`, `HeroCard(loading:)`.
-  - `dataChangedProvider`: bumped by `ApiClient` after every successful write outside `/auth`; lists and detail pages listen and reload.
+  - Caching (02-TRD §7.5): `QueryCache` keeps GET answers 60 s by data tag (`DataTag`); a write invalidates only the affected tags and bumps them in `dataChangedProvider`. Screens use `ref.onDataChanged({DataTag.x}, …)` and lists `controller.revalidate()` (background reload, no skeleton). Pull to refresh / Retry run in `QueryCache.fresh`.
+  - Optimistic updates: `ref.optimistic(id, preview, request)` / `ref.optimisticRemove(id, request)` (`core/network/optimistic.dart`); lists apply patches with `PagedList(itemId:)`, detail pages with `ref.patched(...)` / `ref.isRemoved(id)`. Models have `withActive(bool)` for the preview.
   - After save: create → list; edit → where it was opened from. Forms are popped, not stacked.
   - Section taps use `goBranch(index, initialLocation: true)`, so a section always opens its list.
   - `kStatusBarStyle`: black status bar. `togglePopover` (app_bar_actions.dart): language / appearance popovers with a 16 px edge gap.

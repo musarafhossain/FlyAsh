@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/error/failure.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/network/optimistic.dart';
 import '../../../core/network/session.dart';
 import '../../../core/widgets/action_menu.dart';
 import '../../../core/widgets/form_submit.dart';
@@ -184,5 +185,12 @@ Future<void> _delete(BuildContext context, WidgetRef ref, SaleSummary s) async {
     destructive: true,
   );
   if (!ok || !context.mounted) return;
-  await _run(context, () => ref.read(salesRepositoryProvider).delete(s.id));
+  // Optimistic: the row disappears at once and comes back on failure.
+  await _run(
+    context,
+    () => ref.optimisticRemove(
+      s.id,
+      () => ref.read(salesRepositoryProvider).delete(s.id),
+    ),
+  );
 }

@@ -20,6 +20,7 @@ import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/optimistic.dart';
 import '../../data/expenses_repository_impl.dart';
 import '../../domain/expense.dart';
 import '../widgets/expense_filter_sheet.dart';
@@ -136,9 +137,12 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
               );
               if (!ok || !mounted) return;
               try {
-                final message = await ref
-                    .read(expensesRepositoryProvider)
-                    .delete(e.id);
+                // Optimistic: the row disappears at once and comes back
+                // on failure.
+                final message = await ref.optimisticRemove(
+                  e.id,
+                  () => ref.read(expensesRepositoryProvider).delete(e.id),
+                );
                 if (mounted) showMessage(context, message);
               } on Failure catch (f) {
                 if (mounted) showMessage(context, failureText(context, f));
@@ -153,7 +157,7 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    ref.listen(dataChangedProvider, (_, _) => _reload());
+    ref.onDataChanged({DataTag.expenses}, _list.revalidate);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     ref.watch(expenseCategoriesProvider); // ready for the filter sheet
     final filtered = _filter.category != null || _search.text.trim().isNotEmpty;
@@ -170,6 +174,7 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
         label: Text(l.addExpense),
       ),
       body: PagedList<Expense>(
+        itemId: (item) => item.id,
         showCount: false,
         controller: _list,
         fetch: _fetch,

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/optimistic.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -33,6 +34,16 @@ class ProductDetailPage extends ConsumerStatefulWidget {
 
 class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   Product? _product;
+
+  /// When [_product] was set; optimistic changes made after that are shown on
+  /// top of it (see `OptimisticRef.patched`).
+  DateTime _loadedAt = DateTime.now();
+
+  void _show(Product value) {
+    _product = value;
+    _loadedAt = DateTime.now();
+  }
+
   Object? _error;
 
   @override
@@ -47,7 +58,7 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
       final p = await ref
           .read(productsRepositoryProvider)
           .get(widget.productId);
-      if (mounted) setState(() => _product = p);
+      if (mounted) setState(() => _show(p));
     } on Failure catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -57,12 +68,12 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
     final updated = await context.push<Product>(
       '/products/${widget.productId}/edit',
     );
-    if (updated != null && mounted) setState(() => _product = updated);
+    if (updated != null && mounted) setState(() => _show(updated));
   }
 
   Future<void> _toggleActive() async {
     final updated = await toggleProductActive(context, ref, _product!);
-    if (updated != null && mounted) setState(() => _product = updated);
+    if (updated != null && mounted) setState(() => _show(updated));
   }
 
   Future<void> _delete() async {
@@ -74,9 +85,9 @@ class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final p = _product;
+    final p = ref.patched(_product, (x) => x.id, _loadedAt);
     // An edit elsewhere (e.g. from the list) shows here too.
-    ref.listen(dataChangedProvider, (_, _) {
+    ref.onDataChanged({DataTag.products}, () {
       if (_product != null) _load();
     });
 

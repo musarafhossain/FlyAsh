@@ -84,7 +84,7 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
+    ref.onDataChanged({DataTag.customers}, _list.revalidate);
     final repo = ref.watch(customersRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final searching = _search.text.trim().isNotEmpty;
@@ -102,6 +102,7 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
         label: Text(l.addCustomer),
       ),
       body: PagedList<Customer>(
+        itemId: (item) => item.id,
         showCount: false,
         controller: _list,
         fetch: (page) => repo.list(

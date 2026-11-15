@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/optimistic.dart';
 import '../../../../core/network/session.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -46,6 +48,16 @@ class LabourDetailPage extends ConsumerStatefulWidget {
 
 class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
   Labour? _labour;
+
+  /// When [_labour] was set; optimistic changes made after that are shown on
+  /// top of it (see `OptimisticRef.patched`).
+  DateTime _loadedAt = DateTime.now();
+
+  void _show(Labour value) {
+    _labour = value;
+    _loadedAt = DateTime.now();
+  }
+
   Object? _error;
   late String _month = ref.read(businessDateProvider).substring(0, 7);
   LabourMonth? _calendar;
@@ -117,7 +129,7 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
     setState(() => _error = null);
     try {
       final lb = await ref.read(laboursRepositoryProvider).get(widget.labourId);
-      if (mounted) setState(() => _labour = lb);
+      if (mounted) setState(() => _show(lb));
     } on Failure catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -149,7 +161,7 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
       '/labours/${widget.labourId}/edit',
     );
     if (updated != null && mounted) {
-      setState(() => _labour = updated);
+      setState(() => _show(updated));
       unawaited(_loadMonth());
     }
   }
@@ -184,7 +196,7 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
           .read(laboursRepositoryProvider)
           .setActive(lb.id, !lb.isActive, leftDate: leftDate);
       if (!mounted) return;
-      setState(() => _labour = updated);
+      setState(() => _show(updated));
       showMessage(context, message);
     } on Failure catch (f) {
       if (mounted) showMessage(context, failureText(context, f));
@@ -193,8 +205,14 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Reload in the background when this data changes anywhere.
+    ref.onDataChanged({
+      DataTag.labours,
+      DataTag.attendance,
+      DataTag.wages,
+    }, () => unawaited(_refresh()));
     final l = context.l10n;
-    final lb = _labour;
+    final lb = ref.patched(_labour, (x) => x.id, _loadedAt);
     return Scaffold(
       appBar: AppBar(
         title: Text(lb?.name ?? l.labourDetails),

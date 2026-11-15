@@ -199,7 +199,7 @@ class _WagesTabState extends ConsumerState<WagesTab> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
+    ref.onDataChanged({DataTag.wages}, _list.revalidate);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final totals = _totals;
 

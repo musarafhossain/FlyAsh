@@ -55,7 +55,7 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
+    ref.onDataChanged({DataTag.users}, _list.revalidate);
     final repo = ref.watch(usersRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final searching = _search.text.trim().isNotEmpty;
@@ -72,6 +72,7 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
         label: Text(l.addUser),
       ),
       body: PagedList<AppUser>(
+        itemId: (item) => item.id,
         showCount: false,
         controller: _list,
         fetch: (page) => repo.list(page: page, search: _search.text),

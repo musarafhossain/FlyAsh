@@ -23,6 +23,7 @@ import '../../data/customers_repository_impl.dart';
 import '../../domain/customer.dart';
 import '../../../sales/presentation/sale_actions.dart';
 import '../../../../core/network/data_changed.dart';
+import '../../../../core/network/optimistic.dart';
 import '../../../../core/widgets/skeletons.dart';
 
 enum _MenuAction { toggleActive, delete }
@@ -42,6 +43,16 @@ class CustomerDetailPage extends ConsumerStatefulWidget {
 class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
   final _sales = PagedListController();
   Customer? _customer;
+
+  /// When [_customer] was set; optimistic changes made after that are shown on
+  /// top of it (see `OptimisticRef.patched`).
+  DateTime _loadedAt = DateTime.now();
+
+  void _show(Customer value) {
+    _customer = value;
+    _loadedAt = DateTime.now();
+  }
+
   Object? _error;
 
   @override
@@ -62,7 +73,7 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
       final c = await ref
           .read(customersRepositoryProvider)
           .get(widget.customerId);
-      if (mounted) setState(() => _customer = c);
+      if (mounted) setState(() => _show(c));
     } on Failure catch (e) {
       if (mounted) setState(() => _error = e);
     }
@@ -72,7 +83,7 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
     final updated = await context.push<Customer>(
       '/customers/${widget.customerId}/edit',
     );
-    if (updated != null && mounted) setState(() => _customer = updated);
+    if (updated != null && mounted) setState(() => _show(updated));
   }
 
   /// New sale with this customer selected → back here with fresh totals.
@@ -110,7 +121,7 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
         try {
           final (updated, message) = await repo.setActive(c.id, !deactivate);
           if (!mounted) return;
-          setState(() => _customer = updated);
+          setState(() => _show(updated));
           showMessage(context, message);
         } on Failure catch (f) {
           if (mounted) showMessage(context, failureText(context, f));
@@ -139,11 +150,11 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    ref.listen(dataChangedProvider, (_, _) {
-      _sales.refresh();
+    ref.onDataChanged({DataTag.customers, DataTag.sales}, () {
+      _sales.revalidate();
       unawaited(_load());
     });
-    final c = _customer;
+    final c = ref.patched(_customer, (x) => x.id, _loadedAt);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
 
     return Scaffold(
@@ -204,6 +215,7 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                     ],
                   ))
           : PagedList<SaleSummary>(
+              itemId: (item) => item.id,
               showCount: false,
               onRefresh: _load,
               controller: _sales,

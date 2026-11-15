@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../network/query_cache.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
@@ -17,7 +18,7 @@ class PageBody extends StatelessWidget {
   final List<Widget> children;
   final double maxWidth;
 
-  /// Pull down to load again (detail pages).
+  /// Pull down to load again (detail pages); skips the API cache.
   final Future<void> Function()? onRefresh;
 
   @override
@@ -43,7 +44,10 @@ class PageBody extends StatelessWidget {
     );
     return onRefresh == null
         ? body
-        : RefreshIndicator(onRefresh: onRefresh!, child: body);
+        : RefreshIndicator(
+            onRefresh: () => QueryCache.fresh(onRefresh!),
+            child: body,
+          );
   }
 }
 

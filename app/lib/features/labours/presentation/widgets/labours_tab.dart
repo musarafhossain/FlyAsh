@@ -56,7 +56,7 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    ref.listen(dataChangedProvider, (_, _) => _list.refresh());
+    ref.onDataChanged({DataTag.labours}, _list.revalidate);
     final repo = ref.watch(laboursRepositoryProvider);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final searching = _search.text.trim().isNotEmpty;
@@ -69,6 +69,7 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
         label: Text(l.addLabour),
       ),
       body: PagedList<Labour>(
+        itemId: (item) => item.id,
         showCount: false,
         controller: _list,
         fetch: (page) => repo.list(

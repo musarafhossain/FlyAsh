@@ -6,6 +6,7 @@ import '../error/failure.dart';
 import '../l10n/locale_controller.dart';
 import 'api_response.dart';
 import 'data_changed.dart';
+import 'query_cache.dart';
 import 'session.dart';
 
 /// One Dio instance for the whole app (02-TRD §7.3):
@@ -55,20 +56,33 @@ final dioProvider = Provider<Dio>((ref) {
 final apiClientProvider = Provider<ApiClient>(
   (ref) => ApiClient(
     ref.watch(dioProvider),
-    onChanged: () => ref.read(dataChangedProvider.notifier).bump(),
+    cache: ref.watch(queryCacheProvider),
+    // Cached answers belong to one user and one language.
+    cacheScope: () =>
+        '${ref.read(tokenStoreProvider).token.hashCode}:${ref.read(localeProvider)}',
+    onChanged: (tags) => ref.read(dataChangedProvider.notifier).bump(tags),
   ),
 );
 
 /// Thin wrapper over Dio that parses the envelope and throws a [Failure]
 /// for anything that is not a success.
+///
+/// Caching (02-TRD §7.5): GET answers are kept in [cache] by their data tags
+/// ([DataTag.of]). A successful write removes the entries it made stale
+/// ([DataTag.affectedBy]) and reports those tags through [onChanged], so the
+/// screens that show them reload. `QueryCache.fresh` skips the cache.
 class ApiClient {
-  ApiClient(this._dio, {this.onChanged});
+  ApiClient(this._dio, {this.cache, this.cacheScope, this.onChanged});
 
   final Dio _dio;
+  final QueryCache? cache;
+
+  /// Part of every cache key (user + language).
+  final String Function()? cacheScope;
 
   /// Called after a successful POST / PUT / PATCH / DELETE (not for sign-in
-  /// and account calls under `/auth`), so lists can load again.
-  final void Function()? onChanged;
+  /// and account calls under `/auth`) with the data tags it changed.
+  final void Function(Set<String> tags)? onChanged;
 
   Future<ApiResponse<T>> get<T>(
     String path, {
@@ -122,12 +136,20 @@ class ApiClient {
     Json? query,
     required T Function(Object? data) parse,
   }) async {
+    final cleanQuery = query == null ? null : _cleanQuery(query);
+    final tags = method == 'GET' ? DataTag.of(path) : const <String>{};
+    final key = tags.isEmpty ? null : _cacheKey(path, cleanQuery);
+    if (key != null && !QueryCache.isFresh) {
+      final hit = cache?.read(key);
+      if (hit != null) return ApiResponse.fromJson(hit, parse);
+    }
+
     final Response<Object?> res;
     try {
       res = await _dio.request<Object?>(
         path,
         data: body,
-        queryParameters: query == null ? null : _cleanQuery(query),
+        queryParameters: cleanQuery,
         options: Options(method: method),
       );
     } on DioException catch (e) {
@@ -147,7 +169,12 @@ class ApiClient {
     final message = json['message'] as String? ?? '';
     if (json['success'] == true) {
       final result = ApiResponse.fromJson(json, parse);
-      if (method != 'GET' && !path.startsWith('/auth')) onChanged?.call();
+      if (key != null) cache?.write(key, tags, json);
+      if (method != 'GET' && !path.startsWith('/auth')) {
+        final changed = DataTag.affectedBy(path);
+        cache?.invalidate(changed);
+        onChanged?.call(changed);
+      }
       return result;
     }
 
@@ -161,6 +188,14 @@ class ApiClient {
       ),
       _ => ServerFailure(message, statusCode: status, data: data),
     };
+  }
+
+  String _cacheKey(String path, Json? query) {
+    final q = query == null
+        ? ''
+        : (query.entries.map((e) => '${e.key}=${e.value}').toList()..sort())
+              .join('&');
+    return '${cacheScope?.call() ?? ''}|$path?$q';
   }
 
   /// Drops nulls/empty strings and turns bools into true/false strings.
