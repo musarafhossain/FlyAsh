@@ -279,7 +279,7 @@ Expenses list → GET /expenses
  ├─ "Spent" card: the total for the current filter (light card, like Home's hero)
  ├─ Search box + filter button (right of the search box)
  │     └─ Filter sheet: period (Today · This week · This month · All …) and category
- ├─ FAB → Expense form: date, category (any text; chips suggest used + default names), amount, note
+ ├─ FAB → Expense form: date, category (any text; one row of small chips, scrolled sideways, suggests used + default names), amount, note
  │        → Save → POST /expenses → back to the list
  └─ Row: tap → Expense form (edit) · long press → Edit | Delete
 ```

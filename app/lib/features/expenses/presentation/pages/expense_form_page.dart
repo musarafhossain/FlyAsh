@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,7 @@ import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/session.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/date_field.dart';
@@ -210,8 +212,9 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
 }
 
 /// Category: a text field for any category, with earlier ones (most
-/// used first) as chips below; tapping a chip fills the field. The chips
-/// follow what is typed.
+/// used first) and the defaults as small chips in one row below, scrolled
+/// sideways; tapping a chip fills the field. The chips follow what is
+/// typed.
 class _CategoryField extends ConsumerStatefulWidget {
   const _CategoryField({
     required this.controller,
@@ -236,7 +239,7 @@ class _CategoryFieldState extends ConsumerState<_CategoryField> {
     final shown = [
       for (final c in all)
         if (c.toLowerCase().contains(typed) && c.toLowerCase() != typed) c,
-    ].take(8).toList();
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -263,22 +266,39 @@ class _CategoryFieldState extends ConsumerState<_CategoryField> {
         ),
         if (shown.isNotEmpty) ...[
           const SizedBox(height: Space.s2),
-          Wrap(
-            spacing: Space.s2,
-            runSpacing: Space.s2,
-            children: [
-              for (final c in shown)
-                ActionChip(
-                  avatar: Icon(expenseIcon(c), size: 18),
-                  label: Text(c),
-                  onPressed: () => setState(() {
-                    widget.controller.text = c;
-                    widget.controller.selection = TextSelection.collapsed(
-                      offset: c.length,
-                    );
-                  }),
-                ),
-            ],
+          // One row of small chips; more scroll in from the side (touch,
+          // or mouse drag on desktop / web).
+          SizedBox(
+            height: 32,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(
+                context,
+              ).copyWith(dragDevices: PointerDeviceKind.values.toSet()),
+              child: ListView.separated(
+                key: const Key('categorySuggestions'),
+                scrollDirection: Axis.horizontal,
+                itemCount: shown.length,
+                separatorBuilder: (_, _) => const SizedBox(width: Space.s2),
+                itemBuilder: (context, i) {
+                  final c = shown[i];
+                  return ActionChip(
+                    avatar: Icon(expenseIcon(c), size: 16),
+                    label: Text(c),
+                    labelStyle: AppTypography.caption,
+                    labelPadding: const EdgeInsets.only(right: Space.s1),
+                    padding: const EdgeInsets.symmetric(horizontal: Space.s2),
+                    visualDensity: VisualDensity.compact,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    onPressed: () => setState(() {
+                      widget.controller.text = c;
+                      widget.controller.selection = TextSelection.collapsed(
+                        offset: c.length,
+                      );
+                    }),
+                  );
+                },
+              ),
+            ),
           ),
         ],
       ],

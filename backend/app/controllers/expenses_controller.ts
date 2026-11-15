@@ -12,8 +12,11 @@ type Filters = { from?: string; to?: string; category?: string; search?: string 
 /** Offered while typing a category until the factory has its own. */
 export const DEFAULT_CATEGORIES = [
   'Labour Tiffin',
+  'Diesel',
+  'Fly Ash',
+  'Cement',
+  'Stone Dust',
   'Machine Repair',
-  'Diesel / Fuel',
   'Electricity Bill',
   'Transport',
   'Others',
@@ -93,8 +96,13 @@ export default class ExpensesController {
       .orderBy('uses', 'desc')
       .orderBy('category', 'asc')
     const used = rows.map((r) => String(r.category))
-    const seen = new Set(used.map((c) => c.toLowerCase()))
-    const names = [...used, ...DEFAULT_CATEGORIES.filter((c) => !seen.has(c.toLowerCase()))]
+    // A default is left out when a used name already starts with it, so
+    // "Diesel / Fuel" (used before) and "Diesel" are not both offered.
+    const lower = used.map((c) => c.toLowerCase())
+    const names = [
+      ...used,
+      ...DEFAULT_CATEGORIES.filter((c) => !lower.some((u) => u.startsWith(c.toLowerCase()))),
+    ]
     return ok(response, names, 'expenses.categories')
   }
 

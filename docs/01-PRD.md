@@ -209,7 +209,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | ID | Requirement | Priority |
 |---|---|---|
 | EXP-1 | Expense fields: **date** (default today), **category** (required, **any text**), **amount** ₹ (required), **note** | P0 |
-| EXP-2 | Suggested categories (chips under the field): ones used before, then **Labour Tiffin · Machine Repair · Diesel / Fuel · Electricity Bill · Transport · Others** | P0 |
+| EXP-2 | Suggested categories (small chips in one row under the field, scrolled sideways): ones used before, then **Labour Tiffin · Diesel · Fly Ash · Cement · Stone Dust · Machine Repair · Electricity Bill · Transport · Others**. A default is not offered when a used name already starts with it (so only one Diesel) | P0 |
 | EXP-3 | ~~Category management~~ removed: categories are free text, no list to manage | — |
 | EXP-4 | Expense list with search and a filter button (period + category), showing the total for the filtered period. Endless scroll | P0 |
 | EXP-5 | Add, edit and delete expenses | P0 |

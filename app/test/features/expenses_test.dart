@@ -108,8 +108,15 @@ class FakeExpenses {
         return _ok(null, 'Expense deleted');
       },
     },
-    'GET /expense-categories': (_) =>
-        _ok(['Labour Tiffin', 'Machine Repair', 'Diesel / Fuel', 'Transport']),
+    'GET /expense-categories': (_) => _ok([
+      'Labour Tiffin',
+      'Diesel',
+      'Fly Ash',
+      'Cement',
+      'Stone Dust',
+      'Machine Repair',
+      'Transport',
+    ]),
   };
 }
 
@@ -281,16 +288,32 @@ void main() {
       findsNWidgets(2),
     ); // category, amount
 
-    // Suggestions as chips; they follow what is typed
+    // Suggestions as small chips in one sideways-scrolling row
     expect(find.widgetWithText(ActionChip, 'Labour Tiffin'), findsOneWidget);
+    final row = find.byKey(const Key('categorySuggestions'));
+    expect(tester.getSize(row).height, 32, reason: 'one row');
+    expect(tester.widget<ListView>(row).scrollDirection, Axis.horizontal);
+    await tester.scrollUntilVisible(
+      find.widgetWithText(ActionChip, 'Stone Dust'),
+      120,
+      scrollable: find.descendant(of: row, matching: find.byType(Scrollable)),
+    );
+    for (final c in ['Fly Ash', 'Cement', 'Stone Dust']) {
+      expect(find.widgetWithText(ActionChip, c), findsOneWidget);
+    }
+    expect(find.textContaining('Diesel'), findsOneWidget, reason: 'one Diesel');
+    await tester.drag(row, const Offset(2000, 0));
+    await tester.pumpAndSettle();
+
+    // They follow what is typed
     final category = find.widgetWithText(TextFormField, 'Category');
     await tester.enterText(category, 'die');
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(ActionChip, 'Diesel / Fuel'), findsOneWidget);
+    expect(find.widgetWithText(ActionChip, 'Diesel'), findsOneWidget);
     expect(find.widgetWithText(ActionChip, 'Labour Tiffin'), findsNothing);
-    await tester.tap(find.widgetWithText(ActionChip, 'Diesel / Fuel'));
+    await tester.tap(find.widgetWithText(ActionChip, 'Diesel'));
     await tester.pumpAndSettle();
-    expect(find.text('Diesel / Fuel'), findsOneWidget, reason: 'in the field');
+    expect(find.text('Diesel'), findsOneWidget, reason: 'in the field');
 
     // …or any new text
     await tester.enterText(category, '  Generator   rent ');

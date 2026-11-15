@@ -17,6 +17,9 @@ IconData expenseIcon(String category) {
     return Icons.local_gas_station_outlined;
   }
   if (has(['electric', 'power', 'light'])) return Icons.bolt_outlined;
+  if (has(['cement'])) return Icons.foundation_outlined;
+  if (has(['stone', 'sand', 'dust'])) return Icons.landscape_outlined;
+  if (has(['fly ash', 'flyash', 'ash'])) return Icons.grain_outlined;
   if (has(['transport', 'truck', 'tractor', 'freight', 'delivery'])) {
     return Icons.local_shipping_outlined;
   }

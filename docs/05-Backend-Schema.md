@@ -251,7 +251,7 @@ Dropped by migration 0023. Money given to a labour before the month ends is just
 
 ### 3.14 (removed) `expense_categories`
 
-Dropped by migration 0020. An expense's category is now plain text on the expense (below), so the user can type any category. Suggestions come from the categories used before, then the defaults: Labour Tiffin · Machine Repair · Diesel / Fuel · Electricity Bill · Transport · Others.
+Dropped by migration 0020. An expense's category is now plain text on the expense (below), so the user can type any category. Suggestions come from the categories used before, then the defaults: Labour Tiffin · Diesel · Fly Ash · Cement · Stone Dust · Machine Repair · Electricity Bill · Transport · Others. A default is skipped when a used category already starts with it ("Diesel / Fuel" used before → no extra "Diesel").
 
 ### 3.15 `expenses`
 

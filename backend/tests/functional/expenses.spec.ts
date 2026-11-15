@@ -57,6 +57,7 @@ test.group('Expenses', (group) => {
     const names = (await client.get(`${API}/expense-categories`).loginAs(user)).body().data
     assert.deepEqual(names.slice(0, 2), ['Tiffin T', 'Generator rent'])
     assert.include(names, 'Labour Tiffin')
+    for (const name of ['Diesel', 'Fly Ash', 'Cement', 'Stone Dust']) assert.include(names, name)
 
     const missing = await client.post(`${API}/expenses`).loginAs(user).json({ amount: 10 })
     missing.assertStatus(422)

@@ -202,7 +202,10 @@ export default class extends BaseSeeder {
     const notes: Record<string, string[]> = {
       'Labour Tiffin': ['Tiffin for labours', 'Tea and snacks'],
       'Machine Repair': ['Mixer belt changed', 'Press machine repair', 'Welding work'],
-      'Diesel / Fuel': ['Diesel for generator', 'Diesel for tractor'],
+      'Diesel': ['Diesel for generator', 'Diesel for tractor'],
+      'Fly Ash': ['Fly ash from power plant'],
+      'Cement': ['Cement bags'],
+      'Stone Dust': ['Stone dust truck'],
       'Electricity Bill': ['Monthly electricity bill'],
       'Transport': ['Truck hire for delivery', 'Fly ash transport'],
       'Others': ['Office supplies', 'Miscellaneous'],
