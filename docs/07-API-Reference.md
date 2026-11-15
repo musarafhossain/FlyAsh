@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Document** | Complete REST API reference (every endpoint, payload and response case) |
-| **Version** | 1.5 (UUID ids; products without unit / cost; sales tax; optional customer phone; attendance present / absent; no advances; free-text expense category) |
+| **Version** | 1.6 (attendance `day_wage` / `wage`; forgiving phone input; UUID ids; products without unit / cost; sales tax; optional customer phone; attendance present / absent; no advances; free-text expense category) |
 | **Date** | 2026-11-15 |
 | **Source** | Every response below was captured from the running API (`backend/`); long lists are shortened to 2 items |
 | **Related docs** | 02-TRD §4 (API standards) · 05-Backend-Schema (tables, calculations) |
@@ -24,6 +24,7 @@
 | Timestamps | ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`). Show in the device timezone. See §1.7 |
 | Factory date headers | Every response: `X-Business-Date: 2026-11-08`, `X-Business-Timezone: Asia/Kolkata` |
 | Booleans in query strings | `true` / `false` (also `1` / `0`) |
+| Phone numbers | Stored and returned as 10 digits. Requests may send `+91 98765-43210`, `919876543210` or `098765 43210`: spaces, dashes, brackets, the country code and a leading 0 are removed before validation |
 | IDs | UUID v7 strings (`"019a6b2c-1001-7001-8001-000000000001"`). A `:id` that is not a UUID returns `404 Route not found` |
 
 ### 1.1 Response envelope

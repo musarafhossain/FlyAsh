@@ -526,7 +526,16 @@ How: the action calls `ref.optimistic(id, preview, request)` or `ref.optimisticR
 
 Forms (create / edit) are **not** optimistic: they wait for the server, because it may return validation errors or computed values (totals, tax, invoice no.).
 
-### 7.6 Theming
+### 7.6 Theming and motion
+
+Motion and the design principles of 04-UI-UX §14 live in shared code, so every section gets them:
+- `core/widgets/motion.dart`: `Motion` tokens (120 ms press, 220 ms enter, 35 ms stagger step, ease curves), `PressScale` (inside `AppCard` / `HeroCard` when tappable) and `StaggeredEntrance` (inside `ListGroup`). Both do nothing when the system asks for reduced motion.
+- **Shared element + instant detail:** list rows call `context.push('/products/<id>', extra: product)`; the route passes `initial:` to the detail page (`_extra<T>(state)` in `app_router.dart`), which shows it at once and then loads the latest data. The avatar has the same `heroTag` (`product-<id>` …) on the row and on the detail header. A deep link or a refresh has no `extra`, so the page loads with a skeleton as before.
+- `core/theme/oklch.dart`: `oklch(l, c, h)` → `Color`; used for the avatar colours.
+- Typography tracking and leading are set per style in `AppTypography._style`; dialogs use `DialogThemeData.alignment (0, −0.12)`.
+- Phone fields use `PhoneInputFormatter` (`normalizePhone`); the API does the same in `phoneRule` (`.parse(normalizePhone)`), so both sides are liberal in what they accept.
+- Haptics: `HapticFeedback.selectionClick` on the attendance switch, `heavyImpact` when an optimistic delete is undone.
+
 
 Implements 04-UI-UX §5–§8:
 - `AppTokens` as a `ThemeExtension` holding all semantic colors. There are 10 combinations (5 accents × light/dark).

@@ -85,6 +85,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] **Network:** Dio client, auth interceptor, `ApiResponse<T>`, `Paginated<T>`, `Failure` mapping, `Result<T>`
 - [ ] **Dates:** `BusinessDate` provider fed by the `X-Business-Date` header (the app's only "today"); timestamps → `toLocal()`, business dates shown as is (TRD §4.3)
 - [ ] **Pagination:** `PagedList<T>` + `PagedListController` (infinite scroll, refresh, search debounce, background revalidate)
+- [ ] **Motion and design principles:** motion tokens, press squash, staggered rows, shared-element avatars, OKLCH avatar colours, forgiving phone input (04-UI-UX §14, 02-TRD §7.6)
 - [ ] **Caching:** in-memory query cache with data tags, tag invalidation after writes, optimistic updates for status / delete / attendance (02-TRD §7.5)
 - [ ] **Router:** go_router with shell + bottom nav / rail / sidebar (responsive), auth redirect
 - [ ] **l10n:** ARB en/bn scaffolding. **Utils:** ₹ formatting (`en_IN`), dates

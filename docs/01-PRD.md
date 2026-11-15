@@ -140,7 +140,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 
 | ID | Requirement | Priority |
 |---|---|---|
-| CUST-1 | Customer fields: **name** (required), **phone** (optional, 10 digits, unique when given), **address** (optional) | P0 |
+| CUST-1 | Customer fields: **name** (required), **phone** (optional, 10 digits, unique when given; `+91`, spaces, dashes and a leading 0 are accepted and removed), **address** (optional) | P0 |
 | CUST-2 | Customer list with search (name or phone) and a **due amount** shown on each row | P0 |
 | CUST-3 | Add, edit and view customers | P0 |
 | CUST-4 | Adding a phone number that already exists is **blocked**, and the app offers to open the existing customer | P0 |
@@ -354,7 +354,8 @@ All calculations are done **on the server**. The app only displays the results. 
 | **Connectivity** | Online only in v1. Without internet the app shows a clear "No internet" state with Retry and never loses typed form data |
 | **Security** | HTTPS only, hashed passwords, token auth, login rate limit, token stored in secure storage |
 | **Reliability** | Daily automatic database backup on the server, keeping 30 days |
-| **Usability** | Follows 04-UI-UX-Design-Brief: large touch targets, light/dark themes, Bengali support |
+| **Usability** | Follows 04-UI-UX-Design-Brief: touch targets of at least 48 dp, light/dark themes, Bengali support, and the 40 design terms and principles in its §14 (motion, shared element transition, optimistic updates, forgiving input …). "Reduce motion" in the system settings is respected |
+| **Responsiveness** | The app reacts in under 400 ms: cached screens show at once, a detail page opens with the row's data, quick actions are optimistic |
 | **Localization** | English and Bengali UI. ₹ with Indian grouping (`₹1,00,000`). Dates as `08 Nov 2026` |
 | **Accuracy** | Money uses exact decimals (never floating point). Totals always match the line items |
 | **Data safety** | Customers, products, labours and sales are soft-deleted or deactivated, so history is never broken |

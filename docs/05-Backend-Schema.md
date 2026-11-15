@@ -540,7 +540,7 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 
 | Field | Rule |
 |---|---|
-| phone | Exactly 10 digits, starts with 6–9 |
+| phone | 10 digits, starts with 6–9. Spaces, dashes, brackets, `+91` / `91` and a leading 0 are removed first (`normalizePhone`), so the stored value is always the 10 digits |
 | email | Valid email, lower-cased, trimmed |
 | password | 6–64 characters |
 | money fields | ≥ 0 (amounts of payments and expenses: > 0), max 2 decimals |

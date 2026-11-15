@@ -360,6 +360,10 @@ flowchart TD
 | List rows | Flat (no border, no own background). Tap opens the item; **long press opens its action menu** (a popup next to the row) |
 | After save | Create → back to the list. Edit → back to where it was opened from (list or detail). Forms are popped, so no extra screens stay in the stack |
 | Detail actions | ✏ Edit in the app bar; other actions in the ⋮ menu |
+| List → detail | Products, customers, labours, users: the detail page opens at once with the row's data (no skeleton) and the avatar flies from the row to the header; the latest data then loads in the background. From a link or after a refresh it loads with a skeleton |
+| Motion | Rows fade in one after another on first load; tappable cards squash a little while pressed; dialogs sit slightly above the middle. All of it is off with "Reduce motion" |
+| Phone input | Typing or pasting `+91 98765-43210` or `098765 43210` gives `9876543210` |
+| Haptics | A light tick with the attendance switch; a strong buzz when a delete is refused and the row comes back |
 | Empty | Illustration + hint + primary action |
 | No internet | Inline "No internet connection" + Retry. Forms keep the typed data |
 | Server error (500) | "Something went wrong. Please try again" + Retry |
