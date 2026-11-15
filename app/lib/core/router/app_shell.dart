@@ -14,6 +14,7 @@ import '../theme/app_typography.dart';
 import '../theme/theme_controller.dart';
 import '../widgets/list_items.dart';
 import 'app_bar_actions.dart';
+import 'back_guard.dart';
 import 'nav_items.dart';
 
 /// Responsive app frame (04-UI-UX §11, 03-AppFlow §3):
@@ -33,6 +34,26 @@ class _AppShellState extends State<AppShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _collapsed = false;
 
+  /// The drawer is open: back closes it before anything else.
+  bool _drawerOpen = false;
+
+  void _onDrawerChanged(bool open) {
+    if (open == _drawerOpen) return;
+    setState(() => _drawerOpen = open);
+    // The browser's back button closes it too (BackGuard).
+    open
+        ? BackGuard.instance.opened(this, () {
+            _scaffoldKey.currentState?.closeDrawer();
+          })
+        : BackGuard.instance.closed(this);
+  }
+
+  @override
+  void dispose() {
+    BackGuard.instance.closed(this);
+    super.dispose();
+  }
+
   int get _index => widget.shell.currentIndex;
 
   void _go(int index) {
@@ -49,11 +70,17 @@ class _AppShellState extends State<AppShell> {
     final width = MediaQuery.sizeOf(context).width;
     final body = widget.shell;
 
-    // Android back on a section root: go Home first, then leave the app.
+    // Android back: close the drawer first; on a section root go Home;
+    // on Home leave the app.
     return PopScope(
-      canPop: _index == 0,
+      canPop: _index == 0 && !_drawerOpen,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && _index != 0) _go(0);
+        if (didPop) return;
+        if (_drawerOpen) {
+          _scaffoldKey.currentState?.closeDrawer();
+        } else if (_index != 0) {
+          _go(0);
+        }
       },
       child: _buildLayout(width, body),
     );
@@ -91,6 +118,7 @@ class _AppShellState extends State<AppShell> {
       return Scaffold(
         key: _scaffoldKey,
         drawer: drawer,
+        onDrawerChanged: _onDrawerChanged,
         body: Row(
           children: [
             NavigationRail(
@@ -142,6 +170,7 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       key: _scaffoldKey,
       drawer: drawer,
+      onDrawerChanged: _onDrawerChanged,
       body: scoped,
       bottomNavigationBar: inDrawerSection
           ? NavigationBarTheme(

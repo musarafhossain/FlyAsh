@@ -45,6 +45,7 @@ import '../../features/users/presentation/pages/user_form_page.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import 'app_shell.dart';
+import 'back_guard.dart';
 import 'shell_pager.dart';
 import 'nav_items.dart';
 
@@ -127,6 +128,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   final router = GoRouter(
     initialLocation: '/splash',
+    // Dialogs, sheets and menus: the back button closes them first.
+    observers: [BackGuardObserver()],
     refreshListenable: refresh,
     redirect: (context, state) =>
         authRedirect(ref.read(authControllerProvider), state.uri),
@@ -177,12 +180,15 @@ final routerProvider = Provider<GoRouter>((ref) {
               // Bottom-bar sections are ready before the first swipe, so the
               // next page already shows its content while the finger moves.
               preload: item.primary,
+              observers: [BackGuardObserver()],
               routes: sectionRoutes(item),
             ),
         ],
       ),
     ],
   );
+  BackGuard.instance.currentUri = () =>
+      router.routeInformationProvider.value.uri;
   ref.onDispose(() {
     router.dispose();
     refresh.dispose();

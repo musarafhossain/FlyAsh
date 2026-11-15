@@ -125,6 +125,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | DASH-4 | Quick actions: New Sale · New Booking · Take Attendance · Add Expense | P0 |
 | DASH-5 | The 5 most recent sales | P1 |
 | DASH-6 | Pull to refresh | P0 |
+| DASH-8 | The back button (Android and the browser's) first closes what is open on top — the drawer, a dialog, a bottom sheet or a menu — and only then changes the page | P0 |
 | DASH-7 | **Swipe between tabs** (phone and tablet), like WhatsApp: on the first screen of Home, Sales, Attendance or Expenses, a left / right swipe opens the next / previous bottom-bar section; the page follows the finger. Not on detail pages, forms, drawer sections or desktop (03-AppFlow §3.1) | P1 |
 
 ### 5.3 Products (PROD)

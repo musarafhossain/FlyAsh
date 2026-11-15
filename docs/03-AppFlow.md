@@ -99,7 +99,9 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 - Each bottom tab keeps its own navigation stack (go_router `StatefulShellRoute`). Opening a section from the bottom nav, rail or drawer **always shows its list** (`goBranch(index, initialLocation: true)`), even if a detail page was left open there before.
 - **Swipe between tabs (phone and tablet), like WhatsApp:** on the first screen of Home, Sales, Attendance or Expenses, swipe left / right to go to the next / previous bottom-bar section; the page follows the finger and a short drag springs back. A bottom-bar tap slides there too. Swiping does not work on detail pages and forms (their own horizontal gestures stay theirs), in drawer sections, or on desktop. Each section keeps its own state and scroll position while you swipe.
 - The system status bar (clock, battery) is black on every screen.
-- Android back button: pops the stack. On the root of a tab it goes to Home, and on Home it asks "Press back again to exit".
+- **Back button — what is open on top closes first:** the drawer, a dialog, a bottom sheet or a ⋮ / long-press menu. Only when nothing is open does back change the page.
+  - Android: back pops the section's stack; on a section's first screen it goes to Home; on Home it leaves the app (there is no "press back again" prompt).
+  - Web: the browser's back button follows the same rule. With the drawer, a dialog, a sheet or a menu open it closes it, keeps the page and puts the current URL back in the address bar; with nothing open it goes to the previous page.
 
 ### 3.2 Route table (go_router)
 
