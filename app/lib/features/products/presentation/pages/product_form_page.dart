@@ -17,12 +17,11 @@ import '../../../../core/widgets/status_pill.dart';
 import '../../data/products_repository_impl.dart';
 import '../../domain/product.dart';
 import '../product_actions.dart';
-import 'products_list_page.dart';
 import '../../../../core/widgets/skeletons.dart';
 
 /// Add a product, or edit one (with Activate/Deactivate and Delete).
-/// Form: name, unit (+ label for "Other"), default cost, default price,
-/// notes, and the margin per unit worked out while typing.
+/// Form: name, default cost, default price, notes, and the margin worked
+/// out while typing.
 class ProductFormPage extends ConsumerStatefulWidget {
   const ProductFormPage({super.key, this.productId});
 
@@ -36,11 +35,9 @@ class ProductFormPage extends ConsumerStatefulWidget {
 class _ProductFormPageState extends ConsumerState<ProductFormPage>
     with FormSubmit {
   final _name = TextEditingController();
-  final _unitLabel = TextEditingController();
   final _cost = TextEditingController();
   final _price = TextEditingController();
   final _notes = TextEditingController();
-  ProductUnit _unit = ProductUnit.piece;
 
   Product? _product; // the saved product when editing
   bool _loaded = false;
@@ -61,7 +58,7 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
 
   @override
   void dispose() {
-    for (final c in [_name, _unitLabel, _cost, _price, _notes]) {
+    for (final c in [_name, _cost, _price, _notes]) {
       c.dispose();
     }
     super.dispose();
@@ -77,8 +74,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
       setState(() {
         _product = p;
         _name.text = p.name;
-        _unit = p.unit;
-        _unitLabel.text = p.unitLabel ?? '';
         _cost.text = _plain(p.defaultCost);
         _price.text = _plain(p.defaultPrice);
         _notes.text = p.notes ?? '';
@@ -104,8 +99,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
     final repo = ref.read(productsRepositoryProvider);
     final input = ProductInput(
       name: _name.text,
-      unit: _unit,
-      unitLabel: _unitLabel.text,
       defaultCost: _cost.text.trim(),
       defaultPrice: _price.text.trim(),
       notes: textOrNull(_notes),
@@ -197,39 +190,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
         ),
       ),
       const SizedBox(height: Space.s4),
-      Text(
-        l.unitField,
-        style: AppTypography.label.copyWith(color: t.textSecondary),
-      ),
-      const SizedBox(height: Space.s2),
-      Wrap(
-        spacing: Space.s2,
-        runSpacing: Space.s2,
-        children: [
-          for (final unit in ProductUnit.values)
-            ChoiceChip(
-              label: Text(unitText(l, unit)),
-              selected: _unit == unit,
-              onSelected: (_) => setState(() => _unit = unit),
-            ),
-        ],
-      ),
-      if (_unit == ProductUnit.other) ...[
-        const SizedBox(height: Space.s3),
-        TextFormField(
-          controller: _unitLabel,
-          textInputAction: TextInputAction.next,
-          maxLength: 30,
-          validator: v.required,
-          decoration: InputDecoration(
-            labelText: l.unitLabel,
-            hintText: l.unitLabelHint,
-            errorText: fieldErrors['unit_label'],
-            counterText: '',
-          ),
-        ),
-      ],
-      const SizedBox(height: Space.s4),
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -237,7 +197,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
             child: MoneyField(
               controller: _cost,
               label: l.defaultCost,
-              helperText: l.perUnit(unitText(l, _unit, _unitLabel.text)),
               validator: v.money,
               errorText: fieldErrors['default_cost'],
               onChanged: (_) => setState(() {}),
@@ -248,7 +207,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
             child: MoneyField(
               controller: _price,
               label: l.defaultPrice,
-              helperText: l.perUnit(unitText(l, _unit, _unitLabel.text)),
               validator: v.money,
               errorText: fieldErrors['default_price'],
               onChanged: (_) => setState(() {}),
@@ -306,7 +264,7 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
   }
 }
 
-/// "Margin per unit ₹2.50" (green) or "Loss per unit ₹1.00" (red).
+/// "Margin ₹2.50" (green) or "Loss ₹1.00" (red).
 class _MarginPreview extends StatelessWidget {
   const _MarginPreview({required this.margin});
 

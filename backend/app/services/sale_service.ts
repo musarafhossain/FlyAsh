@@ -285,7 +285,6 @@ export default class SaleService {
           saleId: sale.id,
           productId: product.id,
           productName: product.name,
-          unit: product.unitText,
           quantity: money(item.quantity),
           unitCost,
           unitPrice,

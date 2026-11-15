@@ -19,8 +19,6 @@ export const productValidator = vine.create({
         if (field.meta?.productId) query.whereNot('id', field.meta.productId)
       },
     }),
-  unit: vine.enum(['piece', 'thousand', 'truck', 'other'] as const),
-  unit_label: vine.string().trim().maxLength(30).optional().requiredWhen('unit', '=', 'other'),
   default_cost: moneyRule(),
   default_price: moneyRule(),
   notes: vine.string().trim().maxLength(500).nullable().optional(),

@@ -42,7 +42,6 @@ class _ItemRow {
   _ItemRow({
     this.productId,
     this.productName,
-    this.unit = ProductUnit.piece,
     String quantity = '',
     String price = '',
     String cost = '',
@@ -53,8 +52,6 @@ class _ItemRow {
   final key = UniqueKey();
   String? productId;
   String? productName;
-  ProductUnit unit;
-  String? unitLabel;
   final TextEditingController quantity;
   final TextEditingController price;
   final TextEditingController cost;
@@ -207,7 +204,6 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
               _ItemRow(
                 productId: item.productId,
                 productName: item.productName,
-                unit: item.unit,
                 quantity: plain(item.quantity),
                 price: plain(item.unitPrice),
                 cost: plain(item.unitCost),
@@ -308,9 +304,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
       itemBuilder: (context, p) => _PickTile(
         leading: const ProductIcon(size: 40),
         title: p.name,
-        subtitle:
-            '${Fmt.money(p.defaultPrice, decimals: true)} '
-            '${l.perUnit(unitText(l, p.unit, p.unitLabel))}',
+        subtitle: Fmt.money(p.defaultPrice, decimals: true),
         onTap: () => Navigator.of(context).pop(p),
       ),
     );
@@ -319,9 +313,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
     setState(() {
       row
         ..productId = picked.id
-        ..productName = picked.name
-        ..unit = picked.unit
-        ..unitLabel = picked.unitLabel;
+        ..productName = picked.name;
       row.price.text = plain(picked.defaultPrice);
       row.cost.text = plain(picked.defaultCost);
       _dirty = true;
@@ -1065,7 +1057,6 @@ class _ItemCard extends StatelessWidget {
     final l = context.l10n;
     final t = context.tokens;
     final v = validators;
-    final unit = unitText(l, row.unit, row.unitLabel);
     String? err(String field) => errors['items.$index.$field'];
 
     return Container(
@@ -1119,7 +1110,6 @@ class _ItemCard extends StatelessWidget {
                   onChanged: (_) => onChanged(),
                   decoration: InputDecoration(
                     labelText: l.quantity,
-                    suffixText: row.productId == null ? null : unit,
                     errorText: err('quantity'),
                     errorMaxLines: 2,
                   ),

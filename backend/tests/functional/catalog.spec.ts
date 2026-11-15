@@ -10,7 +10,6 @@ test.group('Products', (group) => {
 
     const created = await client.post(`${API}/products`).loginAs(user).json({
       name: 'Fly Ash Brick 9x4x3',
-      unit: 'piece',
       default_cost: '4.20',
       default_price: 6.5,
     })
@@ -25,13 +24,14 @@ test.group('Products', (group) => {
 
     const duplicate = await client.post(`${API}/products`).loginAs(user).json({
       name: 'Fly Ash Brick 9x4x3',
-      unit: 'other',
       default_cost: 1,
       default_price: 1,
     })
     duplicate.assertStatus(422)
     const fields = duplicate.body().data.errors.map((e: any) => e.field)
-    assert.includeMembers(fields, ['name', 'unit_label'])
+    assert.include(fields, 'name')
+    assert.notProperty(created.body().data, 'unit')
+    assert.notProperty(created.body().data, 'unit_label')
 
     const list = await client.get(`${API}/products?search=Fly`).loginAs(user)
     list.assertStatus(200)
@@ -42,7 +42,6 @@ test.group('Products', (group) => {
     const user = await createUser()
     const product = await client.post(`${API}/products`).loginAs(user).json({
       name: 'Block',
-      unit: 'piece',
       default_cost: 10,
       default_price: 15,
     })

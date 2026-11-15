@@ -40,8 +40,6 @@
       "limit": "সংখ্যা",
       "search": "খোঁজ",
       "active": "সক্রিয়",
-      "unit": "একক",
-      "unit_label": "এককের নাম",
       "default_cost": "ডিফল্ট খরচ",
       "default_price": "ডিফল্ট দাম",
       "notes": "নোট",

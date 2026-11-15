@@ -1052,54 +1052,6 @@ abstract class AppLocalizations {
   /// **'e.g. Fly Ash Brick 9×4×3'**
   String get productNameHint;
 
-  /// No description provided for @unitField.
-  ///
-  /// In en, this message translates to:
-  /// **'Unit'**
-  String get unitField;
-
-  /// No description provided for @unitPiece.
-  ///
-  /// In en, this message translates to:
-  /// **'Piece'**
-  String get unitPiece;
-
-  /// No description provided for @unitThousand.
-  ///
-  /// In en, this message translates to:
-  /// **'1000 pieces'**
-  String get unitThousand;
-
-  /// No description provided for @unitTruck.
-  ///
-  /// In en, this message translates to:
-  /// **'Truck'**
-  String get unitTruck;
-
-  /// No description provided for @unitOther.
-  ///
-  /// In en, this message translates to:
-  /// **'Other'**
-  String get unitOther;
-
-  /// No description provided for @unitLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Unit name'**
-  String get unitLabel;
-
-  /// No description provided for @unitLabelHint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. cft'**
-  String get unitLabelHint;
-
-  /// No description provided for @perUnit.
-  ///
-  /// In en, this message translates to:
-  /// **'per {unit}'**
-  String perUnit(String unit);
-
   /// No description provided for @defaultCost.
   ///
   /// In en, this message translates to:
@@ -1121,13 +1073,13 @@ abstract class AppLocalizations {
   /// No description provided for @marginPerUnit.
   ///
   /// In en, this message translates to:
-  /// **'Margin per unit'**
+  /// **'Margin'**
   String get marginPerUnit;
 
   /// No description provided for @lossPerUnit.
   ///
   /// In en, this message translates to:
-  /// **'Loss per unit'**
+  /// **'Loss'**
   String get lossPerUnit;
 
   /// No description provided for @productCreated.
@@ -1799,13 +1751,13 @@ abstract class AppLocalizations {
   /// No description provided for @unitPriceLabel.
   ///
   /// In en, this message translates to:
-  /// **'Price / unit'**
+  /// **'Price'**
   String get unitPriceLabel;
 
   /// No description provided for @unitCostLabel.
   ///
   /// In en, this message translates to:
-  /// **'Cost / unit'**
+  /// **'Cost'**
   String get unitCostLabel;
 
   /// No description provided for @lineTotal.

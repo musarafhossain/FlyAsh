@@ -16,7 +16,6 @@ async function seedOctober(client: any) {
   const user = await createUser()
   const brick = await Product.create({
     name: 'Report Brick',
-    unit: 'piece',
     defaultCost: '4.20',
     defaultPrice: '6.50',
     isActive: true,

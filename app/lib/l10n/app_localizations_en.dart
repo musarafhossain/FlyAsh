@@ -513,32 +513,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productNameHint => 'e.g. Fly Ash Brick 9×4×3';
 
   @override
-  String get unitField => 'Unit';
-
-  @override
-  String get unitPiece => 'Piece';
-
-  @override
-  String get unitThousand => '1000 pieces';
-
-  @override
-  String get unitTruck => 'Truck';
-
-  @override
-  String get unitOther => 'Other';
-
-  @override
-  String get unitLabel => 'Unit name';
-
-  @override
-  String get unitLabelHint => 'e.g. cft';
-
-  @override
-  String perUnit(String unit) {
-    return 'per $unit';
-  }
-
-  @override
   String get defaultCost => 'Cost';
 
   @override
@@ -548,10 +522,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get margin => 'Margin';
 
   @override
-  String get marginPerUnit => 'Margin per unit';
+  String get marginPerUnit => 'Margin';
 
   @override
-  String get lossPerUnit => 'Loss per unit';
+  String get lossPerUnit => 'Loss';
 
   @override
   String get productCreated => 'Product added';
@@ -920,10 +894,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quantity => 'Quantity';
 
   @override
-  String get unitPriceLabel => 'Price / unit';
+  String get unitPriceLabel => 'Price';
 
   @override
-  String get unitCostLabel => 'Cost / unit';
+  String get unitCostLabel => 'Cost';
 
   @override
   String get lineTotal => 'Line total';

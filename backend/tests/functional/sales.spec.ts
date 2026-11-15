@@ -9,14 +9,12 @@ async function setup() {
   const user = await createUser()
   const brick = await Product.create({
     name: `Brick ${Math.random()}`,
-    unit: 'piece',
     defaultCost: '4.20',
     defaultPrice: '6.50',
     isActive: true,
   })
   const block = await Product.create({
     name: `Block ${Math.random()}`,
-    unit: 'piece',
     defaultCost: '30.00',
     defaultPrice: '45.00',
     isActive: true,

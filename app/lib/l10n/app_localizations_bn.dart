@@ -512,32 +512,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get productNameHint => 'যেমন Fly Ash Brick 9×4×3';
 
   @override
-  String get unitField => 'একক';
-
-  @override
-  String get unitPiece => 'পিস';
-
-  @override
-  String get unitThousand => '1000 পিস';
-
-  @override
-  String get unitTruck => 'ট্রাক';
-
-  @override
-  String get unitOther => 'অন্য';
-
-  @override
-  String get unitLabel => 'এককের নাম';
-
-  @override
-  String get unitLabelHint => 'যেমন cft';
-
-  @override
-  String perUnit(String unit) {
-    return 'প্রতি $unit';
-  }
-
-  @override
   String get defaultCost => 'খরচ';
 
   @override
@@ -547,10 +521,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get margin => 'লাভ';
 
   @override
-  String get marginPerUnit => 'প্রতি এককে লাভ';
+  String get marginPerUnit => 'লাভ';
 
   @override
-  String get lossPerUnit => 'প্রতি এককে ক্ষতি';
+  String get lossPerUnit => 'ক্ষতি';
 
   @override
   String get productCreated => 'প্রোডাক্ট যোগ হয়েছে';
@@ -918,10 +892,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get quantity => 'পরিমাণ';
 
   @override
-  String get unitPriceLabel => 'দাম / একক';
+  String get unitPriceLabel => 'দাম';
 
   @override
-  String get unitCostLabel => 'খরচ / একক';
+  String get unitCostLabel => 'খরচ';
 
   @override
   String get lineTotal => 'মোট';

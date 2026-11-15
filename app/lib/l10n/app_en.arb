@@ -211,26 +211,11 @@
   "productsEmptyMessage": "Add the bricks you sell with their cost and price. Sales use these prices.",
   "productName": "Product name",
   "productNameHint": "e.g. Fly Ash Brick 9×4×3",
-  "unitField": "Unit",
-  "unitPiece": "Piece",
-  "unitThousand": "1000 pieces",
-  "unitTruck": "Truck",
-  "unitOther": "Other",
-  "unitLabel": "Unit name",
-  "unitLabelHint": "e.g. cft",
-  "perUnit": "per {unit}",
-  "@perUnit": {
-    "placeholders": {
-      "unit": {
-        "type": "String"
-      }
-    }
-  },
   "defaultCost": "Cost",
   "defaultPrice": "Price",
   "margin": "Margin",
-  "marginPerUnit": "Margin per unit",
-  "lossPerUnit": "Loss per unit",
+  "marginPerUnit": "Margin",
+  "lossPerUnit": "Loss",
   "productCreated": "Product added",
   "productUpdated": "Product updated",
   "inactiveProductHint": "Hidden from the sale form. Old sales keep it.",
@@ -426,8 +411,8 @@
   "addItem": "Add item",
   "removeItem": "Remove item",
   "quantity": "Quantity",
-  "unitPriceLabel": "Price / unit",
-  "unitCostLabel": "Cost / unit",
+  "unitPriceLabel": "Price",
+  "unitCostLabel": "Cost",
   "lineTotal": "Line total",
   "discountTooHigh": "Cannot be more than subtotal + transport",
   "alreadyPaid": "Already paid",

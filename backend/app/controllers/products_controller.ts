@@ -76,16 +76,12 @@ export default class ProductsController {
 
   private fields(data: {
     name: string
-    unit: string
-    unit_label?: string
     default_cost: number
     default_price: number
     notes?: string | null
   }) {
     return {
       name: data.name,
-      unit: data.unit,
-      unitLabel: data.unit === 'other' ? (data.unit_label ?? null) : null,
       defaultCost: money(data.default_cost),
       defaultPrice: money(data.default_price),
       notes: data.notes ?? null,

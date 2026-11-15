@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/network/api_response.dart';
 import '../../../core/utils/dates.dart';
-import '../../products/domain/product.dart';
 import 'sale_summary.dart';
 
 /// One line of a sale: a snapshot of the product at sale time.
@@ -12,7 +11,6 @@ class SaleItem {
   const SaleItem({
     this.productId,
     required this.productName,
-    required this.unit,
     required this.quantity,
     required this.unitPrice,
     required this.unitCost,
@@ -22,7 +20,6 @@ class SaleItem {
 
   final String? productId;
   final String productName;
-  final ProductUnit unit;
   final String quantity;
   final String unitPrice;
   final String unitCost;
@@ -32,10 +29,6 @@ class SaleItem {
   factory SaleItem.fromJson(Json json) => SaleItem(
     productId: idOrNull(json['product_id']),
     productName: json['product_name'] as String? ?? '',
-    unit: ProductUnit.values.firstWhere(
-      (u) => u.name == json['unit'],
-      orElse: () => ProductUnit.other,
-    ),
     quantity: '${json['quantity'] ?? '0'}',
     unitPrice: '${json['unit_price'] ?? '0'}',
     unitCost: '${json['unit_cost'] ?? '0'}',

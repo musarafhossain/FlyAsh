@@ -10,9 +10,4 @@ export default class Product extends compose(ProductSchema, withUuid) {
   get margin() {
     return fromPaise(toPaise(this.defaultPrice) - toPaise(this.defaultCost))
   }
-
-  /** Text shown for the unit ("piece", "thousand", "truck" or the custom label) */
-  get unitText() {
-    return this.unit === 'other' && this.unitLabel ? this.unitLabel : this.unit
-  }
 }

@@ -517,8 +517,7 @@ class _Items extends StatelessWidget {
             title: item.productName,
             subtitle:
                 '${Fmt.count(item.quantity)} × '
-                '${Fmt.money(item.unitPrice, decimals: true)} '
-                '${l.perUnit(unitText(l, item.unit))}',
+                '${Fmt.money(item.unitPrice, decimals: true)}',
             amount: Fmt.money(item.lineTotal),
           ),
       ],

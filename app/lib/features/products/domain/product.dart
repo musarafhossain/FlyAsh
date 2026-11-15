@@ -2,18 +2,13 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/network/api_response.dart';
 
-/// Unit a product is sold in (07-API §7).
-enum ProductUnit { piece, thousand, truck, other }
-
-/// A product the factory sells, with default cost and price per unit.
+/// A product the factory sells, with a default cost and price.
 /// Money stays a string ("4.50") as sent by the API; format with `Fmt.money`.
 @immutable
 class Product {
   const Product({
     required this.id,
     required this.name,
-    required this.unit,
-    this.unitLabel,
     required this.defaultCost,
     required this.defaultPrice,
     required this.margin,
@@ -23,14 +18,10 @@ class Product {
 
   final String id;
   final String name;
-  final ProductUnit unit;
-
-  /// Only for [ProductUnit.other], e.g. "cft".
-  final String? unitLabel;
   final String defaultCost;
   final String defaultPrice;
 
-  /// price − cost, per unit (can be negative).
+  /// price − cost (can be negative).
   final String margin;
   final String? notes;
   final bool isActive;
@@ -40,11 +31,6 @@ class Product {
   factory Product.fromJson(Json json) => Product(
     id: idOf(json['id']),
     name: json['name'] as String? ?? '',
-    unit: ProductUnit.values.firstWhere(
-      (u) => u.name == json['unit'],
-      orElse: () => ProductUnit.other,
-    ),
-    unitLabel: json['unit_label'] as String?,
     defaultCost: '${json['default_cost'] ?? '0'}',
     defaultPrice: '${json['default_price'] ?? '0'}',
     margin: '${json['margin'] ?? '0'}',
@@ -58,16 +44,12 @@ class Product {
 class ProductInput {
   const ProductInput({
     required this.name,
-    required this.unit,
-    this.unitLabel,
     required this.defaultCost,
     required this.defaultPrice,
     this.notes,
   });
 
   final String name;
-  final ProductUnit unit;
-  final String? unitLabel;
 
   /// Decimal strings, e.g. "4.50" (never doubles).
   final String defaultCost;
@@ -76,8 +58,6 @@ class ProductInput {
 
   Json toJson() => {
     'name': name.trim(),
-    'unit': unit.name,
-    if (unit == ProductUnit.other) 'unit_label': unitLabel?.trim(),
     'default_cost': defaultCost,
     'default_price': defaultPrice,
     'notes': notes,

@@ -44,7 +44,6 @@ export default class extends BaseSeeder {
     const products = await Product.createMany([
       {
         name: 'Fly Ash Brick 9×4×3',
-        unit: 'piece',
         defaultCost: '4.20',
         defaultPrice: '6.50',
         isActive: true,
@@ -52,7 +51,6 @@ export default class extends BaseSeeder {
       },
       {
         name: 'Fly Ash Brick 9×4×2.5',
-        unit: 'piece',
         defaultCost: '3.80',
         defaultPrice: '5.80',
         isActive: true,
@@ -60,7 +58,6 @@ export default class extends BaseSeeder {
       },
       {
         name: 'Hollow Block 16×8×8',
-        unit: 'piece',
         defaultCost: '28.00',
         defaultPrice: '42.00',
         isActive: true,
@@ -68,7 +65,6 @@ export default class extends BaseSeeder {
       },
       {
         name: 'Solid Block 12×8×6',
-        unit: 'piece',
         defaultCost: '22.00',
         defaultPrice: '34.00',
         isActive: true,
@@ -76,7 +72,6 @@ export default class extends BaseSeeder {
       },
       {
         name: 'Paver Block',
-        unit: 'piece',
         defaultCost: '9.00',
         defaultPrice: '14.00',
         isActive: false,

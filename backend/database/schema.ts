@@ -198,7 +198,7 @@ export class PasswordResetOtpSchema extends BaseModel {
 }
 
 export class ProductSchema extends BaseModel {
-  static $columns = ['createdAt', 'createdBy', 'defaultCost', 'defaultPrice', 'id', 'isActive', 'name', 'notes', 'unit', 'unitLabel', 'updatedAt'] as const
+  static $columns = ['createdAt', 'createdBy', 'defaultCost', 'defaultPrice', 'id', 'isActive', 'name', 'notes', 'updatedAt'] as const
   $columns = ProductSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -216,10 +216,6 @@ export class ProductSchema extends BaseModel {
   declare name: string
   @column()
   declare notes: string | null
-  @column()
-  declare unit: string
-  @column()
-  declare unitLabel: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
@@ -282,7 +278,7 @@ export class SaleSchema extends BaseModel {
 }
 
 export class SaleItemSchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'lineCost', 'lineTotal', 'productId', 'productName', 'quantity', 'saleId', 'unit', 'unitCost', 'unitPrice', 'updatedAt'] as const
+  static $columns = ['createdAt', 'id', 'lineCost', 'lineTotal', 'productId', 'productName', 'quantity', 'saleId', 'unitCost', 'unitPrice', 'updatedAt'] as const
   $columns = SaleItemSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -300,8 +296,6 @@ export class SaleItemSchema extends BaseModel {
   declare quantity: string
   @column()
   declare saleId: string
-  @column()
-  declare unit: string
   @column()
   declare unitCost: string
   @column()

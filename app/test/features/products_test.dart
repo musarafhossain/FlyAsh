@@ -20,8 +20,6 @@ Map<String, Object?> body(RequestOptions o) =>
 Map<String, Object?> product(
   int id,
   String name, {
-  String unit = 'piece',
-  String? unitLabel,
   String cost = '4.50',
   String price = '7.00',
   bool active = true,
@@ -29,8 +27,6 @@ Map<String, Object?> product(
 }) => {
   'id': id,
   'name': name,
-  'unit': unit,
-  'unit_label': unitLabel,
   'default_cost': cost,
   'default_price': price,
   'margin': (double.parse(price) - double.parse(cost)).toStringAsFixed(2),
@@ -181,12 +177,12 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  testWidgets('phone: cards with unit, cost → price and margin', (
+  testWidgets('phone: rows with cost → price and margin (no unit)', (
     tester,
   ) async {
     await openProducts(tester);
     expect(find.byType(ProductTile), findsNWidgets(3));
-    expect(find.text('per Piece'), findsNWidgets(3));
+    expect(find.textContaining('per '), findsNothing);
     expect(find.text('₹4.50 → ₹7.00'), findsWidgets);
     expect(find.text('+₹2.50'), findsWidgets);
     expect(find.text('−₹0.50'), findsOneWidget, reason: 'loss in red');
@@ -266,8 +262,8 @@ void main() {
     expect(currentPath(), '/products/new');
   });
 
-  testWidgets('add: checks the form, live margin, "Other" unit, server '
-      'errors, then saves as strings', (tester) async {
+  testWidgets('add: checks the form (no unit), live margin, server errors, '
+      'then saves as strings', (tester) async {
     final api = await openProducts(tester);
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
@@ -283,28 +279,19 @@ void main() {
     await tester.enterText(fields.at(1), '4.5');
     await tester.enterText(fields.at(2), '7');
     await tester.pumpAndSettle();
-    expect(find.text('Margin per unit'), findsOneWidget);
+    expect(find.text('Margin'), findsOneWidget);
+    expect(find.byType(ChoiceChip), findsNothing, reason: 'no unit chips');
     expect(find.text('₹2.50'), findsOneWidget);
 
     // A loss is shown in red wording
     await tester.enterText(fields.at(2), '4');
     await tester.pumpAndSettle();
-    expect(find.text('Loss per unit'), findsOneWidget);
+    expect(find.text('Loss'), findsOneWidget);
     await tester.enterText(fields.at(2), '7');
 
     // Letters cannot be typed into money fields
     await tester.enterText(fields.at(1), '4.5x');
     expect(find.text('4.5x'), findsNothing);
-
-    // "Other" needs a unit name
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Other'));
-    await tester.pumpAndSettle();
-    await tapVisible(tester, find.widgetWithText(FilledButton, 'Add product'));
-    expect(find.text('This field is required'), findsOneWidget);
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Unit name'),
-      'cft',
-    );
 
     // Server: name taken
     await tapVisible(tester, find.widgetWithText(FilledButton, 'Add product'));
@@ -315,8 +302,6 @@ void main() {
     final post = api.requests.lastWhere((r) => r.method == 'POST');
     expect(body(post), {
       'name': 'Hollow Block',
-      'unit': 'other',
-      'unit_label': 'cft',
       'default_cost': '4.5',
       'default_price': '7',
       'notes': null,
@@ -324,7 +309,6 @@ void main() {
     expect(currentPath(), '/products');
     expect(find.text('Product added'), findsOneWidget);
     expect(find.text('Hollow Block'), findsOneWidget);
-    expect(find.text('per cft'), findsOneWidget);
   });
 
   testWidgets('tap a product → edit form filled in → save', (tester) async {

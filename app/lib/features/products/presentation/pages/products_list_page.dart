@@ -22,16 +22,6 @@ import '../../data/products_repository_impl.dart';
 import '../../domain/product.dart';
 import '../product_actions.dart';
 
-/// Unit name in the current language ("Piece", "1000 pieces", "cft" …).
-String unitText(AppLocalizations l, ProductUnit unit, [String? label]) =>
-    switch (unit) {
-      ProductUnit.piece => l.unitPiece,
-      ProductUnit.thousand => l.unitThousand,
-      ProductUnit.truck => l.unitTruck,
-      ProductUnit.other =>
-        (label == null || label.trim().isEmpty) ? l.unitOther : label,
-    };
-
 /// Which products the list shows.
 enum ProductFilter { all, active, inactive }
 
@@ -232,7 +222,7 @@ class ProductIcon extends StatelessWidget {
   );
 }
 
-/// Phone/tablet row: icon · name · "per Piece" · cost → price · margin.
+/// Phone/tablet row: icon · name · cost → price · margin.
 class ProductTile extends StatelessWidget {
   const ProductTile({
     super.key,
@@ -252,7 +242,6 @@ class ProductTile extends StatelessWidget {
     final l = context.l10n;
     final t = context.tokens;
     final p = product;
-    final unit = unitText(l, p.unit, p.unitLabel);
 
     return Opacity(
       opacity: p.isActive ? 1 : 0.6,
@@ -277,15 +266,6 @@ class ProductTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.title.copyWith(color: t.textPrimary),
                   ),
-                  Text(
-                    l.perUnit(unit),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.caption.copyWith(
-                      color: t.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
                   Text(
                     '${Fmt.money(p.defaultCost, decimals: true)} → '
                     '${Fmt.money(p.defaultPrice, decimals: true)}',
@@ -358,7 +338,6 @@ class _ProductsTable extends StatelessWidget {
     return DataTableCard(
       columns: [
         TableColumnDef(l.productName, flex: 4),
-        TableColumnDef(l.unitField, flex: 2),
         TableColumnDef(l.defaultCost, flex: 2, alignEnd: true),
         TableColumnDef(l.defaultPrice, flex: 2, alignEnd: true),
         TableColumnDef(l.margin, flex: 2, alignEnd: true),
@@ -374,7 +353,6 @@ class _ProductsTable extends StatelessWidget {
                 Expanded(child: CellText(p.name, strong: true)),
               ],
             ),
-            CellText(unitText(l, p.unit, p.unitLabel)),
             CellText(money(p.defaultCost)),
             CellText(money(p.defaultPrice)),
             MarginText(product: p),

@@ -23,8 +23,6 @@ final products = [
   {
     'id': 1,
     'name': 'Fly Ash Brick 9×4×3',
-    'unit': 'piece',
-    'unit_label': null,
     'default_cost': '4.20',
     'default_price': '6.50',
     'margin': '2.30',
@@ -33,8 +31,6 @@ final products = [
   {
     'id': 3,
     'name': 'Hollow Block 16×8×8',
-    'unit': 'piece',
-    'unit_label': null,
     'default_cost': '28.00',
     'default_price': '45.00',
     'margin': '17.00',
@@ -146,7 +142,6 @@ class FakeSalesBackend {
           return {
             'product_id': p['id'],
             'product_name': p['name'],
-            'unit': p['unit'],
             'quantity': m(q),
             'unit_cost': m(d(i['unit_cost'])),
             'unit_price': m(d(i['unit_price'])),

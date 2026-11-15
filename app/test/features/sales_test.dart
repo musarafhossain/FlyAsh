@@ -77,7 +77,6 @@ Map<String, Object?> detail104() => {
   'items': [
     {
       'product_name': 'Fly Ash Brick 9×4×3',
-      'unit': 'piece',
       'quantity': '5000.00',
       'unit_cost': '4.20',
       'unit_price': '6.50',
@@ -86,7 +85,6 @@ Map<String, Object?> detail104() => {
     },
     {
       'product_name': 'Hollow Block 16×8×8',
-      'unit': 'piece',
       'quantity': '100.00',
       'unit_cost': '28.00',
       'unit_price': '45.00',
@@ -379,7 +377,7 @@ void main() {
     expect(find.text('Basirhat, North 24 Parganas'), findsOneWidget);
 
     expect(find.text('Items (2)'), findsOneWidget);
-    expect(find.text('5,000 × ₹6.50 per Piece'), findsOneWidget);
+    expect(find.text('5,000 × ₹6.50'), findsOneWidget);
     expect(find.text('₹32,500'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Profit'), 200);

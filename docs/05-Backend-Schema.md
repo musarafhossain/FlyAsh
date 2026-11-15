@@ -118,8 +118,6 @@ The row is deleted after a successful reset, so the reset token is single use. O
 |---|---|---|---|---|
 | id | CHAR(36) PK (UUID v7) | | app | |
 | name | VARCHAR(100) | no | | **unique** |
-| unit | VARCHAR(20) | no | 'piece' | `piece` · `thousand` · `truck` · `other` |
-| unit_label | VARCHAR(30) | yes | NULL | Required when `unit = other` (e.g. "cft") |
 | default_cost | DECIMAL(12,2) | no | 0.00 | Production cost per unit |
 | default_price | DECIMAL(12,2) | no | 0.00 | Selling price per unit |
 | notes | VARCHAR(500) | yes | NULL | |
@@ -182,7 +180,6 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 | sale_id | CHAR(36) FK → sales.id | no | | `ON DELETE CASCADE`, index |
 | product_id | CHAR(36) FK → products.id | no | | index |
 | product_name | VARCHAR(100) | no | | Snapshot (receipt stays the same if the product is renamed) |
-| unit | VARCHAR(30) | no | | Snapshot of the unit label |
 | quantity | DECIMAL(12,2) | no | | > 0 |
 | unit_cost | DECIMAL(12,2) | no | | Snapshot, editable in the sale form |
 | unit_price | DECIMAL(12,2) | no | | Snapshot, editable in the sale form |
@@ -234,6 +231,8 @@ A row means the labour was **present** that day. No row means absent (there is n
 | created_at / updated_at | DATETIME | no | | |
 
 **Unique:** `(labour_id, date)`. **Index:** `(date)`. "Not marked" = no row.
+
+Products have no unit (piece / thousand / truck / custom label) any more: migration 0024 dropped `products.unit`, `products.unit_label` and `sale_items.unit`.
 
 ### 3.12 (removed) `labour_advances`
 

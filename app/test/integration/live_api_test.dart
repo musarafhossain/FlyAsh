@@ -225,26 +225,14 @@ void main() {
     final name = 'Live test brick ${DateTime.now().millisecondsSinceEpoch}';
 
     final created = await repo.create(
-      ProductInput(
-        name: name,
-        unit: ProductUnit.other,
-        unitLabel: 'cft',
-        defaultCost: '4.5',
-        defaultPrice: '7',
-      ),
+      ProductInput(name: name, defaultCost: '4.5', defaultPrice: '7'),
     );
     expect(created.defaultCost, '4.50');
     expect(created.margin, '2.50');
-    expect(created.unitLabel, 'cft');
 
     await expectLater(
       repo.create(
-        ProductInput(
-          name: name,
-          unit: ProductUnit.piece,
-          defaultCost: '1',
-          defaultPrice: '2',
-        ),
+        ProductInput(name: name, defaultCost: '1', defaultPrice: '2'),
       ),
       throwsA(
         isA<ValidationFailure>().having((f) => f['name'], 'name', isNotNull),
@@ -256,12 +244,7 @@ void main() {
 
     final edited = await repo.update(
       created.id,
-      ProductInput(
-        name: name,
-        unit: ProductUnit.piece,
-        defaultCost: '6',
-        defaultPrice: '5.5',
-      ),
+      ProductInput(name: name, defaultCost: '6', defaultPrice: '5.5'),
     );
     expect(edited.margin, '-0.50');
     expect(edited.isLoss, isTrue);
@@ -406,7 +389,6 @@ void main() {
         .create(
           ProductInput(
             name: 'Live sale brick $stamp',
-            unit: ProductUnit.piece,
             defaultCost: '4.2',
             defaultPrice: '6.5',
           ),

@@ -40,8 +40,6 @@
       "limit": "limit",
       "search": "search",
       "active": "active",
-      "unit": "unit",
-      "unit_label": "unit label",
       "default_cost": "default cost",
       "default_price": "default price",
       "notes": "notes",
