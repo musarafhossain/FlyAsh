@@ -340,7 +340,7 @@ The row under the search bar on list screens (for example "Total 48 · Active 45
 
 ### 9.9 Segmented tabs
 
-A full-width track (`surfaceVariant`, `radius.full`, height 40) with 2–3 segments. The selected segment is `surface` with level 1 elevation and `primary` text; the others use `textSecondary`. Switching animates in 200 ms.
+A full-width track (`surfaceVariant`, `radius.full`, height 44) with 2–3 segments. The selected segment is a `surface` pill with level 1 elevation and `primary` text; the others use `textSecondary`. On a tap **one pill slides** to the new segment (220 ms, ease-in-out) while the label colours cross-fade; it stays `surface` the whole way (never fades through a dark colour). Each whole segment is tappable. With "Reduce motion" it moves at once. Used by Sales (All / Instant / Booking), the sale form (Instant / Booking) and the labour form (Daily / Monthly).
 Alternative: an underline tab style for 3 or more tabs (as in the reference's "My Overtime / Team Overtime").
 
 ### 9.10 Period selector
@@ -523,7 +523,7 @@ Where each term is handled in the app. "Platform" = Flutter does it by itself; "
 | 15 | Line length | Forms max 560 px, detail pages 720 px, lists 1200 px |
 | 16 | Affordance | Switches, FAB, chevrons, pencil icons, disabled states faded, pressed cards squash |
 | 17 | Combobox | Expense category (type or pick a chip), customer / product search pickers |
-| 18 | Interruptible animation | All motion uses implicit animations or controllers that continue from the current value (press, switches, theme change, page transitions with back gesture) |
+| 18 | Interruptible animation | All motion uses implicit animations or controllers that continue from the current value (press, switches, segmented-tab pill, theme change, page transitions with back gesture) |
 | 19 | Progressive disclosure | Filters in a sheet, actions in ⋮ / long-press menus, optional fields last |
 | 20 | Shared element transition | The avatar / product icon flies from the list row to the detail header (`Hero`, tags `product-<id>`, `customer-<id>`, `labour-<id>`, `user-<id>`); the detail page shows the row's data at once, then refreshes |
 

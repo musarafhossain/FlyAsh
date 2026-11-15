@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'motion.dart';
+
 import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
@@ -24,6 +26,10 @@ class SegmentedTabs<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final keys = segments.keys.toList();
+    final index = keys.indexOf(selected).clamp(0, keys.length - 1);
+    final duration = Motion.reduced(context) ? Duration.zero : Motion.base;
+
     return Container(
       height: 44,
       padding: const EdgeInsets.all(Space.s1),
@@ -31,49 +37,70 @@ class SegmentedTabs<T> extends StatelessWidget {
         color: t.surfaceVariant,
         borderRadius: Radii.fullAll,
       ),
-      child: Row(
-        children: [
-          for (final entry in segments.entries)
-            Expanded(
-              child: Semantics(
-                button: true,
-                selected: entry.key == selected,
-                child: GestureDetector(
-                  onTap: () => onChanged(entry.key),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: entry.key == selected
-                          ? t.surface
-                          : Colors.transparent,
-                      borderRadius: Radii.fullAll,
-                      boxShadow: entry.key == selected
-                          ? const [
-                              BoxShadow(
-                                color: Color(0x140F172A),
-                                blurRadius: 3,
-                                offset: Offset(0, 1),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Text(
-                      entry.value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.label.copyWith(
-                        color: entry.key == selected
-                            ? t.primary
-                            : t.textSecondary,
-                        fontWeight: FontWeight.w600,
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final width = box.maxWidth / keys.length;
+          return Stack(
+            children: [
+              // One pill that slides to the selected segment (it never fades
+              // through a dark colour, unlike fading from Colors.transparent).
+              AnimatedPositioned(
+                key: const Key('segmentedTabsThumb'),
+                duration: duration,
+                curve: Motion.standard,
+                left: width * index,
+                top: 0,
+                bottom: 0,
+                width: width,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: t.surface,
+                    borderRadius: Radii.fullAll,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x140F172A),
+                        blurRadius: 3,
+                        offset: Offset(0, 1),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
-            ),
-        ],
+              Row(
+                children: [
+                  for (final key in keys)
+                    Expanded(
+                      child: Semantics(
+                        button: true,
+                        selected: key == selected,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => onChanged(key),
+                          child: Center(
+                            child: AnimatedDefaultTextStyle(
+                              duration: duration,
+                              curve: Motion.standard,
+                              style: AppTypography.label.copyWith(
+                                color: key == selected
+                                    ? t.primary
+                                    : t.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              child: Text(
+                                segments[key]!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
