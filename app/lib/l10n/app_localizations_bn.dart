@@ -1296,4 +1296,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String salesCountCaption(String count) {
     return '$countটি বিক্রি';
   }
+
+  @override
+  String get productDetails => 'প্রোডাক্টের বিবরণ';
 }

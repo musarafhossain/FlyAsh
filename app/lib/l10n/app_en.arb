@@ -697,5 +697,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "productDetails": "Product details"
 }

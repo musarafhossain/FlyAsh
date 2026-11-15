@@ -1301,4 +1301,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String salesCountCaption(String count) {
     return '$count sales';
   }
+
+  @override
+  String get productDetails => 'Product details';
 }

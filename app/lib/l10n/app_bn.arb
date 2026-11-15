@@ -391,5 +391,6 @@
   "taxPercentField": "ট্যাক্স (%)",
   "taxLine": "ট্যাক্স ({percent}%)",
   "invalidTaxPercent": "০ থেকে ১০০ লিখুন, যেমন 5 বা 12.5",
-  "salesCountCaption": "{count}টি বিক্রি"
+  "salesCountCaption": "{count}টি বিক্রি",
+  "productDetails": "প্রোডাক্টের বিবরণ"
 }

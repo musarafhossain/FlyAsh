@@ -26,7 +26,7 @@ import '../product_actions.dart';
 enum ProductFilter { all, active, inactive }
 
 /// Products (03-AppFlow §6, PRD PROD-1…5): search, All/Active/Inactive,
-/// cards on phones and tablets, a table on desktop. Tap a product to edit it.
+/// rows on phones and tablets, a table on desktop. Tap a product to view it.
 class ProductsListPage extends ConsumerStatefulWidget {
   const ProductsListPage({super.key});
 
@@ -64,7 +64,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
     await context.push(location);
   }
 
-  /// Long press: Edit | Deactivate / Activate | Delete, next to the row.
+  /// Long press: View · Edit | Deactivate / Activate | Delete, next to the row.
   /// The list reloads by itself after a change (see `dataChangedProvider`).
   Future<void> _actions(BuildContext row, Product p) {
     final l = context.l10n;
@@ -72,6 +72,11 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
       row,
       groups: [
         [
+          ActionMenuItem(
+            icon: Icons.visibility_outlined,
+            label: l.view,
+            onSelected: () => _open('/products/${p.id}'),
+          ),
           ActionMenuItem(
             icon: Icons.edit_outlined,
             label: l.edit,
@@ -182,7 +187,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
         builder: (context, products) => desktop
             ? _ProductsTable(
                 products: products,
-                onOpen: (p) => _open('/products/${p.id}/edit'),
+                onOpen: (p) => _open('/products/${p.id}'),
               )
             : ListGroup(
                 flat: true,
@@ -190,7 +195,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
                   for (final p in products)
                     ProductTile(
                       product: p,
-                      onTap: () => _open('/products/${p.id}/edit'),
+                      onTap: () => _open('/products/${p.id}'),
                       onLongPress: (row) => _actions(row, p),
                     ),
                 ],

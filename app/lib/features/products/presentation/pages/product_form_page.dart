@@ -15,7 +15,6 @@ import '../../../../core/widgets/state_views.dart';
 import '../../../../core/widgets/status_pill.dart';
 import '../../data/products_repository_impl.dart';
 import '../../domain/product.dart';
-import '../product_actions.dart';
 import '../../../../core/widgets/skeletons.dart';
 
 /// Add a product, or edit one (with Activate/Deactivate and Delete).
@@ -39,7 +38,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
   Product? _product; // the saved product when editing
   bool _loaded = false;
   Object? _loadError;
-  bool _acting = false; // activate / delete in progress
 
   bool get _isEdit => widget.productId != null;
 
@@ -102,25 +100,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
     Navigator.of(context).pop(_product);
   }
 
-  void _busy(bool v) {
-    if (mounted) setState(() => _acting = v);
-  }
-
-  Future<void> _toggleActive() async {
-    final updated = await toggleProductActive(
-      context,
-      ref,
-      _product!,
-      onBusy: _busy,
-    );
-    if (updated != null && mounted) setState(() => _product = updated);
-  }
-
-  Future<void> _delete() async {
-    final deleted = await deleteProduct(context, ref, _product!, onBusy: _busy);
-    if (deleted && mounted) Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -133,7 +112,7 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
                     message: failureText(context, _loadError!),
                     onRetry: _load,
                   )
-                : const FormSkeleton(fields: 5, big: {4}))
+                : const FormSkeleton(fields: 3, big: {2}))
           : Form(
               key: formKey,
               child: PageBody(children: _fields(context)),
@@ -206,28 +185,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
         busy: busy,
         onPressed: _save,
       ),
-      if (p != null) ...[
-        const SizedBox(height: Space.s6),
-        MenuGroup(
-          children: [
-            MenuRow(
-              icon: p.isActive ? Icons.block : Icons.check_circle_outline,
-              title: p.isActive ? l.deactivate : l.activate,
-              subtitle: p.isActive ? l.deactivateProductMessage : null,
-              showChevron: false,
-              onTap: _acting ? null : _toggleActive,
-            ),
-            MenuRow(
-              icon: Icons.delete_outline,
-              title: l.delete,
-              subtitle: l.deleteProductMessage,
-              color: t.error,
-              showChevron: false,
-              onTap: _acting ? null : _delete,
-            ),
-          ],
-        ),
-      ],
     ];
   }
 }

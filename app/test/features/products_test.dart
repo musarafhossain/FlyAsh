@@ -303,30 +303,46 @@ void main() {
     expect(find.text('Hollow Block'), findsOneWidget);
   });
 
-  testWidgets('tap a product → edit form filled in → save', (tester) async {
-    final api = await openProducts(tester);
+  testWidgets('tap a product → its detail page (not the edit form)', (
+    tester,
+  ) async {
+    await openProducts(tester);
     await tester.tap(find.text('Fly Ash Brick 9×4×3'));
+    await tester.pumpAndSettle();
+    expect(currentPath(), '/products/1');
+    expect(find.byType(TextFormField), findsNothing, reason: 'read only');
+    expect(find.text('₹7.00'), findsWidgets);
+    expect(find.text('Active'), findsWidgets);
+    expect(find.byTooltip('Edit'), findsOneWidget);
+    expect(find.byTooltip('More actions'), findsOneWidget);
+  });
+
+  testWidgets('detail → ✏ edit (no Deactivate / Delete on the form) → save '
+      'returns to the detail', (tester) async {
+    final api = await openProducts(tester, location: '/products/1');
+    await tester.tap(find.byTooltip('Edit'));
     await tester.pumpAndSettle();
     expect(currentPath(), '/products/1/edit');
     expect(find.text('7'), findsOneWidget); // "7.00" shown plainly
+    expect(find.text('Deactivate'), findsNothing);
+    expect(find.text('Delete'), findsNothing);
 
     await tester.enterText(find.byType(TextFormField).at(1), '7.25');
     await tapVisible(tester, find.widgetWithText(FilledButton, 'Save'));
     final put = api.requests.lastWhere((r) => r.method == 'PUT');
     expect(body(put)['default_price'], '7.25');
-    expect(currentPath(), '/products');
-    expect(find.text('₹7.25'), findsOneWidget);
+    expect(currentPath(), '/products/1');
+    expect(find.text('₹7.25'), findsWidgets);
   });
 
-  testWidgets('/products/:id opens the edit form', (tester) async {
-    await openProducts(tester, location: '/products/2');
-    expect(currentPath(), '/products/2/edit');
-    expect(find.text('Edit product'), findsOneWidget);
-  });
-
-  testWidgets('deactivate asks first, then shows Inactive', (tester) async {
-    final api = await openProducts(tester, location: '/products/1/edit');
-    await tapVisible(tester, find.text('Deactivate'));
+  testWidgets('detail ⋮ Deactivate asks first, then shows Inactive', (
+    tester,
+  ) async {
+    final api = await openProducts(tester, location: '/products/1');
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Deactivate'));
+    await tester.pumpAndSettle();
     expect(find.text('Deactivate Fly Ash Brick 9×4×3?'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Deactivate'));
     await tester.pumpAndSettle();
@@ -334,22 +350,26 @@ void main() {
       'is_active': false,
     });
     expect(find.text('Product deactivated'), findsOneWidget);
-    expect(find.text('Inactive'), findsOneWidget);
+    expect(find.text('Inactive'), findsWidgets);
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
     expect(find.text('Activate'), findsOneWidget);
   });
 
-  testWidgets('delete: used in sales → server message; unused → deleted', (
-    tester,
-  ) async {
-    await openProducts(tester, location: '/products/3/edit');
-    await tapVisible(tester, find.text('Delete'));
+  testWidgets('detail ⋮ Delete: used in sales → server message; unused → '
+      'deleted and back to the list', (tester) async {
+    await openProducts(tester, location: '/products/3');
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
     expect(
       find.text('Product is used in sales. Deactivate it instead'),
       findsOneWidget,
     );
-    expect(currentPath(), '/products/3/edit', reason: 'stays on the form');
+    expect(currentPath(), '/products/3', reason: 'stays on the page');
 
     // Let the message disappear before the next step.
     await tester.pump(const Duration(seconds: 5));
@@ -358,7 +378,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Red Brick'));
     await tester.pumpAndSettle();
-    await tapVisible(tester, find.text('Delete'));
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
     await tester.pumpAndSettle();
     expect(find.text('Product deleted successfully'), findsOneWidget);
@@ -372,17 +395,18 @@ void main() {
   );
   final menu = find.byWidgetPredicate((w) => w is PopupMenuItem);
 
-  testWidgets('long press opens the menu: Edit | Deactivate | Delete; edit '
-      'returns to the list', (tester) async {
+  testWidgets('long press opens the menu: View · Edit | Deactivate | Delete; '
+      'edit returns to the list', (tester) async {
     await openProducts(tester);
     await tester.longPress(find.text('Fly Ash Brick 9×4×3'));
     await tester.pumpAndSettle();
-    expect(menu, findsNWidgets(3));
+    expect(menu, findsNWidgets(4));
     expect(
       find.byType(PopupMenuDivider),
       findsNWidgets(2),
-      reason: 'Edit | Deactivate | Delete',
+      reason: 'View · Edit | Deactivate | Delete',
     );
+    expect(sheet('View'), findsOneWidget);
     expect(sheet('Edit'), findsOneWidget);
     expect(sheet('Deactivate'), findsOneWidget);
     expect(sheet('Delete'), findsOneWidget);
@@ -485,8 +509,16 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        for (final path in ['/products', '/products/new', '/products/1/edit']) {
+        for (final path in [
+          '/products',
+          '/products/new',
+          '/products/1',
+          '/products/1/edit',
+        ]) {
           testContainer.read(routerProvider).go(path);
+          // A page under another one (detail under edit) loads on the
+          // next tick: let that request finish too.
+          await tester.pump(const Duration(milliseconds: 1));
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull, reason: path);
         }

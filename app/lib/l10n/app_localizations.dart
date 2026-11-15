@@ -2449,6 +2449,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} sales'**
   String salesCountCaption(String count);
+
+  /// No description provided for @productDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Product details'**
+  String get productDetails;
 }
 
 class _AppLocalizationsDelegate
