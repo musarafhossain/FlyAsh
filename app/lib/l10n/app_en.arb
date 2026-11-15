@@ -211,11 +211,7 @@
   "productsEmptyMessage": "Add the bricks you sell with their cost and price. Sales use these prices.",
   "productName": "Product name",
   "productNameHint": "e.g. Fly Ash Brick 9×4×3",
-  "defaultCost": "Cost",
   "defaultPrice": "Price",
-  "margin": "Margin",
-  "marginPerUnit": "Margin",
-  "lossPerUnit": "Loss",
   "productCreated": "Product added",
   "productUpdated": "Product updated",
   "inactiveProductHint": "Hidden from the sale form. Old sales keep it.",
@@ -373,7 +369,6 @@
   "subtotal": "Subtotal",
   "transport": "Transport",
   "discount": "Discount",
-  "productionCost": "Production cost",
   "profit": "Profit",
   "methodCash": "Cash",
   "methodUpi": "UPI",
@@ -412,7 +407,6 @@
   "removeItem": "Remove item",
   "quantity": "Quantity",
   "unitPriceLabel": "Price",
-  "unitCostLabel": "Cost",
   "lineTotal": "Line total",
   "discountTooHigh": "Cannot be more than subtotal + transport",
   "alreadyPaid": "Already paid",
@@ -671,17 +665,6 @@
   "recentSales": "Recent sales",
   "viewAll": "View all",
   "todaysSales": "Today's sales",
-  "todaysSalesCaption": "{count} sales · profit {profit}",
-  "@todaysSalesCaption": {
-    "placeholders": {
-      "count": {
-        "type": "String"
-      },
-      "profit": {
-        "type": "String"
-      }
-    }
-  },
   "selectDate": "Select date",
   "attendanceCount": "{present} present · {absent} absent",
   "@attendanceCount": {
@@ -706,5 +689,13 @@
       }
     }
   },
-  "invalidTaxPercent": "Enter 0 to 100, e.g. 5 or 12.5"
+  "invalidTaxPercent": "Enter 0 to 100, e.g. 5 or 12.5",
+  "salesCountCaption": "{count} sales",
+  "@salesCountCaption": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }

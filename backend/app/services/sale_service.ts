@@ -16,7 +16,6 @@ type Trx = TransactionClientContract
 export type SaleItemInput = {
   product_id: string
   quantity: number
-  unit_cost?: number
   unit_price?: number
 }
 
@@ -214,7 +213,6 @@ export default class SaleService {
     const payments = await SalePayment.query({ client: trx }).where('sale_id', sale.id)
 
     const subtotal = items.reduce((sum, item) => sum + toPaise(item.lineTotal), 0)
-    const totalCost = items.reduce((sum, item) => sum + toPaise(item.lineCost), 0)
     // Tax is a percent of the amount after transport and discount.
     const taxable = subtotal + toPaise(sale.transportCharge) - toPaise(sale.discount)
     const tax = Math.round((taxable * Number(sale.taxPercent || 0)) / 100)
@@ -236,9 +234,6 @@ export default class SaleService {
       subtotal: fromPaise(subtotal),
       taxAmount: fromPaise(Math.max(0, tax)),
       total: fromPaise(total),
-      totalCost: fromPaise(totalCost),
-      // Tax is collected for the government: not profit.
-      profit: fromPaise(taxable - totalCost),
       paidAmount: fromPaise(paid),
       dueAmount: fromPaise(due),
       paymentStatus: paid === 0 ? 'due' : due === 0 ? 'paid' : 'partial',
@@ -247,8 +242,8 @@ export default class SaleService {
   }
 
   /**
-   * Replaces all items. Cost and price default to the product's defaults,
-   * and a snapshot of name / unit / cost / price is stored on each line.
+   * Replaces all items. The price defaults to the product's price, and a
+   * snapshot of the name and price is stored on each line.
    */
   /**
    * INV-000001, INV-000002, … from the counter on the settings row. The row
@@ -277,7 +272,6 @@ export default class SaleService {
 
     for (const item of items) {
       const product = byId.get(item.product_id)!
-      const unitCost = money(item.unit_cost ?? product.defaultCost)
       const unitPrice = money(item.unit_price ?? product.defaultPrice)
 
       await SaleItem.create(
@@ -286,9 +280,7 @@ export default class SaleService {
           productId: product.id,
           productName: product.name,
           quantity: money(item.quantity),
-          unitCost,
           unitPrice,
-          lineCost: fromPaise(multiply(item.quantity, unitCost)),
           lineTotal: fromPaise(multiply(item.quantity, unitPrice)),
         },
         { client: trx }

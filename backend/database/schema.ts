@@ -198,14 +198,12 @@ export class PasswordResetOtpSchema extends BaseModel {
 }
 
 export class ProductSchema extends BaseModel {
-  static $columns = ['createdAt', 'createdBy', 'defaultCost', 'defaultPrice', 'id', 'isActive', 'name', 'notes', 'updatedAt'] as const
+  static $columns = ['createdAt', 'createdBy', 'defaultPrice', 'id', 'isActive', 'name', 'notes', 'updatedAt'] as const
   $columns = ProductSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ serializeAs: null })
   declare createdBy: string | null
-  @column()
-  declare defaultCost: string
   @column()
   declare defaultPrice: string
   @column({ isPrimary: true })
@@ -221,7 +219,7 @@ export class ProductSchema extends BaseModel {
 }
 
 export class SaleSchema extends BaseModel {
-  static $columns = ['cancelledAt', 'createdAt', 'createdBy', 'customerId', 'deletedAt', 'deliveredDate', 'deliveryAddress', 'deliveryDate', 'discount', 'dueAmount', 'id', 'invoiceNo', 'notes', 'paidAmount', 'paymentStatus', 'profit', 'saleDate', 'status', 'subtotal', 'taxAmount', 'taxPercent', 'total', 'totalCost', 'transportCharge', 'type', 'updatedAt'] as const
+  static $columns = ['cancelledAt', 'createdAt', 'createdBy', 'customerId', 'deletedAt', 'deliveredDate', 'deliveryAddress', 'deliveryDate', 'discount', 'dueAmount', 'id', 'invoiceNo', 'notes', 'paidAmount', 'paymentStatus', 'saleDate', 'status', 'subtotal', 'taxAmount', 'taxPercent', 'total', 'transportCharge', 'type', 'updatedAt'] as const
   $columns = SaleSchema.$columns
   @column.dateTime()
   declare cancelledAt: DateTime | null
@@ -254,8 +252,6 @@ export class SaleSchema extends BaseModel {
   @column()
   declare paymentStatus: string
   @column()
-  declare profit: string
-  @column()
   declare saleDate: string
   @column()
   declare status: string
@@ -268,8 +264,6 @@ export class SaleSchema extends BaseModel {
   @column()
   declare total: string
   @column()
-  declare totalCost: string
-  @column()
   declare transportCharge: string
   @column()
   declare type: string
@@ -278,14 +272,12 @@ export class SaleSchema extends BaseModel {
 }
 
 export class SaleItemSchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'lineCost', 'lineTotal', 'productId', 'productName', 'quantity', 'saleId', 'unitCost', 'unitPrice', 'updatedAt'] as const
+  static $columns = ['createdAt', 'id', 'lineTotal', 'productId', 'productName', 'quantity', 'saleId', 'unitPrice', 'updatedAt'] as const
   $columns = SaleItemSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: string
-  @column()
-  declare lineCost: string
   @column()
   declare lineTotal: string
   @column()
@@ -296,8 +288,6 @@ export class SaleItemSchema extends BaseModel {
   declare quantity: string
   @column()
   declare saleId: string
-  @column()
-  declare unitCost: string
   @column()
   declare unitPrice: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })

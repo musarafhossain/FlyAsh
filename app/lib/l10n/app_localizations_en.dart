@@ -513,19 +513,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productNameHint => 'e.g. Fly Ash Brick 9×4×3';
 
   @override
-  String get defaultCost => 'Cost';
-
-  @override
   String get defaultPrice => 'Price';
-
-  @override
-  String get margin => 'Margin';
-
-  @override
-  String get marginPerUnit => 'Margin';
-
-  @override
-  String get lossPerUnit => 'Loss';
 
   @override
   String get productCreated => 'Product added';
@@ -798,9 +786,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discount => 'Discount';
 
   @override
-  String get productionCost => 'Production cost';
-
-  @override
   String get profit => 'Profit';
 
   @override
@@ -895,9 +880,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unitPriceLabel => 'Price';
-
-  @override
-  String get unitCostLabel => 'Cost';
 
   @override
   String get lineTotal => 'Line total';
@@ -1288,11 +1270,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todaysSales => 'Today\'s sales';
 
   @override
-  String todaysSalesCaption(String count, String profit) {
-    return '$count sales · profit $profit';
-  }
-
-  @override
   String get selectDate => 'Select date';
 
   @override
@@ -1319,4 +1296,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidTaxPercent => 'Enter 0 to 100, e.g. 5 or 12.5';
+
+  @override
+  String salesCountCaption(String count) {
+    return '$count sales';
+  }
 }

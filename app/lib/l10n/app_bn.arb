@@ -159,11 +159,7 @@
   "productsEmptyMessage": "যে ইট বিক্রি করেন সেগুলো খরচ আর দামসহ যোগ করুন। বিক্রিতে এই দাম ব্যবহার হবে।",
   "productName": "প্রোডাক্টের নাম",
   "productNameHint": "যেমন Fly Ash Brick 9×4×3",
-  "defaultCost": "খরচ",
   "defaultPrice": "দাম",
-  "margin": "লাভ",
-  "marginPerUnit": "লাভ",
-  "lossPerUnit": "ক্ষতি",
   "productCreated": "প্রোডাক্ট যোগ হয়েছে",
   "productUpdated": "প্রোডাক্ট আপডেট হয়েছে",
   "inactiveProductHint": "বিক্রির ফর্মে দেখাবে না। আগের বিক্রিতে থেকে যাবে।",
@@ -244,7 +240,6 @@
   "subtotal": "উপমোট",
   "transport": "গাড়িভাড়া",
   "discount": "ছাড়",
-  "productionCost": "উৎপাদন খরচ",
   "profit": "লাভ",
   "methodCash": "নগদ",
   "methodUpi": "UPI",
@@ -276,7 +271,6 @@
   "removeItem": "আইটেম সরান",
   "quantity": "পরিমাণ",
   "unitPriceLabel": "দাম",
-  "unitCostLabel": "খরচ",
   "lineTotal": "মোট",
   "discountTooHigh": "উপমোট + গাড়িভাড়ার বেশি হতে পারে না",
   "alreadyPaid": "আগে পরিশোধ",
@@ -389,7 +383,6 @@
   "recentSales": "সাম্প্রতিক বিক্রি",
   "viewAll": "সব দেখুন",
   "todaysSales": "আজকের বিক্রি",
-  "todaysSalesCaption": "{count}টি বিক্রি · লাভ {profit}",
   "selectDate": "তারিখ বাছুন",
   "attendanceCount": "{present} জন উপস্থিত · {absent} জন অনুপস্থিত",
   "view": "দেখুন",
@@ -397,5 +390,6 @@
   "categoryHint": "লিখুন বা বেছে নিন, যেমন শ্রমিকের টিফিন",
   "taxPercentField": "ট্যাক্স (%)",
   "taxLine": "ট্যাক্স ({percent}%)",
-  "invalidTaxPercent": "০ থেকে ১০০ লিখুন, যেমন 5 বা 12.5"
+  "invalidTaxPercent": "০ থেকে ১০০ লিখুন, যেমন 5 বা 12.5",
+  "salesCountCaption": "{count}টি বিক্রি"
 }

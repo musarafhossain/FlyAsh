@@ -27,7 +27,7 @@ import '../../../../core/widgets/skeletons.dart';
 
 /// Sale detail (04-UI-UX "Sale detail"): invoice no. and status pills →
 /// customer card (Call / WhatsApp, opens the customer) → items → money
-/// summary (subtotal, transport, discount, total, cost, profit, paid, due)
+/// summary (subtotal, transport, discount, tax, total, paid, due)
 /// → payments. Actions (03-AppFlow §5.2): Add payment · Mark delivered ·
 /// Cancel booking (buttons), Edit and Delete (app bar), delete a payment
 /// (⋮ on its row). Share receipt comes in F17.
@@ -558,12 +558,6 @@ class _Summary extends StatelessWidget {
           money(s.total),
           emphasis: true,
           dividerBefore: true,
-        ),
-        SummaryLine(l.productionCost, money(sale.totalCost)),
-        SummaryLine(
-          l.profit,
-          money(sale.profit),
-          color: sale.profit.startsWith('-') ? t.error : t.success,
         ),
         SummaryLine(
           l.paid,

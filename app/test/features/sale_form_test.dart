@@ -23,7 +23,6 @@ final products = [
   {
     'id': 1,
     'name': 'Fly Ash Brick 9×4×3',
-    'default_cost': '4.20',
     'default_price': '6.50',
     'margin': '2.30',
     'is_active': true,
@@ -31,7 +30,6 @@ final products = [
   {
     'id': 3,
     'name': 'Hollow Block 16×8×8',
-    'default_cost': '28.00',
     'default_price': '45.00',
     'margin': '17.00',
     'is_active': true,
@@ -62,7 +60,7 @@ final customers = [
 ];
 
 /// In-memory sales backend: computes totals like the server (subtotal,
-/// total = subtotal + transport − discount, profit = total − cost, due).
+/// total = subtotal + transport − discount, due).
 class FakeSalesBackend {
   FakeSalesBackend() {
     sales[104] = _build(
@@ -71,12 +69,7 @@ class FakeSalesBackend {
       customerId: 1,
       saleDate: '2026-11-08',
       items: [
-        {
-          'product_id': '1',
-          'quantity': '5000',
-          'unit_cost': '4.2',
-          'unit_price': '6.5',
-        },
+        {'product_id': '1', 'quantity': '5000', 'unit_price': '6.5'},
       ],
       transport: '1500',
       discount: '500',
@@ -96,12 +89,7 @@ class FakeSalesBackend {
       saleDate: '2026-11-08',
       deliveryDate: '2026-11-15',
       items: [
-        {
-          'product_id': 1,
-          'quantity': '3000',
-          'unit_cost': '4.2',
-          'unit_price': '6.5',
-        },
+        {'product_id': 1, 'quantity': '3000', 'unit_price': '6.5'},
       ],
     );
   }
@@ -127,7 +115,6 @@ class FakeSalesBackend {
   }) {
     final c = customers.firstWhere((c) => c['id'] == customerId);
     var subtotal = Decimal.zero;
-    var cost = Decimal.zero;
     final lines = [
       for (final i in items)
         () {
@@ -136,16 +123,12 @@ class FakeSalesBackend {
           );
           final q = d(i['quantity']);
           final lineTotal = q * d(i['unit_price']);
-          final lineCost = q * d(i['unit_cost']);
           subtotal += lineTotal;
-          cost += lineCost;
           return {
             'product_id': p['id'],
             'product_name': p['name'],
             'quantity': m(q),
-            'unit_cost': m(d(i['unit_cost'])),
             'unit_price': m(d(i['unit_price'])),
-            'line_cost': m(lineCost),
             'line_total': m(lineTotal),
           };
         }(),
@@ -168,8 +151,6 @@ class FakeSalesBackend {
       'transport_charge': m(d(transport)),
       'discount': m(d(discount)),
       'total': m(total),
-      'total_cost': m(cost),
-      'profit': m(total - cost),
       'paid_amount': m(paid),
       'due_amount': m(due),
       'payment_status': paid == Decimal.zero
@@ -474,7 +455,7 @@ void main() {
 
     await pickProduct(tester, 'Fly Ash Brick 9×4×3');
     expect(find.text('6.5'), findsOneWidget); // price filled
-    expect(find.text('4.2'), findsOneWidget); // cost filled
+    expect(find.text('Cost'), findsNothing, reason: 'no cost field');
 
     await tester.enterText(field('Quantity'), '5000');
     await tester.pumpAndSettle();
@@ -482,9 +463,9 @@ void main() {
     await tester.enterText(field('Transport'), '1500');
     await tester.enterText(field('Discount'), '500');
     await tester.pumpAndSettle();
-    // Summary bar: total 33,500 · profit 33,500 − 21,000 · due
+    // Summary bar: total 33,500 · due (no profit)
     expect(find.text('₹33,500'), findsWidgets);
-    expect(find.text('₹12,500'), findsOneWidget);
+    expect(find.text('Profit'), findsNothing);
 
     // Payment more than the total
     await tester.enterText(field('Amount (optional)'), '40000');
@@ -504,12 +485,7 @@ void main() {
       'sale_date': '2026-11-09',
       'delivery_address': null,
       'items': [
-        {
-          'product_id': '1',
-          'quantity': '5000',
-          'unit_cost': '4.2',
-          'unit_price': '6.5',
-        },
+        {'product_id': '1', 'quantity': '5000', 'unit_price': '6.5'},
       ],
       'transport_charge': '1500',
       'discount': '500',
@@ -675,7 +651,6 @@ void main() {
     expect((b['items']! as List).single, {
       'product_id': '1',
       'quantity': '6000',
-      'unit_cost': '4.2',
       'unit_price': '6.5',
     });
     expect(currentPath(), '/sales/104');

@@ -14,16 +14,11 @@ function deliveredSales(from: string, to: string) {
 
 /**
  * Reports (01-PRD §5.10, 05-Backend-Schema §5.9).
- * Sales and profit count on the delivered date; collections on the payment date.
+ * Sales count on the delivered date; collections on the payment date.
  */
 export default class ReportService {
   static async sales(from: string, to: string) {
-    const totals = await deliveredSales(from, to)
-      .count('* as count')
-      .sum('total as amount')
-      .sum('total_cost as cost')
-      .sum('profit as profit')
-      .first()
+    const totals = await deliveredSales(from, to).count('* as count').sum('total as amount').first()
 
     const byProduct = await deliveredSales(from, to)
       .join('sale_items', 'sale_items.sale_id', 'sales.id')
@@ -32,14 +27,12 @@ export default class ReportService {
       .max('sale_items.product_name as product_name')
       .sum('sale_items.quantity as quantity')
       .sum('sale_items.line_total as amount')
-      .sum('sale_items.line_cost as cost')
       .orderBy('amount', 'desc')
 
     const daily = await deliveredSales(from, to)
       .groupBy('sales.delivered_date')
       .select('sales.delivered_date as date')
       .sum('total as amount')
-      .sum('profit as profit')
       .orderBy('date', 'asc')
 
     return {
@@ -47,19 +40,15 @@ export default class ReportService {
       to,
       count: Number(totals?.count ?? 0),
       amount: money(totals?.amount),
-      cost: money(totals?.cost),
-      profit: money(totals?.profit),
       by_product: byProduct.map((row) => ({
         product_id: row.product_id,
         product_name: row.product_name,
         quantity: money(row.quantity),
         amount: money(row.amount),
-        profit: fromPaise(toPaise(row.amount) - toPaise(row.cost)),
       })),
       daily: daily.map((row) => ({
         date: row.date,
         amount: money(row.amount),
-        profit: money(row.profit),
       })),
     }
   }
@@ -135,7 +124,7 @@ export default class ReportService {
     }
   }
 
-  /** Net profit = sales profit − expenses − wages earned, with a monthly series. */
+  /** Net profit = sales (without tax) − expenses − wages earned, with a monthly series. */
   static async netProfit(from: string, to: string) {
     const total = await this.netProfitFor(from, to)
 
@@ -182,7 +171,11 @@ export default class ReportService {
   }
 
   private static async netProfitFor(from: string, to: string) {
-    const sales = await deliveredSales(from, to).sum('profit as profit').first()
+    // Sales without tax (tax is collected for the government)
+    const sales = await deliveredSales(from, to)
+      .sum('total as total')
+      .sum('tax_amount as tax')
+      .first()
     const expenses = await db
       .from('expenses')
       .whereBetween('expense_date', [from, to])
@@ -190,13 +183,13 @@ export default class ReportService {
       .first()
     const wages = await WageService.earnedBetween(from, to)
 
-    const salesProfit = toPaise(sales?.profit)
+    const salesTotal = toPaise(sales?.total) - toPaise(sales?.tax)
     const expenseTotal = toPaise(expenses?.total)
     return {
-      sales_profit: fromPaise(salesProfit),
+      sales: fromPaise(salesTotal),
       expenses: fromPaise(expenseTotal),
       wages: fromPaise(wages),
-      net_profit: fromPaise(salesProfit - expenseTotal - wages),
+      net_profit: fromPaise(salesTotal - expenseTotal - wages),
     }
   }
 }

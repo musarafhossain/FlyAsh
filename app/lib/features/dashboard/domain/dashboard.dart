@@ -10,7 +10,6 @@ class DashboardData {
     required this.date,
     required this.todaySalesAmount,
     required this.todaySalesCount,
-    required this.todayProfit,
     required this.totalDue,
     required this.deliveriesToday,
     required this.overdueDeliveries,
@@ -24,7 +23,6 @@ class DashboardData {
   final String date;
   final String todaySalesAmount;
   final int todaySalesCount;
-  final String todayProfit;
   final String totalDue;
   final int deliveriesToday;
   final int overdueDeliveries;
@@ -43,7 +41,6 @@ class DashboardData {
       date: json['date'] as String? ?? '',
       todaySalesAmount: m(today['amount']),
       todaySalesCount: n(today['count']),
-      todayProfit: m(json['today_profit']),
       totalDue: m(json['total_due']),
       deliveriesToday: n(json['deliveries_today']),
       overdueDeliveries: n(json['overdue_deliveries']),

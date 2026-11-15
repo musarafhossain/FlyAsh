@@ -19,7 +19,6 @@ export const productValidator = vine.create({
         if (field.meta?.productId) query.whereNot('id', field.meta.productId)
       },
     }),
-  default_cost: moneyRule(),
   default_price: moneyRule(),
   notes: vine.string().trim().maxLength(500).nullable().optional(),
 })

@@ -13,27 +13,21 @@ class SaleItem {
     required this.productName,
     required this.quantity,
     required this.unitPrice,
-    required this.unitCost,
     required this.lineTotal,
-    required this.lineCost,
   });
 
   final String? productId;
   final String productName;
   final String quantity;
   final String unitPrice;
-  final String unitCost;
   final String lineTotal;
-  final String lineCost;
 
   factory SaleItem.fromJson(Json json) => SaleItem(
     productId: idOrNull(json['product_id']),
     productName: json['product_name'] as String? ?? '',
     quantity: '${json['quantity'] ?? '0'}',
     unitPrice: '${json['unit_price'] ?? '0'}',
-    unitCost: '${json['unit_cost'] ?? '0'}',
     lineTotal: '${json['line_total'] ?? '0'}',
-    lineCost: '${json['line_cost'] ?? '0'}',
   );
 }
 
@@ -82,8 +76,6 @@ class Sale {
     required this.discount,
     this.taxPercent = '0',
     this.taxAmount = '0',
-    required this.totalCost,
-    required this.profit,
     this.notes,
     this.createdBy,
     this.items = const [],
@@ -101,8 +93,6 @@ class Sale {
   /// Tax as a percent of (subtotal + transport − discount), e.g. "5.00".
   final String taxPercent;
   final String taxAmount;
-  final String totalCost;
-  final String profit;
   final String? notes;
   final String? createdBy;
   final List<SaleItem> items;
@@ -124,8 +114,6 @@ class Sale {
     discount: '${json['discount'] ?? '0'}',
     taxPercent: '${json['tax_percent'] ?? '0'}',
     taxAmount: '${json['tax_amount'] ?? '0'}',
-    totalCost: '${json['total_cost'] ?? '0'}',
-    profit: '${json['profit'] ?? '0'}',
     notes: json['notes'] as String?,
     createdBy: (json['created_by'] as Json?)?['name'] as String?,
     items: [
@@ -186,19 +174,16 @@ class SaleItemInput {
   const SaleItemInput({
     required this.productId,
     required this.quantity,
-    required this.unitCost,
     required this.unitPrice,
   });
 
   final String productId;
   final String quantity;
-  final String unitCost;
   final String unitPrice;
 
   Json toJson() => {
     'product_id': productId,
     'quantity': quantity,
-    'unit_cost': unitCost,
     'unit_price': unitPrice,
   };
 }

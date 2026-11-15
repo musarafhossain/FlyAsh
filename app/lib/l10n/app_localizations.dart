@@ -1052,35 +1052,11 @@ abstract class AppLocalizations {
   /// **'e.g. Fly Ash Brick 9×4×3'**
   String get productNameHint;
 
-  /// No description provided for @defaultCost.
-  ///
-  /// In en, this message translates to:
-  /// **'Cost'**
-  String get defaultCost;
-
   /// No description provided for @defaultPrice.
   ///
   /// In en, this message translates to:
   /// **'Price'**
   String get defaultPrice;
-
-  /// No description provided for @margin.
-  ///
-  /// In en, this message translates to:
-  /// **'Margin'**
-  String get margin;
-
-  /// No description provided for @marginPerUnit.
-  ///
-  /// In en, this message translates to:
-  /// **'Margin'**
-  String get marginPerUnit;
-
-  /// No description provided for @lossPerUnit.
-  ///
-  /// In en, this message translates to:
-  /// **'Loss'**
-  String get lossPerUnit;
 
   /// No description provided for @productCreated.
   ///
@@ -1562,12 +1538,6 @@ abstract class AppLocalizations {
   /// **'Discount'**
   String get discount;
 
-  /// No description provided for @productionCost.
-  ///
-  /// In en, this message translates to:
-  /// **'Production cost'**
-  String get productionCost;
-
   /// No description provided for @profit.
   ///
   /// In en, this message translates to:
@@ -1753,12 +1723,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Price'**
   String get unitPriceLabel;
-
-  /// No description provided for @unitCostLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cost'**
-  String get unitCostLabel;
 
   /// No description provided for @lineTotal.
   ///
@@ -2432,12 +2396,6 @@ abstract class AppLocalizations {
   /// **'Today\'s sales'**
   String get todaysSales;
 
-  /// No description provided for @todaysSalesCaption.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} sales · profit {profit}'**
-  String todaysSalesCaption(String count, String profit);
-
   /// No description provided for @selectDate.
   ///
   /// In en, this message translates to:
@@ -2485,6 +2443,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter 0 to 100, e.g. 5 or 12.5'**
   String get invalidTaxPercent;
+
+  /// No description provided for @salesCountCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sales'**
+  String salesCountCaption(String count);
 }
 
 class _AppLocalizationsDelegate

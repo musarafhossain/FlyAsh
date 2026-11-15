@@ -225,15 +225,12 @@ void main() {
     final name = 'Live test brick ${DateTime.now().millisecondsSinceEpoch}';
 
     final created = await repo.create(
-      ProductInput(name: name, defaultCost: '4.5', defaultPrice: '7'),
+      ProductInput(name: name, defaultPrice: '7'),
     );
-    expect(created.defaultCost, '4.50');
-    expect(created.margin, '2.50');
+    expect(created.defaultPrice, '7.00');
 
     await expectLater(
-      repo.create(
-        ProductInput(name: name, defaultCost: '1', defaultPrice: '2'),
-      ),
+      repo.create(ProductInput(name: name, defaultPrice: '2')),
       throwsA(
         isA<ValidationFailure>().having((f) => f['name'], 'name', isNotNull),
       ),
@@ -244,10 +241,9 @@ void main() {
 
     final edited = await repo.update(
       created.id,
-      ProductInput(name: name, defaultCost: '6', defaultPrice: '5.5'),
+      ProductInput(name: name, defaultPrice: '5.5'),
     );
-    expect(edited.margin, '-0.50');
-    expect(edited.isLoss, isTrue);
+    expect(edited.defaultPrice, '5.50');
 
     final (inactive, _) = await repo.setActive(created.id, false);
     expect(inactive.isActive, isFalse);
@@ -387,19 +383,11 @@ void main() {
     final product = await c
         .read(productsRepositoryProvider)
         .create(
-          ProductInput(
-            name: 'Live sale brick $stamp',
-            defaultCost: '4.2',
-            defaultPrice: '6.5',
-          ),
+          ProductInput(name: 'Live sale brick $stamp', defaultPrice: '6.5'),
         );
     final phone = '8${(stamp % 1000000000).toString().padLeft(9, '0')}';
-    SaleItemInput item(String qty) => SaleItemInput(
-      productId: product.id,
-      quantity: qty,
-      unitCost: '4.2',
-      unitPrice: '6.5',
-    );
+    SaleItemInput item(String qty) =>
+        SaleItemInput(productId: product.id, quantity: qty, unitPrice: '6.5');
 
     // Instant sale with a new customer and money received now
     final (sale, msg) = await sales.create(
@@ -418,7 +406,6 @@ void main() {
     );
     expect(msg, isNotEmpty);
     expect(sale.summary.total, '6900.00'); // 6500 + 500 − 100
-    expect(sale.profit, '2700.00'); // 6900 − 4200
     expect(sale.summary.dueAmount, '4900.00');
     expect(sale.summary.status, 'delivered');
     final customerId = sale.summary.customerId!;

@@ -20,7 +20,7 @@ import '../../data/dashboard_repository_impl.dart';
 import '../../domain/dashboard.dart';
 
 /// Home (03-AppFlow §4, 04-UI-UX "Dashboard"): greeting, Today's sales
-/// (with profit), Total due · Deliveries today · Present today · Month
+/// (count), Total due · Deliveries today · Present today · Month
 /// expenses, quick actions, recent sales. Every card opens its screen.
 /// Pull to refresh; it also refreshes whenever Home is shown again.
 class DashboardPage extends ConsumerStatefulWidget {
@@ -266,10 +266,7 @@ class _Body extends ConsumerWidget {
           icon: Icons.trending_up,
           label: l.todaysSales,
           value: Fmt.money(d.todaySalesAmount),
-          caption: l.todaysSalesCaption(
-            '${d.todaySalesCount}',
-            Fmt.money(d.todayProfit),
-          ),
+          caption: l.salesCountCaption('${d.todaySalesCount}'),
           onTap: () => context.go('/sales?period=today'),
         ),
         const SizedBox(height: Space.s3),

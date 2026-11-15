@@ -9,13 +9,11 @@ async function setup() {
   const user = await createUser()
   const brick = await Product.create({
     name: `Brick ${Math.random()}`,
-    defaultCost: '4.20',
     defaultPrice: '6.50',
     isActive: true,
   })
   const block = await Product.create({
     name: `Block ${Math.random()}`,
-    defaultCost: '30.00',
     defaultPrice: '45.00',
     isActive: true,
   })
@@ -30,7 +28,7 @@ async function setup() {
 test.group('Sales: calculations', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('instant sale: totals, profit, due, status and snapshots', async ({ client, assert }) => {
+  test('instant sale: totals, due, status and snapshots (no cost)', async ({ client, assert }) => {
     const { user, brick, block, customer } = await setup()
 
     const response = await client
@@ -50,7 +48,7 @@ test.group('Sales: calculations', (group) => {
 
     response.assertStatus(201)
     const sale = response.body().data
-    // brick: 5000 × 6.50 = 32500 (cost 21000) · block: 100 × 50 = 5000 (cost 3000)
+    // brick: 5000 × 6.50 = 32500 · block: 100 × 50 = 5000
     assert.containsSubset(sale, {
       type: 'instant',
       status: 'delivered',
@@ -59,17 +57,17 @@ test.group('Sales: calculations', (group) => {
       transport_charge: '1500.00',
       discount: '500.00',
       total: '38500.00',
-      total_cost: '24000.00',
-      profit: '14500.00',
       paid_amount: '10000.00',
       due_amount: '28500.00',
       payment_status: 'partial',
     })
     assert.match(sale.invoice_no, /^INV-\d{6}$/)
+    assert.notProperty(sale, 'profit')
+    assert.notProperty(sale, 'total_cost')
+    assert.notProperty(sale.items[0], 'unit_cost')
     assert.lengthOf(sale.items, 2)
     assert.containsSubset(sale.items[0], {
       product_name: brick.name,
-      unit_cost: '4.20',
       line_total: '32500.00',
     })
     assert.equal(sale.payments[0].created_by.id, user.id)
@@ -117,12 +115,9 @@ test.group('Sales: calculations', (group) => {
     bad.assertStatus(422)
   })
 
-  test('tax: a percent of subtotal + transport − discount; not profit', async ({
-    client,
-    assert,
-  }) => {
+  test('tax: a percent of subtotal + transport − discount', async ({ client, assert }) => {
     const { user, brick, customer } = await setup()
-    // 1000 × 6.50 = 6500 (cost 4200) + 500 transport − 0 discount = 7000
+    // 1000 × 6.50 = 6500 + 500 transport − 0 discount = 7000
     const res = await client
       .post(`${API}/sales`)
       .loginAs(user)
@@ -138,7 +133,6 @@ test.group('Sales: calculations', (group) => {
       tax_percent: '5.00',
       tax_amount: '350.00',
       total: '7350.00',
-      profit: '2800.00', // 7000 − 4200
       due_amount: '7350.00',
     })
 

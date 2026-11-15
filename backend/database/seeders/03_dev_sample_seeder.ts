@@ -44,35 +44,30 @@ export default class extends BaseSeeder {
     const products = await Product.createMany([
       {
         name: 'Fly Ash Brick 9×4×3',
-        defaultCost: '4.20',
         defaultPrice: '6.50',
         isActive: true,
         createdBy: userId,
       },
       {
         name: 'Fly Ash Brick 9×4×2.5',
-        defaultCost: '3.80',
         defaultPrice: '5.80',
         isActive: true,
         createdBy: userId,
       },
       {
         name: 'Hollow Block 16×8×8',
-        defaultCost: '28.00',
         defaultPrice: '42.00',
         isActive: true,
         createdBy: userId,
       },
       {
         name: 'Solid Block 12×8×6',
-        defaultCost: '22.00',
         defaultPrice: '34.00',
         isActive: true,
         createdBy: userId,
       },
       {
         name: 'Paver Block',
-        defaultCost: '9.00',
         defaultPrice: '14.00',
         isActive: false,
         createdBy: userId,

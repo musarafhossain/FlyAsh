@@ -29,7 +29,6 @@ class FakeHome {
   Map<String, Object?> get dashboard => {
     'date': '2026-11-09',
     'today_sales': {'amount': '313800.00', 'count': 11},
-    'today_profit': '116400.00',
     'total_due': '828316.00',
     'deliveries_today': 3,
     'overdue_deliveries': 2,
@@ -129,7 +128,8 @@ void main() {
     expect(find.text('Maa Tara Fly Ash Bricks · 09 Nov 2026'), findsNothing);
     expect(find.text("Today's sales"), findsOneWidget);
     expect(find.text('₹3,13,800'), findsOneWidget);
-    expect(find.text('11 sales · profit ₹1,16,400'), findsOneWidget);
+    expect(find.text('11 sales'), findsOneWidget);
+    expect(find.textContaining('profit'), findsNothing);
     expect(find.text('₹8,28,316'), findsOneWidget);
     expect(find.text('Deliveries · 2 late'), findsOneWidget);
     expect(find.text('14/17'), findsOneWidget);

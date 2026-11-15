@@ -74,15 +74,9 @@ export default class ProductsController {
     return ok(response, null, 'products.deleted')
   }
 
-  private fields(data: {
-    name: string
-    default_cost: number
-    default_price: number
-    notes?: string | null
-  }) {
+  private fields(data: { name: string; default_price: number; notes?: string | null }) {
     return {
       name: data.name,
-      defaultCost: money(data.default_cost),
       defaultPrice: money(data.default_price),
       notes: data.notes ?? null,
     }

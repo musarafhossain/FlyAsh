@@ -6,9 +6,9 @@ import { API, createUser } from '#tests/helpers'
 
 /**
  * October 2026 sample:
- *  - instant sale 10 Oct: 1000 × 6.50 = 6500 (cost 4200, profit 2300), paid 1000 UPI
- *  - booking 11 Oct delivered 20 Oct: 2000 × 6.50 = 13000 (cost 8400, profit 4600), advance 3000 cash
- *  - booking 12 Oct not delivered: excluded from sales / profit / dues
+ *  - instant sale 10 Oct: 1000 × 6.50 = 6500, paid 1000 UPI
+ *  - booking 11 Oct delivered 20 Oct: 2000 × 6.50 = 13000, advance 3000 cash
+ *  - booking 12 Oct not delivered: excluded from sales / dues
  *  - expense 15 Oct: 850
  *  - daily labour ₹500 present 1 + 2 Oct: wages 1000
  */
@@ -16,7 +16,6 @@ async function seedOctober(client: any) {
   const user = await createUser()
   const brick = await Product.create({
     name: 'Report Brick',
-    defaultCost: '4.20',
     defaultPrice: '6.50',
     isActive: true,
   })
@@ -97,13 +96,11 @@ test.group('Reports', (group) => {
     assert.containsSubset(sales, {
       count: 2,
       amount: '19500.00',
-      cost: '12600.00',
-      profit: '6900.00',
     })
+    assert.notProperty(sales, 'profit')
     assert.containsSubset(sales.by_product[0], {
       quantity: '3000.00',
       amount: '19500.00',
-      profit: '6900.00',
     })
     assert.deepEqual(
       sales.daily.map((d: any) => d.date),
@@ -135,18 +132,18 @@ test.group('Reports', (group) => {
     const net = (
       await client.get(`${API}/reports/net-profit?from=2026-09-01&to=2026-10-31`).loginAs(user)
     ).body().data
-    // 6900 − 850 − 1000
+    // sales without tax 19500 − expenses 850 − wages 1000
     assert.containsSubset(net, {
-      sales_profit: '6900.00',
+      sales: '19500.00',
       expenses: '850.00',
       wages: '1000.00',
-      net_profit: '5050.00',
+      net_profit: '17650.00',
     })
     assert.deepEqual(
       net.monthly.map((m: any) => [m.month, m.net_profit]),
       [
         ['2026-09', '0.00'],
-        ['2026-10', '5050.00'],
+        ['2026-10', '17650.00'],
       ]
     )
 
@@ -160,7 +157,6 @@ test.group('Reports', (group) => {
     response.assertStatus(200)
     assert.properties(response.body().data, [
       'today_sales',
-      'today_profit',
       'total_due',
       'deliveries_today',
       'overdue_deliveries',

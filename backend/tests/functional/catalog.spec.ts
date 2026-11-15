@@ -5,26 +5,24 @@ import { API, createUser } from '#tests/helpers'
 test.group('Products', (group) => {
   group.each.setup(() => testUtils.db().withGlobalTransaction())
 
-  test('create, list with margin, validation', async ({ client, assert }) => {
+  test('create (price only), list, validation', async ({ client, assert }) => {
     const user = await createUser()
 
     const created = await client.post(`${API}/products`).loginAs(user).json({
       name: 'Fly Ash Brick 9x4x3',
-      default_cost: '4.20',
       default_price: 6.5,
     })
     created.assertStatus(201)
     assert.containsSubset(created.body().data, {
       name: 'Fly Ash Brick 9x4x3',
-      default_cost: '4.20',
       default_price: '6.50',
-      margin: '2.30',
       is_active: true,
     })
+    assert.notProperty(created.body().data, 'default_cost')
+    assert.notProperty(created.body().data, 'margin')
 
     const duplicate = await client.post(`${API}/products`).loginAs(user).json({
       name: 'Fly Ash Brick 9x4x3',
-      default_cost: 1,
       default_price: 1,
     })
     duplicate.assertStatus(422)
@@ -42,7 +40,6 @@ test.group('Products', (group) => {
     const user = await createUser()
     const product = await client.post(`${API}/products`).loginAs(user).json({
       name: 'Block',
-      default_cost: 10,
       default_price: 15,
     })
     const id = product.body().data.id

@@ -30,7 +30,6 @@ test.group('Settings', (group) => {
 
     const product = await Product.create({
       name: 'P',
-      defaultCost: '1.00',
       defaultPrice: '2.00',
       isActive: true,
     })

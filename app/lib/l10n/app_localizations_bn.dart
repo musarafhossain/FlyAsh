@@ -512,19 +512,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get productNameHint => 'যেমন Fly Ash Brick 9×4×3';
 
   @override
-  String get defaultCost => 'খরচ';
-
-  @override
   String get defaultPrice => 'দাম';
-
-  @override
-  String get margin => 'লাভ';
-
-  @override
-  String get marginPerUnit => 'লাভ';
-
-  @override
-  String get lossPerUnit => 'ক্ষতি';
 
   @override
   String get productCreated => 'প্রোডাক্ট যোগ হয়েছে';
@@ -796,9 +784,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get discount => 'ছাড়';
 
   @override
-  String get productionCost => 'উৎপাদন খরচ';
-
-  @override
   String get profit => 'লাভ';
 
   @override
@@ -893,9 +878,6 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get unitPriceLabel => 'দাম';
-
-  @override
-  String get unitCostLabel => 'খরচ';
 
   @override
   String get lineTotal => 'মোট';
@@ -1283,11 +1265,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get todaysSales => 'আজকের বিক্রি';
 
   @override
-  String todaysSalesCaption(String count, String profit) {
-    return '$countটি বিক্রি · লাভ $profit';
-  }
-
-  @override
   String get selectDate => 'তারিখ বাছুন';
 
   @override
@@ -1314,4 +1291,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get invalidTaxPercent => '০ থেকে ১০০ লিখুন, যেমন 5 বা 12.5';
+
+  @override
+  String salesCountCaption(String count) {
+    return '$countটি বিক্রি';
+  }
 }

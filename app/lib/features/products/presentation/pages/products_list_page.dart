@@ -222,7 +222,7 @@ class ProductIcon extends StatelessWidget {
   );
 }
 
-/// Phone/tablet row: icon · name · cost → price · margin.
+/// Phone/tablet row: icon · name (notes) | price.
 class ProductTile extends StatelessWidget {
   const ProductTile({
     super.key,
@@ -266,16 +266,15 @@ class ProductTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.title.copyWith(color: t.textPrimary),
                   ),
-                  Text(
-                    '${Fmt.money(p.defaultCost, decimals: true)} → '
-                    '${Fmt.money(p.defaultPrice, decimals: true)}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.caption.copyWith(
-                      color: t.textTertiary,
-                      fontFeatures: AppTypography.tabular,
+                  if ((p.notes ?? '').isNotEmpty)
+                    Text(
+                      p.notes!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.caption.copyWith(
+                        color: t.textSecondary,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -287,39 +286,17 @@ class ProductTile extends StatelessWidget {
                   StatusPill(l.inactive),
                   const SizedBox(height: Space.s1),
                 ],
-                MarginText(product: p),
                 Text(
-                  l.margin,
-                  style: AppTypography.micro.copyWith(color: t.textTertiary),
+                  Fmt.money(p.defaultPrice, decimals: true),
+                  style: AppTypography.bodyStrong.copyWith(
+                    color: t.textPrimary,
+                    fontFeatures: AppTypography.tabular,
+                  ),
                 ),
               ],
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// "+₹2.50" in green, or "−₹1.00" in red when sold at a loss.
-class MarginText extends StatelessWidget {
-  const MarginText({super.key, required this.product});
-
-  final Product product;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final loss = product.isLoss;
-    final amount = Fmt.money(
-      loss ? product.margin.substring(1) : product.margin,
-      decimals: true,
-    );
-    return Text(
-      '${loss ? '−' : '+'}$amount',
-      style: AppTypography.bodyStrong.copyWith(
-        color: loss ? t.error : t.success,
-        fontFeatures: AppTypography.tabular,
       ),
     );
   }
@@ -338,9 +315,7 @@ class _ProductsTable extends StatelessWidget {
     return DataTableCard(
       columns: [
         TableColumnDef(l.productName, flex: 4),
-        TableColumnDef(l.defaultCost, flex: 2, alignEnd: true),
         TableColumnDef(l.defaultPrice, flex: 2, alignEnd: true),
-        TableColumnDef(l.margin, flex: 2, alignEnd: true),
         TableColumnDef(l.status, flex: 2, alignEnd: true),
       ],
       rows: [
@@ -353,9 +328,7 @@ class _ProductsTable extends StatelessWidget {
                 Expanded(child: CellText(p.name, strong: true)),
               ],
             ),
-            CellText(money(p.defaultCost)),
             CellText(money(p.defaultPrice)),
-            MarginText(product: p),
             StatusPill(
               p.isActive ? l.active : l.inactive,
               tone: p.isActive ? StatusTone.success : StatusTone.neutral,

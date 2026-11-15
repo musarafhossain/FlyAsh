@@ -2,38 +2,29 @@ import 'package:flutter/foundation.dart';
 
 import '../../../core/network/api_response.dart';
 
-/// A product the factory sells, with a default cost and price.
+/// A product the factory sells, with a default price (no cost).
 /// Money stays a string ("4.50") as sent by the API; format with `Fmt.money`.
 @immutable
 class Product {
   const Product({
     required this.id,
     required this.name,
-    required this.defaultCost,
     required this.defaultPrice,
-    required this.margin,
     this.notes,
     this.isActive = true,
   });
 
   final String id;
   final String name;
-  final String defaultCost;
   final String defaultPrice;
 
-  /// price − cost (can be negative).
-  final String margin;
   final String? notes;
   final bool isActive;
-
-  bool get isLoss => margin.startsWith('-');
 
   factory Product.fromJson(Json json) => Product(
     id: idOf(json['id']),
     name: json['name'] as String? ?? '',
-    defaultCost: '${json['default_cost'] ?? '0'}',
     defaultPrice: '${json['default_price'] ?? '0'}',
-    margin: '${json['margin'] ?? '0'}',
     notes: json['notes'] as String?,
     isActive: json['is_active'] as bool? ?? true,
   );
@@ -44,21 +35,18 @@ class Product {
 class ProductInput {
   const ProductInput({
     required this.name,
-    required this.defaultCost,
     required this.defaultPrice,
     this.notes,
   });
 
   final String name;
 
-  /// Decimal strings, e.g. "4.50" (never doubles).
-  final String defaultCost;
+  /// Decimal string, e.g. "6.50" (never a double).
   final String defaultPrice;
   final String? notes;
 
   Json toJson() => {
     'name': name.trim(),
-    'default_cost': defaultCost,
     'default_price': defaultPrice,
     'notes': notes,
   };

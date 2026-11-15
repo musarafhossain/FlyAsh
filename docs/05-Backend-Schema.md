@@ -118,7 +118,6 @@ The row is deleted after a successful reset, so the reset token is single use. O
 |---|---|---|---|---|
 | id | CHAR(36) PK (UUID v7) | | app | |
 | name | VARCHAR(100) | no | | **unique** |
-| default_cost | DECIMAL(12,2) | no | 0.00 | Production cost per unit |
 | default_price | DECIMAL(12,2) | no | 0.00 | Selling price per unit |
 | notes | VARCHAR(500) | yes | NULL | |
 | is_active | TINYINT(1) | no | 1 | index |
@@ -150,16 +149,14 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 | customer_id | CHAR(36) FK → customers.id | no | | index |
 | sale_date | DATE | no | | The day the sale or booking was made |
 | delivery_date | DATE | yes | NULL | Booking: expected delivery date |
-| delivered_date | DATE | yes | NULL | Date it was delivered (instant: = `sale_date`). **Used by all sales and profit reports** |
+| delivered_date | DATE | yes | NULL | Date it was delivered (instant: = `sale_date`). **Used by all sales reports** |
 | delivery_address | VARCHAR(500) | yes | NULL | |
 | subtotal | DECIMAL(12,2) | no | 0.00 | Σ `sale_items.line_total` |
 | transport_charge | DECIMAL(12,2) | no | 0.00 | |
 | discount | DECIMAL(12,2) | no | 0.00 | |
 | tax_percent | DECIMAL(5,2) | no | 0.00 | 0–100, of (subtotal + transport − discount) (migration 0021) |
-| tax_amount | DECIMAL(12,2) | no | 0.00 | Rounded to paise. total = subtotal + transport − discount + tax; **profit excludes tax** |
+| tax_amount | DECIMAL(12,2) | no | 0.00 | Rounded to paise. total = subtotal + transport − discount + tax |
 | total | DECIMAL(12,2) | no | 0.00 | `subtotal + transport_charge − discount` |
-| total_cost | DECIMAL(12,2) | no | 0.00 | Σ `sale_items.line_cost` |
-| profit | DECIMAL(12,2) | no | 0.00 | `total − total_cost` |
 | paid_amount | DECIMAL(12,2) | no | 0.00 | Σ `sale_payments.amount` |
 | due_amount | DECIMAL(12,2) | no | 0.00 | `total − paid_amount` |
 | payment_status | VARCHAR(20) | no | 'due' | `paid` · `partial` · `due` |
@@ -170,7 +167,7 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 | deleted_at | DATETIME | yes | NULL | Soft delete. All queries filter `deleted_at IS NULL` |
 
 **Indexes:** `(status, delivered_date)`, `(status, delivery_date)`, `(payment_status)`, `(sale_date)`, `(customer_id)`, `(deleted_at)`.
-`total`, `total_cost`, `profit`, `paid_amount`, `due_amount` and `payment_status` are written **only** by `SaleService.recalculate()`.
+`total`, `tax_amount`, `paid_amount`, `due_amount` and `payment_status` are written **only** by `SaleService.recalculate()`.
 
 ### 3.8 `sale_items`
 
@@ -181,9 +178,7 @@ Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** fr
 | product_id | CHAR(36) FK → products.id | no | | index |
 | product_name | VARCHAR(100) | no | | Snapshot (receipt stays the same if the product is renamed) |
 | quantity | DECIMAL(12,2) | no | | > 0 |
-| unit_cost | DECIMAL(12,2) | no | | Snapshot, editable in the sale form |
 | unit_price | DECIMAL(12,2) | no | | Snapshot, editable in the sale form |
-| line_cost | DECIMAL(12,2) | no | | `quantity × unit_cost` |
 | line_total | DECIMAL(12,2) | no | | `quantity × unit_price` |
 | created_at / updated_at | DATETIME | no | | |
 
@@ -232,7 +227,7 @@ A row means the labour was **present** that day. No row means absent (there is n
 
 **Unique:** `(labour_id, date)`. **Index:** `(date)`. "Not marked" = no row.
 
-Products have no unit (piece / thousand / truck / custom label) any more: migration 0024 dropped `products.unit`, `products.unit_label` and `sale_items.unit`.
+Products have no unit (migration 0024) and no cost (migration 0025): a product is a name and a price. Sales keep no cost or per-sale profit; net profit = sales without tax − expenses − wages.
 
 ### 3.12 (removed) `labour_advances`
 
@@ -293,11 +288,9 @@ Dropped by migration 0020. An expense's category is now plain text on the expens
 ### 4.1 `SaleService.recalculate(sale)`, run in the same transaction after any item or payment change
 
 ```
-for each item: line_total = quantity × unit_price ; line_cost = quantity × unit_cost
+for each item: line_total = quantity × unit_price
 subtotal    = Σ line_total
 total       = subtotal + transport_charge − discount          (reject if < 0)
-total_cost  = Σ line_cost
-profit      = total − total_cost
 paid_amount = Σ payments.amount                               (reject if > total)
 due_amount  = total − paid_amount
 payment_status = paid_amount = 0 ? 'due' : (due_amount = 0 ? 'paid' : 'partial')
@@ -323,10 +316,10 @@ GROUP BY a.labour_id;
 ### 4.3 Net profit for a period
 
 ```
-sales_profit = Σ sales.profit   WHERE status='delivered' AND deleted_at IS NULL AND delivered_date BETWEEN from AND to
+sales        = Σ (sales.total − sales.tax_amount)   WHERE status='delivered' AND deleted_at IS NULL AND delivered_date BETWEEN from AND to
 expenses     = Σ expenses.amount WHERE expense_date BETWEEN from AND to
 wages        = Σ earned (formula 4.2) WHERE attendances.date BETWEEN from AND to
-net_profit   = sales_profit − expenses − wages
+net_profit   = sales − expenses − wages
 ```
 
 ### 4.4 Customer due
@@ -376,14 +369,14 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 | Endpoint | Request body | `data` |
 |---|---|---|
 | `GET /products?page&limit&search&active` | — | Paginated `Product` |
-| `POST /products` · `PUT /products/:id` | `{ name, default_cost, default_price, notes? }` | `Product` |
+| `POST /products` · `PUT /products/:id` | `{ name, default_price, notes? }` | `Product` |
 | `PATCH /products/:id/status` | `{ is_active }` | `Product` |
 | `DELETE /products/:id` | — | `null` (409 if used in a sale) |
 
 ```jsonc
 // Product
 { "id": 3, "name": "Fly Ash Brick 9×4×3",
-  "default_cost": "4.20", "default_price": "6.50", "margin": "2.30", "notes": null, "is_active": true }
+  "default_price": "6.50", "notes": null, "is_active": true }
 ```
 
 ### 5.4 Customers
@@ -414,7 +407,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
   "delivery_date": "2026-11-12",           // booking only (required)
   "delivery_address": "Barasat",           // optional
   "items": [
-    { "product_id": 3, "quantity": "5000", "unit_cost": "4.20", "unit_price": "6.50" }
+    { "product_id": 3, "quantity": "5000", "unit_price": "6.50" }
   ],
   "transport_charge": "1500.00",
   "discount": "500.00",
@@ -441,14 +434,14 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 { "id": 101, "invoice_no": "INV-000101", "type": "booking", "status": "booked", "payment_status": "partial",
   "customer": { "id": 12, "name": "Rahim Traders", "phone": "9876543210" },
   "sale_date": "2026-11-08", "delivery_date": "2026-11-12", "delivered_date": null,
-  "total": "33500.00", "profit": "12500.00", "paid_amount": "10000.00", "due_amount": "23500.00" }
+  "total": "33500.00", "paid_amount": "10000.00", "due_amount": "23500.00" }
 
 // Sale = SaleListItem + 
 { "delivery_address": "Barasat", "subtotal": "32500.00", "transport_charge": "1500.00", "discount": "500.00",
-  "total_cost": "21000.00", "notes": "Deliver before noon",
+  "notes": "Deliver before noon",
   "items": [ { "id": 1, "product_id": 3, "product_name": "Fly Ash Brick 9×4×3", "unit": "piece",
-               "quantity": "5000.00", "unit_cost": "4.20", "unit_price": "6.50",
-               "line_cost": "21000.00", "line_total": "32500.00" } ],
+               "quantity": "5000.00", "unit_price": "6.50",
+               "line_total": "32500.00" } ],
   "payments": [ { "id": 7, "amount": "10000.00", "payment_date": "2026-11-08", "method": "upi",
                   "note": "Advance", "created_by": { "id": 1, "name": "Rahim Sheikh" } } ],
   "created_by": { "id": 1, "name": "Rahim Sheikh" }, "created_at": "2026-11-08T06:30:00.000Z" }
@@ -512,7 +505,7 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 
 ```jsonc
 // GET /dashboard
-{ "today_sales": { "amount": "48500.00", "count": 6 }, "today_profit": "15200.00",
+{ "today_sales": { "amount": "48500.00", "count": 6 },
   "total_due": "126400.00", "deliveries_today": 3, "overdue_deliveries": 1,
   "present_today": 13, "labours_total": 15, "month_expenses": "18250.00",
   "recent_sales": [ /* 5 × SaleListItem */ ] }
@@ -522,11 +515,11 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 
 | Endpoint | `data` |
 |---|---|
-| `GET /reports/sales?from&to` | `{ count, amount, cost, profit, by_product: [{ product_id, product_name, quantity, amount, profit }], daily: [{ date, amount, profit }] }` |
+| `GET /reports/sales?from&to` | `{ count, amount, by_product: [{ product_id, product_name, quantity, amount }], daily: [{ date, amount }] }` |
 | `GET /reports/dues?page&limit` | Paginated `{ customer_id, name, phone, total_due, oldest_due_date }` + `grand_total` |
 | `GET /reports/expenses?from&to` | `{ total, by_category: [{ category_id, name, amount, percent }] }` |
 | `GET /reports/wages?month` | `{ earned, paid, balance, rows: WageRow[] }` |
-| `GET /reports/net-profit?from&to` | `{ sales_profit, expenses, wages, net_profit, monthly: [{ month, sales_profit, expenses, wages, net_profit }] }` |
+| `GET /reports/net-profit?from&to` | `{ sales, expenses, wages, net_profit, monthly: [{ month, sales, expenses, wages, net_profit }] }` (sales without tax) |
 | `GET /reports/collections?from&to` | `{ total, by_method: [{ method, amount }], daily: [{ date, amount }] }` |
 
 ### 5.10 Settings, app version

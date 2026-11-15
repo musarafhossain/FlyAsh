@@ -13,8 +13,7 @@ import {
 const item = vine.object({
   product_id: idRule().exists({ table: 'products', column: 'id' }),
   quantity: vine.number().min(0.01).max(9999999999.99).decimal([0, 2]),
-  /** Optional: defaults to the product's default cost / price */
-  unit_cost: moneyRule().optional(),
+  /** Optional: defaults to the product's default price */
   unit_price: moneyRule().optional(),
 })
 

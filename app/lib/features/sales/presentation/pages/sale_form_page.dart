@@ -44,33 +44,28 @@ class _ItemRow {
     this.productName,
     String quantity = '',
     String price = '',
-    String cost = '',
   }) : quantity = TextEditingController(text: quantity),
-       price = TextEditingController(text: price),
-       cost = TextEditingController(text: cost);
+       price = TextEditingController(text: price);
 
   final key = UniqueKey();
   String? productId;
   String? productName;
   final TextEditingController quantity;
   final TextEditingController price;
-  final TextEditingController cost;
 
   Decimal get lineTotal => _dec(quantity.text) * _dec(price.text);
-  Decimal get lineCost => _dec(quantity.text) * _dec(cost.text);
 
   void dispose() {
     quantity.dispose();
     price.dispose();
-    cost.dispose();
   }
 }
 
 /// New sale or booking, or edit a sale (03-AppFlow §5.1):
 /// type → customer (pick, or add a new one inline) → dates → items
-/// (product fills cost and price, both editable) → transport, discount →
+/// (product fills the price, editable) → transport, discount →
 /// payment received now (new sales only) → notes. The summary bar shows
-/// Total · Profit · Due live; the server's numbers are final after save.
+/// Total · Due live; the server's numbers are final after save.
 /// Leaving with unsaved changes asks first. Pops with the saved [Sale].
 class SaleFormPage extends ConsumerStatefulWidget {
   const SaleFormPage({
@@ -206,7 +201,6 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
                 productName: item.productName,
                 quantity: plain(item.quantity),
                 price: plain(item.unitPrice),
-                cost: plain(item.unitCost),
               ),
           ]);
         if (_items.isEmpty) _items.add(_ItemRow());
@@ -232,7 +226,6 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
 
   Decimal get _subtotal =>
       _items.fold(Decimal.zero, (sum, i) => sum + i.lineTotal);
-  Decimal get _cost => _items.fold(Decimal.zero, (sum, i) => sum + i.lineCost);
 
   /// Subtotal + transport − discount (what tax is a percent of).
   Decimal get _taxable =>
@@ -315,7 +308,6 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
         ..productId = picked.id
         ..productName = picked.name;
       row.price.text = plain(picked.defaultPrice);
-      row.cost.text = plain(picked.defaultCost);
       _dirty = true;
     });
   }
@@ -379,7 +371,6 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
           SaleItemInput(
             productId: i.productId!,
             quantity: i.quantity.text.trim(),
-            unitCost: i.cost.text.trim(),
             unitPrice: i.price.text.trim(),
           ),
       ],
@@ -491,7 +482,6 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
         bottomNavigationBar: _loaded
             ? _SummaryBar(
                 total: _total,
-                profit: _taxable - _cost, // tax is not profit
                 due: _total - _paid,
                 busy: busy,
                 saveLabel: _isEdit ? l.save : l.saveSale,
@@ -1027,7 +1017,7 @@ class _PickTile extends StatelessWidget {
   }
 }
 
-/// One item: product, quantity, price, cost and the line total.
+/// One item: product, quantity, price and the line total.
 class _ItemCard extends StatelessWidget {
   const _ItemCard({
     super.key,
@@ -1131,16 +1121,7 @@ class _ItemCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: MoneyField(
-                  controller: row.cost,
-                  label: l.unitCostLabel,
-                  validator: v.money,
-                  errorText: err('unit_cost'),
-                  onChanged: (_) => onChanged(),
-                ),
-              ),
-              const SizedBox(width: Space.s3),
+              const Spacer(),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -1172,11 +1153,10 @@ class _ItemCard extends StatelessWidget {
   }
 }
 
-/// Sticky bar: Total · Profit · Due (live) and Save.
+/// Sticky bar: Total · Due (live) and Save.
 class _SummaryBar extends StatelessWidget {
   const _SummaryBar({
     required this.total,
-    required this.profit,
     required this.due,
     required this.busy,
     required this.saveLabel,
@@ -1184,7 +1164,6 @@ class _SummaryBar extends StatelessWidget {
   });
 
   final Decimal total;
-  final Decimal profit;
   final Decimal due;
   final bool busy;
   final String saveLabel;
@@ -1242,11 +1221,6 @@ class _SummaryBar extends StatelessWidget {
               child: Row(
                 children: [
                   figure(l.total, total, t.textPrimary),
-                  figure(
-                    l.profit,
-                    profit,
-                    profit < Decimal.zero ? t.error : t.success,
-                  ),
                   figure(
                     l.due,
                     due,

@@ -7,7 +7,6 @@ import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/utils/formatters.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/form_fields.dart';
 import '../../../../core/widgets/form_submit.dart';
@@ -20,8 +19,7 @@ import '../product_actions.dart';
 import '../../../../core/widgets/skeletons.dart';
 
 /// Add a product, or edit one (with Activate/Deactivate and Delete).
-/// Form: name, default cost, default price, notes, and the margin worked
-/// out while typing.
+/// Form: name, default price and notes.
 class ProductFormPage extends ConsumerStatefulWidget {
   const ProductFormPage({super.key, this.productId});
 
@@ -35,7 +33,6 @@ class ProductFormPage extends ConsumerStatefulWidget {
 class _ProductFormPageState extends ConsumerState<ProductFormPage>
     with FormSubmit {
   final _name = TextEditingController();
-  final _cost = TextEditingController();
   final _price = TextEditingController();
   final _notes = TextEditingController();
 
@@ -58,7 +55,7 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
 
   @override
   void dispose() {
-    for (final c in [_name, _cost, _price, _notes]) {
+    for (final c in [_name, _price, _notes]) {
       c.dispose();
     }
     super.dispose();
@@ -74,7 +71,6 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
       setState(() {
         _product = p;
         _name.text = p.name;
-        _cost.text = _plain(p.defaultCost);
         _price.text = _plain(p.defaultPrice);
         _notes.text = p.notes ?? '';
         _loaded = true;
@@ -88,18 +84,10 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
   static String _plain(String v) =>
       (Decimal.tryParse(v) ?? Decimal.zero).toString();
 
-  /// price − cost while typing; null until both are valid numbers.
-  Decimal? get _margin {
-    final cost = Decimal.tryParse(_cost.text.trim());
-    final price = Decimal.tryParse(_price.text.trim());
-    return (cost == null || price == null) ? null : price - cost;
-  }
-
   Future<void> _save() async {
     final repo = ref.read(productsRepositoryProvider);
     final input = ProductInput(
       name: _name.text,
-      defaultCost: _cost.text.trim(),
       defaultPrice: _price.text.trim(),
       notes: textOrNull(_notes),
     );
@@ -190,32 +178,12 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
         ),
       ),
       const SizedBox(height: Space.s4),
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: MoneyField(
-              controller: _cost,
-              label: l.defaultCost,
-              validator: v.money,
-              errorText: fieldErrors['default_cost'],
-              onChanged: (_) => setState(() {}),
-            ),
-          ),
-          const SizedBox(width: Space.s3),
-          Expanded(
-            child: MoneyField(
-              controller: _price,
-              label: l.defaultPrice,
-              validator: v.money,
-              errorText: fieldErrors['default_price'],
-              onChanged: (_) => setState(() {}),
-            ),
-          ),
-        ],
+      MoneyField(
+        controller: _price,
+        label: l.defaultPrice,
+        validator: v.money,
+        errorText: fieldErrors['default_price'],
       ),
-      const SizedBox(height: Space.s3),
-      _MarginPreview(margin: _margin),
       const SizedBox(height: Space.s4),
       TextFormField(
         controller: _notes,
@@ -261,51 +229,5 @@ class _ProductFormPageState extends ConsumerState<ProductFormPage>
         ),
       ],
     ];
-  }
-}
-
-/// "Margin ₹2.50" (green) or "Loss ₹1.00" (red).
-class _MarginPreview extends StatelessWidget {
-  const _MarginPreview({required this.margin});
-
-  final Decimal? margin;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final m = margin;
-    final loss = m != null && m < Decimal.zero;
-    final fg = m == null ? t.textTertiary : (loss ? t.error : t.success);
-    final bg = m == null ? t.surfaceVariant : (loss ? t.errorBg : t.successBg);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Space.s4,
-        vertical: Space.s3,
-      ),
-      decoration: BoxDecoration(color: bg, borderRadius: Radii.mdAll),
-      child: Row(
-        children: [
-          Icon(loss ? Icons.trending_down : Icons.trending_up, color: fg),
-          const SizedBox(width: Space.s3),
-          Expanded(
-            child: Text(
-              loss ? l.lossPerUnit : l.marginPerUnit,
-              style: AppTypography.body.copyWith(color: fg),
-            ),
-          ),
-          Text(
-            m == null
-                ? '—'
-                : Fmt.money((loss ? -m : m).toString(), decimals: true),
-            style: AppTypography.title.copyWith(
-              color: fg,
-              fontFeatures: AppTypography.tabular,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -17,7 +17,6 @@ export default class DashboardService {
       .where('delivered_date', date)
       .count('* as count')
       .sum('total as amount')
-      .sum('profit as profit')
       .first()
 
     const due = await notDeletedSales()
@@ -56,7 +55,6 @@ export default class DashboardService {
     return {
       date,
       today_sales: { amount: money(todaySales?.amount), count: Number(todaySales?.count ?? 0) },
-      today_profit: money(todaySales?.profit),
       total_due: money(due?.total),
       deliveries_today: Number(deliveriesToday?.count ?? 0),
       overdue_deliveries: Number(overdue?.count ?? 0),

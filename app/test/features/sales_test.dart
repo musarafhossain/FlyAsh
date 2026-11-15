@@ -37,8 +37,6 @@ Map<String, Object?> saleJson(
   'transport_charge': '1500.00',
   'discount': '500.00',
   'total': total,
-  'total_cost': '23800.00',
-  'profit': '14200.00',
   'paid_amount': '10000.00',
   'due_amount': due,
   'payment_status': payment,
@@ -78,17 +76,13 @@ Map<String, Object?> detail104() => {
     {
       'product_name': 'Fly Ash Brick 9×4×3',
       'quantity': '5000.00',
-      'unit_cost': '4.20',
       'unit_price': '6.50',
-      'line_cost': '21000.00',
       'line_total': '32500.00',
     },
     {
       'product_name': 'Hollow Block 16×8×8',
       'quantity': '100.00',
-      'unit_cost': '28.00',
       'unit_price': '45.00',
-      'line_cost': '2800.00',
       'line_total': '4500.00',
     },
   ],
@@ -380,11 +374,12 @@ void main() {
     expect(find.text('5,000 × ₹6.50'), findsOneWidget);
     expect(find.text('₹32,500'), findsOneWidget);
 
-    await tester.scrollUntilVisible(find.text('Profit'), 200);
+    await tester.scrollUntilVisible(find.text('Due'), 200);
     expect(find.text('+ ₹1,500.00'), findsOneWidget); // transport
     expect(find.text('− ₹500.00'), findsOneWidget); // discount
     expect(find.text('₹38,000.00'), findsOneWidget); // total
-    expect(find.text('₹14,200.00'), findsOneWidget); // profit
+    expect(find.text('Profit'), findsNothing);
+    expect(find.text('Production cost'), findsNothing);
     expect(find.text('₹28,000.00'), findsOneWidget); // due
 
     await tester.scrollUntilVisible(find.text('Payments (1)'), 200);
