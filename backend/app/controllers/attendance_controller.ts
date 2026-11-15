@@ -5,8 +5,9 @@ import Labour from '#models/labour'
 import Attendance from '#models/attendance'
 import AppError from '#exceptions/app_error'
 import { ok } from '#helpers/api_response'
-import WageService from '#services/wage_service'
-import { currentMonth, monthRange, today } from '#helpers/dates'
+import WageService, { earnedPaise } from '#services/wage_service'
+import { fromPaise, toPaise } from '#helpers/money'
+import { currentMonth, daysInMonthOf, monthRange, today } from '#helpers/dates'
 import { attendanceDayValidator, monthValidator, saveAttendanceValidator } from '#validators/labour'
 
 export default class AttendanceController {
@@ -20,9 +21,10 @@ export default class AttendanceController {
   }
 
   /**
-   * PUT /attendance { date, records: [{ labour_id, present }] }
-   * present → a row is saved with the labour's current wage as a snapshot
-   * (an existing row keeps its snapshot); absent → the row is removed.
+   * PUT /attendance { date, records: [{ labour_id, present, wage? }] }
+   * present → a row is saved with the labour's current wage as a snapshot,
+   * or with `wage` as that day's daily wage when given (an existing row
+   * keeps its snapshot); absent → the row is removed.
    */
   async save({ auth, request, response }: HttpContext) {
     const { date, records } = await request.validateUsing(saveAttendanceValidator)
@@ -48,12 +50,13 @@ export default class AttendanceController {
           if (existing) await existing.delete()
         } else if (!existing) {
           const labour = byId.get(record.labour_id)!
+          const custom = record.wage !== undefined
           await Attendance.create(
             {
               labourId: labour.id,
               date,
-              wageType: labour.wageType,
-              wageAmount: labour.wageAmount,
+              wageType: custom ? 'daily' : labour.wageType,
+              wageAmount: custom ? fromPaise(toPaise(record.wage)) : labour.wageAmount,
               createdBy: userId,
             },
             { client: trx }
@@ -108,15 +111,26 @@ export default class AttendanceController {
         'labour_id',
         labours.map((l) => l.id)
       )
-    const present = new Set(rows.map((r) => r.labourId))
+    const rowOf = new Map(rows.map((r) => [r.labourId, r]))
 
-    const items = labours.map((labour) => ({
-      labour_id: labour.id,
-      name: labour.name,
-      wage_type: labour.wageType,
-      wage_amount: labour.wageAmount,
-      present: present.has(labour.id),
-    }))
+    // day_wage: the saved day's wage when present, else the labour's wage
+    // for one day (monthly ÷ days in that month).
+    const items = labours.map((labour) => {
+      const row = rowOf.get(labour.id)
+      const dayPaise = row
+        ? earnedPaise(row)
+        : labour.wageType === 'daily'
+          ? toPaise(labour.wageAmount)
+          : toPaise(labour.wageAmount) / daysInMonthOf(date)
+      return {
+        labour_id: labour.id,
+        name: labour.name,
+        wage_type: labour.wageType,
+        wage_amount: labour.wageAmount,
+        present: row !== undefined,
+        day_wage: fromPaise(Math.round(dayPaise)),
+      }
+    })
 
     const presentCount = items.filter((i) => i.present).length
     return {

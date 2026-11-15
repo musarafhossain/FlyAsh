@@ -257,6 +257,8 @@ flowchart TD
 - Present stores a row in `attendances`; absent removes the row (no row = absent).
 - Future dates are disabled in the picker and on the › arrow.
 - The list has a search box.
+- Each row shows the **day wage** (`₹450 / day`): the saved wage when present, the usual wage for one day when absent (monthly ÷ days in the month).
+- ✏ next to the switch (enabled only while **absent**) opens "Day wage for <name>" with the amount → Save. The row then shows `₹520 / day · edited`, and that wage is sent with the next switch-on (`PUT /attendance` `wage`). Switching to absent drops the saved wage; the usual wage shows again. While present, ✏ is disabled.
 
 ### 7.3 Wages (tab inside Labours)
 

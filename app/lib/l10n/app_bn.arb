@@ -392,5 +392,11 @@
   "taxLine": "ট্যাক্স ({percent}%)",
   "invalidTaxPercent": "০ থেকে ১০০ লিখুন, যেমন 5 বা 12.5",
   "salesCountCaption": "{count}টি বিক্রি",
-  "productDetails": "প্রোডাক্টের বিবরণ"
+  "productDetails": "প্রোডাক্টের বিবরণ",
+  "dayWage": "দিনের মজুরি",
+  "editDayWage": "দিনের মজুরি বদলান",
+  "editDayWageTitle": "{name}-এর দিনের মজুরি",
+  "editDayWageMessage": "{date} তারিখে {name}-কে উপস্থিত করলে এই মজুরি ধরা হবে।",
+  "dayWageLocked": "উপস্থিত করা আছে: মজুরি বদলাতে আগে অনুপস্থিত করুন",
+  "wageEdited": "বদলানো"
 }

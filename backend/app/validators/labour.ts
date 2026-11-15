@@ -45,6 +45,11 @@ export const saveAttendanceValidator = vine.create({
         labour_id: idRule(),
         /** true = present (a row is saved), false = absent (the row is removed) */
         present: vine.boolean(),
+        /**
+         * Optional wage for this day (₹), used when the row is created. Saved
+         * as a daily wage snapshot. Ignored when the labour is already present.
+         */
+        wage: positiveMoneyRule().optional(),
       })
     )
     .maxLength(500),

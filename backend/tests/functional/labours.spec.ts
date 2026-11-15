@@ -101,6 +101,59 @@ test.group('Labours & attendance', (group) => {
     assert.isTrue(calendar.body().data.days[1].present) // 2 Oct
     assert.isFalse(calendar.body().data.days[0].present)
   })
+
+  test('day wage: default when absent, saved wage when present, custom wage', async ({
+    client,
+    assert,
+  }) => {
+    const user = await createUser()
+    const daily = await addLabour(client, user, {
+      name: 'Daily',
+      wage_type: 'daily',
+      wage_amount: 450,
+      joining_date: '2026-10-01',
+    })
+    const monthly = await addLabour(client, user, {
+      name: 'Monthly',
+      wage_type: 'monthly',
+      wage_amount: 31000,
+      joining_date: '2026-10-01',
+    })
+    const of = (day: any, id: string) => day.items.find((i: any) => i.labour_id === id)
+
+    // Absent: the labour's wage for one day (31,000 ÷ 31 days in October)
+    const sheet = (await client.get(`${API}/attendance?date=2026-10-03`).loginAs(user)).body().data
+    assert.equal(of(sheet, daily.id).day_wage, '450.00')
+    assert.equal(of(sheet, monthly.id).day_wage, '1000.00')
+
+    // Present with a custom wage: saved as that day's daily wage
+    const day = await mark(client, user, '2026-10-03', [
+      { labour_id: daily.id, present: true, wage: 600 },
+      { labour_id: monthly.id, present: true, wage: 800.5 },
+    ])
+    assert.equal(of(day, daily.id).day_wage, '600.00')
+    assert.equal(of(day, monthly.id).day_wage, '800.50')
+
+    // Already present: a new wage is ignored (the saved day keeps its wage)
+    const again = await mark(client, user, '2026-10-03', [
+      { labour_id: daily.id, present: true, wage: 999 },
+    ])
+    assert.equal(of(again, daily.id).day_wage, '600.00')
+
+    // Wages use the custom amounts
+    const wages = await client.get(`${API}/labours/${monthly.id}/wages?month=2026-10`).loginAs(user)
+    assert.equal(wages.body().data.earned, '800.50')
+
+    // Absent again: back to the default
+    const cleared = await mark(client, user, '2026-10-03', [{ labour_id: daily.id, present: false }])
+    assert.equal(of(cleared, daily.id).day_wage, '450.00')
+
+    const bad = await client
+      .put(`${API}/attendance`)
+      .loginAs(user)
+      .json({ date: '2026-10-03', records: [{ labour_id: daily.id, present: true, wage: 0 }] })
+    bad.assertStatus(422)
+  })
 })
 
 test.group('Wages', (group) => {

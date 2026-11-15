@@ -698,5 +698,28 @@
       }
     }
   },
-  "productDetails": "Product details"
+  "productDetails": "Product details",
+  "dayWage": "Day wage",
+  "editDayWage": "Edit day wage",
+  "editDayWageTitle": "Day wage for {name}",
+  "@editDayWageTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editDayWageMessage": "Used when you mark {name} present for {date}.",
+  "@editDayWageMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dayWageLocked": "Already present: mark absent to change the wage",
+  "wageEdited": "edited"
 }

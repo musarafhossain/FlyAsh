@@ -11,7 +11,8 @@ class AttendanceEntry {
     required this.wageType,
     required this.wageAmount,
     this.present = false,
-  });
+    String? dayWage,
+  }) : dayWage = dayWage ?? wageAmount;
 
   final String labourId;
   final String name;
@@ -21,12 +22,17 @@ class AttendanceEntry {
   /// Present = a row is saved for that day; absent = no row.
   final bool present;
 
+  /// The wage for this day ("450.00"): the saved day's wage when present,
+  /// else the labour's wage for one day (monthly ÷ days in the month).
+  final String dayWage;
+
   factory AttendanceEntry.fromJson(Json json) => AttendanceEntry(
     labourId: idOf(json['labour_id']),
     name: json['name'] as String? ?? '',
     wageType: json['wage_type'] as String? ?? 'daily',
     wageAmount: '${json['wage_amount'] ?? '0'}',
     present: json['present'] == true,
+    dayWage: json['day_wage'] == null ? null : '${json['day_wage']}',
   );
 }
 
@@ -53,6 +59,11 @@ abstract interface class AttendanceRepository {
   Future<AttendanceDay> day(String date);
 
   /// PUT /attendance: labour id → present (true) or absent (false).
-  /// Returns the saved day.
-  Future<AttendanceDay> save(String date, Map<String, bool> present);
+  /// [wages]: labour id → that day's wage ("500" …), used when the labour
+  /// is marked present (an edited wage). Returns the saved day.
+  Future<AttendanceDay> save(
+    String date,
+    Map<String, bool> present, {
+    Map<String, String> wages = const {},
+  });
 }

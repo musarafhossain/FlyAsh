@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,9 +17,10 @@ import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/dates.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/form_fields.dart';
 import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/widgets/state_views.dart';
-import '../../../labours/presentation/labour_labels.dart';
 import '../../data/attendance_repository_impl.dart';
 import '../../domain/attendance.dart';
 
@@ -26,6 +28,10 @@ import '../../domain/attendance.dart';
 /// labour with a switch. Turning a switch on marks the labour present (a row
 /// is saved); turning it off marks them absent (the row is removed). Each
 /// switch saves at once, so there is no Save button.
+///
+/// Each row shows the day wage: the saved wage when present, the labour's
+/// wage for one day when absent. ✏ (only while absent) edits the wage that
+/// will be saved when the labour is marked present for this day.
 class AttendancePage extends ConsumerStatefulWidget {
   const AttendancePage({super.key, this.initialDate});
 
@@ -47,6 +53,9 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
 
   /// Labours whose switch is being saved.
   final Set<String> _saving = {};
+
+  /// Labour id → edited day wage, sent when the labour is marked present.
+  final Map<String, String> _wages = {};
 
   String get _today => ref.read(businessDateProvider);
 
@@ -83,6 +92,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
           ..clear()
           ..addAll({for (final e in day.entries) e.labourId: e.present});
         _saving.clear();
+        _wages.clear();
       });
     } on Failure catch (e) {
       if (mounted && date == _date) setState(() => _error = e);
@@ -98,7 +108,16 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
       _saving.add(id);
     });
     try {
-      await ref.read(attendanceRepositoryProvider).save(date, {id: present});
+      final saved = await ref
+          .read(attendanceRepositoryProvider)
+          .save(date, {id: present}, wages: {id: ?_wages[id]});
+      if (!mounted || date != _date) return;
+      // The saved day wage (or the default again when absent) from the
+      // server; switches still being saved keep what is shown.
+      setState(() {
+        _day = saved;
+        _wages.remove(id);
+      });
     } on Failure catch (f) {
       if (!mounted || date != _date) return;
       setState(() => _present[id] = !present);
@@ -106,6 +125,27 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     } finally {
       if (mounted && date == _date) setState(() => _saving.remove(id));
     }
+  }
+
+  /// ✏: edit the day wage while the labour is absent.
+  Future<void> _editWage(AttendanceEntry e) async {
+    final wage = await showDialog<String>(
+      context: context,
+      builder: (_) => _DayWageDialog(
+        name: e.name,
+        date: Fmt.date(_date),
+        initial: _wages[e.labourId] ?? e.dayWage,
+      ),
+    );
+    if (wage == null || !mounted) return;
+    setState(() {
+      // Back to the usual wage = nothing to send.
+      if (Decimal.parse(wage) == Decimal.parse(e.dayWage)) {
+        _wages.remove(e.labourId);
+      } else {
+        _wages[e.labourId] = wage;
+      }
+    });
   }
 
   void _goTo(String date) {
@@ -276,8 +316,10 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
           entry: e,
           present: _present[e.labourId] ?? false,
           saving: _saving.contains(e.labourId),
+          editedWage: _wages[e.labourId],
           gutter: gutter,
           onChanged: (v) => _toggle(e, v),
+          onEditWage: () => _editWage(e),
         ),
         const Divider(height: 1),
       ],
@@ -344,7 +386,8 @@ class _DateBar extends StatelessWidget {
   }
 }
 
-/// Name, wage, and the present switch. Tapping the row flips the switch.
+/// Name, day wage, ✏ (edit the wage, only while absent) and the present
+/// switch. Tapping the row flips the switch.
 class _AttendanceRow extends StatelessWidget {
   const _AttendanceRow({
     required this.entry,
@@ -352,6 +395,8 @@ class _AttendanceRow extends StatelessWidget {
     required this.saving,
     required this.gutter,
     required this.onChanged,
+    required this.onEditWage,
+    this.editedWage,
   });
 
   final AttendanceEntry entry;
@@ -359,6 +404,10 @@ class _AttendanceRow extends StatelessWidget {
   final bool saving;
   final double gutter;
   final ValueChanged<bool> onChanged;
+  final VoidCallback onEditWage;
+
+  /// A wage edited with ✏ and not saved yet.
+  final String? editedWage;
 
   @override
   Widget build(BuildContext context) {
@@ -383,18 +432,29 @@ class _AttendanceRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      l.wageText(entry.wageType, entry.wageAmount),
+                      [
+                        l.perDay(_money(editedWage ?? entry.dayWage)),
+                        if (editedWage != null) l.wageEdited,
+                      ].join(' · '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.body.copyWith(
-                        color: t.textSecondary,
+                        color: editedWage != null ? t.primary : t.textSecondary,
                         fontFeatures: AppTypography.tabular,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: Space.s3),
+              // Present: the saved wage is used, so editing is off.
+              IconButton(
+                tooltip: present ? l.dayWageLocked : l.editDayWage,
+                onPressed: present || saving ? null : onEditWage,
+                // Accent when it can be used, faded when off.
+                color: t.primary,
+                disabledColor: t.textTertiary.withValues(alpha: 0.5),
+                icon: const Icon(Icons.edit_outlined, size: 20),
+              ),
               Switch(
                 value: present,
                 onChanged: saving ? null : onChanged,
@@ -410,6 +470,92 @@ class _AttendanceRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// "₹450" or "₹800.50" (paise only when there are some).
+String _money(String amount) => Fmt.money(
+  amount,
+  decimals: !amount.endsWith('.00') && amount.contains('.'),
+);
+
+/// Edit the day wage of one labour; returns the new amount ("500.5").
+class _DayWageDialog extends StatefulWidget {
+  const _DayWageDialog({
+    required this.name,
+    required this.date,
+    required this.initial,
+  });
+
+  final String name;
+  final String date;
+  final String initial;
+
+  @override
+  State<_DayWageDialog> createState() => _DayWageDialogState();
+}
+
+class _DayWageDialogState extends State<_DayWageDialog> {
+  final _form = GlobalKey<FormState>();
+  late final _wage = TextEditingController(
+    text: widget.initial.endsWith('.00')
+        ? widget.initial.substring(0, widget.initial.length - 3)
+        : widget.initial,
+  );
+
+  @override
+  void dispose() {
+    _wage.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    if (!_form.currentState!.validate()) return;
+    Navigator.of(context).pop(_wage.text.trim());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final validators = Validators.of(context);
+    return AlertDialog(
+      title: Text(l.editDayWageTitle(widget.name)),
+      content: SizedBox(
+        width: 400,
+        child: Form(
+          key: _form,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l.editDayWageMessage(widget.name, widget.date),
+                style: AppTypography.body.copyWith(color: t.textSecondary),
+              ),
+              const SizedBox(height: Space.s4),
+              MoneyField(
+                controller: _wage,
+                label: l.dayWage,
+                textInputAction: TextInputAction.done,
+                validator: (v) =>
+                    validators.money(v) ??
+                    (Decimal.parse(v!.trim()) > Decimal.zero
+                        ? null
+                        : l.invalidAmount),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        OutlinedButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.cancel),
+        ),
+        FilledButton(onPressed: _save, child: Text(l.save)),
+      ],
     );
   }
 }

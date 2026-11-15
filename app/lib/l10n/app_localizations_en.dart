@@ -1304,4 +1304,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productDetails => 'Product details';
+
+  @override
+  String get dayWage => 'Day wage';
+
+  @override
+  String get editDayWage => 'Edit day wage';
+
+  @override
+  String editDayWageTitle(String name) {
+    return 'Day wage for $name';
+  }
+
+  @override
+  String editDayWageMessage(String name, String date) {
+    return 'Used when you mark $name present for $date.';
+  }
+
+  @override
+  String get dayWageLocked => 'Already present: mark absent to change the wage';
+
+  @override
+  String get wageEdited => 'edited';
 }

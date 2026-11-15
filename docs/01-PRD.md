@@ -191,6 +191,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | ATT-3 | ~~"Mark all present"~~ removed | — |
 | ATT-4 | A line at the top: "12 present · 5 absent" | P0 |
 | ATT-5 | **Each switch saves at once** (no Save button). Present saves a row; absent removes it. A failed save puts the switch back | P0 |
+| ATT-6 | Each row shows the **day wage**: the saved wage of that day when present, else the labour's usual wage for one day (monthly ÷ days in the month). A ✏ button (enabled only while **absent**) opens a dialog to change that day's wage; the edited wage (marked "edited") is saved when the labour is switched to present. While present, ✏ is disabled: switch to absent first to change it | P0 |
 | ATT-6 | Monthly attendance view per labour (calendar with colored days) | P1 |
 
 ### 5.8 Wages (WAGE)

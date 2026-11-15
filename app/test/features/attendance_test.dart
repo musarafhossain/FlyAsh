@@ -27,6 +27,9 @@ class FakeAttendance {
     '2026-11-08': {'9', '1'},
   };
 
+  /// date → labour id → wage saved with a present row (07-API §11).
+  final Map<String, Map<String, String>> wages = {};
+
   static const names = {
     '9': 'Abdul Karim',
     '12': 'Asit Roy',
@@ -35,6 +38,7 @@ class FakeAttendance {
 
   Map<String, Object?> _day(String date) {
     final p = present.putIfAbsent(date, () => {});
+    final saved = wages[date] ?? const {};
     return {
       'date': date,
       'items': empty
@@ -47,6 +51,10 @@ class FakeAttendance {
                   'wage_type': id == '1' ? 'monthly' : 'daily',
                   'wage_amount': id == '1' ? '15000.00' : '450.00',
                   'present': p.contains(id),
+                  // Default: 450 a day, or 15,000 ÷ 30 days in November.
+                  'day_wage': p.contains(id)
+                      ? saved[id] ?? (id == '1' ? '500.00' : '450.00')
+                      : (id == '1' ? '500.00' : '450.00'),
                 },
             ],
     };
@@ -71,7 +79,16 @@ class FakeAttendance {
       final p = present.putIfAbsent(date, () => {});
       for (final r in (b['records']! as List).cast<Map<String, Object?>>()) {
         final id = '${r['labour_id']}';
-        r['present'] == true ? p.add(id) : p.remove(id);
+        final day = wages.putIfAbsent(date, () => {});
+        if (r['present'] == true) {
+          if (!p.contains(id) && r['wage'] != null) {
+            day[id] = double.parse('${r['wage']}').toStringAsFixed(2);
+          }
+          p.add(id);
+        } else {
+          p.remove(id);
+          day.remove(id);
+        }
       }
       return (200, envelope(200, 'Attendance saved for $date', _day(date)), {});
     },
@@ -108,6 +125,15 @@ Finder switchOf(String name) => find.descendant(
   matching: find.byType(Switch),
 );
 
+/// The ✏ button on the row of [name].
+Finder pencilOf(String name) => find.descendant(
+  of: find.ancestor(of: find.text(name), matching: find.byType(InkWell)).first,
+  matching: find.widgetWithIcon(IconButton, Icons.edit_outlined),
+);
+
+bool pencilEnabled(WidgetTester tester, String name) =>
+    tester.widget<IconButton>(pencilOf(name)).onPressed != null;
+
 bool isOn(WidgetTester tester, String name) =>
     tester.widget<Switch>(switchOf(name)).value;
 
@@ -134,8 +160,9 @@ void main() {
     expect(find.text('Today, 09 Nov 2026'), findsOneWidget);
     expect(find.text('Select date'), findsOneWidget);
     expect(find.text('Asit Roy'), findsOneWidget);
+    // The day wage: monthly 15,000 ÷ 30 days = 500 a day
     expect(find.text('₹450 / day'), findsNWidgets(2));
-    expect(find.text('₹15,000 / month'), findsOneWidget);
+    expect(find.text('₹500 / day'), findsOneWidget);
     expect(find.text('1 present · 2 absent'), findsOneWidget);
     expect(find.byType(Switch), findsNWidgets(3));
     expect(isOn(tester, 'Abdul Karim'), isTrue);
@@ -172,6 +199,67 @@ void main() {
     await tester.pumpAndSettle();
     expect(isOn(tester, 'Kartik Mondal'), isTrue);
     expect(puts(), hasLength(3));
+  });
+
+  testWidgets('✏ is on only while absent; an edited wage shows and is saved '
+      'when marked present', (tester) async {
+    await openAttendance(tester);
+    expect(pencilEnabled(tester, 'Abdul Karim'), isFalse, reason: 'present');
+    expect(pencilEnabled(tester, 'Asit Roy'), isTrue, reason: 'absent');
+
+    await tester.tap(pencilOf('Asit Roy'));
+    await tester.pumpAndSettle();
+    expect(find.text('Day wage for Asit Roy'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, '450'), findsOneWidget);
+
+    // Not more than 0 → error, dialog stays
+    await tester.enterText(find.byType(TextFormField), '0');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+    expect(find.text('Day wage for Asit Roy'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField), '520.5');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+    expect(find.text('₹520.50 / day · edited'), findsOneWidget);
+    expect(puts(), isEmpty, reason: 'nothing saved yet');
+
+    await flip(tester, 'Asit Roy');
+    expect(body(puts().last)['records'], [
+      {'labour_id': '12', 'present': true, 'wage': '520.5'},
+    ]);
+    expect(find.text('₹520.50 / day'), findsOneWidget, reason: 'saved wage');
+    expect(pencilEnabled(tester, 'Asit Roy'), isFalse);
+
+    // Absent again: back to the usual wage, ✏ on again
+    await flip(tester, 'Asit Roy');
+    expect(body(puts().last)['records'], [
+      {'labour_id': '12', 'present': false},
+    ]);
+    expect(find.text('₹450 / day'), findsNWidgets(2));
+    expect(pencilEnabled(tester, 'Asit Roy'), isTrue);
+  });
+
+  testWidgets('✏ cancel keeps the wage; the usual wage again sends no wage', (
+    tester,
+  ) async {
+    await openAttendance(tester);
+    await tester.tap(pencilOf('Kartik Mondal'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('edited'), findsNothing);
+
+    await tester.tap(pencilOf('Kartik Mondal'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), '500');
+    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('edited'), findsNothing);
+    await flip(tester, 'Kartik Mondal');
+    expect(body(puts().last)['records'], [
+      {'labour_id': '1', 'present': true},
+    ]);
   });
 
   testWidgets('a refused save puts the switch back and shows the message', (

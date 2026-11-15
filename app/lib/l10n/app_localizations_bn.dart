@@ -1299,4 +1299,27 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get productDetails => 'প্রোডাক্টের বিবরণ';
+
+  @override
+  String get dayWage => 'দিনের মজুরি';
+
+  @override
+  String get editDayWage => 'দিনের মজুরি বদলান';
+
+  @override
+  String editDayWageTitle(String name) {
+    return '$name-এর দিনের মজুরি';
+  }
+
+  @override
+  String editDayWageMessage(String name, String date) {
+    return '$date তারিখে $name-কে উপস্থিত করলে এই মজুরি ধরা হবে।';
+  }
+
+  @override
+  String get dayWageLocked =>
+      'উপস্থিত করা আছে: মজুরি বদলাতে আগে অনুপস্থিত করুন';
+
+  @override
+  String get wageEdited => 'বদলানো';
 }

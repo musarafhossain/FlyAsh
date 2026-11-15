@@ -4195,7 +4195,7 @@ A labour is either **present** (a row is stored for that day) or **absent** (no 
 
 **Attendance for a day** · 🔒 Bearer token
 
-All labours employed on that date, each with `present`, plus a `summary` (total · present · absent).
+All labours employed on that date, each with `present` and `day_wage`, plus a `summary` (total · present · absent). `day_wage` = the saved wage of that day when present, else the labour's wage for one day (monthly ÷ days in that month).
 
 **Query parameters**
 
@@ -4231,14 +4231,16 @@ GET /api/v1/attendance?date=2026-11-07
         "name": "Abdul Karim",
         "wage_type": "daily",
         "wage_amount": "450.00",
-        "present": true
+        "present": true,
+        "day_wage": "450.00"
       },
       {
         "labour_id": "01a1defe-5935-76fe-88cc-53f21f508678",
         "name": "Asit Roy",
         "wage_type": "daily",
         "wage_amount": "550.00",
-        "present": true
+        "present": true,
+        "day_wage": "550.00"
       }
     ]
   }
@@ -4251,7 +4253,7 @@ GET /api/v1/attendance?date=2026-11-07
 
 **Save attendance** · 🔒 Bearer token
 
-Sets the given labours for one day; labours not in `records` are not touched. `present: true` stores a row with the labour's current wage as a snapshot (an existing row is kept as it is); `present: false` removes the row. The app sends one labour each time a switch is turned.
+Sets the given labours for one day; labours not in `records` are not touched. `present: true` stores a row with the labour's current wage as a snapshot, or with `wage` as that day's daily wage when given (an existing row is kept as it is, and `wage` is ignored); `present: false` removes the row. The app sends one labour each time a switch is turned.
 
 **Request body**
 
@@ -4261,6 +4263,7 @@ Sets the given labours for one day; labours not in `records` are not touched. `p
 | `records` | array | yes | max 500 |
 | `records[].labour_id` | uuid | yes | Must be employed on that date |
 | `records[].present` | boolean | yes | `true` = present · `false` = absent |
+| `records[].wage` | money | no | > 0. That day's wage when the labour is marked present (edited in the app with ✏). Saved as a daily wage snapshot |
 
 **Example request**
 
@@ -4305,14 +4308,16 @@ Content-Type: application/json
         "name": "Abdul Karim",
         "wage_type": "daily",
         "wage_amount": "450.00",
-        "present": false
+        "present": false,
+        "day_wage": "450.00"
       },
       {
         "labour_id": "01a1defe-5935-76fe-88cc-53f21f508678",
         "name": "Asit Roy",
         "wage_type": "daily",
         "wage_amount": "550.00",
-        "present": true
+        "present": true,
+        "day_wage": "550.00"
       }
     ]
   }

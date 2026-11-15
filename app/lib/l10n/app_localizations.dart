@@ -2455,6 +2455,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Product details'**
   String get productDetails;
+
+  /// No description provided for @dayWage.
+  ///
+  /// In en, this message translates to:
+  /// **'Day wage'**
+  String get dayWage;
+
+  /// No description provided for @editDayWage.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit day wage'**
+  String get editDayWage;
+
+  /// No description provided for @editDayWageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day wage for {name}'**
+  String editDayWageTitle(String name);
+
+  /// No description provided for @editDayWageMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when you mark {name} present for {date}.'**
+  String editDayWageMessage(String name, String date);
+
+  /// No description provided for @dayWageLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Already present: mark absent to change the wage'**
+  String get dayWageLocked;
+
+  /// No description provided for @wageEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'edited'**
+  String get wageEdited;
 }
 
 class _AppLocalizationsDelegate

@@ -195,7 +195,7 @@ All endpoints require auth except the ones marked 🌐.
 | | `POST /labours` · `GET/PUT /labours/:id` | Create / view / update |
 | | `PATCH /labours/:id/status` | Deactivate (with `left_date`) / activate |
 | **Attendance** | `GET /attendance?date=2026-11-08` | Active labours on that date, each with `present` (true / false) |
-| | `PUT /attendance` | `{ date, records: [{ labour_id, present }] }`: present saves a row, false removes it. The app sends one switch at a time |
+| | `PUT /attendance` | `{ date, records: [{ labour_id, present, wage? }] }`: present saves a row (with `wage` as that day's daily wage when given), false removes it. The app sends one switch at a time. `GET` returns `day_wage` per labour |
 | | `GET /labours/:id/attendance?month=2026-11` | Monthly calendar for one labour |
 | **Wages** | `GET /wages?month=2026-11` | Wage sheet for all labours, paginated |
 | | `GET /labours/:id/wages?month=2026-11` | Detailed breakdown for one labour |

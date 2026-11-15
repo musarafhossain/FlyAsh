@@ -456,7 +456,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 | `GET /labours/:id` | — | `Labour` |
 | `PATCH /labours/:id/status` | `{ is_active, left_date? }` | `Labour` |
 | `GET /attendance?date` | — | `AttendanceDay` |
-| `PUT /attendance` | `{ date, records: [{ labour_id, status }] }` | `AttendanceDay` |
+| `PUT /attendance` | `{ date, records: [{ labour_id, present, wage? }] }` | `AttendanceDay` |
 | `GET /labours/:id/attendance?month=2026-11` | — | `{ month, days: [{ date, status }] , summary }` |
 | `GET /wages?month&page&limit` | — | Paginated `WageRow` + `totals` |
 | `GET /labours/:id/wages?month` | — | `WageRow` + `days[]`, `payments[]` |
@@ -472,10 +472,14 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 // AttendanceDay (not paginated: all labours active on that date)
 { "date": "2026-11-08",
   "summary": { "total": 15, "present": 12, "absent": 3 },
-  "items": [ { "labour_id": "01a1…", "name": "Kartik Mondal", "wage_type": "daily", "present": true },
-             { "labour_id": "01a2…", "name": "Sujit Das", "wage_type": "monthly", "present": false } ] }
-// PUT /attendance { "date": "2026-11-08", "records": [ { "labour_id": "01a1…", "present": true } ] }
-// present → row saved (wage snapshot); false → row removed. The app saves one switch at a time.
+  "items": [ { "labour_id": "01a1…", "name": "Kartik Mondal", "wage_type": "daily", "wage_amount": "500.00",
+               "present": true, "day_wage": "600.00" },
+             { "labour_id": "01a2…", "name": "Sujit Das", "wage_type": "monthly", "wage_amount": "15000.00",
+               "present": false, "day_wage": "500.00" } ] }
+// day_wage: the saved day's wage when present; else the labour's wage for one day (monthly ÷ days in month).
+// PUT /attendance { "date": "2026-11-08", "records": [ { "labour_id": "01a1…", "present": true, "wage": 600 } ] }
+// present → row saved (wage snapshot; with `wage` it is saved as wage_type daily + that amount);
+// false → row removed. `wage` is ignored when the labour is already present. One switch at a time.
 
 // WageRow
 { "labour_id": 5, "name": "Kartik Mondal", "wage_type": "daily", "wage_amount": "500.00",
