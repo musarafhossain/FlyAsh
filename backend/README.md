@@ -25,7 +25,7 @@ AdonisJS 7 + MariaDB REST API for the FlyAsh app. See `../docs` for the full doc
 4. Create the tables, default data and the first user:
    ```bash
    node ace migration:run
-   node ace db:seed          # categories, factory profile, sample data (development only)
+   node ace db:seed          # factory profile, sample data (development only)
    node ace user:create      # asks for name, phone, email, password
    ```
 5. Run:

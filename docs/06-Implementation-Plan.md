@@ -30,7 +30,7 @@
 | 7 | Sales (core) | 5, 6 | L |
 | 8 | Sales extras: payments, bookings, receipt PDF | 7 | M |
 | 9 | Labours & attendance | 3 | M |
-| 10 | Wages & advances | 9 | M |
+| 10 | Wages | 9 | M |
 | 11 | Expenses | 3 | M |
 | 12 | Dashboard | 7, 9, 11 | S |
 | 13 | Reports & export | 8, 10, 11 | M |
@@ -60,7 +60,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] `force_json` middleware, CORS config, `APP_TIMEZONE` date helper ("today" in IST)
 - [ ] Shared VineJS rules: phone, money, pagination (`page`, `limit` ≤ 100)
 - [ ] `GET /api/v1/health`
-- [ ] All migrations from 05-Backend-Schema §3 + seeders (categories, factory settings)
+- [ ] All migrations from 05-Backend-Schema §3 + seeders (factory settings). All ids are UUID v7
 - [ ] Japa setup + a test for the response format and pagination meta
 
 **Done when:** `node ace migration:fresh --seed` builds all 16 tables, and `/health` returns the envelope.
@@ -112,7 +112,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] App: sales list (tabs, filters, search), sale form (customer picker + inline add, items, live summary), sale detail
 - [ ] Tests: every formula in 05 §4.1, the edit rule, the inline customer with a duplicate phone
 
-**Done when:** an instant sale with 2 items, transport, discount and a partial payment shows the correct profit, due and status everywhere.
+**Done when:** an instant sale with 2 items, transport, discount and a partial payment shows the correct total, due and status everywhere (tax % was added later: total = subtotal + transport − discount + tax).
 
 ### Step 8 · Sales extras
 - [ ] API: payments add / delete, `deliver`, `cancel` (blocked with payments), `upcoming-deliveries`
@@ -122,25 +122,25 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 
 ### Step 9 · Labours & attendance
 - [ ] API: labours CRUD + status (left date), `GET/PUT /attendance` with wage snapshot, labour monthly calendar
-- [ ] App: labours list, form, detail. Attendance screen (date picker, P/H/A toggles, mark all, summary, save, unsaved-changes guard)
+- [ ] App: labours list, form, detail. Attendance screen (date picker, one Present switch per labour that saves at once, count line; no half day, no Save button)
 
-### Step 10 · Wages & advances
-- [ ] API: `WageService` (05 §4.2), `/wages`, `/labours/:id/wages`, advances, wage payments
-- [ ] App: wage sheet, labour wage detail, give advance, pay wage, delete entries
-- [ ] Tests: daily vs monthly, half day, a mid-month wage change (snapshot), advances and balance status
+### Step 10 · Wages
+- [ ] API: `WageService` (05 §4.2), `/wages`, `/labours/:id/wages`, wage payments (no advances)
+- [ ] App: wage sheet, labour wage detail, pay wage, delete a payment
+- [ ] Tests: daily vs monthly, a mid-month wage change (snapshot), balance status
 
 ### Step 11 · Expenses
-- [ ] API: expense categories, expenses CRUD + `period_total`
-- [ ] App: expense list (period, category chips, total), form with category sheet, manage categories
+- [ ] API: expenses CRUD + `period_total` (category is free text), `GET /expense-categories` (name suggestions)
+- [ ] App: expense list (total card, search, filter sheet for period + category), form with a free-text category and suggestion chips
 
 ### Step 12 · Dashboard
 - [ ] API: `DashboardService` → `GET /dashboard` (05 §5.8)
-- [ ] App: home header, hero, KPI row, quick actions, recent sales. Every card links to its screen
+- [ ] App: hero, KPI row, quick actions, recent sales (no greeting header). Every card links to its screen
 
 ### Step 13 · Reports & export
 - [ ] API: the 6 report endpoints (05 §5.9) using `ReportService`
 - [ ] App: reports grid, report screen (period presets, summary, `fl_chart` chart, table), PDF + Excel export
-- [ ] Test: net profit = sales profit − expenses − wages on sample data
+- [ ] Test: net profit = sales without tax − expenses − wages on sample data
 
 ### Step 14 · Settings, factory profile, localization
 - [ ] API: `GET/PUT /settings/factory`

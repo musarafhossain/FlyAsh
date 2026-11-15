@@ -410,7 +410,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
     { "product_id": 3, "quantity": "5000", "unit_price": "6.50" }
   ],
   "transport_charge": "1500.00",
-  "discount": "500.00",
+  "discount": "500.00", "tax_percent": "0.00", "tax_amount": "0.00",
   "payment": { "amount": "10000.00", "method": "upi", "note": "Advance" },   // create only, optional
   "notes": "Deliver before noon"
 }
@@ -439,7 +439,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 // Sale = SaleListItem + 
 { "delivery_address": "Barasat", "subtotal": "32500.00", "transport_charge": "1500.00", "discount": "500.00",
   "notes": "Deliver before noon",
-  "items": [ { "id": 1, "product_id": 3, "product_name": "Fly Ash Brick 9×4×3", "unit": "piece",
+  "items": [ { "id": 1, "product_id": 3, "product_name": "Fly Ash Brick 9×4×3",
                "quantity": "5000.00", "unit_price": "6.50",
                "line_total": "32500.00" } ],
   "payments": [ { "id": 7, "amount": "10000.00", "payment_date": "2026-11-08", "method": "upi",
@@ -517,7 +517,7 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 |---|---|
 | `GET /reports/sales?from&to` | `{ count, amount, by_product: [{ product_id, product_name, quantity, amount }], daily: [{ date, amount }] }` |
 | `GET /reports/dues?page&limit` | Paginated `{ customer_id, name, phone, total_due, oldest_due_date }` + `grand_total` |
-| `GET /reports/expenses?from&to` | `{ total, by_category: [{ category_id, name, amount, percent }] }` |
+| `GET /reports/expenses?from&to` | `{ total, by_category: [{ name, amount, percent }] }` |
 | `GET /reports/wages?month` | `{ earned, paid, balance, rows: WageRow[] }` |
 | `GET /reports/net-profit?from&to` | `{ sales, expenses, wages, net_profit, monthly: [{ month, sales, expenses, wages, net_profit }] }` (sales without tax) |
 | `GET /reports/collections?from&to` | `{ total, by_method: [{ method, amount }], daily: [{ date, amount }] }` |

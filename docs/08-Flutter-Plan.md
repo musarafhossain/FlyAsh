@@ -31,14 +31,14 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F5** ✅ | **Localization & preferences** | English/Bengali ARB files, language + theme controller (cached locally, synced with `PUT /auth/preferences`) | F1, F3 |
 | **F6** ✅ | **Auth** | Splash, Login, Forgot password (3 screens), logout, session expiry (401) | F3, F4, F5 |
 | **F7** ✅ | **Profile, Users, Settings** | My profile, change password, users list/add/edit, Settings (factory profile, appearance, language) | F6 |
-| **F8** ✅ | **Products** | List, add/edit, activate/deactivate, delete | F6 |
-| **F9** ✅ | **Customers** | List with dues, add/edit, detail with sales | F6 |
+| **F8** ✅ | **Products** | List, read-only detail page, add/edit (name, price, notes: no unit, no cost), activate/deactivate, delete | F6 |
+| **F9** ✅ | **Customers** | List with dues, add/edit (phone optional), detail with stat cards and sales | F6 |
 | **F10** ✅ | **Sales: list & detail** | Sales list with filters, sale detail, upcoming deliveries | F8, F9 |
-| **F11** ✅ | **Sales: form & payments** | New/edit sale and booking, inline customer, live totals, add/remove payment, deliver, cancel | F10 |
-| **F12** ✅ | **Labours & attendance** | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with P/H/A toggles | F6 |
-| **F13** ✅ | **Wages & advances** | Wages tab inside Labours (`/labours/wages`): wage sheet, labour wage detail, give advance, pay wages | F12 |
-| **F14** ✅ | **Expenses** | Expense list with totals, form, categories | F6 |
-| **F15** ✅ | **Dashboard** | Home screen with all cards and quick actions | F11, F13, F14 |
+| **F11** ✅ | **Sales: form & payments** | New/edit sale and booking, inline customer, tax %, live totals, add/remove payment, deliver, cancel (actions in the ⋮ menu) | F10 |
+| **F12** ✅ | **Labours & attendance** | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with one Present switch per labour (saves at once; no half day) | F6 |
+| **F13** ✅ | **Wages** | Wages tab inside Labours (`/labours/wages`): wage sheet, labour wage detail, pay wages (no advances) | F12 |
+| **F14** ✅ | **Expenses** | Expense list with the total, search and a filter sheet; form with a free-text category | F6 |
+| **F15** ✅ | **Dashboard** | Home screen with all cards and quick actions (no greeting header) | F11, F13, F14 |
 | F16 | Reports & export | 6 reports with charts and tables, PDF/Excel export | F15 |
 | F17 | Receipt PDF | Sale receipt with the logo: share (WhatsApp), print, save | F11 |
 | F18 | App update | Version check, optional/forced update for Android, Windows, Web | F6 |
@@ -68,18 +68,26 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Live API tests** (backend running): `flutter test test/integration --dart-define=LIVE_API=true`. Each run makes 2 wrong-password attempts; the login limit is 5 per 15 minutes.
 - **Commands** always pass the API URL: `--dart-define=API_BASE_URL=...` (emulator: `http://10.0.2.2:3333/api/v1`, real phone: the PC's LAN IP).
 - **Translations:** add every new UI string to both `app/lib/l10n/app_en.arb` and `app_bn.arb` (a test checks both files have the same keys). Numbers and dates stay in Latin digits.
-- **Shared building blocks from F7** (use them in F8+): `PagedList` (paginated API list with skeleton, error + retry, empty state, pull to refresh, next page on scroll), `DataTableCard` (desktop tables), `PageBody` (form/detail column, max 560/720 px), `MenuGroup`/`MenuRow`/`InfoRow`, `FormSubmit` mixin (validate → busy → 422 field errors / banner), `Validators` (phone, email, password, same-as), `showMessage`.
+- **Shared building blocks from F7** (use them in F8+): `PagedList` (paginated API list with skeleton, error + retry, empty state, pull to refresh, endless scroll; reloads on `dataChangedProvider`), `DataTableCard` (desktop tables), `PageBody` (form/detail column, max 560/720 px), `MenuGroup`/`MenuRow`/`InfoRow`, `FormSubmit` mixin (validate → busy → 422 field errors / banner), `Validators` (phone, email, password, same-as), `showMessage`.
 - **Money input:** use `MoneyField` + `Validators.money` (digits, up to 2 decimals, ₹ prefix). Values are sent as strings ("4.5"), never doubles; compute previews with `Decimal`.
 - **Call / WhatsApp:** `ContactLauncher.call(phone)` / `.whatsApp(phone)` (tel:+91…, wa.me/91…); returns false when nothing can open it → show `couldNotOpen`. Tests replace `ContactLauncher.launch`.
 - **Sale labels:** `SaleSummary` (sales/domain) and `SaleStatusPill` + `l.paymentStatusText / saleStatusText / saleTypeText` (sales/presentation/sale_labels.dart) are shared by every sale list.
 - **Dates:** `Ymd` (core/utils/dates.dart) works on business-date strings; `DateRange.preset(...)` builds Today / This week / This month … from `businessDateProvider` (the factory's today), never the device clock.
 - **Live API tests without the owner's password:** create a temporary user (`node ace user:create --phone=6000000099 …`), run with `--dart-define=LIVE_LOGIN=… --dart-define=LIVE_PASSWORD=…`, then reset `factory_settings.updated_by` and delete that user.
 - **Pickers:** `showSearchPicker<T>()` (core/widgets/search_picker_sheet.dart) is a searchable, paginated bottom sheet (customers, products; reuse for labours).
-- **Forms that open a new record:** push with `extra: kReturnSale` (or pop the saved record) so the caller refreshes and then opens it; a deep-linked form opens the saved record itself.
-- **Live-test cleanup also covers** `expenses` (created_by) and `expense_categories` (no created_by: match the unique "Live test …" name), `labours`, `attendances`, `labour_advances`, `wage_payments` (rows of the temporary user's labours) and their AUTO_INCREMENT values.
-- **Live tests that create sales** cannot clean up through the API (records with sales are kept); afterwards delete the temporary user's rows and reset AUTO_INCREMENT of `sales`, `sale_items`, `sale_payments`, `customers`, `products`, `users` to their values before the run (invoice numbers come from `sales.id`).
+- **Forms:** after save they pop back to the caller (the list, or the detail page for an edit opened there) and return the saved record; the caller reloads. A deep-linked form with nothing under it goes to the section's list.
+- **Live-test cleanup also covers** `expenses` (created_by), `labours`, `attendances`, `wage_payments` (rows of the temporary user's labours). Ids are UUIDs, so there is no AUTO_INCREMENT to reset.
+- **Live tests that create sales** cannot clean up through the API (records with sales are kept); afterwards delete the temporary user's rows from `sales`, `sale_items`, `sale_payments`, `customers`, `products`, `users` and set `factory_settings.last_invoice_no` back to its value before the run (invoice numbers come from that counter, not from an id). Locally, reseeding the database does the same.
 - **Dates in forms:** `DateField` (core/widgets/date_field.dart) for any business-date input with first/last limits.
 - **Shell branches** set `initialLocation: item.path`, so the route order inside a section (e.g. `/labours/wages` before `/labours`) never changes which page a sidebar tap opens.
 - **Deep links with filters:** `/sales?period=today` and `/customers?filter=due` (used by Home). Shell root pages stay alive, so they apply a changed query in `didUpdateWidget`.
+- **Changes after testing (2026-11):** shared pieces every section uses now:
+  - Lists: `ListGroup(flat: true)` + `ListRowSurface(onLongPress:)`; long press calls `showActionMenu` (popup next to the row); no "Showing x of y".
+  - Detail pages: ✏ Edit + `ActionMenuButton` (⋮) in the app bar; `PageBody(onRefresh:)` for pull to refresh; stat cards use `KpiChip`.
+  - Skeletons (`core/widgets/skeletons.dart`): list (with the search box), detail and form skeletons; `KpiChip(loading:)`, `HeroCard(loading:)`.
+  - `dataChangedProvider`: bumped by `ApiClient` after every successful write outside `/auth`; lists and detail pages listen and reload.
+  - After save: create → list; edit → where it was opened from. Forms are popped, not stacked.
+  - Section taps use `goBranch(index, initialLocation: true)`, so a section always opens its list.
+  - `kStatusBarStyle`: black status bar. `togglePopover` (app_bar_actions.dart): language / appearance popovers with a 16 px edge gap.
 - **Riverpod retries are off** (`retry: noRetry`): a failed load shows an error with a Retry button instead of retrying silently.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

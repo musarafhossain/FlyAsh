@@ -33,7 +33,7 @@ The reference set has 8 screens: splash, dashboard, employee list, attendance, l
 | Reference pattern | What we keep | FlyAsh usage |
 |---|---|---|
 | Full-bleed accent splash with illustration and pill CTA | Accent background, centered logo, white "Get Started" pill | Splash / onboarding with a brick stack and kiln illustration |
-| Greeting header (avatar, "Good Morning", name, role, bell) | Same layout | Dashboard header: owner or manager name, role, notifications |
+| Greeting header (avatar, "Good Morning", name, role, bell) | **Not used** (removed after testing) | Home starts with the hero card; the bell is in the app bar |
 | **Hero stat card** (solid accent, big number, trend line) | Same | "Today's Production: 12,400 bricks · ↑ 8% vs yesterday" |
 | Row of 4 **pastel KPI chips** (icon in a tinted square, label, number) | Same, 4 per row | Stock ready · Orders pending · Workers present · Dispatch today |
 | **Quick Actions** grid (2 columns, icon and label) | Same | Add Production · New Sale · Add Expense · Mark Attendance |
@@ -61,7 +61,7 @@ The reference set has 8 screens: splash, dashboard, employee list, attendance, l
 
 | Persona | Device | Main tasks | Design implication |
 |---|---|---|---|
-| **Owner** | Phone, sometimes tablet or desktop | Dashboard, profit, dues, reports | Clear KPIs and charts, read-mostly |
+| **Owner** | Phone, sometimes tablet or desktop | Dashboard, sales, dues, reports | Clear KPIs and charts, read-mostly |
 | **Factory Manager** | Phone | Production plan, stock, dispatch, approvals | Quick actions and approval flows |
 | **Supervisor / Munshi** | Low to mid-range Android phone, outdoors | Daily production entry, labour attendance, raw material intake | Big touch targets, high contrast, works in sunlight, few steps, offline tolerant |
 | **Accountant** | Desktop or tablet, sometimes phone | Sales, payments, expenses, wages, ledger | Dense tables on wide screens, filters, export |
@@ -118,9 +118,9 @@ Every theme defines the same 5 tokens. In **light mode** `primary` is a deep ton
 
 **Token roles**
 
-- `primary`: primary buttons, active bottom-nav item, links, focused input outline, progress ring arc, selected segmented tab, FAB, the hero card background (light mode).
+- `primary`: primary buttons, active bottom-nav item, links, focused input outline, progress ring arc, selected segmented tab, FAB, the icon square on the hero card.
 - `onPrimary`: text and icons placed on `primary`.
-- `primaryContainer`: selected chip background, active nav item pill, drawer item highlight, the hero card background in **dark mode** (a solid bright card is too harsh in dark mode).
+- `primaryContainer`: selected chip background, active nav item pill, drawer item highlight, the hero card background in **both modes** (a solid `primary` card was too deep in light mode).
 - `onPrimaryContainer`: text and icons on `primaryContainer`.
 - **Derived values:** pressed state = `primary` mixed 12% with `textPrimary`; hover = 8% overlay; focus ring = `primary` at 40% alpha, 2 dp.
 
@@ -286,18 +286,21 @@ Each component lists its anatomy, its variants and the reference screen it comes
 
 ### 9.1 App bars
 
-- **Home header** (Dashboard): avatar 40, greeting (`caption`, `textSecondary`), name (`title`), role link "Manager ›" (`caption`, `primary`), and a notification bell with a red dot badge on the right.
+- **Home** (Dashboard): the standard app bar with ☰, the title and trailing actions: language, appearance and the bell. There is **no greeting header** (no avatar, name, factory or date line); the page starts with the hero card.
+- **App-bar popovers:** language and appearance open a small popover under their icon (not a default dropdown), kept 16 px away from the screen edges.
+- **Status bar:** the system status bar is black with light icons on every screen, in both modes.
 - **Standard app bar:** back chevron ‹, title (`h2`), up to 2 trailing actions (calendar, ⊕ add, filter). Surface color, no shadow; a bottom `border` shows only after scrolling.
 
 ### 9.2 Hero stat card
 
-- `radius.lg`, padding 20, background `primary` (light) or `primaryContainer` (dark).
-- Leading icon in a 44 dp square (white at 18% alpha). Label (`caption`), value (`display`), and a trend line ("↑ 8% vs yesterday", `caption`, `success` / `error` with arrow). A trailing chevron › makes it tappable.
-- One hero card per screen at most.
+- `radius.lg`, padding 20, background `primaryContainer` with a thin `primary` (18% alpha) border, text in `onPrimaryContainer`, in both modes.
+- Leading icon in a 44 dp `primary` square. Label (`caption`), value (`display`), and a trend line ("↑ 8% vs yesterday", `caption`, `success` / `error` with arrow). A trailing chevron › makes it tappable.
+- One hero card per screen at most. Used on Home (Today's Sales), Expenses (Spent) and Wages (Earned).
+- While loading it shows a skeleton of the same size.
 
 ### 9.3 KPI chip
 
-- Equal-width tile, `radius.md`, `surface` with a `border`. It contains a 32 dp tinted icon square (`tint.*`, `radius.sm`), a label (`caption`, `textSecondary`) and a value (`h3`, `textPrimary`).
+- Equal-width tile, `radius.md`, `surface` with a `border`. The label (`caption`, `textSecondary`) and value (`h3`, `textPrimary`) are on the **left**; a 32 dp tinted icon square (`tint.*`, `radius.sm`) is on the **right**. The same tile is used for the stat cards on the customer and labour detail pages. While loading it shows a skeleton.
 - Layout: 4 per row on phone (2×2 if Font size is XL), up to 6 per row on tablet.
 
 ### 9.4 Quick action tile
@@ -309,7 +312,7 @@ Each component lists its anatomy, its variants and the reference screen it comes
 
 - Search field: `surfaceVariant` fill, `radius.md`, height 44, search icon, placeholder "Search workers…".
 - Filter button: 44×44, `radius.md`. A small `primary` dot appears when filters are active.
-- Filters open in a **bottom sheet** (date range, status chips, sort).
+- Filters open in a **bottom sheet** (date range, status chips, sort). Expenses: the period and category filters are in this sheet, not in a chip row on the page.
 
 ### 9.6 Summary stat strip
 
@@ -318,15 +321,16 @@ The row under the search bar on list screens (for example "Total 48 · Active 45
 ### 9.7 List item (entity row)
 
 ```
-[Avatar/Icon 40]  Title (title)                    (Status pill)  ⋮
+[Avatar/Icon 40]  Title (title)                    (Status pill)
                   Subtitle (caption, secondary)
                   Meta (caption, tertiary)                  Amount/time
 ```
 
-- Card style (each row is its own card with a 12 gap), or grouped (rows inside one card with dividers). Pick one per screen.
+- **Flat rows:** no card, no border and no background of their own; rows sit on the page, split by thin lines, and line up with the search field. Lists inside a detail page (a customer's sales, a sale's payments) use the same row style.
 - The leading element is an **avatar** (people), a **tinted icon square** (orders, materials, expenses) or a **date block**.
-- Swipe actions (optional): call / edit / delete, with an undo toast for delete.
-- The overflow ⋮ opens a menu: View · Edit · Share · Delete (destructive in `error`).
+- **Tap** opens the item. **Long press** opens the action menu: a popup next to the row with icon + label items in groups split by dividers (for example View · Edit | Deactivate | Delete, destructive in `error`). Rows have no ⋮ button.
+- Detail pages: ✏ Edit in the app bar, other actions in the app bar's ⋮ menu (the same popup).
+- Endless scroll with a footer spinner; no "Showing x of y" line.
 
 ### 9.8 Status pill
 
@@ -378,8 +382,8 @@ States: default, pressed, focused (ring), disabled (38% opacity), loading (spinn
 
 | State | Pattern |
 |---|---|
-| Loading (first load) | Skeleton shimmer in the card's shape (no full-screen spinners) |
-| Loading (refresh) | Pull-to-refresh indicator in `primary` |
+| Loading (first load) | Skeleton shimmer in the screen's shape (no full-screen spinners): list skeleton (search box + rows, a table on desktop), detail skeleton and form skeleton |
+| Loading (refresh) | Pull-to-refresh indicator in `primary`, on lists, detail pages and Home |
 | Empty | Illustration (48–120 dp), `h3` title, one-line hint, primary action ("No sales yet · Create first sale") |
 | Error | Inline card with an `error` icon, a message and a "Retry" button |
 | Offline | Thin `warning` banner at the top: "Offline: changes will sync when connected". Unsynced records show a small cloud-off icon |
@@ -406,7 +410,7 @@ Bottom nav:  Home │ Sales │ Attendance │ Expenses      (☰ in the app bar
 
 Drawer (☰):
   Dashboard · Sales · Upcoming Deliveries · Customers · Products
-  Labours (tabs: Labours · Wages & Advances) · Attendance · Expenses · Reports
+  Labours (tabs: Labours · Wages) · Attendance · Expenses · Reports
   Users
   Settings (My profile · Factory profile · Appearance · Language · Password · About & Updates)
 ```
@@ -420,17 +424,17 @@ Drawer (☰):
 | **Forgot password: email** | Back ‹, title "Forgot password", hint "Enter the email linked to your account", email field, primary "Send OTP". Then a neutral message: "If this email is registered, an OTP has been sent". Footer hint: "No email? Ask another user to reset your password" |
 | **Forgot password: verify OTP** | Back ‹, title "Verify OTP", "OTP sent to r•••@gmail.com", **6 separate OTP boxes** (auto-advance, paste support, numeric keyboard, auto-submit on the 6th digit), primary "Verify", "Resend OTP in 0:59" countdown that turns into a text button. Wrong OTP → boxes shake + `error` text "Wrong OTP · 4 tries left" |
 | **Forgot password: new password** | Title "Set new password", new password + confirm (show/hide eye), live rule hint "At least 6 characters", primary "Reset password". Back ‹ asks "Cancel password reset?". Success → toast "Password changed. Please log in" → Login. Expired token → dialog "Session expired, please start again" → Email screen |
-| **Dashboard (Home)** | Home header (logged-in user, factory name, bell) → hero card *Today's Sales* (₹ amount, number of sales) with today's profit → KPI row (Total due · Deliveries today · Present today · Month expenses) → Quick actions (New Sale · New Booking · Attendance · Add Expense) → recent sales list |
+| **Dashboard (Home)** | Hero card *Today's Sales* (₹ amount, number of sales) → KPI row (Total due · Deliveries today · Present today · Month expenses) → Quick actions (New Sale · New Booking · Attendance · Add Expense) → recent sales list |
 | **Sales list** | Segmented: *All / Instant / Booking*. Search + filter sheet (date range, status). Row: customer initials avatar, name, invoice no. + date, ₹ total, pill (*Paid* `success` / *Partial* `warning` / *Due* `error` / *Booked* `info` / *Cancelled* `neutral`). FAB "New Sale" |
-| **New / Edit Sale (form)** | Type toggle (Instant / Booking) → customer picker (search sheet with "+ New customer" inline) → item cards (product select, quantity stepper, cost and price pre-filled and editable) + "Add item" → transport and discount → payment received + method → booking: delivery date and address → **sticky summary bar** (Total · Profit · Due) + primary "Save" |
-| **Sale detail** | Header with invoice no. + status pills → customer card (call / WhatsApp) → items → line-item summary card (subtotal, transport, discount, **total**, cost, **profit** in `success`, paid, **due** in `error`) → payments list → actions: Add payment · Mark delivered · Cancel · Edit · Share receipt |
+| **New / Edit Sale (form)** | Type toggle (Instant / Booking) → customer picker (search sheet with "+ New customer" inline) → item cards (product select, quantity stepper, price pre-filled and editable) + "Add item" → transport, discount and tax % → payment received + method → booking: delivery date and address → **sticky summary bar** (Total · Due) + primary "Save" |
+| **Sale detail** | Header with invoice no. + status pills → customer card (call / WhatsApp) → items → line-item summary card (subtotal, transport, discount, tax, **total**, paid, **due** in `error`) → payments list. App bar: ✏ Edit · ⋮ → Add payment · Mark delivered · Cancel booking · Delete (Share receipt in F17) |
 | **Upcoming deliveries** | List of booked sales by delivery date. Overdue rows get an `error` "Overdue" pill. Each row has a "Mark delivered" action |
-| **Customers** | Search, "Has due" filter chip. Row: initials avatar, name, phone, due ₹ on the right (`error` when > 0). Detail: contact card, summary strip (Purchases · Paid · Due), sales list |
-| **Products** | List rows: tinted brick icon, name, unit, cost → price, margin. Inactive products are dimmed with an "Inactive" pill. Form: name, unit, default cost, default price, notes |
+| **Customers** | Search, "Has due" filter chip. Row: initials avatar, name, phone (optional), due ₹ on the right (`error` when > 0). Detail: contact card, stat cards (Purchases · Paid · Due, the Home KPI tile), sales list |
+| **Products** | List rows: tinted brick icon, name, price. Inactive products are dimmed with an "Inactive" pill. Detail (read only): icon, name, price, status pill, notes; ✏ Edit · ⋮ → Deactivate / Activate · Delete. Form: name, price, notes (no unit, no cost) |
 | **Labours** | Search. Row: avatar, name, wage ("₹500 / day" or "₹15,000 / month"), today's status pill. Form: name, phone, address, wage type toggle, amount, joining date |
-| **Attendance** | Adapted from the reference: date selector (‹ Today, 08 Nov ›, future dates disabled) → ring (present / total) → tiles Present · Half Day · Absent · Not marked → "Mark all present" → list with a **3-state segmented toggle per labour** (P / H / A, 48 dp targets) → sticky "Save attendance" |
-| **Wages** (tab inside Labours) | Month selector → hero card (total earned this month) → summary strip (Advances · Paid · Balance) → list per labour: days worked, earned, balance, pill (*Paid / Partial / Due*). Detail: calculation breakdown card (worked days × rate, − advances, − paid = balance), "Give advance" and "Pay wage" buttons |
-| **Expenses** | Period selector → total hero → category chips (filter) → expense rows (category icon, note, date, ₹) → FAB "Add expense". Form: date, category select (+ new), amount, note |
+| **Attendance** | Adapted from the reference: date selector (‹ Today, 08 Nov ›, future dates disabled) → count line ("12 present · 5 absent") → search → flat list with a **switch per labour** (on = Present, off = Absent). Each switch saves at once: no half day, no "Mark all present", no Save button |
+| **Wages** (tab inside Labours) | Month selector → hero card (total earned this month) → summary strip (Paid · Balance) → list per labour: days present, earned, balance, pill (*Paid / Partial / Due*). Detail: calculation breakdown card (present days × rate, − paid = balance), payments list; ⋮ → Pay wage. No advances |
+| **Expenses** | "Spent" hero (total for the filter) → search + filter button (sheet: period, category) → expense rows (category icon, note, date, ₹) → FAB "Add expense". Form: date, category as free text with suggestion chips, amount, note |
 | **Reports** | Tiles grid: Sales · Dues · Expenses · Wages · **Net Profit** · Collections. Each opens a period selector + chart + table + export (PDF / Excel) |
 | **Users** | Search. Row: initials avatar, name, phone, last login, pill (*Active* `success` / *Inactive* `neutral`). **The logged-in user is not listed.** FAB "Add user". Form: name, phone, email, password (on create only). Detail actions: Edit · Reset password · Deactivate/Activate. Empty state: "Only you so far · Add user" |
 | **My Profile** | Avatar with initials, name, phone, email, last login → "Edit profile" (name, phone, email) and "Change password" (old + new + confirm) |

@@ -47,7 +47,7 @@ Exact versions are pinned in `pubspec.yaml` / `package.json` when the projects a
        AdonisJS API (PM2)
 ```
 
-- All business calculations (totals, profit, dues, wages, net profit) run **on the server**. The app only displays them.
+- All business calculations (totals, tax, dues, wages, net profit) run **on the server**. The app only displays them.
 - The app is **online only** in v1 (offline entry is Phase 2).
 
 ## 3. Repository Structure
@@ -141,7 +141,7 @@ There are two kinds of time values, and they follow different rules:
 | Kind | Examples | Format | Stored | In the app |
 |---|---|---|---|---|
 | **Timestamp** (when something happened) | `created_at`, `updated_at`, `last_login_at`, `cancelled_at` | ISO-8601 UTC: `2026-11-08T14:22:18.000Z` | `DATETIME` in UTC | `DateTime.parse(v).toLocal()` → shown in the **device** timezone |
-| **Business date** (which day it counts for) | `sale_date`, `delivery_date`, `delivered_date`, `payment_date`, `date` (attendance), `expense_date`, `advance_date`, `joining_date`, `left_date`, `wage_month` | `YYYY-MM-DD` (months: `YYYY-MM`) | `DATE`, no timezone | Shown **as is**. Never call `toLocal()` / `toUtc()` on it |
+| **Business date** (which day it counts for) | `sale_date`, `delivery_date`, `delivered_date`, `payment_date`, `date` (attendance), `expense_date`, `joining_date`, `left_date`, `wage_month` | `YYYY-MM-DD` (months: `YYYY-MM`) | `DATE`, no timezone | Shown **as is**. Never call `toLocal()` / `toUtc()` on it |
 
 - **"Today" is the factory's day** (`APP_TIMEZONE`, default `Asia/Kolkata`), not the server's UTC day and not the viewer's device day. It changes at midnight IST.
 - **Reports, dashboard and wages use business dates only**, so every viewer sees the same numbers wherever they are, and a sale at 11:59 PM never moves to the next day.
@@ -181,11 +181,11 @@ All endpoints require auth except the ones marked 🌐.
 | | `POST /products` · `GET/PUT/DELETE /products/:id` | Create / view / update / delete (delete only if unused → else 409) |
 | | `PATCH /products/:id/status` | Activate / deactivate |
 | **Customers** | `GET /customers` | List (search, `has_due=true`), paginated, each with `total_due` |
-| | `POST /customers` · `GET/PUT/DELETE /customers/:id` | CRUD (delete only if no sales) |
+| | `POST /customers` · `GET/PUT/DELETE /customers/:id` | CRUD (phone optional; delete only if no sales) |
 | | `PATCH /customers/:id/status` | Activate / deactivate |
 | | `GET /customers/:id/sales` | That customer's sales, paginated |
 | **Sales** | `GET /sales` | List (search, type, status, from, to), paginated |
-| | `POST /sales` | Create (customer_id **or** new_customer, items[], charges, initial payment) |
+| | `POST /sales` | Create (customer_id **or** new_customer, items[] with price only, transport / discount / tax_percent, initial payment) |
 | | `GET/PUT/DELETE /sales/:id` | View / edit / soft delete |
 | | `POST /sales/:id/deliver` | Booking → delivered (`delivered_date`) |
 | | `POST /sales/:id/cancel` | Booking → cancelled |
@@ -194,21 +194,20 @@ All endpoints require auth except the ones marked 🌐.
 | **Labours** | `GET /labours` | List (search, `active`), paginated |
 | | `POST /labours` · `GET/PUT /labours/:id` | Create / view / update |
 | | `PATCH /labours/:id/status` | Deactivate (with `left_date`) / activate |
-| **Attendance** | `GET /attendance?date=2026-11-08` | Active labours on that date + saved status |
-| | `PUT /attendance` | Save one day: `{ date, records: [{ labour_id, status }] }` |
+| **Attendance** | `GET /attendance?date=2026-11-08` | Active labours on that date, each with `present` (true / false) |
+| | `PUT /attendance` | `{ date, records: [{ labour_id, present }] }`: present saves a row, false removes it. The app sends one switch at a time |
 | | `GET /labours/:id/attendance?month=2026-11` | Monthly calendar for one labour |
 | **Wages** | `GET /wages?month=2026-11` | Wage sheet for all labours, paginated |
 | | `GET /labours/:id/wages?month=2026-11` | Detailed breakdown for one labour |
-| | `GET/POST /labours/:id/advances` · `DELETE /advances/:id` | Advances |
-| | `POST /labours/:id/wage-payments` · `DELETE /wage-payments/:id` | Wage payments |
-| **Expenses** | `GET /expenses` | List (from, to, category_id), paginated, plus `period_total` |
+| | `POST /labours/:id/wage-payments` · `DELETE /wage-payments/:id` | Wage payments (no separate advances) |
+| **Expenses** | `GET /expenses` | List (from, to, category text, search), paginated, plus `period_total` |
 | | `POST /expenses` · `GET/PUT/DELETE /expenses/:id` | CRUD |
-| | `GET/POST /expense-categories` · `PUT /expense-categories/:id` | Categories |
+| | `GET /expense-categories` | Category names used before + defaults (suggestions only; categories are free text) |
 | **Reports** | `GET /reports/sales?from&to` | Totals, by product, daily series |
 | | `GET /reports/dues` | Customers with dues, paginated |
 | | `GET /reports/expenses?from&to` | Totals by category |
 | | `GET /reports/wages?month` | Wage summary |
-| | `GET /reports/net-profit?from&to` | Profit − expenses − wages, monthly series |
+| | `GET /reports/net-profit?from&to` | Sales (without tax) − expenses − wages, monthly series |
 | | `GET /reports/collections?from&to` | Payments by date and method |
 | **Settings** | `GET/PUT /settings/factory` | Factory profile |
 
@@ -285,12 +284,12 @@ The **exception handler** turns VineJS errors into 422 `{ errors: [...] }`, `E_R
 
 | Service | Responsibility |
 |---|---|
-| `SaleService` | Create and update a sale in **one DB transaction**: snapshot line prices, compute subtotal/total/cost/profit, record the initial payment, recompute `paid_amount`, `due_amount` and `payment_status`. Generate the invoice number. Enforce the rules in PRD §6.1–6.2 |
-| `WageService` | Monthly wage sheet from attendance snapshots, advances and payments (PRD §6.3) |
+| `SaleService` | Create and update a sale in **one DB transaction**: snapshot line prices, compute subtotal / tax / total, record the initial payment, recompute `paid_amount`, `due_amount` and `payment_status`. Generate the invoice number. Enforce the rules in PRD §6.1–6.2 |
+| `WageService` | Monthly wage sheet from attendance snapshots and wage payments (PRD §6.3) |
 | `ReportService` | Aggregate SQL queries for each report |
 | `DashboardService` | One method returning every dashboard number |
 
-Stored totals (`total`, `paid_amount`, `due_amount`, `profit`) are kept on the `sales` row and recomputed by `SaleService` whenever items or payments change. This keeps lists and reports fast and simple.
+Stored totals (`tax_amount`, `total`, `paid_amount`, `due_amount`) are kept on the `sales` row and recomputed by `SaleService` whenever items or payments change. This keeps lists and reports fast and simple.
 
 ### 5.4 Authentication and security
 
@@ -322,7 +321,7 @@ Stored totals (`total`, `paid_amount`, `due_amount`, `profit`) are kept on the `
 - Passwords hashed with **scrypt** (the Adonis default).
 - **Users:** there are no roles, and every authenticated user can call every endpoint. There is no sign-up endpoint. The first user is created with `node ace user:create`, and a forgotten password can be reset on the server with `node ace user:reset-password <phone>`.
 - Deactivating a user or resetting their password **deletes all of their access tokens**, so they are logged out everywhere. The auth middleware also rejects tokens of inactive users.
-- `created_by` is set explicitly from `auth.user` in controllers and services on sales, payments, expenses, advances, wage payments and attendance.
+- `created_by` is set explicitly from `auth.user` in controllers and services on sales, payments, expenses, wage payments and attendance.
 - `@adonisjs/limiter`: 5 login attempts per 15 minutes per IP + phone.
 - CORS limited to the web app's domain (plus localhost in dev).
 - **No file uploads:** the app stores no images on the server. The factory logo is a static asset in the Flutter app.
@@ -372,7 +371,7 @@ Full tables, columns and indexes are in **05-Backend-Schema**. Conventions:
 | Audit | `created_by` (FK → `users.id`) on business records |
 | Migrations | Every schema change is a Lucid migration. Never edit the DB by hand |
 
-Main tables: `users`, `auth_access_tokens`, `password_reset_otps`, `factory_settings`, `products`, `customers`, `sales`, `sale_items`, `sale_payments`, `labours`, `attendances`, `labour_advances`, `wage_payments`, `expense_categories`, `expenses`, `app_versions`.
+Main tables: `users`, `auth_access_tokens`, `password_reset_otps`, `factory_settings`, `products`, `customers`, `sales`, `sale_items`, `sale_payments`, `labours`, `attendances`, `wage_payments`, `expenses`, `app_versions`. All ids are UUID v7 (see 05-Backend-Schema).
 
 ## 7. Frontend (Flutter)
 
@@ -482,7 +481,8 @@ class Paginated<T> {
 One reusable `PaginatedListView<T>` widget + a `PaginatedNotifier<T>` base class:
 - Loads `page=1&limit=20`, then the next page when the user scrolls near the end, while `hasMore`.
 - Pull to refresh resets to page 1. Search and filter changes reset to page 1 (search is debounced 400 ms).
-- Built-in loading skeleton, empty state, error + retry, and a "loading more" footer.
+- Built-in loading skeleton shaped like the list (a table skeleton on desktop), empty state, error + retry, and a spinner while the next page loads (no "Showing x of y" line).
+- Lists also reload when anything is created, changed or deleted through the API (`dataChangedProvider`, bumped by `ApiClient` after every successful write), so a change shows in every open list.
 
 ### 7.5 Theming
 
@@ -587,7 +587,7 @@ Only what protects the money logic:
 
 | Where | What |
 |---|---|
-| Backend (Japa) | Functional tests for `SaleService` (totals, profit, payments, status, edit/cancel rules), `WageService` (daily/monthly, half day, advances), the net profit report, and the response format + pagination |
+| Backend (Japa) | Functional tests for `SaleService` (totals, tax, payments, status, edit/cancel rules), `WageService` (daily/monthly, present days, payments), the net profit report, and the response format + pagination |
 | Flutter | Unit tests for money formatting, JSON parsing of `ApiResponse` / `Paginated`, and the sale form calculations shown live |
 | Manual | A smoke test checklist per release on Android, Web and Windows |
 
