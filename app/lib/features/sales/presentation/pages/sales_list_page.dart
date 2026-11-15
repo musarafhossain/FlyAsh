@@ -129,6 +129,8 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        // Own tag: several sections are alive at once (swipe pager).
+        heroTag: 'fab-sales',
         onPressed: _newSale,
         icon: const Icon(Icons.add),
         label: Text(l.newSale),

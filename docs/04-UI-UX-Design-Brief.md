@@ -397,6 +397,7 @@ States: default, pressed, focused (ring), disabled (38% opacity), loading (spinn
 ### 9.16 Navigation components
 
 - **Bottom navigation** (phone): 4 items (Home, Sales, Attendance, Expenses), 24 dp icons with `micro` labels. Active: filled icon, `primary` color, and a `primaryContainer` pill behind the icon. Inactive: `textTertiary`. Height 64 plus the safe area.
+- **Swipe pager** (phone and tablet): the 4 bottom-bar sections sit side by side; a horizontal swipe on a section's first screen moves to the next one and the bar follows. Neighbouring sections are built ahead, so their content (not a skeleton) shows during the drag. A tap slides with 280 ms ease-out (instant with "Reduce motion").
 - **Side drawer** (opened from the ☰ button on the left of the app bar, or by swiping): header block (`primary` background in light mode, `primaryContainer` in dark) with avatar 48, name, role › and the theme toggle. Then the module menu list (icon 20 + `body`); the active item gets a `primaryContainer` pill. A **"Need help? Contact support"** card sits at the bottom, with **Log Out** in `error`.
 - **Navigation rail** (tablet ≥ 600 dp) and **persistent sidebar** (desktop ≥ 1024 dp) replace the bottom nav and drawer.
 
@@ -547,7 +548,7 @@ Where each term is handled in the app. "Platform" = Flutter does it by itself; "
 | 16 | Miller's law | Drawer in 3 groups, 4 KPI cards, forms of 3–6 fields |
 | 17 | Doherty threshold | Under 400 ms to respond: 60 s cache, optimistic updates, instant detail from the row, skeletons |
 | 18 | Postel's law | Phone accepts `+91`, spaces, dashes and a leading 0 (app and API); money accepts `1500` or `"1500.50"`; category text is tidied |
-| 19 | Jakob's law | Familiar patterns: bottom nav, FAB, pull to refresh, long-press menu, swipe-back |
+| 19 | Jakob's law | Familiar patterns: bottom nav, FAB, pull to refresh, long-press menu, swipe-back, swipe between tabs (WhatsApp) |
 | 20 | Frequency of use | The 4 most used sections are in the bottom nav; category chips are sorted by most used |
 
 "Reduce motion" in the system settings turns off the press squash and the stagger.

@@ -110,6 +110,17 @@ class _StaggeredEntranceState extends State<StaggeredEntrance>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Built in the background (a section next to the current one in the
+    // swipe pager): show the row as is, so it is not invisible while it
+    // slides into view.
+    if (!TickerMode.valuesOf(context).enabled && !_c.isCompleted) {
+      _c.value = 1;
+    }
+  }
+
+  @override
   void dispose() {
     _c.dispose();
     super.dispose();

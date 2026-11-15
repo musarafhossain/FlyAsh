@@ -121,6 +121,8 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
         actions: const [AppBarActions()],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        // Own tag: several sections are alive at once (swipe pager).
+        heroTag: 'fab-products',
         onPressed: () => _open('/products/new'),
         icon: const Icon(Icons.add),
         label: Text(l.addProduct),

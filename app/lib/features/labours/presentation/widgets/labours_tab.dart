@@ -66,6 +66,8 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
+        // Own tag: several sections are alive at once (swipe pager).
+        heroTag: 'fab-labours',
         onPressed: _add,
         icon: const Icon(Icons.person_add_alt_1),
         label: Text(l.addLabour),

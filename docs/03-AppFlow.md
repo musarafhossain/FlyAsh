@@ -97,6 +97,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 - Web URLs have no `#`: `/expenses`, `/sales/<uuid>` (path URL strategy; Nginx serves `index.html` for unknown paths).
 - **Every screen has its own URL**, also screens opened with `push()` (forgot password, OTP, new password, galleries) — `GoRouter.optionURLReflectsImperativeAPIs = true`. Private values (email, reset token) travel in `extra`, never in the URL; refreshing `/forgot-password/verify` or `/reset` returns to `/forgot-password`.
 - Each bottom tab keeps its own navigation stack (go_router `StatefulShellRoute`). Opening a section from the bottom nav, rail or drawer **always shows its list** (`goBranch(index, initialLocation: true)`), even if a detail page was left open there before.
+- **Swipe between tabs (phone and tablet), like WhatsApp:** on the first screen of Home, Sales, Attendance or Expenses, swipe left / right to go to the next / previous bottom-bar section; the page follows the finger and a short drag springs back. A bottom-bar tap slides there too. Swiping does not work on detail pages and forms (their own horizontal gestures stay theirs), in drawer sections, or on desktop. Each section keeps its own state and scroll position while you swipe.
 - The system status bar (clock, battery) is black on every screen.
 - Android back button: pops the stack. On the root of a tab it goes to Home, and on Home it asks "Press back again to exit".
 

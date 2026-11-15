@@ -99,6 +99,8 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
         actions: const [AppBarActions()],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        // Own tag: several sections are alive at once (swipe pager).
+        heroTag: 'fab-customers',
         onPressed: _add,
         icon: const Icon(Icons.person_add_alt_1),
         label: Text(l.addCustomer),

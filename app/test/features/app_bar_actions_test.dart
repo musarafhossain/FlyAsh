@@ -6,6 +6,7 @@ import 'package:flyash/core/l10n/locale_controller.dart';
 import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/core/theme/app_colors.dart';
 import 'package:flyash/core/theme/theme_controller.dart';
+import 'package:flyash/features/settings/presentation/widgets/accent_swatch.dart';
 
 import '../helpers.dart';
 
@@ -75,14 +76,17 @@ void main() {
     tester,
   ) async {
     await openHome(tester, const Size(360, 800));
-    await tester.tap(find.byTooltip('Appearance'));
+    // The visible one: the section next to Home is built (swipe pager).
+    await tester.tap(find.byTooltip('Appearance').hitTestable());
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Dark'));
     await tester.pumpAndSettle();
     expect(testContainer.read(themeControllerProvider).mode, ThemeMode.dark);
 
-    await tester.tap(find.bySemanticsLabel('Emerald'));
+    await tester.tap(
+      find.byWidgetPredicate((w) => w is AccentSwatch && w.label == 'Emerald'),
+    );
     await tester.pumpAndSettle();
     expect(
       testContainer.read(themeControllerProvider).accent,

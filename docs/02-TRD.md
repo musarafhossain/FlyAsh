@@ -534,6 +534,7 @@ Motion and the design principles of 04-UI-UX §14 live in shared code, so every 
 - `core/theme/oklch.dart`: `oklch(l, c, h)` → `Color`; used for the avatar colours.
 - Typography tracking and leading are set per style in `AppTypography._style`; dialogs use `DialogThemeData.alignment (0, −0.12)`.
 - Phone fields use `PhoneInputFormatter` (`normalizePhone`); the API does the same in `phoneRule` (`.parse(normalizePhone)`), so both sides are liberal in what they accept.
+- **Swipe pager:** the `StatefulShellRoute` uses `navigatorContainerBuilder` → `ShellPager` (`core/router/shell_pager.dart`). Phone / tablet: the 4 primary branch navigators are in a `PageView` (kept alive, `allowImplicitScrolling` so neighbours are built ahead; primary branches use `preload: true`). Swiping is enabled only when the location is the section's root path. A swipe calls `goBranch(i)` (keeps the branch's stack); a bottom-bar tap animates the pager. Drawer sections and desktop use an `IndexedStack`. FABs have their own `heroTag` (`fab-<section>`) because several sections are alive at once.
 - Haptics: `HapticFeedback.selectionClick` on the attendance switch, `heavyImpact` when an optimistic delete is undone.
 
 

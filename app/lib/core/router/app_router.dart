@@ -45,6 +45,7 @@ import '../../features/users/presentation/pages/user_form_page.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import 'app_shell.dart';
+import 'shell_pager.dart';
 import 'nav_items.dart';
 
 /// Pages that do not need a login.
@@ -163,13 +164,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           builder: (_, _) => const WidgetGalleryPage(),
         ),
       ],
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (context, state, shell) => AppShell(shell: shell),
+        // Phone / tablet: the bottom-bar sections can be swiped (ShellPager).
+        navigatorContainerBuilder: (context, shell, children) =>
+            ShellPager(shell: shell, children: children),
         branches: [
           for (final item in kNavItems)
             StatefulShellBranch(
               // The section's own first page, whatever the route order.
               initialLocation: item.path,
+              // Bottom-bar sections are ready before the first swipe, so the
+              // next page already shows its content while the finger moves.
+              preload: item.primary,
               routes: sectionRoutes(item),
             ),
         ],

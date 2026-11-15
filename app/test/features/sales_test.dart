@@ -204,6 +204,13 @@ Future<List<RequestOptions>> openSales(
 String currentPath() =>
     testContainer.read(routerProvider).routeInformationProvider.value.uri.path;
 
+/// The page's own vertical list (not the section pager around it).
+final pageScroll = find
+    .byWidgetPredicate(
+      (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+    )
+    .last;
+
 RequestOptions lastList(List<RequestOptions> r) =>
     r.lastWhere((o) => o.path == '/sales');
 
@@ -380,7 +387,11 @@ void main() {
     expect(find.text('5,000 × ₹6.50'), findsOneWidget);
     expect(find.text('₹32,500'), findsOneWidget);
 
-    await tester.scrollUntilVisible(find.text('Due'), 200);
+    await tester.scrollUntilVisible(
+      find.text('Due'),
+      200,
+      scrollable: pageScroll,
+    );
     expect(find.text('+ ₹1,500.00'), findsOneWidget); // transport
     expect(find.text('− ₹500.00'), findsOneWidget); // discount
     expect(find.text('₹38,000.00'), findsOneWidget); // total
@@ -388,7 +399,11 @@ void main() {
     expect(find.text('Production cost'), findsNothing);
     expect(find.text('₹28,000.00'), findsOneWidget); // due
 
-    await tester.scrollUntilVisible(find.text('Payments (1)'), 200);
+    await tester.scrollUntilVisible(
+      find.text('Payments (1)'),
+      200,
+      scrollable: pageScroll,
+    );
     expect(find.text('08 Nov 2026 · UPI'), findsOneWidget);
     expect(find.text('Paid on spot · by Test Owner'), findsOneWidget);
   });
@@ -416,7 +431,11 @@ void main() {
     expect(find.text('Booked'), findsOneWidget);
     expect(find.text('Delivery date: 15 Nov 2026'), findsOneWidget);
     expect(find.text('Bongaon station road'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('No payment received yet'), 200);
+    await tester.scrollUntilVisible(
+      find.text('No payment received yet'),
+      200,
+      scrollable: pageScroll,
+    );
   });
 
   testWidgets('truck button → upcoming deliveries, overdue first', (

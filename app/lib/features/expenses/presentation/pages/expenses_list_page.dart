@@ -169,6 +169,8 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
         actions: const [AppBarActions()],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        // Own tag: several sections are alive at once (swipe pager).
+        heroTag: 'fab-expenses',
         onPressed: () => _open('/expenses/new'),
         icon: const Icon(Icons.add),
         label: Text(l.addExpense),

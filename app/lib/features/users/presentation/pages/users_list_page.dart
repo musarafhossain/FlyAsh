@@ -69,6 +69,8 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
         actions: const [AppBarActions()],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        // Own tag: several sections are alive at once (swipe pager).
+        heroTag: 'fab-users',
         onPressed: () => _open('/users/new'),
         icon: const Icon(Icons.person_add_alt_1),
         label: Text(l.addUser),

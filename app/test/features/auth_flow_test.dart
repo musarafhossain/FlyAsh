@@ -211,7 +211,9 @@ void main() {
       token: 'oat_saved',
       api: {
         ...authRoutes(),
-        'GET /sales': (_) =>
+        // An endpoint no screen loads at start (Sales is preloaded next
+        // to Home in the swipe pager).
+        'GET /customers': (_) =>
             (401, envelope(401, 'Your account is deactivated', null), {}),
       },
     );
@@ -220,7 +222,7 @@ void main() {
     // Any authenticated call answering 401 ends the session.
     final call = testContainer
         .read(apiClientProvider)
-        .get('/sales', parse: (d) => d)
+        .get('/customers', parse: (d) => d)
         .then<Object?>((v) => v, onError: (Object e) => e);
     await tester.pumpAndSettle();
     expect(await call, isNotNull);
