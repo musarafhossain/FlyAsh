@@ -39,6 +39,7 @@ flowchart TD
 ```
 Login
  ├─ Enter phone/email + password → "Sign in"
+ │    (phone with or without +91 / 91: 9876543210, +91 98765-43210 …)
  │    ├─ 200 → save token → Home
  │    ├─ 422 → field errors under inputs
  │    ├─ 400 "Invalid credentials" → error text above the button

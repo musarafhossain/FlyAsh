@@ -4,6 +4,7 @@ import {
   emailRule,
   localeRule,
   nameRule,
+  normalizePhone,
   passwordRule,
   phoneRule,
   themeModeRule,
@@ -21,8 +22,18 @@ export const uniqueUser = (column: 'phone' | 'email') => ({
   },
 })
 
+/**
+ * Phone or email. Without an "@" it is a phone number and is tidied like
+ * every phone field: "+91 98765-43210", "919876543210" and "9876543210"
+ * all log in the same user.
+ */
 export const loginValidator = vine.create({
-  login: vine.string().trim().toLowerCase().maxLength(150),
+  login: vine
+    .string()
+    .trim()
+    .toLowerCase()
+    .maxLength(150)
+    .transform((value) => (value.includes('@') ? value : String(normalizePhone(value)))),
   password: vine.string().maxLength(64),
   device_name: vine.string().trim().maxLength(50).optional(),
 })

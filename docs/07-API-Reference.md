@@ -24,7 +24,7 @@
 | Timestamps | ISO-8601 in UTC (`2026-11-08T06:30:00.000Z`). Show in the device timezone. See §1.7 |
 | Factory date headers | Every response: `X-Business-Date: 2026-11-08`, `X-Business-Timezone: Asia/Kolkata` |
 | Booleans in query strings | `true` / `false` (also `1` / `0`) |
-| Phone numbers | Stored and returned as 10 digits. Requests may send `+91 98765-43210`, `919876543210` or `098765 43210`: spaces, dashes, brackets, the country code and a leading 0 are removed before validation |
+| Phone numbers | Stored and returned as 10 digits. Requests may send `+91 98765-43210`, `919876543210` or `098765 43210`: spaces, dashes, brackets, the country code and a leading 0 are removed before validation. The same applies to `login` in `POST /auth/login` when it has no `@` |
 | IDs | UUID v7 strings (`"019a6b2c-1001-7001-8001-000000000001"`). A `:id` that is not a UUID returns `404 Route not found` |
 
 ### 1.1 Response envelope
@@ -435,7 +435,7 @@ Log in with phone **or** email. 5 failed attempts per 15 minutes (per IP + login
 
 | Field | Type | Required | Rules / notes |
 |---|---|---|---|
-| `login` | string | yes | Phone (10 digits) or email |
+| `login` | string | yes | Phone or email. Without `@` it is a phone: `9876543210`, `+919876543210`, `919876543210`, `+91 98765-43210` or `09876543210` all log in the same user |
 | `password` | string | yes | — |
 | `device_name` | string | no | Shown as the token name, e.g. "Android" |
 

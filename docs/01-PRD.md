@@ -104,7 +104,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 
 | ID | Requirement | Priority |
 |---|---|---|
-| AUTH-1 | A user logs in with phone number (or email) and password | P0 |
+| AUTH-1 | A user logs in with phone number (or email) and password. The phone works with or without `+91` / `91` (spaces and dashes allowed) | P0 |
 | AUTH-2 | The session stays logged in **with no expiry** until the user logs out, is deactivated, or their password is changed or reset | P0 |
 | AUTH-3 | **No sign-up screen.** The first user is created once during server setup with a command. Other users are added from the app (see 5.13) | P0 |
 | AUTH-4 | Change your own password from Settings (old password required) | P0 |

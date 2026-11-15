@@ -28,6 +28,19 @@ test.group('Auth', (group) => {
     assert.notProperty(body.data.user, 'password')
   })
 
+  test('phone login works with +91, 91 or without, spaces and dashes', async ({
+    client,
+    assert,
+  }) => {
+    const user = await createUser()
+    const p = user.phone
+    for (const login of [p, `+91${p}`, `91${p}`, `+91 ${p.slice(0, 5)}-${p.slice(5)}`, `0${p}`]) {
+      const response = await client.post(`${API}/auth/login`).json({ login, password: 'secret123' })
+      response.assertStatus(200)
+      assert.equal(response.body().data.user.id, user.id, login)
+    }
+  })
+
   test('wrong password returns 400', async ({ client }) => {
     const user = await createUser()
     const response = await client
