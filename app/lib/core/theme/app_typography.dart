@@ -10,26 +10,34 @@ abstract final class AppTypography {
 
   static const List<FontFeature> tabular = [FontFeature.tabularFigures()];
 
-  static TextStyle _style(double size, FontWeight weight, double height) =>
-      TextStyle(
-        fontFamily: latin,
-        fontFamilyFallback: fallback,
-        fontSize: size,
-        fontWeight: weight,
-        height: height / size,
-        letterSpacing: 0,
-      );
+  /// [height] is the leading (line height in px); [tracking] the letter
+  /// spacing in px: large headings are set a little tighter, the tiny
+  /// `micro` style a little wider, body text is left as designed. Kerning
+  /// pairs come from the fonts and are always on.
+  static TextStyle _style(
+    double size,
+    FontWeight weight,
+    double height, [
+    double tracking = 0,
+  ]) => TextStyle(
+    fontFamily: latin,
+    fontFamilyFallback: fallback,
+    fontSize: size,
+    fontWeight: weight,
+    height: height / size,
+    letterSpacing: tracking,
+  );
 
   // Token → Material slot it fills (used in textTheme below)
 
   /// displaySmall: hero numbers
-  static final display = _style(32, FontWeight.w700, 40);
+  static final display = _style(32, FontWeight.w700, 40, -0.5);
 
   /// headlineSmall
-  static final h1 = _style(24, FontWeight.w700, 32);
+  static final h1 = _style(24, FontWeight.w700, 32, -0.3);
 
   /// titleLarge: screen titles
-  static final h2 = _style(20, FontWeight.w600, 28);
+  static final h2 = _style(20, FontWeight.w600, 28, -0.2);
 
   /// titleMedium: section headers
   static final h3 = _style(17, FontWeight.w600, 24);
@@ -50,7 +58,7 @@ abstract final class AppTypography {
   static final caption = _style(12, FontWeight.w400, 16);
 
   /// labelSmall: status pills, nav labels
-  static final micro = _style(11, FontWeight.w600, 14);
+  static final micro = _style(11, FontWeight.w600, 14, 0.3);
 
   /// Material text theme built from the scale, in the given text color.
   static TextTheme textTheme(Color primary, Color secondary) {

@@ -20,10 +20,24 @@ const notFuture = vine.createRule((value, _options, field) => {
   }
 })
 
-/** Indian mobile number: 10 digits starting with 6-9 */
+/**
+ * Indian mobile number: 10 digits starting with 6-9. Liberal in what it
+ * accepts: spaces, dashes, brackets, "+91" / "91" and a leading 0 are
+ * removed first, so "+91 98765-43210" is stored as "9876543210".
+ */
+export function normalizePhone(value: unknown) {
+  if (typeof value !== 'string') return value
+  let s = value.replace(/[\s\-()]/g, '')
+  if (s.startsWith('+91')) s = s.slice(3)
+  else if (s.length === 12 && s.startsWith('91')) s = s.slice(2)
+  else if (s.length === 11 && s.startsWith('0')) s = s.slice(1)
+  return s
+}
+
 export const phoneRule = () =>
   vine
     .string()
+    .parse(normalizePhone)
     .trim()
     .regex(/^[6-9]\d{9}$/)
 

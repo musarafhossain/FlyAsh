@@ -291,7 +291,7 @@ void main() {
     // Suggestions as small chips in one sideways-scrolling row
     expect(find.widgetWithText(ActionChip, 'Labour Tiffin'), findsOneWidget);
     final row = find.byKey(const Key('categorySuggestions'));
-    expect(tester.getSize(row).height, 32, reason: 'one row');
+    expect(tester.getSize(row).height, 48, reason: 'one row, 48 px targets');
     expect(tester.widget<ListView>(row).scrollDirection, Axis.horizontal);
     await tester.scrollUntilVisible(
       find.widgetWithText(ActionChip, 'Stone Dust'),

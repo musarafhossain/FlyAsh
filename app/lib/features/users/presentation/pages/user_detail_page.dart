@@ -26,16 +26,20 @@ import '../../../../core/widgets/skeletons.dart';
 
 /// One user: details and actions Edit · Reset password · Deactivate/Activate.
 class UserDetailPage extends ConsumerStatefulWidget {
-  const UserDetailPage({super.key, required this.userId});
+  const UserDetailPage({super.key, required this.userId, this.initial});
 
   final String userId;
+
+  /// The record from the list row, shown at once while the latest data
+  /// loads (no skeleton; the avatar flies in from the row).
+  final AppUser? initial;
 
   @override
   ConsumerState<UserDetailPage> createState() => _UserDetailPageState();
 }
 
 class _UserDetailPageState extends ConsumerState<UserDetailPage> {
-  AppUser? _user;
+  late AppUser? _user = widget.initial;
 
   /// When [_user] was set; optimistic changes made after that are shown on
   /// top of it (see `OptimisticRef.patched`).
@@ -225,7 +229,7 @@ class _UserHeader extends StatelessWidget {
     return AppCard(
       child: Row(
         children: [
-          InitialsAvatar(user.name, size: 56),
+          InitialsAvatar(user.name, size: 56, heroTag: 'user-${user.id}'),
           const SizedBox(width: Space.s4),
           Expanded(
             child: Column(

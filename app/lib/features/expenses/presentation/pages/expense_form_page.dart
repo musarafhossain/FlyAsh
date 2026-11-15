@@ -268,8 +268,10 @@ class _CategoryFieldState extends ConsumerState<_CategoryField> {
           const SizedBox(height: Space.s2),
           // One row of small chips; more scroll in from the side (touch,
           // or mouse drag on desktop / web).
+          // The row is 48 px high so each chip keeps a full touch target;
+          // the chip itself is drawn smaller.
           SizedBox(
-            height: 32,
+            height: 48,
             child: ScrollConfiguration(
               behavior: ScrollConfiguration.of(
                 context,
@@ -288,7 +290,7 @@ class _CategoryFieldState extends ConsumerState<_CategoryField> {
                     labelPadding: const EdgeInsets.only(right: Space.s1),
                     padding: const EdgeInsets.symmetric(horizontal: Space.s2),
                     visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
                     onPressed: () => setState(() {
                       widget.controller.text = c;
                       widget.controller.selection = TextSelection.collapsed(

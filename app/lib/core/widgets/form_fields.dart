@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
+import '../utils/validators.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 
@@ -301,6 +302,27 @@ class MoneyField extends StatelessWidget {
         errorText: errorText,
         helperText: helperText,
       ),
+    );
+  }
+}
+
+/// Phone input that is liberal in what it accepts: a pasted
+/// "+91 98765-43210" or "098765 43210" becomes "9876543210". Keeps digits
+/// only, at most 10.
+class PhoneInputFormatter extends TextInputFormatter {
+  const PhoneInputFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var s = normalizePhone(newValue.text).replaceAll(RegExp(r'\D'), '');
+    if (s.length > 10) s = s.substring(0, 10);
+    if (s == newValue.text) return newValue;
+    return TextEditingValue(
+      text: s,
+      selection: TextSelection.collapsed(offset: s.length),
     );
   }
 }

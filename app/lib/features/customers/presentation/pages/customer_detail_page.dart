@@ -32,9 +32,13 @@ enum _MenuAction { toggleActive, delete }
 /// and WhatsApp, totals (Purchases · Paid · Due), their sales (paginated),
 /// Edit and ⋮ (Deactivate/Activate · Delete).
 class CustomerDetailPage extends ConsumerStatefulWidget {
-  const CustomerDetailPage({super.key, required this.customerId});
+  const CustomerDetailPage({super.key, required this.customerId, this.initial});
 
   final String customerId;
+
+  /// The record from the list row, shown at once while the latest data
+  /// loads (no skeleton; the avatar flies in from the row).
+  final Customer? initial;
 
   @override
   ConsumerState<CustomerDetailPage> createState() => _CustomerDetailPageState();
@@ -42,7 +46,7 @@ class CustomerDetailPage extends ConsumerStatefulWidget {
 
 class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
   final _sales = PagedListController();
-  Customer? _customer;
+  late Customer? _customer = widget.initial;
 
   /// When [_customer] was set; optimistic changes made after that are shown on
   /// top of it (see `OptimisticRef.patched`).
@@ -313,7 +317,7 @@ class _ContactCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              InitialsAvatar(c.name, size: 56),
+              InitialsAvatar(c.name, size: 56, heroTag: 'customer-${c.id}'),
               const SizedBox(width: Space.s4),
               Expanded(
                 child: Column(

@@ -1,4 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'dart:async';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// A change shown on screen before the server has answered.
@@ -105,6 +107,8 @@ extension OptimisticRef on WidgetRef {
       return await request();
     } catch (_) {
       undo();
+      // The row comes back: a stronger buzz says "that did not work".
+      unawaited(HapticFeedback.heavyImpact());
       rethrow;
     }
   }

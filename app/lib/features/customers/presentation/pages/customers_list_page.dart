@@ -74,8 +74,10 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
     _list.refresh();
   }
 
-  Future<void> _open(String location) async {
-    await context.push(location);
+  /// [extra]: the row's record, so the detail page shows at once (and the
+  /// avatar can fly to it) while it loads the latest data.
+  Future<void> _open(String location, {Object? extra}) async {
+    await context.push(location, extra: extra);
   }
 
   /// Add form → (saved) → back here; the list reloads with the new one.
@@ -165,7 +167,7 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
         builder: (context, customers) => desktop
             ? _CustomersTable(
                 customers: customers,
-                onOpen: (c) => _open('/customers/${c.id}'),
+                onOpen: (c) => _open('/customers/${c.id}', extra: c),
               )
             : ListGroup(
                 flat: true,
@@ -173,12 +175,12 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
                   for (final c in customers)
                     CustomerTile(
                       customer: c,
-                      onTap: () => _open('/customers/${c.id}'),
+                      onTap: () => _open('/customers/${c.id}', extra: c),
                       onLongPress: (row) => showCustomerMenu(
                         row,
                         ref,
                         c,
-                        onOpen: () => _open('/customers/${c.id}'),
+                        onOpen: () => _open('/customers/${c.id}', extra: c),
                       ),
                     ),
                 ],
@@ -248,7 +250,7 @@ class CustomerTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            InitialsAvatar(c.name),
+            InitialsAvatar(c.name, heroTag: 'customer-${c.id}'),
             const SizedBox(width: Space.s3),
             Expanded(
               child: Column(
@@ -326,7 +328,7 @@ class _CustomersTable extends StatelessWidget {
           [
             Row(
               children: [
-                InitialsAvatar(c.name, size: 32),
+                InitialsAvatar(c.name, size: 32, heroTag: 'customer-${c.id}'),
                 const SizedBox(width: Space.s3),
                 Expanded(child: CellText(c.name, strong: true)),
                 if (!c.isActive) ...[

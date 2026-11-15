@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -103,6 +104,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
   Future<void> _toggle(AttendanceEntry e, bool present) async {
     final date = _date;
     final id = e.labourId;
+    unawaited(HapticFeedback.selectionClick()); // a small tick with the switch
     setState(() {
       _present[id] = present;
       _saving.add(id);

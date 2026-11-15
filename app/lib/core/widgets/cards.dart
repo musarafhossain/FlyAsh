@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'motion.dart';
+
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
@@ -35,6 +37,14 @@ class HeroCard extends StatelessWidget {
     final t = context.tokens;
     final fg = t.onPrimaryContainer;
 
+    return PressScale(
+      enabled: onTap != null,
+      scale: 0.98,
+      child: _card(context, t, fg),
+    );
+  }
+
+  Widget _card(BuildContext context, AppTokens t, Color fg) {
     return Material(
       color: t.primaryContainer,
       shape: RoundedRectangleBorder(
@@ -232,16 +242,20 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Material(
-      color: t.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: Radii.mdAll,
-        side: BorderSide(color: t.border),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(padding: padding, child: child),
+    // Tappable cards squash a little while pressed.
+    return PressScale(
+      enabled: onTap != null,
+      child: Material(
+        color: t.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: Radii.mdAll,
+          side: BorderSide(color: t.border),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(padding: padding, child: child),
+        ),
       ),
     );
   }

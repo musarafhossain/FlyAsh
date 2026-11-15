@@ -60,8 +60,10 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
   }
 
   /// Opens a page and reloads the list when the user comes back.
-  Future<void> _open(String location) async {
-    await context.push(location);
+  /// [extra]: the row's record, so the detail page shows at once (and the
+  /// avatar can fly to it) while it loads the latest data.
+  Future<void> _open(String location, {Object? extra}) async {
+    await context.push(location, extra: extra);
   }
 
   /// Long press: View · Edit | Deactivate / Activate | Delete, next to the row.
@@ -76,7 +78,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
           ActionMenuItem(
             icon: Icons.visibility_outlined,
             label: l.view,
-            onSelected: () => _open('/products/${p.id}'),
+            onSelected: () => _open('/products/${p.id}', extra: p),
           ),
           ActionMenuItem(
             icon: Icons.edit_outlined,
@@ -189,7 +191,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
         builder: (context, products) => desktop
             ? _ProductsTable(
                 products: products,
-                onOpen: (p) => _open('/products/${p.id}'),
+                onOpen: (p) => _open('/products/${p.id}', extra: p),
               )
             : ListGroup(
                 flat: true,
@@ -197,7 +199,7 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
                   for (final p in products)
                     ProductTile(
                       product: p,
-                      onTap: () => _open('/products/${p.id}'),
+                      onTap: () => _open('/products/${p.id}', extra: p),
                       onLongPress: (row) => _actions(row, p),
                     ),
                 ],
@@ -214,11 +216,13 @@ class ProductIcon extends StatelessWidget {
     this.seed = '',
     this.active = true,
     this.size = 48,
+    this.heroTag,
   });
 
   final String seed;
   final bool active;
   final double size;
+  final Object? heroTag;
 
   @override
   Widget build(BuildContext context) => ColorAvatar(
@@ -226,6 +230,7 @@ class ProductIcon extends StatelessWidget {
     icon: Icons.view_module_rounded,
     size: size,
     dimmed: !active,
+    heroTag: heroTag,
   );
 }
 
@@ -261,7 +266,11 @@ class ProductTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            ProductIcon(seed: p.name, active: p.isActive),
+            ProductIcon(
+              seed: p.name,
+              active: p.isActive,
+              heroTag: 'product-${p.id}',
+            ),
             const SizedBox(width: Space.s3),
             Expanded(
               child: Column(
@@ -330,7 +339,12 @@ class _ProductsTable extends StatelessWidget {
           [
             Row(
               children: [
-                ProductIcon(seed: p.name, active: p.isActive, size: 32),
+                ProductIcon(
+                  seed: p.name,
+                  active: p.isActive,
+                  size: 32,
+                  heroTag: 'product-${p.id}',
+                ),
                 const SizedBox(width: Space.s3),
                 Expanded(child: CellText(p.name, strong: true)),
               ],

@@ -90,5 +90,6 @@ The app is built **one small step at a time**. Each step ends with a working app
   - After save: create → list; edit → where it was opened from. Forms are popped, not stacked.
   - Section taps use `goBranch(index, initialLocation: true)`, so a section always opens its list.
   - `kStatusBarStyle`: black status bar. `togglePopover` (app_bar_actions.dart): language / appearance popovers with a 16 px edge gap.
+- **Design principles pass (2026-11-16, 04-UI-UX §14):** `core/widgets/motion.dart` (`Motion` tokens, `PressScale`, `StaggeredEntrance`), `core/theme/oklch.dart` (avatar colours), `heroTag` on `ColorAvatar` / `InitialsAvatar` / `ProductIcon`, detail pages take `initial` from `push(extra: record)`, `PhoneInputFormatter` + `normalizePhone` (also on the API), typography tracking, dialogs at the optical centre, haptics.
 - **Riverpod retries are off** (`retry: noRetry`): a failed load shows an error with a Retry button instead of retrying silently.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

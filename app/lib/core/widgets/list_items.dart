@@ -1,25 +1,33 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_spacing.dart';
+import '../theme/oklch.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import '../utils/formatters.dart';
 import 'cards.dart';
+import 'motion.dart';
 import 'status_pill.dart';
 
-/// Bright circle colours for list avatars. All are dark enough for white
-/// text and icons on top (contrast ≥ 3:1), in light and dark mode.
-const kAvatarColors = <Color>[
-  Color(0xFF059669), // emerald
-  Color(0xFF0284C7), // sky
-  Color(0xFF9333EA), // purple
-  Color(0xFFD97706), // amber
-  Color(0xFFDB2777), // pink
-  Color(0xFFDC2626), // red
-  Color(0xFF0D9488), // teal
-  Color(0xFF16A34A), // green
-  Color(0xFF4F46E5), // indigo
-  Color(0xFFEA580C), // orange
+/// Circle colours for list avatars, made in OKLCH: ten hues with the same
+/// lightness and chroma, so every avatar looks equally strong and white
+/// text on top has the same contrast (about 4.8:1) on all of them, in
+/// light and dark mode.
+final kAvatarColors = <Color>[
+  // Hues (degrees); yellows are left out: at this lightness they turn olive.
+  for (final hue in const <double>[
+    25,
+    50,
+    140,
+    160,
+    195,
+    235,
+    265,
+    295,
+    325,
+    355,
+  ])
+    oklch(0.55, 0.16, hue),
 ];
 
 /// The same seed always gets the same colour (stable on every platform).
@@ -41,7 +49,12 @@ class ColorAvatar extends StatelessWidget {
     this.text,
     this.size = 48,
     this.dimmed = false,
+    this.heroTag,
   }) : assert(icon != null || text != null);
+
+  /// With the same tag on a list row and on the detail page, the avatar
+  /// flies from one to the other when the page opens (shared element).
+  final Object? heroTag;
 
   final String seed;
   final IconData? icon;
@@ -52,6 +65,11 @@ class ColorAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    final avatar = _circle(t);
+    return heroTag == null ? avatar : Hero(tag: heroTag!, child: avatar);
+  }
+
+  Widget _circle(AppTokens t) {
     return Container(
       width: size,
       height: size,
@@ -64,7 +82,10 @@ class ColorAvatar extends StatelessWidget {
           ? Icon(icon, size: size * 0.5, color: Colors.white)
           : Text(
               text!,
+              // Keeps the look while the avatar flies between pages.
+              textScaler: TextScaler.noScaling,
               style: AppTypography.label.copyWith(
+                decoration: TextDecoration.none,
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
                 fontSize: size * 0.36,
@@ -76,14 +97,19 @@ class ColorAvatar extends StatelessWidget {
 
 /// Coloured circle with a person's initials ("Rahim Traders" → "RT").
 class InitialsAvatar extends StatelessWidget {
-  const InitialsAvatar(this.name, {super.key, this.size = 48});
+  const InitialsAvatar(this.name, {super.key, this.size = 48, this.heroTag});
 
   final String name;
   final double size;
+  final Object? heroTag;
 
   @override
-  Widget build(BuildContext context) =>
-      ColorAvatar(seed: name, text: Fmt.initials(name), size: size);
+  Widget build(BuildContext context) => ColorAvatar(
+    seed: name,
+    text: Fmt.initials(name),
+    size: size,
+    heroTag: heroTag,
+  );
 }
 
 /// A list of rows split by thin lines (like a phone contacts list). Use
@@ -104,7 +130,9 @@ class ListGroup extends StatelessWidget {
       children: [
         for (final (i, child) in children.indexed) ...[
           if (i > 0) const Divider(height: 1),
-          child,
+          // Rows come in one after another (stagger); a row that stays
+          // after a reload keeps its key and does not replay.
+          StaggeredEntrance(key: child.key, index: i, child: child),
         ],
       ],
     );

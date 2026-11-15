@@ -94,6 +94,35 @@ test.group('Customers', (group) => {
     assert.isNull(cleared.body().data.phone)
   })
 
+  test('phone is accepted with +91, spaces, dashes or a leading 0', async ({ client, assert }) => {
+    const user = await createUser()
+    const a = await client
+      .post(`${API}/customers`)
+      .loginAs(user)
+      .json({ name: 'Plus', phone: '+91 98111-22233' })
+    a.assertStatus(201)
+    assert.equal(a.body().data.phone, '9811122233')
+
+    const b = await client
+      .post(`${API}/customers`)
+      .loginAs(user)
+      .json({ name: 'Zero', phone: '098111 22244' })
+    assert.equal(b.body().data.phone, '9811122244')
+
+    // The same number written differently is still a duplicate
+    const dup = await client
+      .post(`${API}/customers`)
+      .loginAs(user)
+      .json({ name: 'Dup', phone: '919811122233' })
+    dup.assertStatus(422)
+
+    const bad = await client
+      .post(`${API}/customers`)
+      .loginAs(user)
+      .json({ name: 'Bad', phone: '+91 123' })
+    bad.assertStatus(422)
+  })
+
   test('list, search and update', async ({ client, assert }) => {
     const user = await createUser()
     const created = await client

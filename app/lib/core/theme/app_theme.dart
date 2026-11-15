@@ -175,6 +175,8 @@ abstract final class AppTheme {
         shape: const RoundedRectangleBorder(borderRadius: Radii.mdAll),
       ),
       dialogTheme: DialogThemeData(
+        // Optical centre: a little above the middle looks centred.
+        alignment: const Alignment(0, -0.12),
         backgroundColor: t.surfaceElevated,
         surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(borderRadius: Radii.lgAll),

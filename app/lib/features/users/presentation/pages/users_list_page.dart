@@ -48,8 +48,10 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
   }
 
   /// Opens a page and reloads the list when the user comes back.
-  Future<void> _open(String location) async {
-    await context.push(location);
+  /// [extra]: the row's record, so the detail page shows at once (and the
+  /// avatar can fly to it) while it loads the latest data.
+  Future<void> _open(String location, {Object? extra}) async {
+    await context.push(location, extra: extra);
   }
 
   @override
@@ -105,13 +107,16 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
                 onAction: () => _open('/users/new'),
               ),
         builder: (context, users) => desktop
-            ? _UsersTable(users: users, onOpen: (u) => _open('/users/${u.id}'))
+            ? _UsersTable(
+                users: users,
+                onOpen: (u) => _open('/users/${u.id}', extra: u),
+              )
             : ListGroup(
                 flat: true,
                 children: [
                   for (final u in users)
                     EntityListTile(
-                      leading: InitialsAvatar(u.name),
+                      leading: InitialsAvatar(u.name, heroTag: 'user-${u.id}'),
                       title: u.name,
                       subtitle: u.phone,
                       meta: l.lastLogin(lastLoginText(context, u)),
@@ -119,12 +124,12 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
                       statusTone: u.isActive
                           ? StatusTone.success
                           : StatusTone.neutral,
-                      onTap: () => _open('/users/${u.id}'),
+                      onTap: () => _open('/users/${u.id}', extra: u),
                       onLongPress: (row) => showUserMenu(
                         row,
                         ref,
                         u,
-                        onOpen: () => _open('/users/${u.id}'),
+                        onOpen: () => _open('/users/${u.id}', extra: u),
                       ),
                     ),
                 ],
@@ -162,7 +167,7 @@ class _UsersTable extends StatelessWidget {
           [
             Row(
               children: [
-                InitialsAvatar(u.name, size: 32),
+                InitialsAvatar(u.name, size: 32, heroTag: 'user-${u.id}'),
                 const SizedBox(width: Space.s3),
                 Expanded(child: CellText(u.name, strong: true)),
               ],

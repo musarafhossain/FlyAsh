@@ -15,9 +15,11 @@ class Validators {
   String? required(String? v) =>
       (v == null || v.trim().isEmpty) ? _l.fieldRequired : null;
 
-  /// 10-digit Indian mobile number starting with 6–9.
+  /// 10-digit Indian mobile number starting with 6–9. Spaces, dashes,
+  /// "+91" and a leading 0 are accepted (the server stores the 10 digits).
   String? phone(String? v) =>
-      required(v) ?? (_phone.hasMatch(v!.trim()) ? null : _l.invalidPhone);
+      required(v) ??
+      (_phone.hasMatch(normalizePhone(v!)) ? null : _l.invalidPhone);
 
   /// Like [phone], but empty is allowed.
   String? optionalPhone(String? v) =>
@@ -57,6 +59,20 @@ class Validators {
   /// Must equal [other] (read when validating).
   FormFieldValidator<String> sameAs(TextEditingController other) =>
       (v) => required(v) ?? (v == other.text ? null : _l.passwordsDontMatch);
+}
+
+/// "+91 98765-43210", "098765 43210" → "9876543210". Other text is only
+/// stripped of spaces, dashes and brackets (and then fails validation).
+String normalizePhone(String v) {
+  var s = v.replaceAll(RegExp(r'[\s\-()]'), '');
+  if (s.startsWith('+91')) {
+    s = s.substring(3);
+  } else if (s.length == 12 && s.startsWith('91')) {
+    s = s.substring(2);
+  } else if (s.length == 11 && s.startsWith('0')) {
+    s = s.substring(1);
+  }
+  return s;
 }
 
 /// Trimmed text, or null when empty (for optional API fields).

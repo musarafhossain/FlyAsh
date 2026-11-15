@@ -564,10 +564,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
                     controller: _ncPhone,
                     keyboardType: TextInputType.phone,
                     textInputAction: TextInputAction.next,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
+                    inputFormatters: [const PhoneInputFormatter()],
                     validator: v.optionalPhone,
                     onChanged: (_) => _changed(),
                     decoration: InputDecoration(

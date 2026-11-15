@@ -1,6 +1,5 @@
 import '../../../../core/network/api_response.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -138,10 +137,7 @@ class _CustomerFormPageState extends ConsumerState<CustomerFormPage>
                     controller: _phone,
                     keyboardType: TextInputType.phone,
                     textInputAction: TextInputAction.next,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
+                    inputFormatters: [const PhoneInputFormatter()],
                     validator: v.optionalPhone,
                     decoration: InputDecoration(
                       labelText: l.phoneOptional,

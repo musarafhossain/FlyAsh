@@ -24,16 +24,20 @@ import 'products_list_page.dart' show ProductIcon;
 /// A product (read only): icon, name, price and status on top, then notes. ✏ opens the
 /// edit form; ⋮ → Deactivate / Activate | Delete. Pull to refresh.
 class ProductDetailPage extends ConsumerStatefulWidget {
-  const ProductDetailPage({super.key, required this.productId});
+  const ProductDetailPage({super.key, required this.productId, this.initial});
 
   final String productId;
+
+  /// The record from the list row, shown at once while the latest data
+  /// loads (no skeleton; the avatar flies in from the row).
+  final Product? initial;
 
   @override
   ConsumerState<ProductDetailPage> createState() => _ProductDetailPageState();
 }
 
 class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
-  Product? _product;
+  late Product? _product = widget.initial;
 
   /// When [_product] was set; optimistic changes made after that are shown on
   /// top of it (see `OptimisticRef.patched`).
@@ -179,7 +183,12 @@ class _Header extends StatelessWidget {
     return AppCard(
       child: Row(
         children: [
-          ProductIcon(seed: p.name, active: p.isActive, size: 56),
+          ProductIcon(
+            seed: p.name,
+            active: p.isActive,
+            size: 56,
+            heroTag: 'product-${p.id}',
+          ),
           const SizedBox(width: Space.s4),
           Expanded(
             child: Column(

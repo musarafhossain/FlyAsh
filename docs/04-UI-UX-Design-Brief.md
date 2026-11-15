@@ -223,7 +223,9 @@ The reference is almost flat. We use **level 0** (border only) for list cards, *
 | Screen push / pop | 250 ms, ease-out, slide + fade |
 | Bottom sheet / drawer | 300 ms, emphasized decelerate |
 | Theme or mode change | 200 ms cross-fade of colors. **No layout jump** |
-| Button press | Scale 0.98, 100 ms, plus ripple |
+| Button press | Tappable cards: scale 0.97, 120 ms, plus ripple (`PressScale`) |
+| List rows entering | Fade + rise 12 px, 220 ms, 35 ms stagger (first 10 rows) |
+| List row → detail | Shared element: the avatar flies to the detail header |
 | Progress ring / counters | Animate from 0 on first view, 600 ms |
 | **Reduce motion** (OS setting) | Turn off slides and counters; use instant cross-fades only |
 
@@ -494,7 +496,63 @@ Drawer (☰):
 
 ---
 
-## 14. Decisions (settled)
+## 14. Design terms and principles checklist
+
+Where each term is handled in the app. "Platform" = Flutter does it by itself; "n/a" = honestly not applicable.
+
+### 14.1 Design terms
+
+| # | Term | In FlyAsh |
+|---|---|---|
+| 1 | Kerning | Font kerning pairs (Inter, Hind Siliguri) are always on (platform) |
+| 2 | Optical centre | Dialogs sit a little above the middle (`DialogThemeData.alignment (0, −0.12)`) |
+| 3 | Tabular numbers | `AppTypography.tabular` on every amount, date and count |
+| 4 | Layout shift | Skeletons have the shape and size of the content; hero / KPI cards keep their size while loading; background reloads swap rows in place |
+| 5 | Tracking | `display −0.5`, `h1 −0.3`, `h2 −0.2`, `micro +0.3`, body 0 (`AppTypography._style`) |
+| 6 | Optimistic update | Status changes, deletes, payments, attendance (02-TRD §7.5) |
+| 7 | x-height | Inter (tall x-height) for small sizes; Hind Siliguri as the Bengali fallback at the same sizes |
+| 8 | Touch target | Every control is at least 48 dp; small chips (32 dp drawn) keep a 48 dp hit area |
+| 9 | Leading | Fixed line heights per style (body 14/20, title 15/22 …) |
+| 10 | Origin-aware animation | Row menus open from the pressed row; ⋮ menus from their button; the avatar flies from its own row (see 20). App-bar popovers open under their icon but without a grow animation (platform `MenuAnchor`) |
+| 11 | OKLCH | Avatar colours are generated in OKLCH (`core/theme/oklch.dart`): same lightness and chroma for every hue, so white text has the same contrast on all. Theme tokens stay as fixed hex values |
+| 12 | Widow | n/a in Flutter (no balanced wrapping); titles are kept to one line with ellipsis, messages are short |
+| 13 | Safe area | `SafeArea` in page bodies, sheets and the shell |
+| 14 | Stagger | List rows fade in and rise 12 px, each 35 ms after the one before (first 10 rows; `StaggeredEntrance`) |
+| 15 | Line length | Forms max 560 px, detail pages 720 px, lists 1200 px |
+| 16 | Affordance | Switches, FAB, chevrons, pencil icons, disabled states faded, pressed cards squash |
+| 17 | Combobox | Expense category (type or pick a chip), customer / product search pickers |
+| 18 | Interruptible animation | All motion uses implicit animations or controllers that continue from the current value (press, switches, theme change, page transitions with back gesture) |
+| 19 | Progressive disclosure | Filters in a sheet, actions in ⋮ / long-press menus, optional fields last |
+| 20 | Shared element transition | The avatar / product icon flies from the list row to the detail header (`Hero`, tags `product-<id>`, `customer-<id>`, `labour-<id>`, `user-<id>`); the detail page shows the row's data at once, then refreshes |
+
+### 14.2 UX and animation principles
+
+| # | Principle | In FlyAsh |
+|---|---|---|
+| 1 | Squash & stretch | Tappable cards scale to 0.97 while pressed (`PressScale`) |
+| 2 | Anticipation | The press squash comes before the page change; confirm dialogs before destructive actions |
+| 3 | Staging | One hero card and one primary button per screen |
+| 4 | Pose to pose | Clear states: skeleton → content → empty / error |
+| 5 | Follow through | Rows settle with an ease-out; Material ink ripples finish after release |
+| 6 | Slow in & slow out | `Motion.standard` (easeInOutCubic), `Motion.enter` (easeOutCubic) |
+| 7 | Arcs | The shared-element avatar moves on an arc (`MaterialRectArcTween`, platform) |
+| 8 | Secondary action | A light haptic tick with the attendance switch; a strong one when an optimistic delete is undone; snackbar with the result |
+| 9 | Snappy timing | 120 ms press, 220 ms enter, 35 ms stagger step (`Motion`) |
+| 10 | Exaggerated feedback | A refused change snaps back (switch, deleted row) with a strong haptic and a message; destructive buttons in red; "edited" wage in accent. (The OTP shake from §10 is not built yet) |
+| 11 | Solid drawing | Consistent elevation levels and borders (§7.3); n/a for 3D |
+| 12 | Appeal | Theme accents, coloured avatars, tinted KPI icons |
+| 13 | Fitts's law | FAB and primary buttons are large and near the thumb; a whole attendance row flips its switch |
+| 14 | Bigger hit areas | See touch target (48 dp) |
+| 15 | Hick's law | 4 bottom-nav items; filters and rare actions are tucked away; menus are grouped |
+| 16 | Miller's law | Drawer in 3 groups, 4 KPI cards, forms of 3–6 fields |
+| 17 | Doherty threshold | Under 400 ms to respond: 60 s cache, optimistic updates, instant detail from the row, skeletons |
+| 18 | Postel's law | Phone accepts `+91`, spaces, dashes and a leading 0 (app and API); money accepts `1500` or `"1500.50"`; category text is tidied |
+| 19 | Jakob's law | Familiar patterns: bottom nav, FAB, pull to refresh, long-press menu, swipe-back |
+| 20 | Frequency of use | The 4 most used sections are in the bottom nav; category chips are sorted by most used |
+
+"Reduce motion" in the system settings turns off the press squash and the stagger.
+
+## 15. Decisions (settled)
 
 | Topic | Decision |
 |---|---|
@@ -509,7 +567,7 @@ Drawer (☰):
 
 ---
 
-## 15. Deliverables Checklist (design phase)
+## 16. Deliverables Checklist (design phase)
 
 - [ ] Token file: 10 theme combinations (JSON / Dart / CSS) generated from §5
 - [ ] Component gallery covering every §9 component in all 10 combinations

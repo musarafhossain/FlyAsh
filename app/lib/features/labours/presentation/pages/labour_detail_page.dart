@@ -38,16 +38,20 @@ import '../widgets/labours_tab.dart' show TodayPill;
 /// leaving date) / Activate, ⋮ → Pay wage, and this month's wage (earned,
 /// paid, balance) as stat cards → the wage detail. Pull to refresh.
 class LabourDetailPage extends ConsumerStatefulWidget {
-  const LabourDetailPage({super.key, required this.labourId});
+  const LabourDetailPage({super.key, required this.labourId, this.initial});
 
   final String labourId;
+
+  /// The record from the list row, shown at once while the latest data
+  /// loads (no skeleton; the avatar flies in from the row).
+  final Labour? initial;
 
   @override
   ConsumerState<LabourDetailPage> createState() => _LabourDetailPageState();
 }
 
 class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
-  Labour? _labour;
+  late Labour? _labour = widget.initial;
 
   /// When [_labour] was set; optimistic changes made after that are shown on
   /// top of it (see `OptimisticRef.patched`).
@@ -331,7 +335,7 @@ class _InfoCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              InitialsAvatar(lb.name, size: 56),
+              InitialsAvatar(lb.name, size: 56, heroTag: 'labour-${lb.id}'),
               const SizedBox(width: Space.s4),
               Expanded(
                 child: Column(

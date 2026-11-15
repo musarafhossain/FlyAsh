@@ -36,6 +36,9 @@ import '../../features/settings/presentation/pages/language_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/attendance/presentation/pages/attendance_page.dart';
 import '../../features/auth/domain/app_user.dart';
+import '../../features/customers/domain/customer.dart';
+import '../../features/labours/domain/labour.dart';
+import '../../features/products/domain/product.dart';
 import '../../features/users/presentation/pages/user_detail_page.dart';
 import '../../features/wages/presentation/pages/wage_detail_page.dart';
 import '../../features/users/presentation/pages/user_form_page.dart';
@@ -193,7 +196,10 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
           path: ':id',
           redirect: (_, state) =>
               _idParam(state, 'id') == null ? '/users' : null,
-          builder: (_, state) => UserDetailPage(userId: _idParam(state, 'id')!),
+          builder: (_, state) => UserDetailPage(
+            userId: _idParam(state, 'id')!,
+            initial: _extra<AppUser>(state),
+          ),
           routes: [
             GoRoute(
               path: 'edit',
@@ -279,8 +285,10 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
           path: ':id',
           redirect: (_, state) =>
               _idParam(state, 'id') == null ? '/customers' : null,
-          builder: (_, state) =>
-              CustomerDetailPage(customerId: _idParam(state, 'id')!),
+          builder: (_, state) => CustomerDetailPage(
+            customerId: _idParam(state, 'id')!,
+            initial: _extra<Customer>(state),
+          ),
           routes: [
             GoRoute(
               path: 'edit',
@@ -302,8 +310,10 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
           path: ':id',
           redirect: (_, state) =>
               _idParam(state, 'id') == null ? '/products' : null,
-          builder: (_, state) =>
-              ProductDetailPage(productId: _idParam(state, 'id')!),
+          builder: (_, state) => ProductDetailPage(
+            productId: _idParam(state, 'id')!,
+            initial: _extra<Product>(state),
+          ),
           routes: [
             GoRoute(
               path: 'edit',
@@ -352,8 +362,10 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
           path: ':id',
           redirect: (_, state) =>
               _idParam(state, 'id') == null ? '/labours' : null,
-          builder: (_, state) =>
-              LabourDetailPage(labourId: _idParam(state, 'id')!),
+          builder: (_, state) => LabourDetailPage(
+            labourId: _idParam(state, 'id')!,
+            initial: _extra<Labour>(state),
+          ),
           routes: [
             GoRoute(
               path: 'edit',
@@ -406,6 +418,10 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
     ),
   ],
 };
+
+/// The record handed over with `push(..., extra: record)` (a list row
+/// opening its detail page), or null (deep link, refresh, other type).
+T? _extra<T>(GoRouterState state) => state.extra is T ? state.extra as T : null;
 
 /// A record id from the path (a UUID); anything else is not a record.
 String? _idParam(GoRouterState state, String name) =>

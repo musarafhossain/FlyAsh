@@ -46,8 +46,10 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
     super.dispose();
   }
 
-  Future<void> _open(String location) async {
-    await context.push(location);
+  /// [extra]: the row's record, so the detail page shows at once (and the
+  /// avatar can fly to it) while it loads the latest data.
+  Future<void> _open(String location, {Object? extra}) async {
+    await context.push(location, extra: extra);
   }
 
   /// Add form → (saved) → back here; the list reloads with the new one.
@@ -145,7 +147,7 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
         builder: (context, labours) => desktop
             ? _LaboursTable(
                 labours: labours,
-                onOpen: (lb) => _open('/labours/${lb.id}'),
+                onOpen: (lb) => _open('/labours/${lb.id}', extra: lb),
               )
             : ListGroup(
                 flat: true,
@@ -153,12 +155,12 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
                   for (final lb in labours)
                     LabourTile(
                       labour: lb,
-                      onTap: () => _open('/labours/${lb.id}'),
+                      onTap: () => _open('/labours/${lb.id}', extra: lb),
                       onLongPress: (row) => showLabourMenu(
                         row,
                         ref,
                         lb,
-                        onOpen: () => _open('/labours/${lb.id}'),
+                        onOpen: () => _open('/labours/${lb.id}', extra: lb),
                       ),
                     ),
                 ],
@@ -212,7 +214,7 @@ class LabourTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            InitialsAvatar(lb.name),
+            InitialsAvatar(lb.name, heroTag: 'labour-${lb.id}'),
             const SizedBox(width: Space.s3),
             Expanded(
               child: Column(
@@ -272,7 +274,7 @@ class _LaboursTable extends StatelessWidget {
           [
             Row(
               children: [
-                InitialsAvatar(lb.name, size: 32),
+                InitialsAvatar(lb.name, size: 32, heroTag: 'labour-${lb.id}'),
                 const SizedBox(width: Space.s3),
                 Expanded(child: CellText(lb.name, strong: true)),
               ],
