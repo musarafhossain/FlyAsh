@@ -340,7 +340,7 @@ The row under the search bar on list screens (for example "Total 48 · Active 45
 
 ### 9.9 Segmented tabs
 
-A full-width track (`surfaceVariant`, `radius.full`, height 44) with 2–3 segments. The selected segment is a `surface` pill with level 1 elevation and `primary` text; the others use `textSecondary`. On a tap **one pill slides** to the new segment (220 ms, ease-in-out) while the label colours cross-fade; it stays `surface` the whole way (never fades through a dark colour). Each whole segment is tappable. With "Reduce motion" it moves at once. Used by Sales (All / Instant / Booking), the sale form (Instant / Booking) and the labour form (Daily / Monthly).
+A full-width track (`surfaceVariant`, `radius.full`, height 44) with 2–3 segments. The selected segment is a `surface` pill with level 1 elevation and `primary` text; the others use `textSecondary`. On a tap **one pill slides** to the new segment (220 ms, ease-in-out) while the label colours cross-fade; it stays `surface` the whole way (never fades through a dark colour). Each whole segment is tappable. With "Reduce motion" it moves at once. Used by Sales (All / Instant / Booking), Labours (Labours / Wages, under the app bar), the sale form (Instant / Booking) and the labour form (Daily / Monthly). The app has no Material tab bars.
 Alternative: an underline tab style for 3 or more tabs (as in the reference's "My Overtime / Team Overtime").
 
 ### 9.10 Period selector

@@ -236,6 +236,7 @@ A product has a **price only**: no unit and no cost.
 
 ```
 Labours section = 2 tabs: Labours (/labours) · Wages (/labours/wages)
+  (sliding pill tabs like Sales; each tab has its own URL, and switching slides the pill)
 
 Labours list ─ search ─ FAB → Labour form: name, phone, address,
                                wage type Daily/Monthly + wage amount (both required), joining date

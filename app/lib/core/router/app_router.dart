@@ -339,13 +339,14 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
     ),
   ],
   // Labours · Wages are two tabs of one section; switching tabs does not
-  // animate like opening a new page. "/labours/wages" comes first so it is
-  // not read as a labour id.
+  // animate like opening a new page. Both use the same page key, so the
+  // page is updated in place and the tab pill slides. "/labours/wages"
+  // comes first so it is not read as a labour id.
   '/labours' => [
     GoRoute(
       path: LabourSectionTab.wages.path,
       pageBuilder: (_, state) => NoTransitionPage(
-        key: state.pageKey,
+        key: _laboursSectionKey,
         child: LaboursPage(
           tab: LabourSectionTab.wages,
           month: state.uri.queryParameters['month'],
@@ -365,9 +366,9 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
     ),
     GoRoute(
       path: LabourSectionTab.labours.path,
-      pageBuilder: (_, state) => NoTransitionPage(
-        key: state.pageKey,
-        child: const LaboursPage(tab: LabourSectionTab.labours),
+      pageBuilder: (_, state) => const NoTransitionPage(
+        key: _laboursSectionKey,
+        child: LaboursPage(tab: LabourSectionTab.labours),
       ),
       routes: [
         GoRoute(path: 'new', builder: (_, _) => const LabourFormPage()),
@@ -431,6 +432,9 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
     ),
   ],
 };
+
+/// One page for both Labours tabs (see the '/labours' routes).
+const _laboursSectionKey = ValueKey('labours-section');
 
 /// The record handed over with `push(..., extra: record)` (a list row
 /// opening its detail page), or null (deep link, refresh, other type).
