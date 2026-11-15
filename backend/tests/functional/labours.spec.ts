@@ -145,7 +145,9 @@ test.group('Labours & attendance', (group) => {
     assert.equal(wages.body().data.earned, '800.50')
 
     // Absent again: back to the default
-    const cleared = await mark(client, user, '2026-10-03', [{ labour_id: daily.id, present: false }])
+    const cleared = await mark(client, user, '2026-10-03', [
+      { labour_id: daily.id, present: false },
+    ])
     assert.equal(of(cleared, daily.id).day_wage, '450.00')
 
     const bad = await client
