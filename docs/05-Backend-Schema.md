@@ -376,13 +376,13 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
 | Endpoint | Request body | `data` |
 |---|---|---|
 | `GET /products?page&limit&search&active` | — | Paginated `Product` |
-| `POST /products` · `PUT /products/:id` | `{ name, unit, unit_label?, default_cost, default_price, notes? }` | `Product` |
+| `POST /products` · `PUT /products/:id` | `{ name, default_cost, default_price, notes? }` | `Product` |
 | `PATCH /products/:id/status` | `{ is_active }` | `Product` |
 | `DELETE /products/:id` | — | `null` (409 if used in a sale) |
 
 ```jsonc
 // Product
-{ "id": 3, "name": "Fly Ash Brick 9×4×3", "unit": "piece", "unit_label": null,
+{ "id": 3, "name": "Fly Ash Brick 9×4×3",
   "default_cost": "4.20", "default_price": "6.50", "margin": "2.30", "notes": null, "is_active": true }
 ```
 
