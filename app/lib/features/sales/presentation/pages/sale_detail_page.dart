@@ -11,7 +11,9 @@ import '../../../../core/network/data_changed.dart';
 import '../../../../core/network/optimistic.dart';
 import '../../../../core/network/query_cache.dart';
 import '../../../../core/network/session.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_controller.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/contact_launcher.dart';
@@ -26,6 +28,8 @@ import '../../../../core/widgets/status_pill.dart';
 import '../../../products/presentation/pages/products_list_page.dart';
 import '../../data/sales_repository_impl.dart';
 import '../../domain/sale.dart';
+import '../../../settings/data/settings_repository_impl.dart';
+import '../receipt_pdf.dart';
 import '../sale_labels.dart';
 import '../widgets/sale_action_sheets.dart';
 import '../../../../core/widgets/skeletons.dart';
@@ -35,7 +39,7 @@ import '../../../../core/widgets/skeletons.dart';
 /// summary (subtotal, transport, discount, tax, total, paid, due)
 /// → payments. Actions (03-AppFlow §5.2): Add payment · Mark delivered ·
 /// Cancel booking (buttons), Edit and Delete (app bar), delete a payment
-/// (⋮ on its row). Share receipt comes in F17.
+/// (⋮ on its row). ⋮ → Share receipt / Print receipt (F17, receipt_pdf.dart).
 class SaleDetailPage extends ConsumerStatefulWidget {
   const SaleDetailPage({super.key, required this.saleId});
 
@@ -168,6 +172,34 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
     if (updated != null && mounted) setState(() => _sale = updated);
   }
 
+  /// Builds the receipt PDF on the device, then shares or prints it.
+  Future<void> _receipt({required bool print}) async {
+    final l = context.l10n;
+    final sale = _sale!;
+    final accent = AppColors.accent(
+      ref.read(themeControllerProvider).accent,
+      Brightness.light,
+    ).primary.toARGB32();
+    setState(() => _busy = true);
+    try {
+      final bytes = await buildReceiptPdf(
+        sale: sale,
+        factory: await ref.read(factorySettingsProvider.future),
+        l: l,
+        accent: accent,
+        generatedOn: l.generatedOn(
+          Fmt.dateTime(DateTime.now().toUtc().toIso8601String()),
+        ),
+      );
+      final name = receiptFileName(sale.summary.invoiceNo);
+      await (print ? ReceiptOutput.print : ReceiptOutput.share)(bytes, name);
+    } catch (_) {
+      if (mounted) showMessage(context, l.receiptFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _delete() async {
     final l = context.l10n;
     final deleted = await confirmDelete(
@@ -216,6 +248,18 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
                       label: l.markDelivered,
                       onSelected: _deliver,
                     ),
+                ],
+                [
+                  ActionMenuItem(
+                    icon: Icons.share_outlined,
+                    label: l.shareReceipt,
+                    onSelected: () => _receipt(print: false),
+                  ),
+                  ActionMenuItem(
+                    icon: Icons.print_outlined,
+                    label: l.printReceipt,
+                    onSelected: () => _receipt(print: true),
+                  ),
                 ],
                 [
                   if (sale.summary.status == 'booked')

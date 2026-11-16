@@ -119,7 +119,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 ### Step 8 · Sales extras
 - [ ] API: payments add / delete, `deliver`, `cancel` (blocked with payments), `upcoming-deliveries`
 - [ ] App: add payment sheet, mark delivered, cancel, upcoming deliveries screen
-- [ ] Receipt PDF (factory header + static logo, items, totals, paid, due) → share / print / save
+- [x] Receipt PDF (factory header + static logo, items, totals, paid, due) → share / print / save (F17, 2026-11-16)
 - [ ] Tests: status transitions, the overpayment block, booking revenue counted on the delivered date
 
 ### Step 9 · Labours & attendance

@@ -1,10 +1,12 @@
 import 'package:excel/excel.dart' as xl;
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/pdf/pdf_text.dart';
+import '../../../core/pdf/pdf_theme.dart';
 import 'widgets/report_view.dart';
 
 /// Export of a report (01-PRD REP-7), made on the device from the same
@@ -15,61 +17,31 @@ import 'widgets/report_view.dart';
 String reportFileName(String type, String periodKey) =>
     'flyash-$type${periodKey.isEmpty ? '' : '-$periodKey'}';
 
-Future<pw.ThemeData> _pdfTheme() async {
-  Future<pw.Font> font(String name) async =>
-      pw.Font.ttf(await rootBundle.load('assets/fonts/$name.ttf'));
-  final hind = await font('HindSiliguri-Regular');
-  return pw.ThemeData.withFont(
-    base: await font('Inter-Regular'),
-    bold: await font('Inter-SemiBold'),
-    // Bengali names (customers, labours) still show.
-    fontFallback: [hind],
-  );
-}
-
 /// The PDF: app name, title, period and date, the summary, then each table.
+/// Bengali text is shaped by Flutter (see [PdfText]).
 Future<Uint8List> buildReportPdf(
   ReportView view, {
   required String generatedOn,
 }) async {
-  final doc = pw.Document(theme: await _pdfTheme(), title: view.title);
+  final theme = await pdfTheme();
+  final doc = await PdfText.build(
+    (t) => _reportDoc(t, theme, view, generatedOn),
+  );
+  return doc.save();
+}
+
+pw.Document _reportDoc(
+  PdfTextFn t,
+  pw.ThemeData theme,
+  ReportView view,
+  String generatedOn,
+) {
   const accent = PdfColor.fromInt(0xFF1D4ED8);
+  const ink = PdfColor.fromInt(0xFF0F172A);
   const grey = PdfColor.fromInt(0xFF64748B);
   const line = PdfColor.fromInt(0xFFE2E8F0);
 
-  pw.Widget table(
-    List<String> header,
-    List<List<String>> rows,
-    List<bool> numeric,
-  ) => pw.TableHelper.fromTextArray(
-    headers: header,
-    data: rows
-        .map((r) => r.map((c) => c.replaceAll('\n', ' ')).toList())
-        .toList(),
-    border: const pw.TableBorder(
-      horizontalInside: pw.BorderSide(color: line, width: 0.5),
-      bottom: pw.BorderSide(color: line, width: 0.5),
-    ),
-    headerStyle: pw.TextStyle(
-      fontWeight: pw.FontWeight.bold,
-      fontSize: 9,
-      color: grey,
-    ),
-    cellStyle: const pw.TextStyle(fontSize: 9),
-    headerDecoration: const pw.BoxDecoration(
-      border: pw.Border(bottom: pw.BorderSide(color: line)),
-    ),
-    cellAlignments: {
-      for (var i = 0; i < numeric.length; i++)
-        i: numeric[i] ? pw.Alignment.centerRight : pw.Alignment.centerLeft,
-    },
-    headerAlignments: {
-      for (var i = 0; i < numeric.length; i++)
-        i: numeric[i] ? pw.Alignment.centerRight : pw.Alignment.centerLeft,
-    },
-    cellPadding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-  );
-
+  final doc = pw.Document(theme: theme, title: view.title);
   doc.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
@@ -88,22 +60,12 @@ Future<Uint8List> buildReportPdf(
                 ),
               ),
               pw.Spacer(),
-              pw.Text(
-                generatedOn,
-                style: const pw.TextStyle(fontSize: 9, color: grey),
-              ),
+              t(generatedOn, size: 9, color: grey),
             ],
           ),
           pw.SizedBox(height: 6),
-          pw.Text(
-            view.title,
-            style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
-          ),
-          if (view.period.isNotEmpty)
-            pw.Text(
-              view.period,
-              style: const pw.TextStyle(fontSize: 10, color: grey),
-            ),
+          t(view.title, size: 18, bold: true, color: ink),
+          if (view.period.isNotEmpty) t(view.period, color: grey),
           pw.SizedBox(height: 12),
         ],
       ),
@@ -130,40 +92,35 @@ Future<Uint8List> buildReportPdf(
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text(
-                      f.label,
-                      style: const pw.TextStyle(fontSize: 8, color: grey),
-                    ),
+                    t(f.label, size: 8, color: grey, maxWidth: 104),
                     pw.SizedBox(height: 2),
-                    pw.Text(
-                      f.value,
-                      style: pw.TextStyle(
-                        fontSize: 12,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                    ),
+                    t(f.value, size: 12, bold: true, color: ink, maxWidth: 104),
                   ],
                 ),
               ),
           ],
         ),
-        for (final t in view.tables) ...[
+        for (final table in view.tables) ...[
           pw.SizedBox(height: 16),
-          pw.Text(
-            t.title,
-            style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
-          ),
-          pw.SizedBox(height: 6),
-          table(
-            [for (final c in t.columns) c.label],
-            t.rows,
-            [for (final c in t.columns) c.numeric],
+          if (table.title.isNotEmpty) ...[
+            t(table.title, size: 12, bold: true, color: ink),
+            pw.SizedBox(height: 6),
+          ],
+          pdfTable(
+            t: t,
+            headers: [for (final c in table.columns) c.label],
+            rows: table.rows,
+            numeric: [for (final c in table.columns) c.numeric],
+            widths: {
+              for (final (i, c) in table.columns.indexed)
+                i: pw.FlexColumnWidth(c.flex.toDouble()),
+            },
           ),
         ],
       ],
     ),
   );
-  return doc.save();
+  return doc;
 }
 
 /// The Excel file: one sheet with the title, period, summary and tables.

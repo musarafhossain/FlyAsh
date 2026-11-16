@@ -269,7 +269,20 @@ class FakeSalesBackend {
     return _ok(sale, 'Sale saved successfully', 201);
   }
 
+  /// Factory profile for receipts (F17); null → the request fails.
+  Map<String, Object?>? factory = const {
+    'factory_name': 'Maa Tara Brick Field',
+    'owner_name': 'Owner',
+    'phone': '9830012345',
+    'email': 'factory@test.com',
+    'address': 'Krishnanagar, Nadia',
+    'invoice_prefix': 'INV-',
+  };
+
   FakeRoutes get routes => {
+    'GET /settings/factory': (_) => factory == null
+        ? (500, envelope(500, 'Server error', null), {})
+        : _ok(factory),
     'GET /products': (_) => _page(products),
     'GET /customers': (_) => _page(customers),
     for (final c in [1, 2, 60])

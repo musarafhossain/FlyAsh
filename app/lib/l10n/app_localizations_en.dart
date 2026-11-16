@@ -1491,4 +1491,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String generatedOn(String date) {
     return 'Generated on $date';
   }
+
+  @override
+  String get receipt => 'Receipt';
+
+  @override
+  String get billTo => 'Bill to';
+
+  @override
+  String get deliverTo => 'Deliver to';
+
+  @override
+  String get deliveredOnLabel => 'Delivered on';
+
+  @override
+  String get rateColumn => 'Rate';
+
+  @override
+  String get paymentsTitle => 'Payments';
+
+  @override
+  String get receiptThanks => 'Thank you for your business';
+
+  @override
+  String get shareReceipt => 'Share receipt';
+
+  @override
+  String get printReceipt => 'Print receipt';
+
+  @override
+  String get receiptFailed => 'Could not make the receipt';
 }

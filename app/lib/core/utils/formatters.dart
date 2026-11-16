@@ -41,6 +41,11 @@ abstract final class Fmt {
     return (whole ? _money0 : _money2).format(amount.toDouble());
   }
 
+  /// Receipts (04-UI-UX §11): always 2 decimals, "48500" → "₹48,500.00".
+  static String moneyFixed(String? value) => _money2.format(
+    (Decimal.tryParse(value ?? '') ?? Decimal.zero).round(scale: 2).toDouble(),
+  );
+
   /// 12400 or "12400.00" → "12,400" (quantities, counts). Keeps up to 2 decimals.
   static String count(Object? value) {
     final d = Decimal.tryParse(value?.toString() ?? '') ?? Decimal.zero;

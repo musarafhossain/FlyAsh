@@ -2809,6 +2809,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Generated on {date}'**
   String generatedOn(String date);
+
+  /// No description provided for @receipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get receipt;
+
+  /// No description provided for @billTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill to'**
+  String get billTo;
+
+  /// No description provided for @deliverTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver to'**
+  String get deliverTo;
+
+  /// No description provided for @deliveredOnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered on'**
+  String get deliveredOnLabel;
+
+  /// No description provided for @rateColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get rateColumn;
+
+  /// No description provided for @paymentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get paymentsTitle;
+
+  /// No description provided for @receiptThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your business'**
+  String get receiptThanks;
+
+  /// No description provided for @shareReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Share receipt'**
+  String get shareReceipt;
+
+  /// No description provided for @printReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Print receipt'**
+  String get printReceipt;
+
+  /// No description provided for @receiptFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not make the receipt'**
+  String get receiptFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -451,5 +451,15 @@
   "netProfit": "নিট লাভ",
   "received": "পাওয়া",
   "noReportData": "এই সময়ে কিছু নেই",
-  "generatedOn": "তৈরি: {date}"
+  "generatedOn": "তৈরি: {date}",
+  "receipt": "রসিদ",
+  "billTo": "ক্রেতা",
+  "deliverTo": "ডেলিভারির ঠিকানা",
+  "deliveredOnLabel": "ডেলিভারি হয়েছে",
+  "rateColumn": "দর",
+  "paymentsTitle": "পেমেন্ট",
+  "receiptThanks": "আমাদের সঙ্গে ব্যবসা করার জন্য ধন্যবাদ",
+  "shareReceipt": "রসিদ শেয়ার করুন",
+  "printReceipt": "রসিদ প্রিন্ট করুন",
+  "receiptFailed": "রসিদ তৈরি করা যায়নি"
 }

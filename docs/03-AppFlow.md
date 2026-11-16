@@ -202,7 +202,8 @@ The app bar has ✏ **Edit** and a **⋮** menu. There are no action buttons in 
 | **Delete sale** | ⋮ | Confirm "Delete INV-000101? It will be removed from all reports" → `DELETE /sales/:id` → back to the list |
 | **Delete payment** | long press a payment row | Confirm → `DELETE …/payments/:id` |
 | **Call / WhatsApp** | customer card, only if the customer has a phone | `url_launcher` (`tel:` / `https://wa.me/91…`) |
-| **Share receipt** | comes in F17 | Build the PDF on the device → share sheet (WhatsApp, etc.) / Print / Save |
+| **Share receipt** | ⋮ | Build the PDF on the device (factory profile from `GET /settings/factory`) → share sheet (WhatsApp, mail, Files …; on the web it downloads, on Windows a save dialog). Failure → "Could not make the receipt" |
+| **Print receipt** | ⋮ | Same PDF → system print dialog (also offers "Save as PDF") |
 
 The page shows the totals including the tax line, and has pull to refresh.
 

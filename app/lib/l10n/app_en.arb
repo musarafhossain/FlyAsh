@@ -795,5 +795,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "receipt": "Receipt",
+  "billTo": "Bill to",
+  "deliverTo": "Deliver to",
+  "deliveredOnLabel": "Delivered on",
+  "rateColumn": "Rate",
+  "paymentsTitle": "Payments",
+  "receiptThanks": "Thank you for your business",
+  "shareReceipt": "Share receipt",
+  "printReceipt": "Print receipt",
+  "receiptFailed": "Could not make the receipt"
 }

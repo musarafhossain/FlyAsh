@@ -565,7 +565,7 @@ Implements 04-UI-UX §5–§8:
 
 ### 7.8 Receipts and exports
 
-Receipt PDFs and report exports are generated **in the app** (`pdf` / `excel`) from data the API already returns. They are shared with `share_plus` or printed with `printing`, so the server needs no PDF engine. Report PDFs embed Inter with Hind Siliguri as a fallback, so Bengali names print correctly; on the web the Excel file is downloaded.
+Receipt PDFs and report exports are generated **in the app** (`pdf` / `excel`) from data the API already returns. They are shared with `share_plus` or printed with `printing`, so the server needs no PDF engine. PDFs use Inter for Latin text. The `pdf` package cannot shape Bengali (vowel signs and conjuncts come out in the wrong order), so `PdfText` (`core/pdf/pdf_text.dart`) lays out any text with Bengali letters with Flutter's own text engine (Hind Siliguri) and places it as a 4× image; Latin text and numbers stay real PDF text. On the web the Excel file is downloaded and the receipt PDF too.
 
 ### 7.9 Platform notes
 

@@ -1487,4 +1487,34 @@ class AppLocalizationsBn extends AppLocalizations {
   String generatedOn(String date) {
     return 'তৈরি: $date';
   }
+
+  @override
+  String get receipt => 'রসিদ';
+
+  @override
+  String get billTo => 'ক্রেতা';
+
+  @override
+  String get deliverTo => 'ডেলিভারির ঠিকানা';
+
+  @override
+  String get deliveredOnLabel => 'ডেলিভারি হয়েছে';
+
+  @override
+  String get rateColumn => 'দর';
+
+  @override
+  String get paymentsTitle => 'পেমেন্ট';
+
+  @override
+  String get receiptThanks => 'আমাদের সঙ্গে ব্যবসা করার জন্য ধন্যবাদ';
+
+  @override
+  String get shareReceipt => 'রসিদ শেয়ার করুন';
+
+  @override
+  String get printReceipt => 'রসিদ প্রিন্ট করুন';
+
+  @override
+  String get receiptFailed => 'রসিদ তৈরি করা যায়নি';
 }
