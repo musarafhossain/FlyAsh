@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- App background (light): behind Flutter, same as the splash. -->
+    <color name="app_background">#F5F7FB</color>
 </resources>

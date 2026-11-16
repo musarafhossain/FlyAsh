@@ -444,6 +444,7 @@ features/customers/
 | Formatting & i18n | `intl`, `flutter_localizations` |
 | Decimal money | `decimal` |
 | PDF / print / share | `pdf`, `printing`, `share_plus` |
+| Android launch screen | `flutter_native_splash` (dev; config in `pubspec.yaml`, regenerate with `dart run flutter_native_splash:create`; the `NormalTheme` window colour `@color/app_background` is set by hand in `res/values*/`) |
 | Excel export | `excel` |
 | Charts | `fl_chart` |
 | Fonts | `google_fonts` (Inter, Hind Siliguri), bundled as assets for offline use |

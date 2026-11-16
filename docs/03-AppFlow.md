@@ -13,7 +13,7 @@
 
 ```mermaid
 flowchart TD
-    A[App opens] --> B[Splash: load theme, language, token]
+    A[App opens: Android launch screen, logo on the app background] --> B[Splash: load theme, language, token]
     B --> C{GET /app/version}
     C -- force_update --> U[Update Required screen]
     C -- network error --> D

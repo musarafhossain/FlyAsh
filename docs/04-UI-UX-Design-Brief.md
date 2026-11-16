@@ -424,7 +424,7 @@ Drawer (☰):
 
 | Screen | Key composition |
 |---|---|
-| **Splash** | Full `primary` background, logo, "FlyAsh", tagline ("Smarter Bricks. Stronger Business."), loader while the session and update check run |
+| **Splash** | Two stages that look like one. **Android launch screen** (before Flutter starts, `flutter_native_splash`): `background` colour (#F5F7FB light / #0B1120 dark, never plain black or white) with the logo in the centre (Android 12+: the system icon style). **App splash page** (`/splash`, while the session is checked): the same background and the logo in the exact centre at 112 dp, with "FlyAsh", the tagline and a loader below it. Web: the HTML splash in `web/index.html` |
 | **Login** | Logo, phone/email + password, primary "Sign in", text button **"Forgot password?"** under the password field, language switch (EN / বাংলা) at the top right |
 | **Forgot password: email** | Back ‹, title "Forgot password", hint "Enter the email linked to your account", email field, primary "Send OTP". Then a neutral message: "If this email is registered, an OTP has been sent". Footer hint: "No email? Ask another user to reset your password" |
 | **Forgot password: verify OTP** | Back ‹, title "Verify OTP", "OTP sent to r•••@gmail.com", **6 separate OTP boxes** (auto-advance, paste support, numeric keyboard, auto-submit on the 6th digit), primary "Verify", "Resend OTP in 0:59" countdown that turns into a text button. Wrong OTP → boxes shake + `error` text "Wrong OTP · 4 tries left" |
