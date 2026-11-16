@@ -323,7 +323,7 @@ All calculations are done **on the server**. The app only displays the results. 
 | Attendance | A row = **Present** for that day; no row = **Absent**. No half day |
 | Present / absent days (month) | present = rows in the month · absent = employed days so far − present |
 | **Daily wage labour** | `earned = present_days × daily_wage` |
-| **Monthly wage labour** | `per_day = monthly_wage ÷ days_in_month` · `earned = present_days × per_day` (rounded to 2 decimals). Weekly off or holidays the owner wants to pay are marked as Present |
+| **Monthly wage labour** | **Present at least one day in a month → the full monthly wage for that month** (not divided by the days; no present day → nothing that month). If the wage changed during the month, the latest saved amount counts. Changed on 2026-11-16 at the owner's request (before: `monthly_wage ÷ days_in_month × present_days`). A monthly labour has no per-day wage to edit; everywhere the app shows the monthly amount (`₹16,000 / month`) |
 | Wage rate snapshot | Each attendance record stores the wage type and rate on that day, so a later wage change does not change past months |
 | Balance | `earned − payments_for_month` (an advance is just an early payment). A negative balance means paid extra (no automatic carry-forward in v1) |
 | Wage status | `payments = 0` and earned > 0 → **Due** · balance > 0 → **Partial** · balance ≤ 0 → **Paid** |

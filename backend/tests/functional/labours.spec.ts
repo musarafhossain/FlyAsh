@@ -182,21 +182,22 @@ test.group('Labours & attendance', (group) => {
     })
     const of = (day: any, id: string) => day.items.find((i: any) => i.labour_id === id)
 
-    // Absent: the labour's wage for one day (31,000 ÷ 31 days in October)
+    // Absent: the usual wage — a day's for daily, the MONTH's for monthly
     const sheet = (await client.get(`${API}/attendance?date=2026-10-03`).loginAs(user)).body().data
     assert.equal(of(sheet, daily.id).day_wage, '450.00')
-    assert.equal(of(sheet, monthly.id).day_wage, '1000.00')
+    assert.containsSubset(of(sheet, monthly.id), { wage_type: 'monthly', day_wage: '31000.00' })
 
-    // Present with a custom wage: saved as that day's daily wage
+    // Present with a custom wage: saved as that day's daily wage (daily
+    // labours only; for a monthly labour the wage is ignored)
     const day = await mark(client, user, '2026-10-03', [
       { labour_id: daily.id, present: true, wage: 600 },
       { labour_id: monthly.id, present: true, wage: 800.5 },
     ])
     assert.equal(of(day, daily.id).day_wage, '600.00')
-    assert.equal(of(day, monthly.id).day_wage, '800.50')
+    assert.containsSubset(of(day, monthly.id), { wage_type: 'monthly', day_wage: '31000.00' })
     // The usual wage stays available next to the saved one
     assert.equal(of(day, daily.id).default_day_wage, '450.00')
-    assert.equal(of(day, monthly.id).default_day_wage, '1000.00')
+    assert.equal(of(day, monthly.id).default_day_wage, '31000.00')
 
     // Already present: a new wage is ignored (the saved day keeps its wage)
     const again = await mark(client, user, '2026-10-03', [
@@ -204,27 +205,33 @@ test.group('Labours & attendance', (group) => {
     ])
     assert.equal(of(again, daily.id).day_wage, '600.00')
 
-    // Wages use the custom amounts
+    // One present day in October earns the full monthly wage
     const wages = await client.get(`${API}/labours/${monthly.id}/wages?month=2026-10`).loginAs(user)
-    assert.equal(wages.body().data.earned, '800.50')
+    assert.equal(wages.body().data.earned, '31000.00')
+    const dailyWages = (
+      await client.get(`${API}/labours/${daily.id}/wages?month=2026-10`).loginAs(user)
+    ).body().data
+    assert.equal(dailyWages.earned, '600.00')
 
-    // Lifetime totals on the labour: earned (saved day wages) − paid
+    // Lifetime totals on the labour: earned − paid
     await client
       .post(`${API}/labours/${monthly.id}/wage-payments`)
       .loginAs(user)
       .json({ wage_month: '2026-10', amount: 300, payment_date: '2026-10-05' })
     const life = (await client.get(`${API}/labours/${monthly.id}`).loginAs(user)).body().data
     assert.containsSubset(life, {
-      total_earned: '800.50',
+      total_earned: '31000.00',
       total_paid: '300.00',
-      total_balance: '500.50',
+      total_balance: '30700.00',
     })
     const listed = (await client.get(`${API}/labours?search=Monthly`).loginAs(user)).body().data
-    assert.equal(listed.items[0].total_balance, '500.50')
+    assert.equal(listed.items[0].total_balance, '30700.00')
     const detail = (
       await client.get(`${API}/labours/${monthly.id}/wages?month=2026-11`).loginAs(user)
     ).body().data
-    assert.deepEqual(detail.lifetime, { earned: '800.50', paid: '300.00', balance: '500.50' })
+    assert.deepEqual(detail.lifetime, { earned: '31000.00', paid: '300.00', balance: '30700.00' })
+    // No present day in November: nothing earned that month
+    assert.equal(detail.earned, '0.00')
 
     // Absent again: back to the default
     const cleared = await mark(client, user, '2026-10-03', [
@@ -304,12 +311,11 @@ test.group('Wages', (group) => {
     assert.equal(detail.body().data.payments[0].created_by.id, user.id)
   })
 
-  test('monthly wage uses days in month and keeps the wage snapshot', async ({
+  test('monthly wage: the full month when present at least one day; latest amount counts', async ({
     client,
     assert,
   }) => {
     const user = await createUser()
-    // October has 31 days → 31000 / 31 = 1000 per day
     const labour = await addLabour(client, user, {
       name: 'Monthly Worker',
       wage_type: 'monthly',
@@ -329,12 +335,34 @@ test.group('Wages', (group) => {
     })
     update.assertStatus(200)
 
-    await mark(client, user, '2026-10-03', [{ labour_id: labour.id, present: true }]) // 2000
+    await mark(client, user, '2026-10-03', [{ labour_id: labour.id, present: true }])
     // Marking an already present day again keeps its old snapshot
-    await mark(client, user, '2026-10-01', [{ labour_id: labour.id, present: true }]) // 1000
+    await mark(client, user, '2026-10-01', [{ labour_id: labour.id, present: true }])
 
-    const detail = await client.get(`${API}/labours/${labour.id}/wages?month=2026-10`).loginAs(user)
-    // 1000 + 1000 + 2000
-    assert.equal(detail.body().data.earned, '4000.00')
+    // 3 present days → one full month, at the latest saved wage (62,000)
+    const detail = (
+      await client.get(`${API}/labours/${labour.id}/wages?month=2026-10`).loginAs(user)
+    ).body().data
+    assert.containsSubset(detail, { present_days: 3, earned: '62000.00' })
+    // The days add up to the month: the wage sits on the first present day
+    assert.deepEqual(
+      detail.days.map((d: any) => [d.date, d.earned]),
+      [
+        ['2026-10-03', '0.00'],
+        ['2026-10-02', '0.00'],
+        ['2026-10-01', '62000.00'],
+      ]
+    )
+
+    // One day in November → November's full wage too; lifetime = 2 months
+    await mark(client, user, '2026-11-02', [{ labour_id: labour.id, present: true }])
+    const nov = (
+      await client.get(`${API}/labours/${labour.id}/wages?month=2026-11`).loginAs(user)
+    ).body().data
+    assert.equal(nov.earned, '62000.00')
+    const life = (await client.get(`${API}/labours/${labour.id}`).loginAs(user)).body().data
+    assert.equal(life.total_earned, '124000.00')
+    const sheet = (await client.get(`${API}/wages?month=2026-10`).loginAs(user)).body().data
+    assert.equal(sheet.items.find((r: any) => r.labour_id === labour.id).earned, '62000.00')
   })
 })

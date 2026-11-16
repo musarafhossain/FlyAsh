@@ -34,7 +34,8 @@ import '../../../../core/widgets/skeletons.dart';
 /// is saved); turning it off marks them absent (the row is removed). Each
 /// switch saves at once, so there is no Save button.
 ///
-/// Each row shows the day wage: the saved wage when present, the labour's
+/// Each row shows the day wage (a monthly labour: the monthly wage, which
+/// one present day in the month earns in full): the saved wage when present, the labour's
 /// wage for one day when absent. ✏ (only while absent) edits the wage that
 /// will be saved when the labour is marked present for this day.
 class AttendancePage extends ConsumerStatefulWidget {
@@ -584,6 +585,9 @@ class _AttendanceRow extends StatelessWidget {
     final t = context.tokens;
     // Present: the saved wage is used, so ✏ and ↺ are off.
     final canEdit = !present && !saving;
+    // Monthly: one present day in a month earns the full monthly wage, so
+    // the row shows "₹16,000 / month" and has no day wage to edit.
+    final monthly = entry.wageType == 'monthly';
     Widget small(
       IconData icon,
       String tooltip,
@@ -621,7 +625,9 @@ class _AttendanceRow extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        l.perDay(_money(wage)),
+                        monthly
+                            ? l.perMonth(_money(wage))
+                            : l.perDay(_money(wage)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.body.copyWith(
@@ -630,13 +636,14 @@ class _AttendanceRow extends StatelessWidget {
                         ),
                       ),
                     ),
-                    small(
-                      Icons.edit_outlined,
-                      present ? l.dayWageLocked : l.editDayWage,
-                      onEditWage,
-                      Key('editWage-${entry.labourId}'),
-                    ),
-                    if (!isUsualWage)
+                    if (!monthly)
+                      small(
+                        Icons.edit_outlined,
+                        present ? l.dayWageLocked : l.editDayWage,
+                        onEditWage,
+                        Key('editWage-${entry.labourId}'),
+                      ),
+                    if (!monthly && !isUsualWage)
                       small(
                         Icons.restart_alt,
                         present ? l.dayWageLocked : l.resetDayWage,

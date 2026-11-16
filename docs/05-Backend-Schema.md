@@ -303,13 +303,19 @@ payment_status = paid_amount = 0 ? 'due' : (due_amount = 0 ? 'paid' : 'partial')
 
 ```sql
 -- absent_days = employed days in the month (up to today) − present_days
+-- earned (since 2026-11-16): daily rows → Σ wage_amount;
+--   monthly rows → the FULL monthly wage once if present at least one day
+--   (the latest saved wage_amount in the month), not ÷ days
 SELECT a.labour_id,
   COUNT(*) AS present_days,
-  SUM(IF(a.wage_type = 'daily', a.wage_amount, a.wage_amount / DAY(LAST_DAY(a.date)))) AS earned
+  SUM(IF(a.wage_type = 'daily', a.wage_amount, 0))
+    + COALESCE(MAX(IF(a.wage_type = 'monthly', 1, 0)) * <latest monthly wage_amount in the month>, 0) AS earned
 FROM attendances a
 WHERE a.date BETWEEN :month_start AND :month_end
 GROUP BY a.labour_id;
 ```
+
+In code: `earnedForRows()` / `earnedByDay()` in `app/services/wage_service.ts` (the day list puts the month's wage on the first present day so the days add up).
 
 - `paid` = Σ `wage_payments.amount` where `wage_month = :month_start`
 - `balance = earned − paid` (an advance is an early wage payment)
@@ -336,7 +342,7 @@ sales_count = COUNT(sales)       with the same filter
 
 -- Labour lifetime wage (GET /labours, /labours/:id: total_earned / total_paid / total_balance;
 -- GET /labours/:id/wages: lifetime { earned, paid, balance }):
-earned = Σ attendances (daily: wage_amount; monthly: wage_amount ÷ days in that month)
+earned = Σ daily attendances' wage_amount + Σ over months with a monthly present day of that month's latest monthly wage_amount (SQL in Labour.withLifetime, ROW_NUMBER per labour + month)
 paid   = Σ wage_payments.amount
 balance = earned − paid
 ```
@@ -490,7 +496,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
              { "labour_id": "01a2…", "name": "Sujit Das", "wage_type": "monthly", "wage_amount": "15000.00",
                "present": false, "day_wage": "500.00" } ] }
 // default_day_wage: always the labour's usual wage for one day (the app shows ↺ when they differ).
-// day_wage: the saved day's wage when present; else the labour's wage for one day (monthly ÷ days in month).
+// day_wage: the saved day's wage when present; else the labour's usual wage. For a monthly labour (wage_type "monthly") both are the MONTHLY wage; `wage` is ignored for monthly labours.
 // PUT /attendance { "date": "2026-11-08", "records": [ { "labour_id": "01a1…", "present": true, "wage": 600 } ] }
 // present → row saved (wage snapshot; with `wage` it is saved as wage_type daily + that amount);
 // false → row removed. `wage` is ignored when the labour is already present. One switch at a time.

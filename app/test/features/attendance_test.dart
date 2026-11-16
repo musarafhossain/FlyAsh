@@ -81,9 +81,10 @@ class FakeAttendance {
             'present': p.contains(id),
             // Default: 450 a day, or 15,000 ÷ 30 days in November.
             'day_wage': p.contains(id)
-                ? saved[id] ?? (id == '1' ? '500.00' : '450.00')
-                : (id == '1' ? '500.00' : '450.00'),
-            'default_day_wage': id == '1' ? '500.00' : '450.00',
+                ? saved[id] ?? (id == '1' ? '15000.00' : '450.00')
+                : (id == '1' ? '15000.00' : '450.00'),
+            // Monthly: the month's wage (one present day earns all of it).
+            'default_day_wage': id == '1' ? '15000.00' : '450.00',
           },
       ],
     };
@@ -223,9 +224,11 @@ void main() {
     expect(find.text('Today, 09 Nov 2026'), findsOneWidget);
     expect(find.text('Select date'), findsOneWidget);
     expect(find.text('Asit Roy'), findsOneWidget);
-    // The day wage: monthly 15,000 ÷ 30 days = 500 a day
+    // Daily: the day's wage; monthly: the full month (not ÷ days), no ✏
     expect(find.text('₹450 / day'), findsNWidgets(2));
-    expect(find.text('₹500 / day'), findsOneWidget);
+    expect(find.text('₹15,000 / month'), findsOneWidget);
+    expect(find.byKey(const Key('editWage-1')), findsNothing);
+    expect(find.byKey(const Key('editWage-9')), findsOneWidget);
     expect(find.text('1 present · 2 absent'), findsOneWidget);
     expect(find.byType(Switch), findsNWidgets(3));
     expect(isOn(tester, 'Abdul Karim'), isTrue);
@@ -323,21 +326,21 @@ void main() {
     tester,
   ) async {
     await openAttendance(tester);
-    await tester.tap(pencilOf('Kartik Mondal'));
+    await tester.tap(pencilOf('Asit Roy'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
     await tester.pumpAndSettle();
     expect(find.textContaining('edited'), findsNothing);
 
-    await tester.tap(pencilOf('Kartik Mondal'));
+    await tester.tap(pencilOf('Asit Roy'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField), '500');
+    await tester.enterText(find.byType(TextFormField), '450');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     expect(find.textContaining('edited'), findsNothing);
-    await flip(tester, 'Kartik Mondal');
+    await flip(tester, 'Asit Roy');
     expect(body(puts().last)['records'], [
-      {'labour_id': '1', 'present': true},
+      {'labour_id': '12', 'present': true},
     ]);
   });
 

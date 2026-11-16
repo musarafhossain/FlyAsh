@@ -28,16 +28,24 @@ export default class Labour extends compose(LabourSchema, withUuid) {
 
   /**
    * Adds the lifetime wage totals as extras: earned_paise (every present day
-   * at its saved wage; monthly ÷ days in that month) and paid_total (all
+   * at its saved wage; monthly: the full monthly wage for each month with a
+   * present day) and paid_total (all
    * wage payments).
    */
   static withLifetime(query: ModelQueryBuilderContract<typeof Labour>) {
     return query
       .select(
         db.raw(
-          `(SELECT COALESCE(SUM(CASE WHEN a.wage_type = 'daily' THEN a.wage_amount
-              ELSE a.wage_amount / DAY(LAST_DAY(a.date)) END), 0) * 100
-            FROM attendances a WHERE a.labour_id = labours.id) AS earned_paise`
+          // Daily days at their saved wage + the full monthly wage (latest
+          // saved amount) for each month with a present day.
+          `((SELECT COALESCE(SUM(a.wage_amount), 0) FROM attendances a
+              WHERE a.labour_id = labours.id AND a.wage_type = 'daily')
+            + (SELECT COALESCE(SUM(m.wage_amount), 0) FROM (
+                SELECT a.labour_id, a.wage_amount, ROW_NUMBER() OVER (
+                  PARTITION BY a.labour_id, YEAR(a.date), MONTH(a.date)
+                  ORDER BY a.date DESC) AS rn
+                FROM attendances a WHERE a.wage_type = 'monthly') m
+              WHERE m.labour_id = labours.id AND m.rn = 1)) * 100 AS earned_paise`
         )
       )
       .select(

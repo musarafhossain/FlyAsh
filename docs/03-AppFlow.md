@@ -274,7 +274,7 @@ Attendance always opens on today: a past day picked with ‹ / the calendar is r
 - Present stores a row in `attendances`; absent removes the row (no row = absent).
 - Future dates are disabled in the picker and on the › arrow.
 - The list has a search box.
-- Each row shows the **day wage** (`₹450 / day`): the saved wage when present, the usual wage for one day when absent (monthly ÷ days in the month).
+- Each row shows the **day wage** (`₹450 / day`): the saved wage when present, the usual wage when absent. A **monthly** labour shows the monthly wage (`₹16,000 / month`) and has no ✏ / ↺: one present day in a month earns the full month (2026-11-16).
 - ✏ sits right next to the wage (not next to the switch) and works only while the labour is **absent**: it opens "Day wage for <name>" (compact dialog) → Save. The row shows the new wage like any wage (no "edited" label) and ↺ appears next to ✏; ↺ goes back to the usual wage (shown only when the wage is not the usual one; off while present, like ✏). The wage is sent with the next switch-on and **kept while the list is open**, also after switching back to absent (a 300 stays 300). Changing the date clears it.
 - Only the switch marks attendance; tapping the row does nothing.
 

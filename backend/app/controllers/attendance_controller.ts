@@ -6,9 +6,9 @@ import Attendance from '#models/attendance'
 import AppError from '#exceptions/app_error'
 import { ok } from '#helpers/api_response'
 import { DEFAULT_LIMIT } from '#validators/rules'
-import WageService, { earnedPaise } from '#services/wage_service'
+import WageService from '#services/wage_service'
 import { fromPaise, toPaise } from '#helpers/money'
-import { currentMonth, daysInMonthOf, monthRange, today } from '#helpers/dates'
+import { currentMonth, monthRange, today } from '#helpers/dates'
 import { attendanceDayValidator, monthValidator, saveAttendanceValidator } from '#validators/labour'
 
 /** Old apps (before paged attendance) expect every labour of the day. */
@@ -60,7 +60,9 @@ export default class AttendanceController {
           if (existing) await existing.delete()
         } else if (!existing) {
           const labour = byId.get(record.labour_id)!
-          const custom = record.wage !== undefined
+          // A day's own wage applies to daily labours only (a monthly
+          // labour earns the month's wage, so `wage` is ignored).
+          const custom = record.wage !== undefined && labour.wageType === 'daily'
           await Attendance.create(
             {
               labourId: labour.id,
@@ -142,24 +144,20 @@ export default class AttendanceController {
       )
     const rowOf = new Map(rows.map((r) => [r.labourId, r]))
 
-    // day_wage: the saved day's wage when present, else default_day_wage
-    // (the labour's wage for one day; monthly ÷ days in that month).
+    // day_wage: the saved wage when present, else the usual one
+    // (default_day_wage). For a monthly labour both are the MONTHLY wage
+    // (`wage_type: "monthly"`): one present day in a month earns all of it.
     const items = labours.map((labour) => {
       const row = rowOf.get(labour.id)
-      // The labour's usual wage for one day (monthly ÷ days in the month).
-      const defaultPaise =
-        labour.wageType === 'daily'
-          ? toPaise(labour.wageAmount)
-          : toPaise(labour.wageAmount) / daysInMonthOf(date)
-      const dayPaise = row ? earnedPaise(row) : defaultPaise
+      const wageType = row?.wageType ?? labour.wageType
       return {
         labour_id: labour.id,
         name: labour.name,
-        wage_type: labour.wageType,
+        wage_type: wageType,
         wage_amount: labour.wageAmount,
         present: row !== undefined,
-        day_wage: fromPaise(Math.round(dayPaise)),
-        default_day_wage: fromPaise(Math.round(defaultPaise)),
+        day_wage: fromPaise(toPaise(row?.wageAmount ?? labour.wageAmount)),
+        default_day_wage: fromPaise(toPaise(labour.wageAmount)),
       }
     })
 

@@ -4200,7 +4200,7 @@ A labour is either **present** (a row is stored for that day) or **absent** (no 
 
 **Attendance for a day** · 🔒 Bearer token
 
-The labours employed on that date, **20 a page** by name (since 2026-11-16), each with `present`, `day_wage` and `default_day_wage` (always the usual wage for one day, so the app can offer ↺ when they differ). `summary` (total · present · absent) counts **every** labour of the day, not only the page or the search. `day_wage` = the saved wage of that day when present, else the labour's wage for one day (monthly ÷ days in that month). The answer also has `page`, `limit`, `total` (labours matching the search) and `last_page`.
+The labours employed on that date, **20 a page** by name (since 2026-11-16), each with `present`, `day_wage` and `default_day_wage` (always the usual wage for one day, so the app can offer ↺ when they differ). `summary` (total · present · absent) counts **every** labour of the day, not only the page or the search. `day_wage` = the saved wage of that day when present, else the labour's usual wage. For a monthly labour (`wage_type: "monthly"`) `day_wage` and `default_day_wage` are the **monthly** wage: one present day in a month earns all of it (since 2026-11-16). `records[].wage` on PUT is ignored for monthly labours. The answer also has `page`, `limit`, `total` (labours matching the search) and `last_page`.
 
 **Query parameters**
 
@@ -4444,7 +4444,7 @@ GET /api/v1/labours/01a1df19-ad26-700b-92f1-69fa1e6fdcaf/attendance?month=2026-1
 
 ## 12. Wages
 
-Daily wage: `earned = present_days × daily wage`. Monthly wage: `per day = monthly wage ÷ days in month`, `earned = present_days × per day`. `balance = earned − paid (for the month)`. Status: `due` · `partial` · `paid`. There are **no advances**: money given early is a wage payment.
+Daily wage: `earned = present_days × daily wage`. Monthly wage (since 2026-11-16): **present at least one day in the month → `earned` = the full monthly wage** (the latest saved amount that month); no present day → 0. Not divided by the days. `balance = earned − paid (for the month)`. Status: `due` · `partial` · `paid`. There are **no advances**: money given early is a wage payment.
 
 ### GET /wages
 

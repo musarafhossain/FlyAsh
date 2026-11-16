@@ -3,17 +3,50 @@ import Labour from '#models/labour'
 import Attendance from '#models/attendance'
 import WagePayment from '#models/wage_payment'
 import { fromPaise, toPaise } from '#helpers/money'
-import { daysInMonthOf, monthRange, today } from '#helpers/dates'
+import { monthRange, today } from '#helpers/dates'
+
+type WageRowSnapshot = Pick<Attendance, 'wageType' | 'wageAmount' | 'date'>
 
 /**
- * Wage earned for one present day (an attendance row), in (fractional) paise.
- * Uses the wage snapshot stored on the attendance row.
- * Monthly wage → per day = monthly wage ÷ days in that month.
+ * Wage earned by one labour's present days (attendance rows), in paise
+ * (01-PRD §6.3, changed on 2026-11-16 at the owner's request):
+ *   daily   → each present day earns that day's saved wage
+ *   monthly → the FULL monthly wage for every month with at least one
+ *             present day (not divided by the days); when the wage changed
+ *             during the month, the latest saved amount counts.
  */
-export function earnedPaise(row: Pick<Attendance, 'wageType' | 'wageAmount' | 'date'>) {
-  return row.wageType === 'daily'
-    ? toPaise(row.wageAmount)
-    : toPaise(row.wageAmount) / daysInMonthOf(row.date)
+export function earnedForRows(rows: WageRowSnapshot[]): number {
+  return [...earnedByDay(rows).values()].reduce((sum, paise) => sum + paise, 0)
+}
+
+/**
+ * The same split per day, for day lists: a daily day earns its wage; a
+ * monthly month's wage sits on its first present day (0 on the others), so
+ * the days add up to the month's total.
+ */
+export function earnedByDay(rows: WageRowSnapshot[]): Map<string, number> {
+  const byDay = new Map<string, number>()
+  const months = new Map<string, { first: string; latest: string; amount: number }>()
+  for (const row of rows) {
+    if (row.wageType === 'daily') {
+      byDay.set(row.date, toPaise(row.wageAmount))
+      continue
+    }
+    byDay.set(row.date, 0)
+    const ym = row.date.slice(0, 7)
+    const m = months.get(ym)
+    if (!m) {
+      months.set(ym, { first: row.date, latest: row.date, amount: toPaise(row.wageAmount) })
+    } else {
+      if (row.date < m.first) m.first = row.date
+      if (row.date > m.latest) {
+        m.latest = row.date
+        m.amount = toPaise(row.wageAmount)
+      }
+    }
+  }
+  for (const m of months.values()) byDay.set(m.first, (byDay.get(m.first) ?? 0) + m.amount)
+  return byDay
 }
 
 export type WageRow = {
@@ -33,7 +66,8 @@ export type WageRow = {
 
 /**
  * Monthly wages (01-PRD §6.3).
- *   earned  = Σ daily rate of each present day (from attendance snapshots)
+ *   earned  = daily: Σ each present day's wage; monthly: the full monthly
+ *             wage when present at least one day (see earnedForRows)
  *   balance = earned − wage payments for the month (no separate advances)
  */
 export default class WageService {
@@ -65,12 +99,13 @@ export default class WageService {
       .preload('creator', (q) => q.select('id', 'name'))
       .orderBy('payment_date', 'desc') // newest payment first
 
+    const perDay = earnedByDay(attendances)
     return {
       ...row,
       month,
       days: attendances.map((a) => ({
         date: a.date,
-        earned: fromPaise(Math.round(earnedPaise(a))),
+        earned: fromPaise(perDay.get(a.date) ?? 0),
       })),
       payments,
     }
@@ -82,11 +117,11 @@ export default class WageService {
    */
   static async earnedBetween(from: string, to: string): Promise<number> {
     const rows = await Attendance.query().whereBetween('date', [from, to])
-    const perLabour = new Map<string, number>()
+    const perLabour = new Map<string, Attendance[]>()
     for (const row of rows) {
-      perLabour.set(row.labourId, (perLabour.get(row.labourId) ?? 0) + earnedPaise(row))
+      perLabour.set(row.labourId, [...(perLabour.get(row.labourId) ?? []), row])
     }
-    return [...perLabour.values()].reduce((sum, value) => sum + Math.round(value), 0)
+    return [...perLabour.values()].reduce((sum, mine) => sum + earnedForRows(mine), 0)
   }
 
   private static async rowsFor(labours: Labour[], month: string): Promise<WageRow[]> {
@@ -101,7 +136,7 @@ export default class WageService {
 
     return labours.map((labour) => {
       const mine = attendances.filter((a) => a.labourId === labour.id)
-      const earned = Math.round(mine.reduce((sum, a) => sum + earnedPaise(a), 0))
+      const earned = earnedForRows(mine)
       const paid = payments
         .filter((p) => p.labourId === labour.id)
         .reduce((sum, p) => sum + toPaise(p.amount), 0)
