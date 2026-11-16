@@ -162,8 +162,9 @@ export default class SalesController {
       .preload('items', (q) => q.orderBy('id', 'asc'))
       .preload('payments', (q) =>
         q
-          .orderBy('payment_date', 'asc')
-          .orderBy('id', 'asc')
+          // Newest payment first (2026-11-16)
+          .orderBy('payment_date', 'desc')
+          .orderBy('id', 'desc')
           .preload('creator', (u) => u.select('id', 'name'))
       )
       .preload('creator', (q) => q.select('id', 'name'))

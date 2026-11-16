@@ -32,7 +32,9 @@ export default class UsersController {
         )
       })
       .if(active !== undefined, (query) => query.where('is_active', active!))
-      .orderBy('name', 'asc')
+      // Newest first (2026-11-16)
+      .orderBy('created_at', 'desc')
+      .orderBy('id', 'desc')
       .paginate(page, limit)
 
     return paginated(response, users, 'users.list')

@@ -1209,6 +1209,8 @@ All users are equal (no roles). These endpoints manage **other** users only: the
 
 **List users** · 🔒 Bearer token
 
+Newest first (since 2026-11-16).
+
 **Query parameters**
 
 | Field | Type | Required | Rules / notes |
@@ -1587,7 +1589,7 @@ A product has a **name and a price** only (no unit, no cost).
 
 **List products** · 🔒 Bearer token
 
-Active products first, then by name.
+Newest first (since 2026-11-16; was active first, then by name).
 
 **Query parameters**
 
@@ -3028,6 +3030,8 @@ Content-Type: application/json
 
 **Get a sale** · 🔒 Bearer token
 
+`payments` are newest first (since 2026-11-16).
+
 Full sale with `customer`, `items`, `payments` (each with `created_by`) and `created_by`.
 
 **Responses**
@@ -3835,7 +3839,7 @@ GET /api/v1/sales/upcoming-deliveries?page=1&limit=2
 
 **List labours** · 🔒 Bearer token
 
-Each item includes `present_today` (true / false) and the all-time wage: `total_earned` (every present day at its saved wage), `total_paid` (all wage payments) and `total_balance`. `GET /labours/:id` returns the same fields.
+Newest first (since 2026-11-16). Each item includes `present_today` (true / false) and the all-time wage: `total_earned` (every present day at its saved wage), `total_paid` (all wage payments) and `total_balance`. `GET /labours/:id` returns the same fields.
 
 **Query parameters**
 
@@ -4520,6 +4524,8 @@ GET /api/v1/wages?month=2026-10&page=1&limit=2
 ### GET /labours/:id/wages
 
 **A labour's wage detail** · 🔒 Bearer token
+
+`days` and `payments` are newest first (since 2026-11-16).
 
 Wage row + `days` (each with `earned`) and `payments` of the month, plus `lifetime: { earned, paid, balance }` for all time.
 

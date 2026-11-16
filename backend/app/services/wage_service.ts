@@ -57,13 +57,13 @@ export default class WageService {
     const attendances = await Attendance.query()
       .where('labour_id', labour.id)
       .whereBetween('date', [start, end])
-      .orderBy('date', 'asc')
+      .orderBy('date', 'desc') // newest day first
 
     const payments = await WagePayment.query()
       .where('labour_id', labour.id)
       .where('wage_month', start)
       .preload('creator', (q) => q.select('id', 'name'))
-      .orderBy('payment_date', 'asc')
+      .orderBy('payment_date', 'desc') // newest payment first
 
     return {
       ...row,

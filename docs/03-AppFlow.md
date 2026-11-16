@@ -386,6 +386,7 @@ flowchart TD
 | After a change | Only the screens showing the changed data reload, **in the background** (rows stay, no skeleton). E.g. a new sale reloads Sales, Customers and Home, not Products (02-TRD §7.5) |
 | Optimistic updates | Deactivate / activate, delete (rows and payments) and attendance switches change the screen at once; if the server refuses, the change is undone and its message is shown |
 | Pagination | Endless scroll: load the next page at 80% scroll, with a footer spinner. No "Showing x of y" line anywhere (lists and picker sheets) |
+| Order | **Every list shows the newest first** (sales, customers, products, labours, expenses, users; payments in a sale or a wage page; the days of a wage page). On purpose not: customers filtered by "has due" (largest due first), upcoming deliveries (soonest first) and attendance (by name, for marking) |
 | Search | Every search box has an ✕ to clear it. Leaving a section clears its search, so a section opened again shows everything. Attendance also goes back to **today** when you leave it (a past day picked with ‹ or the calendar is not kept) |
 | Deletes | "Keep this" / "Yes, delete". The dialog waits for the server (buttons off, spinner next to "Yes, delete"); deleted → it closes and the row goes; refused → the message shows in the dialog and as a toast, the dialog stays open until the user closes it. Rows are never removed before the server confirms |
 | Dialogs | Compact on phones: 15 px title, 40 px buttons |

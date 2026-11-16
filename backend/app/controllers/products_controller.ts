@@ -23,8 +23,9 @@ export default class ProductsController {
     const products = await Product.query()
       .if(search, (query) => query.where('name', 'like', `%${search}%`))
       .if(active !== undefined, (query) => query.where('is_active', active!))
-      .orderBy('is_active', 'desc')
-      .orderBy('name', 'asc')
+      // Newest first (2026-11-16)
+      .orderBy('created_at', 'desc')
+      .orderBy('id', 'desc')
       .paginate(page, limit)
 
     return paginated(response, products, 'products.list')

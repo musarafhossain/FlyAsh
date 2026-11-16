@@ -17,10 +17,10 @@ const INDEXES: [table: string, columns: string[]][] = [
   ['wage_payments', ['payment_date']],
   // Expenses: one category in a period
   ['expenses', ['category', 'expense_date']],
-  // Lists ordered by active first, then name
-  ['labours', ['is_active', 'name']],
-  ['products', ['is_active', 'name']],
-  ['users', ['is_active', 'name']],
+  // Lists: newest first
+  ['labours', ['created_at']],
+  ['products', ['created_at']],
+  ['users', ['created_at']],
   // Attendance: who was employed on a date
   ['labours', ['joining_date', 'left_date']],
   // Customers list: active filter, newest first
