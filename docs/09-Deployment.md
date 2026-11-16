@@ -61,7 +61,7 @@ The first APK with the updater (1.1.0+2) is installed by hand once. The test APK
 
 ## Test database with fake data (`flyash_test`)
 
-> **Current state (since 2026-11-16 17:26 UTC):** the server runs on **`flyash_test`** (`DB_DATABASE=flyash_test` in `backend/.env` and `backend/build/.env`; backups of both in `/root/flyash-env-backup-*`). The real data stays untouched in `flyash`. To go back: set `DB_DATABASE=flyash` in both files and run `pm2 reload flyash-api --update-env`. Note: releases published with `publish-app.sh` are written to the database the server uses.
+> **Current state (since 2026-11-16 21:43 UTC):** the server runs on the real **`flyash`** again (emptied on 2026-11-16 except users, login tokens, factory profile and app versions; all migrations up to 0028 run; app versions 1.1.2 / 1.1.3 copied from `flyash_test`). `flyash_test` keeps the fake data for trying things: to switch to it, set `DB_DATABASE=flyash_test` in `backend/.env` and `backend/build/.env` and run `pm2 reload flyash-api --update-env` (copy any newer `app_versions` rows across first). Releases published with `publish-app.sh` are written to the database the server uses.
 
 `flyash_test` is a copy of `flyash` (made on 2026-11-16) with everything emptied except `users`, `auth_access_tokens`, `factory_settings` (invoice counter reset to 0) and `app_versions`, then filled with 6 months of fake data. The live API keeps using `flyash`; `flyash_test` is only for trying things (point a test API at it with `DB_DATABASE=flyash_test`).
 
