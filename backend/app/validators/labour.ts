@@ -33,6 +33,7 @@ export const labourStatusValidator = vine.create({
 })
 
 export const attendanceDayValidator = vine.create({
+  ...paginationRules,
   /** Defaults to today */
   date: pastDateRule().optional(),
 })

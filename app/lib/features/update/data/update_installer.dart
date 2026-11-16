@@ -39,6 +39,29 @@ abstract final class UpdateInstaller {
 
   /// Web: reloads the page.
   static void Function() reload = reloadPage;
+
+  /// Android: deletes update files left in the app's temporary folder by an
+  /// earlier update (run when the app starts: the update is installed by
+  /// then). Each is ≈23 MB.
+  static Future<int> Function() cleanup = _cleanup;
+}
+
+Future<int> _cleanup() async {
+  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return 0;
+  var removed = 0;
+  try {
+    final dir = await getTemporaryDirectory();
+    await for (final entity in dir.list()) {
+      if (entity is File && entity.path.toLowerCase().endsWith('.apk')) {
+        await entity.delete();
+        removed++;
+      }
+    }
+  } catch (_) {
+    // Nothing to clean, or the folder is busy: try again next start.
+  }
+  _downloaded.clear();
+  return removed;
 }
 
 /// Finished downloads of this session (url → file). After the first-time

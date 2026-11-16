@@ -266,6 +266,8 @@ flowchart TD
     A -- date picker / ‹ › --> B
 ```
 
+The list loads **20 labours at a time** (by name) and the next 20 near the end; the search runs on the server a moment after typing stops; the count line ("12 present · 5 absent") counts every labour of the day, not only those loaded.
+
 Attendance always opens on today: a past day picked with ‹ / the calendar is reset to today when you leave the section (another bottom-bar section or the drawer).
 
 - There is **no half day**, no "Mark all present" and **no Save button**: each switch saves at once.

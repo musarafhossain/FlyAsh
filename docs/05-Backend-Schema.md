@@ -167,7 +167,9 @@ Customer totals (`total_sales`, `total_paid`, `total_due`, `sales_count`) are **
 | created_at / updated_at | DATETIME | no | | |
 | deleted_at | DATETIME | yes | NULL | Soft delete. All queries filter `deleted_at IS NULL` |
 
-**Indexes:** `(status, delivered_date)`, `(status, delivery_date)`, `(payment_status)`, `(sale_date)`, `(customer_id)`, `(deleted_at)`.
+**Indexes:** `(status, delivered_date)`, `(status, delivery_date)`, `(payment_status)`, `(sale_date)`, `(customer_id)`, `(deleted_at)`; since migration 0028 also `(deleted_at, sale_date, id)` (the sales list), `(type, sale_date)` (Instant / Booking tabs) and `(customer_id, status)` (a customer's sales and dues).
+
+**More indexes (migration 0028, 2026-11-16)** — each matches a list or report query: `sale_payments (sale_id, payment_date)`, `wage_payments (payment_date)` (net profit), `expenses (category, expense_date)`, `labours (is_active, name)`, `labours (joining_date, left_date)` (who works on a date), `products (is_active, name)`, `users (is_active, name)`, `customers (is_active, created_at)`.
 `total`, `tax_amount`, `paid_amount`, `due_amount` and `payment_status` are written **only** by `SaleService.recalculate()`.
 
 ### 3.8 `sale_items`

@@ -5,19 +5,29 @@ import Labour from '#models/labour'
 import Attendance from '#models/attendance'
 import AppError from '#exceptions/app_error'
 import { ok } from '#helpers/api_response'
+import { DEFAULT_LIMIT } from '#validators/rules'
 import WageService, { earnedPaise } from '#services/wage_service'
 import { fromPaise, toPaise } from '#helpers/money'
 import { currentMonth, daysInMonthOf, monthRange, today } from '#helpers/dates'
 import { attendanceDayValidator, monthValidator, saveAttendanceValidator } from '#validators/labour'
 
+/** Old apps (before paged attendance) expect every labour of the day. */
+const LEGACY_ALL = 1000
+
 export default class AttendanceController {
   /**
-   * GET /attendance?date=YYYY-MM-DD: all labours employed on that date and
-   * whether each is present.
+   * GET /attendance?date=YYYY-MM-DD&page&limit&search: the labours employed
+   * on that date (20 a page, by name; search on the name) and whether each
+   * is present. `summary` counts every labour of the day, not only the page.
    */
   async show({ request, response }: HttpContext) {
-    const { date = today() } = await request.validateUsing(attendanceDayValidator)
-    return ok(response, await this.day(date), 'attendance.fetched')
+    const { date = today(), page, limit, search } = await request.validateUsing(attendanceDayValidator)
+    // Without `page` (apps older than 1.1.2): every labour, like before.
+    const paging =
+      page === undefined
+        ? { page: 1, limit: LEGACY_ALL, search }
+        : { page, limit: limit ?? DEFAULT_LIMIT, search }
+    return ok(response, await this.day(date, paging), 'attendance.fetched')
   }
 
   /**
@@ -65,7 +75,12 @@ export default class AttendanceController {
       }
     })
 
-    return ok(response, await this.day(date), 'attendance.saved', 200, { date })
+    // `rows: "saved"` (the app since 1.1.2): only the saved labours' rows and
+    // the day's summary, merged into the page it shows. Older apps get
+    // every labour of the day, like before.
+    const onlySaved = request.input('rows') === 'saved' // body or query
+    const day = await this.day(date, onlySaved ? { ids } : { limit: LEGACY_ALL })
+    return ok(response, day, 'attendance.saved', 200, { date })
   }
 
   /**
@@ -103,8 +118,22 @@ export default class AttendanceController {
     )
   }
 
-  private async day(date: string) {
-    const labours = await Labour.activeOn(Labour.query(), date).orderBy('name', 'asc')
+  /**
+   * The day's rows: a page (with `page`/`limit`, optionally filtered by
+   * `search`) or the labours in `ids`; `summary` always covers every labour
+   * employed that day.
+   */
+  private async day(
+    date: string,
+    options: { page?: number; limit?: number; search?: string; ids?: string[] } = {}
+  ) {
+    const query = Labour.activeOn(Labour.query(), date).orderBy('name', 'asc').orderBy('id')
+    if (options.ids) query.whereIn('id', options.ids)
+    if (options.search) query.where('name', 'like', `%${options.search}%`)
+    const page = options.page ?? 1
+    const limit = options.ids ? Math.max(options.ids.length, 1) : (options.limit ?? DEFAULT_LIMIT)
+    const paginator = await query.paginate(page, limit)
+    const labours = paginator.all()
     const rows = await Attendance.query()
       .where('date', date)
       .whereIn(
@@ -134,11 +163,26 @@ export default class AttendanceController {
       }
     })
 
-    const presentCount = items.filter((i) => i.present).length
+    // Summary for the whole day (every labour employed that date).
+    const employed = Labour.activeOn(Labour.query(), date)
+    const total = Number((await employed.clone().count('* as n').first())?.$extras.n ?? 0)
+    const present = Number(
+      (
+        await Attendance.query()
+          .where('date', date)
+          .whereIn('labour_id', employed.clone().select('id'))
+          .count('* as n')
+          .first()
+      )?.$extras.n ?? 0
+    )
     return {
       date,
-      summary: { total: items.length, present: presentCount, absent: items.length - presentCount },
+      summary: { total, present, absent: total - present },
       items,
+      page: paginator.currentPage,
+      limit: paginator.perPage,
+      total: paginator.total,
+      last_page: paginator.lastPage,
     }
   }
 }

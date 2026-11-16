@@ -49,7 +49,25 @@ class AttendancePage extends ConsumerStatefulWidget {
 
 class _AttendancePageState extends ConsumerState<AttendancePage> {
   late String _date = _validDate(widget.initialDate);
+
+  /// Page 1 of the day (null while loading); the rows shown are [_entries].
   AttendanceDay? _day;
+
+  /// Every page loaded so far (20 labours a page, by name).
+  final List<AttendanceEntry> _entries = [];
+  int _page = 1;
+  bool _hasMore = false;
+  bool _loadingMore = false;
+
+  /// The day's counts (every labour, not only the loaded pages).
+  int _presentCount = 0;
+  int _employed = 0;
+
+  final _scroll = ScrollController();
+  Timer? _searchDebounce;
+
+  /// Ignores answers to an older request (date or search changed).
+  int _request = 0;
   Object? _error;
   final _search = TextEditingController();
 
@@ -83,33 +101,105 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
   @override
   void initState() {
     super.initState();
+    _scroll.addListener(_onScroll);
     _load();
   }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _scroll.dispose();
     _search.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
+  /// Near the end of the list: the next 20.
+  void _onScroll() {
+    if (_scroll.position.extentAfter < 400) unawaited(_loadMore());
+  }
+
+  /// A short first page on a tall screen: keep loading until it scrolls.
+  void _fillScreen() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted && _scroll.hasClients && _scroll.position.extentAfter < 400) {
+      unawaited(_loadMore());
+    }
+  });
+
+  /// Search on the server, a moment after typing stops.
+  void _searchChanged(String _) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+      if (mounted) unawaited(_load(keep: true));
+    });
+  }
+
+  /// Page 1 for the date and search. [keep]: the rows stay on screen
+  /// until the answer comes (a new search), instead of the skeleton.
+  Future<void> _load({bool keep = false}) async {
+    final request = ++_request;
     final date = _date;
     setState(() {
-      _day = null;
+      if (!keep) _day = null;
       _error = null;
+      _loadingMore = false;
     });
     try {
-      final day = await ref.read(attendanceRepositoryProvider).day(date);
-      if (!mounted || date != _date) return;
+      final day = await ref
+          .read(attendanceRepositoryProvider)
+          .day(date, search: _search.text.trim());
+      if (!mounted || request != _request) return;
       setState(() {
         _day = day;
+        _entries
+          ..clear()
+          ..addAll(day.entries);
+        _page = day.page;
+        _hasMore = day.hasMore;
+        _presentCount = day.present;
+        _employed = day.employed;
         _present
           ..clear()
           ..addAll({for (final e in day.entries) e.labourId: e.present});
         _saving.clear();
       });
+      _fillScreen();
     } on Failure catch (e) {
-      if (mounted && date == _date) setState(() => _error = e);
+      if (mounted && request == _request) setState(() => _error = e);
+    }
+  }
+
+  /// The next page, added under the rows already shown.
+  Future<void> _loadMore() async {
+    if (!_hasMore || _loadingMore || _day == null) return;
+    final request = _request;
+    setState(() => _loadingMore = true);
+    try {
+      final next = await ref
+          .read(attendanceRepositoryProvider)
+          .day(_date, page: _page + 1, search: _search.text.trim());
+      if (!mounted || request != _request) return;
+      setState(() {
+        final known = {for (final e in _entries) e.labourId};
+        for (final e in next.entries) {
+          if (!known.add(e.labourId)) continue;
+          _entries.add(e);
+          _present.putIfAbsent(e.labourId, () => e.present);
+        }
+        _page = next.page;
+        _hasMore = next.hasMore;
+        // Counts from the server, unless a switch is still being saved.
+        if (_saving.isEmpty) {
+          _presentCount = next.present;
+          _employed = next.employed;
+        }
+      });
+      _fillScreen();
+    } on Failure catch (f) {
+      if (mounted) showMessage(context, failureText(context, f));
+    } finally {
+      if (mounted && request == _request) {
+        setState(() => _loadingMore = false);
+      }
     }
   }
 
@@ -123,6 +213,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     setState(() {
       _present[id] = present;
       _saving.add(id);
+      _presentCount += present ? 1 : -1;
     });
     try {
       final saved = await ref
@@ -132,7 +223,16 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
       // The saved day wage (or the default again when absent) from the
       // server; switches still being saved keep what is shown.
       setState(() {
-        _day = saved;
+        // The saved row (its day wage) replaces the one shown; the day's
+        // counts come from the server once nothing else is being saved.
+        for (final s in saved.entries) {
+          final i = _entries.indexWhere((x) => x.labourId == s.labourId);
+          if (i >= 0) _entries[i] = s;
+        }
+        if (_saving.length == 1) {
+          _presentCount = saved.present;
+          _employed = saved.employed;
+        }
         if (!present && !_same(shownBefore, e.defaultDayWage)) {
           _wages[id] = shownBefore;
         } else if (present) {
@@ -141,7 +241,10 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
       });
     } on Failure catch (f) {
       if (!mounted || date != _date) return;
-      setState(() => _present[id] = !present);
+      setState(() {
+        _present[id] = !present;
+        _presentCount += present ? -1 : 1;
+      });
       showMessage(context, failureText(context, f));
     } finally {
       if (mounted && date == _date) setState(() => _saving.remove(id));
@@ -208,8 +311,13 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
     // Leaving the section clears the search and goes back to today, so
     // Attendance always opens on today (03-AppFlow §7, §13).
     ref.onSectionLeft('/attendance', () {
-      if (_search.text.isNotEmpty) setState(_search.clear);
-      _goTo(_today);
+      final searched = _search.text.isNotEmpty;
+      if (searched) setState(_search.clear);
+      if (_date != _today) {
+        _goTo(_today);
+      } else if (searched) {
+        unawaited(_load(keep: true));
+      }
     });
     // A labour added or deactivated elsewhere shows here (own switches
     // are already on screen, so attendance changes are not listened to).
@@ -228,6 +336,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
       body: RefreshIndicator(
         onRefresh: () => QueryCache.fresh(_load),
         child: ListView(
+          controller: _scroll,
           padding: EdgeInsets.symmetric(vertical: gutter),
           children: [
             Center(
@@ -255,7 +364,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
                           SearchField(
                             controller: _search,
                             hintText: l.searchLabour,
-                            onChanged: (_) => setState(() {}),
+                            onChanged: _searchChanged,
                           ),
                         ],
                       ),
@@ -310,7 +419,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
         ),
       ];
     }
-    if (day.entries.isEmpty) {
+    if (_employed == 0) {
       return [
         Padding(
           padding: pad,
@@ -328,18 +437,14 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
       ];
     }
 
-    final present = _present.values.where((p) => p).length;
-    final query = _search.text.trim().toLowerCase();
-    final shown = [
-      for (final e in day.entries)
-        if (query.isEmpty || e.name.toLowerCase().contains(query)) e,
-    ];
+    final present = _presentCount;
+    final shown = _entries;
 
     return [
       Padding(
         padding: EdgeInsets.fromLTRB(gutter, Space.s2, gutter, Space.s2),
         child: Text(
-          l.attendanceCount('$present', '${day.entries.length - present}'),
+          l.attendanceCount('$present', '${_employed - present}'),
           style: AppTypography.caption.copyWith(
             color: context.tokens.textSecondary,
             fontFeatures: AppTypography.tabular,
@@ -368,6 +473,18 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
         ),
         const Divider(height: 1),
       ],
+      // While the next page loads (scrolling near the end starts it).
+      if (_loadingMore)
+        const Padding(
+          key: Key('attendanceMore'),
+          padding: EdgeInsets.all(Space.s4),
+          child: Center(
+            child: SizedBox.square(
+              dimension: 24,
+              child: CircularProgressIndicator(strokeWidth: 2.5),
+            ),
+          ),
+        ),
       const SizedBox(height: Space.s6),
     ];
   }

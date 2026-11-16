@@ -65,6 +65,8 @@ Future<void> start(
     ),
   );
   await tester.pumpAndSettle();
+  // (Start-up cleanup is checked in its own test.)
+  calls.remove('cleanup');
 }
 
 void main() {
@@ -83,6 +85,17 @@ void main() {
     UpdateInstaller.install = (path, platform) async =>
         calls.add('install $path ${platform.name}');
     UpdateInstaller.reload = () => calls.add('reload');
+    UpdateInstaller.cleanup = () async {
+      calls.add('cleanup');
+      return 1;
+    };
+  });
+
+  testWidgets('start: old update files are deleted', (tester) async {
+    var cleaned = 0;
+    UpdateInstaller.cleanup = () async => ++cleaned;
+    await start(tester);
+    expect(cleaned, 1);
   });
 
   testWidgets('no update: nothing shown; asks with platform and build', (

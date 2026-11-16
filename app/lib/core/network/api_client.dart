@@ -71,6 +71,9 @@ final apiClientProvider = Provider<ApiClient>(
 /// ([DataTag.of]). A successful write removes the entries it made stale
 /// ([DataTag.affectedBy]) and reports those tags through [onChanged], so the
 /// screens that show them reload. `QueryCache.fresh` skips the cache.
+/// Items per page for every list in the app (the server's default too).
+const kPageSize = 20;
+
 class ApiClient {
   ApiClient(this._dio, {this.cache, this.cacheScope, this.onChanged});
 
@@ -117,7 +120,7 @@ class ApiClient {
   Future<Paginated<T>> getPage<T>(
     String path, {
     int page = 1,
-    int limit = 20,
+    int limit = kPageSize,
     Json? query,
     required T Function(Json item) item,
   }) async {

@@ -4196,13 +4196,16 @@ A labour is either **present** (a row is stored for that day) or **absent** (no 
 
 **Attendance for a day** · 🔒 Bearer token
 
-All labours employed on that date, each with `present`, `day_wage` and `default_day_wage` (always the usual wage for one day, so the app can offer ↺ when they differ), plus a `summary` (total · present · absent). `day_wage` = the saved wage of that day when present, else the labour's wage for one day (monthly ÷ days in that month).
+The labours employed on that date, **20 a page** by name (since 2026-11-16), each with `present`, `day_wage` and `default_day_wage` (always the usual wage for one day, so the app can offer ↺ when they differ). `summary` (total · present · absent) counts **every** labour of the day, not only the page or the search. `day_wage` = the saved wage of that day when present, else the labour's wage for one day (monthly ÷ days in that month). The answer also has `page`, `limit`, `total` (labours matching the search) and `last_page`.
 
 **Query parameters**
 
 | Field | Type | Required | Rules / notes |
 |---|---|---|---|
 | `date` | date | no | Default today, not future |
+| `page` | integer | no | Send it to get pages (the app does). Without it: every labour of the day (apps before 1.1.2) |
+| `limit` | integer | no | Default 20, max 100 |
+| `search` | string | no | Part of the labour's name |
 
 **Example request**
 
@@ -4243,7 +4246,11 @@ GET /api/v1/attendance?date=2026-11-07
         "present": true,
         "day_wage": "550.00"
       }
-    ]
+    ],
+    "page": 1,
+    "limit": 20,
+    "total": 13,
+    "last_page": 1
   }
 }
 ```
@@ -4289,7 +4296,7 @@ Content-Type: application/json
 
 **Responses**
 
-✅ **200 OK** · Saved (returns the day)
+✅ **200 OK** · Saved. With `"rows": "saved"` in the body (or `?rows=saved`; the app since 1.1.2): **only the saved labours' rows** and the whole day's `summary`, merged into the page shown. Without it (older apps): every labour of the day, like before
 
 ```json
 {

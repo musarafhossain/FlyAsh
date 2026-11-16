@@ -45,31 +45,65 @@ class AttendanceEntry {
   );
 }
 
-/// The sheet for one day: every labour employed on that date.
+/// One page of the sheet for a day (20 labours a page, by name), or the
+/// rows just saved. [present] / [employed] count the whole day.
 @immutable
 class AttendanceDay {
-  const AttendanceDay({required this.date, required this.entries});
+  const AttendanceDay({
+    required this.date,
+    required this.entries,
+    this.page = 1,
+    this.lastPage = 1,
+    int? total,
+    int? present,
+    int? employed,
+  }) : total = total ?? entries.length,
+       present = present ?? 0,
+       employed = employed ?? entries.length;
 
   final String date;
   final List<AttendanceEntry> entries;
+  final int page;
+  final int lastPage;
 
-  factory AttendanceDay.fromJson(Json json) => AttendanceDay(
-    date: json['date'] as String? ?? '',
-    entries: [
+  /// Labours matching the search (all pages).
+  final int total;
+
+  /// Present / employed that day (every labour, not only this page).
+  final int present;
+  final int employed;
+
+  bool get hasMore => page < lastPage;
+
+  factory AttendanceDay.fromJson(Json json) {
+    final entries = [
       for (final e in (json['items'] as List<Object?>? ?? const []))
         AttendanceEntry.fromJson(e! as Json),
-    ],
-  );
+    ];
+    final summary = json['summary'] as Json? ?? const {};
+    return AttendanceDay(
+      date: json['date'] as String? ?? '',
+      entries: entries,
+      page: (json['page'] as num?)?.toInt() ?? 1,
+      lastPage: (json['last_page'] as num?)?.toInt() ?? 1,
+      total: (json['total'] as num?)?.toInt(),
+      present:
+          (summary['present'] as num?)?.toInt() ??
+          entries.where((e) => e.present).length,
+      employed: (summary['total'] as num?)?.toInt() ?? entries.length,
+    );
+  }
 }
 
 /// Attendance API (07-API §11). Methods throw a `Failure` on error.
 abstract interface class AttendanceRepository {
-  /// GET /attendance?date
-  Future<AttendanceDay> day(String date);
+  /// GET /attendance?date&page&limit=20&search: one page of the day.
+  Future<AttendanceDay> day(String date, {int page = 1, String? search});
 
   /// PUT /attendance: labour id → present (true) or absent (false).
   /// [wages]: labour id → that day's wage ("500" …), used when the labour
-  /// is marked present (an edited wage). Returns the saved day.
+  /// is marked present (an edited wage). Returns the saved labours' rows
+  /// and the day's counts.
   Future<AttendanceDay> save(
     String date,
     Map<String, bool> present, {

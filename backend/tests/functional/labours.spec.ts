@@ -9,8 +9,11 @@ async function addLabour(client: any, user: any, body: Record<string, unknown>) 
   return response.body().data
 }
 
-async function mark(client: any, user: any, date: string, records: any[]) {
-  const response = await client.put(`${API}/attendance`).loginAs(user).json({ date, records })
+async function mark(client: any, user: any, date: string, records: any[], onlySaved = false) {
+  const response = await client
+    .put(`${API}/attendance${onlySaved ? '?rows=saved' : ''}`)
+    .loginAs(user)
+    .json({ date, records })
   response.assertStatus(200)
   return response.body().data
 }
@@ -100,6 +103,64 @@ test.group('Labours & attendance', (group) => {
     assert.equal(calendar.body().data.summary.present, 1)
     assert.isTrue(calendar.body().data.days[1].present) // 2 Oct
     assert.isFalse(calendar.body().data.days[0].present)
+  })
+
+  test('attendance day: 20 a page, search, summary for the whole day', async ({
+    client,
+    assert,
+  }) => {
+    const user = await createUser()
+    const ids: string[] = []
+    for (let i = 1; i <= 25; i++) {
+      const lb = await addLabour(client, user, {
+        name: `Worker ${String(i).padStart(2, '0')}`,
+        wage_type: 'daily',
+        wage_amount: 400,
+        joining_date: '2026-10-01',
+      })
+      ids.push(lb.id)
+    }
+    // 3 present, one of them on page 2
+    const saved = await mark(
+      client,
+      user,
+      '2026-10-05',
+      [
+        { labour_id: ids[0], present: true },
+        { labour_id: ids[1], present: true },
+        { labour_id: ids[22], present: true },
+      ],
+      true
+    )
+    // PUT ?rows=saved answers with only the saved rows and the day's summary
+    assert.lengthOf(saved.items, 3)
+    assert.containsSubset(saved.summary, { total: 25, present: 3, absent: 22 })
+
+    // Older apps (no page, no rows=saved) still get every labour
+    const legacyPut = await mark(client, user, '2026-10-05', [{ labour_id: ids[3], present: true }])
+    assert.lengthOf(legacyPut.items, 25)
+    const legacyGet = (await client.get(`${API}/attendance?date=2026-10-05`).loginAs(user)).body()
+      .data
+    assert.lengthOf(legacyGet.items, 25)
+
+    const get = async (q: string) =>
+      (await client.get(`${API}/attendance?date=2026-10-05&${q}`).loginAs(user)).body().data
+    const page1 = await get('page=1')
+    assert.lengthOf(page1.items, 20)
+    assert.containsSubset(page1, { page: 1, limit: 20, total: 25, last_page: 2 })
+    assert.containsSubset(page1.summary, { total: 25, present: 4, absent: 21 })
+    assert.equal(page1.items[0].name, 'Worker 01')
+    const page2 = await get('page=2')
+    assert.lengthOf(page2.items, 5)
+    assert.isTrue(page2.items.find((i: any) => i.labour_id === ids[22]).present)
+
+    const search = await get('search=Worker 2')
+    assert.sameMembers(
+      search.items.map((i: any) => i.name),
+      ['Worker 20', 'Worker 21', 'Worker 22', 'Worker 23', 'Worker 24', 'Worker 25']
+    )
+    assert.equal(search.total, 6)
+    assert.equal(search.summary.total, 25, 'summary ignores the search')
   })
 
   test('day wage: default when absent, saved wage when present, custom wage', async ({

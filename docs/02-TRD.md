@@ -150,7 +150,7 @@ There are two kinds of time values, and they follow different rules:
 
 ### 4.4 Pagination, search and filters
 
-- Query params: `page` (default `1`), `limit` (default `20`, max `100`)
+- Query params: `page` (default `1`), `limit` (default `20`, max `100`). **Every list in the app asks for 20** (`kPageSize` in `core/network/api_client.dart`) and loads the next 20 near the end — also Attendance (since 2026-11-16: `GET /attendance` is paged, search on the server, `summary` for the whole day).
 - Search: `search=<text>`
 - Filters: plain params, for example `status=due&type=booking&from=2026-11-01&to=2026-11-30`
 - Sorting: a sensible default per list (newest first). Optional `sort=name&order=asc` only where the UI needs it.
@@ -616,6 +616,8 @@ Publishing a release:
 | Web | Check `platform=web` → if newer, the same dialog with **Reload** → `location.reload()`. Nginx serves `index.html`, `flutter_bootstrap.js`, `main.dart.js`, `flutter_service_worker.js` and `version.json` with `no-cache`, so the reload gets the new files |
 
 Version source: `pubspec.yaml` `version: 1.2.0+12` (`+12` = build number), read with `package_info_plus`.
+
+After an update: when the app starts, `UpdateInstaller.cleanup` deletes the `.apk` files left in the app's temporary folder (≈23 MB each), since the update is installed by then.
 
 Code (F18): `features/update/` — `UpdateRepository` (`GET /app/version`, never from the cache), `UpdateController` (the found update), `UpdateGate` (wraps the app in `MaterialApp.builder`: start-up check, forced screen in place of the app, dialog on the router's navigator once the splash is gone), `UpdateRun` (download progress, cancel, retry), `UpdateInstaller` (download / install / reload; replaced in tests).
 

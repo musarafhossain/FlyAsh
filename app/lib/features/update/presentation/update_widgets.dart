@@ -10,6 +10,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/state_views.dart';
+import '../data/update_installer.dart';
 import '../domain/app_update.dart';
 import 'update_controller.dart';
 
@@ -315,6 +316,8 @@ class _UpdateGateState extends ConsumerState<UpdateGate> {
   void initState() {
     super.initState();
     if (ref.read(updateCheckEnabledProvider)) {
+      // An update downloaded earlier is installed by now: delete its file.
+      unawaited(UpdateInstaller.cleanup());
       WidgetsBinding.instance.addPostFrameCallback((_) => _check());
     }
   }

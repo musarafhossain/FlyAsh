@@ -30,41 +30,78 @@ class FakeAttendance {
   /// date → labour id → wage saved with a present row (07-API §11).
   final Map<String, Map<String, String>> wages = {};
 
-  static const names = {
+  static const sampleNames = {
     '9': 'Abdul Karim',
     '12': 'Asit Roy',
     '1': 'Kartik Mondal',
   };
 
-  Map<String, Object?> _day(String date) {
+  /// id → name, by name (more labours for paging tests).
+  Map<String, String> names = sampleNames;
+
+  /// Like the API: a page of 20 by name, `search` on the name, only
+  /// [ids] after a save; `summary` counts the whole day.
+  Map<String, Object?> _day(
+    String date, {
+    int page = 1,
+    int limit = 20,
+    String? search,
+    Iterable<String>? ids,
+  }) {
     final p = present.putIfAbsent(date, () => {});
     final saved = wages[date] ?? const {};
+    final all = empty ? const <String>[] : names.keys.toList();
+    final matching = [
+      for (final id in all)
+        if ((ids == null || ids.contains(id)) &&
+            (search == null ||
+                names[id]!.toLowerCase().contains(search.toLowerCase())))
+          id,
+    ];
+    final size = ids == null ? limit : (matching.isEmpty ? 1 : matching.length);
+    final pageIds = matching.skip((page - 1) * size).take(size).toList();
     return {
       'date': date,
-      'items': empty
-          ? const []
-          : [
-              for (final id in names.keys)
-                {
-                  'labour_id': id,
-                  'name': names[id],
-                  'wage_type': id == '1' ? 'monthly' : 'daily',
-                  'wage_amount': id == '1' ? '15000.00' : '450.00',
-                  'present': p.contains(id),
-                  // Default: 450 a day, or 15,000 ÷ 30 days in November.
-                  'day_wage': p.contains(id)
-                      ? saved[id] ?? (id == '1' ? '500.00' : '450.00')
-                      : (id == '1' ? '500.00' : '450.00'),
-                  'default_day_wage': id == '1' ? '500.00' : '450.00',
-                },
-            ],
+      'summary': {
+        'total': all.length,
+        'present': all.where(p.contains).length,
+        'absent': all.length - all.where(p.contains).length,
+      },
+      'page': page,
+      'limit': size,
+      'total': matching.length,
+      'last_page': matching.isEmpty ? 1 : (matching.length / size).ceil(),
+      'items': [
+        for (final id in pageIds)
+          {
+            'labour_id': id,
+            'name': names[id],
+            'wage_type': id == '1' ? 'monthly' : 'daily',
+            'wage_amount': id == '1' ? '15000.00' : '450.00',
+            'present': p.contains(id),
+            // Default: 450 a day, or 15,000 ÷ 30 days in November.
+            'day_wage': p.contains(id)
+                ? saved[id] ?? (id == '1' ? '500.00' : '450.00')
+                : (id == '1' ? '500.00' : '450.00'),
+            'default_day_wage': id == '1' ? '500.00' : '450.00',
+          },
+      ],
     };
   }
 
   FakeRoutes get routes => {
     'GET /attendance': (o) => (
       200,
-      envelope(200, 'ok', _day(o.queryParameters['date'] as String)),
+      envelope(
+        200,
+        'ok',
+        _day(
+          o.queryParameters['date'] as String,
+          page: (o.queryParameters['page'] as int?) ?? 1,
+          limit: (o.queryParameters['limit'] as int?) ?? 20,
+          search: o.queryParameters['search'] as String?,
+        ),
+      ),
       {},
     ),
     'PUT /attendance': (o) {
@@ -78,7 +115,8 @@ class FakeAttendance {
         );
       }
       final p = present.putIfAbsent(date, () => {});
-      for (final r in (b['records']! as List).cast<Map<String, Object?>>()) {
+      final records = (b['records']! as List).cast<Map<String, Object?>>();
+      for (final r in records) {
         final id = '${r['labour_id']}';
         final day = wages.putIfAbsent(date, () => {});
         if (r['present'] == true) {
@@ -91,7 +129,15 @@ class FakeAttendance {
           day.remove(id);
         }
       }
-      return (200, envelope(200, 'Attendance saved for $date', _day(date)), {});
+      return (
+        200,
+        envelope(
+          200,
+          'Attendance saved for $date',
+          _day(date, ids: [for (final r in records) '${r['labour_id']}']),
+        ),
+        {},
+      );
     },
   };
 }
@@ -103,8 +149,12 @@ Future<void> openAttendance(
   Size size = const Size(400, 900),
   String location = '/attendance',
   bool empty = false,
+  Map<String, String>? names,
+  Set<String>? presentToday,
 }) async {
   api = FakeAttendance(empty: empty);
+  if (names != null) api.names = names;
+  if (presentToday != null) api.present['2026-11-09'] = presentToday;
   setScreenSize(tester, size);
   await tester.pumpWidget(
     await testApp(
@@ -192,6 +242,7 @@ void main() {
     await flip(tester, 'Asit Roy');
     expect(isOn(tester, 'Asit Roy'), isTrue);
     expect(body(puts().last), {
+      'rows': 'saved', // only the saved rows come back
       'date': '2026-11-09',
       'records': [
         {'labour_id': '12', 'present': true},
@@ -303,13 +354,61 @@ void main() {
     );
   });
 
+  testWidgets('20 a page: more load near the end; counts cover the day', (
+    tester,
+  ) async {
+    // 45 labours "Worker 01" … "Worker 45" (by name, like the API).
+    final many = {
+      for (var i = 1; i <= 45; i++)
+        'w$i': 'Worker ${i.toString().padLeft(2, '0')}',
+    };
+    await openAttendance(
+      tester,
+      names: many,
+      presentToday: {'w1', 'w2', 'w44'},
+    );
+
+    List<int> pages() => [
+      for (final r in api.requests)
+        if (r.method == 'GET' && r.path == '/attendance')
+          r.queryParameters['page'] as int,
+    ];
+    expect(lastGet().queryParameters['limit'], 20);
+    expect(pages().last, 1);
+    // The count line counts every labour of the day, not the 20 shown.
+    expect(find.text('3 present · 42 absent'), findsOneWidget);
+    expect(find.text('Worker 20'), findsOneWidget);
+    expect(find.text('Worker 21'), findsNothing);
+
+    // Scroll to the end: pages 2 and 3 load, up to Worker 45.
+    for (var i = 0; i < 30 && find.text('Worker 45').evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(ListView).first, const Offset(0, -600));
+      await tester.pumpAndSettle();
+    }
+    expect(find.text('Worker 45'), findsOneWidget);
+    expect(pages(), containsAllInOrder([1, 2, 3]));
+    expect(find.byKey(const Key('attendanceMore')), findsNothing);
+    expect(isOn(tester, 'Worker 44'), isTrue);
+
+    // A switch on page 3 saves and updates the day's count.
+    await flip(tester, 'Worker 45');
+    expect(body(puts().last)['records'], [
+      {'labour_id': 'w45', 'present': true},
+    ]);
+    expect(find.text('4 present · 41 absent'), findsOneWidget);
+  });
+
   testWidgets('search filters the names', (tester) async {
     await openAttendance(tester);
     await tester.enterText(find.byType(TextField), 'kart');
+    // The search runs on the server a moment after typing stops.
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
+    expect(lastGet().queryParameters['search'], 'kart');
     expect(find.text('Kartik Mondal'), findsOneWidget);
     expect(find.text('Asit Roy'), findsNothing);
     await tester.enterText(find.byType(TextField), 'zzz');
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.text('No results found'), findsOneWidget);
   });
