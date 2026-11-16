@@ -9,6 +9,7 @@ import 'core/router/app_router.dart';
 import 'core/router/back_guard.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
+import 'features/update/presentation/update_widgets.dart';
 
 /// Root widget: applies the saved theme (mode, accent, font size).
 /// Navigation: go_router (core/router). Language: English / Bengali (lib/l10n).
@@ -64,7 +65,8 @@ class _FlyAshAppState extends ConsumerState<FlyAshApp> {
               Theme.of(context),
               media.size.width,
             ),
-            child: child!,
+            // Start-up update check; a forced update replaces the app.
+            child: UpdateGate(child: child!),
           ),
         );
       },

@@ -609,11 +609,15 @@ Publishing a release:
 
 | Platform | Flow |
 |---|---|
-| Android | On launch → check → dialog (optional) or blocking screen (forced) → download the APK with Dio and a progress bar into app storage → `open_filex` opens the system installer (the user approves "Install unknown apps" once) |
+| Android | On launch → check → dialog (optional) or blocking screen (forced) → download the APK with Dio and a progress bar into the app's temporary folder (`path_provider`) → `open_filex` opens the system installer (the user approves "Install unknown apps" once). The manifest declares `INTERNET` and `REQUEST_INSTALL_PACKAGES` |
 | Windows | Same check → download the `.exe` into the temp folder with progress → launch the installer → `exit(0)`. The Inno Setup installer upgrades in place |
-| Web | Check `platform=web` → if newer, show the banner "New version available · Reload" → reload, bypassing the cache. Nginx serves `index.html` / `flutter_service_worker.js` with `no-cache` |
+| Web | Check `platform=web` → if newer, the same dialog with **Reload** → `location.reload()`. Nginx serves `index.html`, `flutter_bootstrap.js`, `main.dart.js`, `flutter_service_worker.js` and `version.json` with `no-cache`, so the reload gets the new files |
 
 Version source: `pubspec.yaml` `version: 1.2.0+12` (`+12` = build number), read with `package_info_plus`.
+
+Code (F18): `features/update/` — `UpdateRepository` (`GET /app/version`, never from the cache), `UpdateController` (the found update), `UpdateGate` (wraps the app in `MaterialApp.builder`: start-up check, forced screen in place of the app, dialog on the router's navigator once the splash is gone), `UpdateRun` (download progress, cancel, retry), `UpdateInstaller` (download / install / reload; replaced in tests).
+
+**Android signing:** release APKs are signed with the FlyAsh release key (`app/android/app/flyash-release.jks` + `app/android/key.properties`, both git-ignored; Gradle falls back to the debug key when they are missing). **Every update must be signed with the same key**: keep a backup of both files outside the PC. An APK signed with another key cannot install over the app (the phone must uninstall first).
 
 ## 9. Development Environment (Windows + XAMPP)
 

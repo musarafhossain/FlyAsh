@@ -1521,4 +1521,53 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptFailed => 'Could not make the receipt';
+
+  @override
+  String get updateAvailableTitle => 'Update available';
+
+  @override
+  String updateVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateNow => 'Update now';
+
+  @override
+  String get updateReload => 'Reload';
+
+  @override
+  String get updateRequiredTitle => 'Update required';
+
+  @override
+  String get updateRequiredMessage =>
+      'This version of FlyAsh is no longer supported. Update to keep using the app.';
+
+  @override
+  String get updateButton => 'Update';
+
+  @override
+  String updateDownloading(String percent) {
+    return 'Downloading… $percent%';
+  }
+
+  @override
+  String get updateDownloadingNoSize => 'Downloading…';
+
+  @override
+  String get updateInstallHint =>
+      'The first time, Android asks to allow installs from FlyAsh. Allow it, then tap Install.';
+
+  @override
+  String get updateFailed =>
+      'Download failed. Check the internet and try again.';
+
+  @override
+  String get checkForUpdates => 'Check for updates';
+
+  @override
+  String get upToDate => 'You have the latest version';
 }

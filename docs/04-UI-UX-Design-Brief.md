@@ -445,7 +445,7 @@ Drawer (☰):
 | **Users** | Search (with ✕). Row like a customer row: avatar, name, phone ("-" when none), "Inactive" pill only when deactivated; no last login (also not in the desktop table). Detail: ✏ and ⋮ (Reset password · Deactivate) in the app bar |
 | **My Profile** | Avatar with initials, name, phone, email, last login → "Edit profile" (name, phone, email) and "Change password" (old + new + confirm) |
 | **Settings** | Groups: My profile · Factory profile · Appearance (§8.1) · Language · Change password · About & Updates (version, "Check for updates") · Logout |
-| **Update dialog / screen** | Optional: dialog with version, release notes, "Later" / "Update now", and a download progress bar. Forced: full-screen blocking page with an illustration and a single "Update" button |
+| **Update dialog / screen** | Optional: dialog "Update available" with version, release notes, a one-line Android install hint, "Later" / "Update now" ("Reload" on the web); while downloading a 6 px progress bar with "Downloading… 42%" and "Cancel"; on failure a red line and "Retry". Forced: full-screen page (no back) with a round `primaryContainer` icon, "Update required", a short reason, a version + notes card, the hint, and one full-width "Update" button |
 
 ---
 

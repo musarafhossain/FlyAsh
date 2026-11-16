@@ -252,7 +252,7 @@ All reports take a date range (Today / This week / This month / Last month / Thi
 | UPD-3 | **Forced update:** if the installed version is older than the minimum supported version, a blocking screen allows only **Update** | P0 |
 | UPD-4 | **Android:** the app downloads the new APK with a progress bar and opens the system installer | P0 |
 | UPD-5 | **Windows:** the app downloads the new installer with a progress bar, launches it and closes itself | P0 |
-| UPD-6 | **Web:** a banner "New version available, Reload" refreshes to the latest build | P0 |
+| UPD-6 | **Web:** the same dialog with **Reload / Later** (forced: the blocking screen with **Reload**) loads the latest build | P0 |
 | UPD-7 | A new version is published on the server with one command (version, build number, file, minimum version, release notes) | P0 |
 
 ### 5.13 Users (USER)

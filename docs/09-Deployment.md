@@ -5,6 +5,7 @@
 | Path | Goes to |
 |---|---|
 | `/api/v1/*` | Adonis API (PM2 `flyash-api`, `127.0.0.1:3334`) |
+| `/downloads/*` | App update files (APK / EXE) in `/var/www/flyash/downloads/` |
 | everything else | Flutter web build (`app/build/web`, with SPA fallback) |
 
 ## Server layout
@@ -40,6 +41,23 @@ tar czf flyash-web.tgz -C build/web .
 scp flyash-web.tgz musaraf-vps:/tmp/
 ssh musaraf-vps 'W=/var/www/workspace/FlyAsh/app/build/web; rm -rf $W.new && mkdir -p $W.new && tar xzf /tmp/flyash-web.tgz -C $W.new && rm -rf $W && mv $W.new $W && rm /tmp/flyash-web.tgz'
 ```
+
+## Publish an app update (F18)
+
+1. Raise `version:` in `app/pubspec.yaml` (e.g. `1.1.0+2` → `1.2.0+3`; the `+N` build number must go up every time).
+2. Run from the repo on the PC (Git Bash):
+
+```bash
+bash deploy/publish-app.sh android "What is new"        # optional update
+bash deploy/publish-app.sh android "Important fix" 3    # builds below 3 must update
+bash deploy/publish-app.sh web "What is new"            # web build + reload prompt
+```
+
+Android builds the signed APK, uploads it as `/var/www/flyash/downloads/flyash-<version>.apk` (`https://flyash.musaraf.org.in/downloads/…`) and runs `node ace app:release`. Installed apps see the update on their next launch or from Settings → About → Check for updates.
+
+**Release key:** `app/android/key.properties` + `app/android/app/flyash-release.jks` (not in git). Keep a copy somewhere safe (USB drive / cloud). Without them no update can be installed over the app.
+
+The first APK with the updater (1.1.0+2) is installed by hand once. The test APK from 9 Nov is signed with a different (debug) key, so uninstall it first.
 
 ## Handy commands
 

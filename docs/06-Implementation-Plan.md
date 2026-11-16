@@ -151,11 +151,11 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] Translate all strings to Bengali (`app_bn.arb`), and check layouts with long Bengali text and 1.3× font
 
 ### Step 15 · App update system
-- [ ] API: `app_versions` + `GET /app/version`, `node ace app:release`
-- [ ] App: check on launch + About screen, optional dialog, forced screen
-- [ ] Android: APK download with progress + installer (`REQUEST_INSTALL_PACKAGES`, FileProvider)
+- [x] API: `app_versions` + `GET /app/version`, `node ace app:release`
+- [x] App: check on launch + About screen, optional dialog, forced screen (F18, 2026-11-16)
+- [x] Android: APK download with progress + installer (`REQUEST_INSTALL_PACKAGES`, FileProvider), release signing key, `deploy/publish-app.sh`
 - [ ] Windows: Inno Setup script (`app/windows/installer/flyash.iss`), EXE download + run + exit
-- [ ] Web: reload banner, and `no-cache` headers for `index.html` and the service worker
+- [x] Web: reload (dialog / forced screen), and `no-cache` headers for `index.html`, `main.dart.js` and the service worker
 
 **Done when:** installing build N and publishing build N+1 updates the app on Android and Windows, and the banner appears on Web.
 

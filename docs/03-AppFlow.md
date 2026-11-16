@@ -370,8 +370,11 @@ flowchart TD
     WI -- download failed --> R
 ```
 
-- Android: the first time, the system asks to allow "Install unknown apps" for FlyAsh. The app shows a short explanation before opening that settings page.
-- A download in progress can be cancelled from an optional update, but not from a forced one.
+- The start-up check runs once per launch, in the background; an optional update's dialog waits until the splash screen is gone (on the login page or Home). A failed check (no network) is ignored until the next launch.
+- Settings → About & Updates → "Check for updates": "You have the latest version" (toast), the dialog, or the forced screen.
+- Android: the first time, the system asks to allow "Install unknown apps" for FlyAsh. The dialog and the forced screen say so in one line ("Allow it, then tap Install").
+- A download in progress can be cancelled from an optional update (Cancel), but not from a forced one. Download failed → error line + **Retry**.
+- Web: "Update now" is **Reload** (nothing to download).
 
 ## 13. Common Behaviour (all screens)
 

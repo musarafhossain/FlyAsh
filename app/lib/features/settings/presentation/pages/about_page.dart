@@ -3,25 +3,61 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/config/env.dart';
+import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/cards.dart';
+import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/widgets/page_layout.dart';
+import '../../../update/domain/app_update.dart';
+import '../../../update/presentation/update_controller.dart';
+import '../../../update/presentation/update_widgets.dart';
 
 /// Installed version and build (`version: 1.0.0+1` in pubspec).
 final packageInfoProvider = FutureProvider<PackageInfo>(
   (ref) => PackageInfo.fromPlatform(),
 );
 
-/// Settings → About: logo, version, build, server. "Check for updates"
-/// is added here in F18.
-class AboutPage extends ConsumerWidget {
+/// Settings → About & Updates: logo, version, build, server, and
+/// "Check for updates" (03-AppFlow §12).
+class AboutPage extends ConsumerStatefulWidget {
   const AboutPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends ConsumerState<AboutPage> {
+  bool _checking = false;
+
+  Future<void> _check() async {
+    final l = context.l10n;
+    setState(() => _checking = true);
+    final AppUpdate update;
+    try {
+      update = await ref.read(updateControllerProvider.notifier).check();
+    } on Failure catch (f) {
+      if (mounted) {
+        setState(() => _checking = false);
+        showMessage(context, failureText(context, f));
+      }
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _checking = false);
+    final platform = ref.read(updatePlatformProvider);
+    if (!update.updateAvailable || platform == null) {
+      showMessage(context, l.upToDate);
+    } else if (!update.forceUpdate) {
+      // (A forced update replaces the whole app by itself: UpdateGate.)
+      await showUpdateDialog(context, update, platform);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
     final info = ref.watch(packageInfoProvider).value;
@@ -71,6 +107,18 @@ class AboutPage extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: Space.s4),
+          OutlinedButton.icon(
+            key: const Key('checkForUpdates'),
+            onPressed: _checking ? null : _check,
+            icon: _checking
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.system_update_outlined),
+            label: Text(l.checkForUpdates),
           ),
         ],
       ),

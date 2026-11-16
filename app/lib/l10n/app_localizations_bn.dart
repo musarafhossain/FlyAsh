@@ -1517,4 +1517,52 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get receiptFailed => 'রসিদ তৈরি করা যায়নি';
+
+  @override
+  String get updateAvailableTitle => 'নতুন আপডেট এসেছে';
+
+  @override
+  String updateVersion(String version) {
+    return 'ভার্সন $version';
+  }
+
+  @override
+  String get updateLater => 'পরে';
+
+  @override
+  String get updateNow => 'এখনই আপডেট করুন';
+
+  @override
+  String get updateReload => 'রিলোড করুন';
+
+  @override
+  String get updateRequiredTitle => 'আপডেট করা দরকার';
+
+  @override
+  String get updateRequiredMessage =>
+      'FlyAsh-এর এই ভার্সন আর চলবে না। অ্যাপ ব্যবহার করতে আপডেট করুন।';
+
+  @override
+  String get updateButton => 'আপডেট করুন';
+
+  @override
+  String updateDownloading(String percent) {
+    return 'ডাউনলোড হচ্ছে… $percent%';
+  }
+
+  @override
+  String get updateDownloadingNoSize => 'ডাউনলোড হচ্ছে…';
+
+  @override
+  String get updateInstallHint =>
+      'প্রথমবার Android জানতে চাইবে FlyAsh থেকে ইনস্টল করার অনুমতি দেবেন কিনা। অনুমতি দিয়ে Install চাপুন।';
+
+  @override
+  String get updateFailed => 'ডাউনলোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get checkForUpdates => 'আপডেট আছে কিনা দেখুন';
+
+  @override
+  String get upToDate => 'আপনার কাছে সর্বশেষ ভার্সন আছে';
 }

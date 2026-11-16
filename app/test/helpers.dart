@@ -1,3 +1,4 @@
+import 'package:flyash/features/update/presentation/update_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,6 +49,7 @@ Future<Widget> testApp(
   String? token,
   FakeRoutes api = const {},
   List<RequestOptions>? requests,
+  bool updateCheck = false,
 }) async {
   SharedPreferences.setMockInitialValues(prefs);
   FlutterSecureStorage.setMockInitialValues({'auth.token': ?token});
@@ -60,6 +62,8 @@ Future<Widget> testApp(
     overrides: [
       sharedPreferencesProvider.overrideWithValue(instance),
       tokenStoreProvider.overrideWithValue(tokens),
+      // The start-up update check is tested on its own (update_test.dart).
+      updateCheckEnabledProvider.overrideWithValue(updateCheck),
       ...overrides,
     ],
   );

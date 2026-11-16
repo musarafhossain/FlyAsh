@@ -805,5 +805,21 @@
   "receiptThanks": "Thank you for your business",
   "shareReceipt": "Share receipt",
   "printReceipt": "Print receipt",
-  "receiptFailed": "Could not make the receipt"
+  "receiptFailed": "Could not make the receipt",
+  "updateAvailableTitle": "Update available",
+  "updateVersion": "Version {version}",
+  "@updateVersion": {"placeholders": {"version": {"type": "String"}}},
+  "updateLater": "Later",
+  "updateNow": "Update now",
+  "updateReload": "Reload",
+  "updateRequiredTitle": "Update required",
+  "updateRequiredMessage": "This version of FlyAsh is no longer supported. Update to keep using the app.",
+  "updateButton": "Update",
+  "updateDownloading": "Downloading… {percent}%",
+  "@updateDownloading": {"placeholders": {"percent": {"type": "String"}}},
+  "updateDownloadingNoSize": "Downloading…",
+  "updateInstallHint": "The first time, Android asks to allow installs from FlyAsh. Allow it, then tap Install.",
+  "updateFailed": "Download failed. Check the internet and try again.",
+  "checkForUpdates": "Check for updates",
+  "upToDate": "You have the latest version"
 }
