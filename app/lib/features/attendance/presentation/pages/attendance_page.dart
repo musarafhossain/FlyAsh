@@ -205,10 +205,11 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Leaving the section clears the search (03-AppFlow §13).
+    // Leaving the section clears the search and goes back to today, so
+    // Attendance always opens on today (03-AppFlow §7, §13).
     ref.onSectionLeft('/attendance', () {
-      if (_search.text.isEmpty) return;
-      setState(_search.clear);
+      if (_search.text.isNotEmpty) setState(_search.clear);
+      _goTo(_today);
     });
     // A labour added or deactivated elsewhere shows here (own switches
     // are already on screen, so attendance changes are not listened to).

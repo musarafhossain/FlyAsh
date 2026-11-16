@@ -338,6 +338,25 @@ void main() {
     expect(find.text('Today, 09 Nov 2026'), findsOneWidget);
   });
 
+  testWidgets('leaving Attendance and coming back opens today again', (
+    tester,
+  ) async {
+    await openAttendance(tester);
+    await tester.tap(find.byTooltip('Previous'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Previous'));
+    await tester.pumpAndSettle();
+    expect(find.text('07 Nov 2026'), findsOneWidget);
+
+    // Another section, then back (bottom navigation).
+    await tester.tap(find.text('Home').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Attendance').last);
+    await tester.pumpAndSettle();
+    // (Today's list comes from the 60 s cache: no new request needed.)
+    expect(find.text('Today, 09 Nov 2026'), findsOneWidget);
+  });
+
   testWidgets('?date= opens that day; a future ?date= falls back to today', (
     tester,
   ) async {
