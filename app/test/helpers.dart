@@ -25,7 +25,7 @@ const sampleUser = {
   'email': 'owner@test.com',
   'locale': 'en',
   'theme_mode': 'system',
-  'accent_color': 'blue',
+  'accent_color': 'brick',
 };
 
 /// Routes for a logged-in session (GET /auth/me → [sampleUser]).

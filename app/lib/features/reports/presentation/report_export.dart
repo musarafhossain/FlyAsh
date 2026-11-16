@@ -22,10 +22,11 @@ String reportFileName(String type, String periodKey) =>
 Future<Uint8List> buildReportPdf(
   ReportView view, {
   required String generatedOn,
+  int accent = 0xFFC2410C,
 }) async {
   final theme = await pdfTheme();
   final doc = await PdfText.build(
-    (t) => _reportDoc(t, theme, view, generatedOn),
+    (t) => _reportDoc(t, theme, view, generatedOn, accent),
   );
   return doc.save();
 }
@@ -35,8 +36,10 @@ pw.Document _reportDoc(
   pw.ThemeData theme,
   ReportView view,
   String generatedOn,
+  int accentColor,
 ) {
-  const accent = PdfColor.fromInt(0xFF1D4ED8);
+  // The owner's accent in light mode (printed output is always light).
+  final accent = PdfColor.fromInt(accentColor);
   const ink = PdfColor.fromInt(0xFF0F172A);
   const grey = PdfColor.fromInt(0xFF64748B);
   const line = PdfColor.fromInt(0xFFE2E8F0);

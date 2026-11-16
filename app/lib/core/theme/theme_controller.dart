@@ -11,7 +11,7 @@ const List<double> kFontScales = [0.9, 1.0, 1.15, 1.3];
 class ThemeSettings {
   const ThemeSettings({
     this.mode = ThemeMode.system,
-    this.accent = AccentColor.blue,
+    this.accent = AccentColor.brick,
     this.fontScale = 1.0,
   });
 
@@ -91,7 +91,7 @@ class ThemeController extends Notifier<ThemeSettings> {
 
   Future<void> reset() async {
     await setMode(ThemeMode.system);
-    await setAccent(AccentColor.blue);
+    await setAccent(AccentColor.brick);
     await setFontScale(1.0);
   }
 

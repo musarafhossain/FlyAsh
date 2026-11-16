@@ -269,7 +269,7 @@ All users have the same access. There are no roles.
 | Password | ✅ | Min 6 characters, stored **hashed** (never readable) |
 | Language | auto | `en` (default) or `bn`. Changed by the user in Settings → Language |
 | Theme mode | auto | `system` (default), `light` or `dark`. Changed in Settings → Appearance |
-| Theme color | auto | `blue` (default), `brick`, `emerald`, `violet` or `slate`. Changed in Settings → Appearance |
+| Theme color | auto | `brick` (default), `blue`, `emerald`, `violet` or `slate`. Changed in Settings → Appearance |
 | Status | auto | Active / Inactive (default Active) |
 | Last login | auto | Updated on every successful login |
 | Created by | auto | The user who added this user (empty for the first user) |

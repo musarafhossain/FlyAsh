@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 /// The 5 accent color themes (04-UI-UX §5.2). The names match the API
 /// values of `users.accent_color`.
+/// Brick Terracotta is the default (and first in the picker).
 enum AccentColor {
-  blue('Royal Blue'),
   brick('Brick Terracotta'),
+  blue('Royal Blue'),
   emerald('Emerald Green'),
   violet('Deep Violet'),
   slate('Ash Slate');
@@ -14,7 +15,7 @@ enum AccentColor {
 
   static AccentColor fromName(String? name) => AccentColor.values.firstWhere(
     (a) => a.name == name,
-    orElse: () => AccentColor.blue,
+    orElse: () => AccentColor.brick,
   );
 }
 

@@ -335,7 +335,7 @@ void main() {
 
       // Close to the selected tint (primaryContainer), far from black.
       final expected = AppTokens.of(
-        AccentColor.blue,
+        AccentColor.brick, // the test account's colour (the default)
         dark ? Brightness.dark : Brightness.light,
       ).primaryContainer;
       double diff(Color a, Color b) =>

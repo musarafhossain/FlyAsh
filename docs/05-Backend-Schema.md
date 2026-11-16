@@ -63,7 +63,7 @@ All tables: `users` · `auth_access_tokens` · `password_reset_otps` · `factory
 | password | VARCHAR(255) | no | | scrypt hash |
 | locale | VARCHAR(5) | no | 'en' | `en` · `bn`. Language for emails and API messages (when no `Accept-Language` header) |
 | theme_mode | VARCHAR(10) | no | 'system' | `system` · `light` · `dark` |
-| accent_color | VARCHAR(20) | no | 'blue' | `blue` · `brick` · `emerald` · `violet` · `slate` (04-UI-UX §5.2) |
+| accent_color | VARCHAR(20) | no | 'brick' (migration 0026; was 'blue') | `blue` · `brick` · `emerald` · `violet` · `slate` (04-UI-UX §5.2) |
 | is_active | TINYINT(1) | no | 1 | |
 | last_login_at | DATETIME | yes | NULL | |
 | created_by | CHAR(36) FK → users.id | yes | NULL | NULL for the first user |

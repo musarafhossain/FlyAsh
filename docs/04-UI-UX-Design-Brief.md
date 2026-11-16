@@ -105,7 +105,7 @@ Every theme defines the same 5 tokens. In **light mode** `primary` is a deep ton
 
 | # | Theme | Mode | `primary` | `onPrimary` | `primaryContainer` | `onPrimaryContainer` | Contrast (onPrimary / primary-on-surface / container) |
 |---|---|---|---|---|---|---|---|
-| 1 | **Royal Blue** *(default, matches the reference)* | Light | `#1A56F0` | `#FFFFFF` | `#E8EFFF` | `#0B2A80` | 5.8 / 5.4 / 11.0 |
+| 1 | **Royal Blue** *(matches the reference; the default until 2026-11-16)* | Light | `#1A56F0` | `#FFFFFF` | `#E8EFFF` | `#0B2A80` | 5.8 / 5.4 / 11.0 |
 | | | Dark | `#7AA2FF` | `#0B1120` | `#16264D` | `#D6E2FF` | 7.6 / 6.9 / 11.4 |
 | 2 | **Brick Terracotta** *(on-brand for bricks)* | Light | `#C2410C` | `#FFFFFF` | `#FDEDE4` | `#6B210A` | 5.2 / 5.2 / 10.0 |
 | | | Dark | `#FF9467` | `#0B1120` | `#3D1F14` | `#FFDCCB` | 8.7 / 7.9 / 11.6 |
@@ -266,10 +266,10 @@ The reference is almost flat. We use **level 0** (border only) for list cards, *
 ### 8.2 Behaviour rules
 
 1. **Theme mode:** `System` (default) follows the OS setting and updates live when the OS changes. `Light` and `Dark` override it.
-2. **Accent color:** default is **Royal Blue**. Tapping a swatch applies it **instantly** with no confirm and no restart.
+2. **Accent color:** default is **Brick Terracotta** (since 2026-11-16; it was Royal Blue). It is first in the picker. Tapping a swatch applies it **instantly** with no confirm and no restart.
 3. **Persistence:** theme mode and accent color are **saved to the user's account** (`PUT /auth/preferences` → `users.theme_mode`, `users.accent_color`), so each user sees their own theme on every device. A local copy is cached and restored before the first frame so there is no flash of the wrong theme; after login the account values replace the cache. Font size is saved on the device only. Before login (splash, login screens) the last cached theme is used.
 4. **Scope:** the theme applies to the whole app, including the splash, the logo color, charts, the status bar and navigation bar colors, and the system-UI icon brightness.
-5. **Splash before preferences load:** use the saved theme if it is cached, otherwise Royal Blue / System.
+5. **Splash before preferences load:** use the saved theme if it is cached, otherwise Brick Terracotta / System. The web HTML splash loader also uses Brick.
 6. **Printed and PDF output** (invoices, challans, reports) always uses **light mode with the factory's brand color**, not the user's app theme.
 7. **Quick toggle:** the side drawer has a small sun/moon icon button next to the user's name to switch Light/Dark without opening Settings.
 

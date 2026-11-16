@@ -52,14 +52,17 @@ void main() {
   test('logged in: each change sends only the changed field', () async {
     final (c, requests) = await setup(token: 'oat_x');
 
-    await c.read(themeControllerProvider.notifier).setAccent(AccentColor.brick);
+    // (Brick is the default, so pick another colour to make a change.)
+    await c
+        .read(themeControllerProvider.notifier)
+        .setAccent(AccentColor.emerald);
     await c.read(themeControllerProvider.notifier).setMode(ThemeMode.dark);
     await c.read(localeProvider.notifier).setLocale('bn');
     await settle();
 
     expect(requests.map((r) => r.$1).toSet(), {'PUT /auth/preferences'});
     expect(requests.map((r) => r.$2).toList(), [
-      {'accent_color': 'brick'},
+      {'accent_color': 'emerald'},
       {'theme_mode': 'dark'},
       {'locale': 'bn'},
     ]);

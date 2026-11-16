@@ -3,7 +3,7 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
 /**
  * The user's appearance, saved to the account so it follows them to every device:
  *   theme_mode:   'system' | 'light' | 'dark'
- *   accent_color: 'blue' | 'brick' | 'emerald' | 'violet' | 'slate'
+ *   accent_color: 'brick' (default since 0026) | 'blue' | 'emerald' | 'violet' | 'slate'
  */
 export default class extends BaseSchema {
   protected tableName = 'users'

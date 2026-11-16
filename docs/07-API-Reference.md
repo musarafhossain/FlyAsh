@@ -836,7 +836,7 @@ Saves the language and appearance to the account (`users.locale`, `users.theme_m
 |---|---|---|---|
 | `locale` | enum | no | `en` · `bn` |
 | `theme_mode` | enum | no | `system` · `light` · `dark` |
-| `accent_color` | enum | no | `blue` · `brick` · `emerald` · `violet` · `slate` |
+| `accent_color` | enum | no | `brick` (default for new users) · `blue` · `emerald` · `violet` · `slate` |
 
 **Example request**
 

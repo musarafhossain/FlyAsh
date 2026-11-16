@@ -74,7 +74,7 @@ test.group('User preferences (language and theme)', (group) => {
     assert.containsSubset(me.body().data, {
       locale: 'en',
       theme_mode: 'system',
-      accent_color: 'blue',
+      accent_color: 'brick',
     })
   })
 

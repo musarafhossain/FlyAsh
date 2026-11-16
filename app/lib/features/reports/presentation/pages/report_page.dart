@@ -8,7 +8,9 @@ import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/data_changed.dart';
 import '../../../../core/network/session.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_controller.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/dates.dart';
@@ -140,7 +142,14 @@ class _ReportPageState extends ConsumerState<ReportPage> {
       );
       if (pdf) {
         await sharePdf(
-          await buildReportPdf(view, generatedOn: generated),
+          await buildReportPdf(
+            view,
+            generatedOn: generated,
+            accent: AppColors.accent(
+              ref.read(themeControllerProvider).accent,
+              Brightness.light,
+            ).primary.toARGB32(),
+          ),
           name,
         );
       } else {
