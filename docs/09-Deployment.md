@@ -59,6 +59,25 @@ Android builds the signed APK (64-bit phones only, obfuscated, ≈23 MB; crash s
 
 The first APK with the updater (1.1.0+2) is installed by hand once. The test APK from 9 Nov is signed with a different (debug) key, so uninstall it first.
 
+## Test database with fake data (`flyash_test`)
+
+`flyash_test` is a copy of `flyash` (made on 2026-11-16) with everything emptied except `users`, `auth_access_tokens`, `factory_settings` (invoice counter reset to 0) and `app_versions`, then filled with 6 months of fake data. The live API keeps using `flyash`; `flyash_test` is only for trying things (point a test API at it with `DB_DATABASE=flyash_test`).
+
+Re-create it (as root on the VPS):
+
+```bash
+F=/root/flyash-backup-$(date +%Y%m%d-%H%M%S).sql.gz; mysqldump --single-transaction flyash | gzip > $F
+mysql -e "DROP DATABASE IF EXISTS flyash_test; CREATE DATABASE flyash_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysqldump --single-transaction flyash | mysql flyash_test
+# empty all tables except the kept ones, reset the invoice counter
+KEEP="'adonis_schema','adonis_schema_versions','users','auth_access_tokens','factory_settings','app_versions'"
+SQL=$(mysql -N -e "SELECT CONCAT('TRUNCATE TABLE \`', table_name, '\`;') FROM information_schema.tables WHERE table_schema='flyash_test' AND table_name NOT IN ($KEEP);")
+mysql flyash_test -e "SET FOREIGN_KEY_CHECKS=0; $SQL UPDATE factory_settings SET last_invoice_no=0; SET FOREIGN_KEY_CHECKS=1;"
+cd /var/www/workspace/FlyAsh/backend/build && . /root/.nvm/nvm.sh && DB_DATABASE=flyash_test node ace demo:seed --months=6
+```
+
+`node ace demo:seed` (`commands/demo_seed.ts`) refuses any database whose name does not contain "test". It creates 6 products, 60 customers (a few without phone, one inactive), 1–3 sales a day with payments (full / part / later), bookings (most delivered, a few cancelled), 5–18 % tax on some, 16 labours (2 monthly, one who left, two who joined later) with daily attendance, monthly wage payments, and daily + monthly expenses. Sales go through `SaleService`, so totals, dues and invoice numbers are real. The same seed gives the same data every time.
+
 ## Handy commands
 
 ```bash
