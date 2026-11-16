@@ -246,7 +246,7 @@ export default class DemoSeed extends BaseCommand {
           if (amount <= 0) continue
           await WagePayment.create({
             labourId: row.labour_id,
-            wageMonth: month,
+            wageMonth: `${month}-01`, // stored as the month's first day
             amount: amount.toFixed(2),
             paymentDate: iso(end.minus({ days: this.int(0, Math.max(0, end.day - 1)) })),
             method: this.pick(['cash', 'cash', 'upi']),
@@ -260,7 +260,7 @@ export default class DemoSeed extends BaseCommand {
         const payOn = m.plus({ months: 1 }).set({ day: this.int(1, 7) })
         await WagePayment.create({
           labourId: row.labour_id,
-          wageMonth: month,
+          wageMonth: `${month}-01`, // stored as the month's first day
           amount: (Math.round(earned * share * 100) / 100).toFixed(2),
           paymentDate: iso(payOn > end ? end : payOn),
           method: this.pick(['cash', 'cash', 'upi', 'bank']),
