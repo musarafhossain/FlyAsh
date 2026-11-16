@@ -2965,6 +2965,35 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copied'**
   String get copied;
+
+  /// No description provided for @sendReceiptWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send receipt on WhatsApp'**
+  String get sendReceiptWhatsApp;
+
+  /// No description provided for @noCustomerPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'No phone number for this customer'**
+  String get noCustomerPhone;
+
+  /// No description provided for @whatsAppNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp is not installed on this phone'**
+  String get whatsAppNotInstalled;
+
+  /// No description provided for @receiptWhatsAppText.
+  ///
+  /// In en, this message translates to:
+  /// **'{factory}: receipt {invoice}. Total {total}, due {due}.'**
+  String receiptWhatsAppText(
+    String factory,
+    String invoice,
+    String total,
+    String due,
+  );
 }
 
 class _AppLocalizationsDelegate

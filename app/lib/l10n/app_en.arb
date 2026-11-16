@@ -823,5 +823,10 @@
   "checkForUpdates": "Check for updates",
   "upToDate": "You have the latest version",
   "copy": "Copy",
-  "copied": "Copied"
+  "copied": "Copied",
+  "sendReceiptWhatsApp": "Send receipt on WhatsApp",
+  "noCustomerPhone": "No phone number for this customer",
+  "whatsAppNotInstalled": "WhatsApp is not installed on this phone",
+  "receiptWhatsAppText": "{factory}: receipt {invoice}. Total {total}, due {due}.",
+  "@receiptWhatsAppText": {"placeholders": {"factory": {"type": "String"}, "invoice": {"type": "String"}, "total": {"type": "String"}, "due": {"type": "String"}}}
 }

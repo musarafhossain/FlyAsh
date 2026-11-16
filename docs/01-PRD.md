@@ -169,7 +169,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | SALE-11 | Each sale gets an automatic **invoice number** (`INV-000001`, sequential) | P0 |
 | SALE-12 | Sale list with filters: date range (Today / This week / This month / Custom), type (Instant / Booking), status (Paid / Partial / Due / Booked / Cancelled), and search (customer name, phone, invoice no.). Paginated | P0 |
 | SALE-13 | Sale detail: customer, items, totals (incl. tax), payments, status. Edit is the pencil; Add payment · Mark delivered · Cancel booking · Delete, Share receipt and Print receipt are in the ⋮ menu | P0 |
-| SALE-14 | **Receipt PDF** with the factory logo (static, bundled in the app), name, address and phone, invoice no., customer, items, totals, paid and due. Share via WhatsApp or other apps, print, or save | P1 |
+| SALE-14 | **Receipt PDF** with the factory logo (static, bundled in the app), name, address and phone, invoice no., customer, items, totals, paid and due. **Send straight to the customer's WhatsApp** (disabled without a phone number), share via other apps, print, or save | P1 |
 | SALE-15 | Edit a sale (items, prices, charges, notes). Totals and status are recalculated | P0 |
 | SALE-16 | Delete a sale, with confirmation (soft delete, removed from all reports) | P1 |
 | SALE-17 | Notes field | P1 |

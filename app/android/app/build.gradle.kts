@@ -66,3 +66,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // FileProvider for sharing receipt PDFs to WhatsApp (MainActivity).
+    implementation("androidx.core:core-ktx:1.13.1")
+}

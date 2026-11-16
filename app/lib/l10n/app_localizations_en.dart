@@ -1576,4 +1576,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get copied => 'Copied';
+
+  @override
+  String get sendReceiptWhatsApp => 'Send receipt on WhatsApp';
+
+  @override
+  String get noCustomerPhone => 'No phone number for this customer';
+
+  @override
+  String get whatsAppNotInstalled => 'WhatsApp is not installed on this phone';
+
+  @override
+  String receiptWhatsAppText(
+    String factory,
+    String invoice,
+    String total,
+    String due,
+  ) {
+    return '$factory: receipt $invoice. Total $total, due $due.';
+  }
 }

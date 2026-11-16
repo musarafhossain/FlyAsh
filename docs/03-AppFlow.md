@@ -202,6 +202,7 @@ The app bar has ✏ **Edit** and a **⋮** menu. There are no action buttons in 
 | **Delete sale** | ⋮ | Confirm "Delete INV-000101? It will be removed from all reports" → `DELETE /sales/:id` → back to the list |
 | **Delete payment** | long press a payment row | Confirm → `DELETE …/payments/:id` |
 | **Call / WhatsApp** | customer card, only if the customer has a phone | `url_launcher` (`tel:` / `https://wa.me/91…`) |
+| **Send receipt on WhatsApp** | ⋮ (disabled with "No phone number for this customer" when the customer has no phone) | Build the PDF → Android: WhatsApp (or WhatsApp Business) opens the customer's chat with the PDF attached and a line "Factory: receipt INV-…. Total ₹…, due ₹…." → the user taps Send. Web / Windows: the PDF is saved (downloaded) and the chat opens on wa.me with that line, to attach the file there. No WhatsApp → "WhatsApp is not installed on this phone" |
 | **Share receipt** | ⋮ | Build the PDF on the device (factory profile from `GET /settings/factory`) → share sheet (WhatsApp, mail, Files …; on the web it downloads, on Windows a save dialog). Failure → "Could not make the receipt" |
 | **Print receipt** | ⋮ | Same PDF → system print dialog (also offers "Save as PDF") |
 

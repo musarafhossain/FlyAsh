@@ -477,5 +477,9 @@
   "checkForUpdates": "আপডেট আছে কিনা দেখুন",
   "upToDate": "আপনার কাছে সর্বশেষ ভার্সন আছে",
   "copy": "কপি",
-  "copied": "কপি হয়েছে"
+  "copied": "কপি হয়েছে",
+  "sendReceiptWhatsApp": "রসিদ WhatsApp-এ পাঠান",
+  "noCustomerPhone": "এই কাস্টমারের ফোন নম্বর নেই",
+  "whatsAppNotInstalled": "এই ফোনে WhatsApp নেই",
+  "receiptWhatsAppText": "{factory}: রসিদ {invoice}। মোট {total}, বাকি {due}।"
 }

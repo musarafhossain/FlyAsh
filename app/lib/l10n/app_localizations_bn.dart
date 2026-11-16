@@ -1571,4 +1571,23 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get copied => 'কপি হয়েছে';
+
+  @override
+  String get sendReceiptWhatsApp => 'রসিদ WhatsApp-এ পাঠান';
+
+  @override
+  String get noCustomerPhone => 'এই কাস্টমারের ফোন নম্বর নেই';
+
+  @override
+  String get whatsAppNotInstalled => 'এই ফোনে WhatsApp নেই';
+
+  @override
+  String receiptWhatsAppText(
+    String factory,
+    String invoice,
+    String total,
+    String due,
+  ) {
+    return '$factory: রসিদ $invoice। মোট $total, বাকি $due।';
+  }
 }

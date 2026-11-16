@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:decimal/decimal.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/pdf/pdf_text.dart';
 import '../../../core/pdf/pdf_theme.dart';
+import '../../../core/utils/contact_launcher.dart';
 import '../../../core/utils/formatters.dart';
 import '../../settings/domain/factory_settings.dart';
 import '../domain/sale.dart';
@@ -339,8 +344,23 @@ pw.Document _receipt(
   return doc;
 }
 
-/// Where a receipt goes. Tests replace [share] / [print].
+/// What happened when sending the receipt to WhatsApp.
+enum WhatsAppSend { sent, notInstalled }
+
+/// Where a receipt goes. Tests replace [share] / [print] / [whatsApp].
 abstract final class ReceiptOutput {
+  /// The customer's WhatsApp chat with the PDF. Android: WhatsApp (or
+  /// WhatsApp Business) opens that chat with the receipt attached. Web and
+  /// Windows cannot attach a file to a chat: the PDF is saved (downloaded)
+  /// and the chat opens with [text] typed in, to attach it there.
+  static Future<WhatsAppSend> Function(
+    Uint8List bytes,
+    String fileName,
+    String phone,
+    String text,
+  )
+  whatsApp = _whatsApp;
+
   /// Share sheet (WhatsApp, mail, Files …); on the web the file downloads,
   /// on Windows a save dialog opens.
   static Future<void> Function(Uint8List bytes, String fileName) share =
@@ -351,4 +371,33 @@ abstract final class ReceiptOutput {
   static Future<void> Function(Uint8List bytes, String fileName) print =
       (bytes, fileName) =>
           Printing.layoutPdf(name: fileName, onLayout: (_) async => bytes);
+}
+
+const _whatsAppChannel = MethodChannel('flyash/whatsapp');
+
+Future<WhatsAppSend> _whatsApp(
+  Uint8List bytes,
+  String fileName,
+  String phone,
+  String text,
+) async {
+  final number = ContactLauncher.waNumber(phone);
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    // In cache/receipts/ (shared through the app's FileProvider).
+    final dir = Directory('${(await getTemporaryDirectory()).path}/receipts');
+    await dir.create(recursive: true);
+    final file = File('${dir.path}/$fileName.pdf');
+    await file.writeAsBytes(bytes, flush: true);
+    final result = await _whatsAppChannel.invokeMethod<String>('sendFile', {
+      'path': file.path,
+      'phone': number,
+      'text': text,
+    });
+    return result == 'sent' ? WhatsAppSend.sent : WhatsAppSend.notInstalled;
+  }
+  await ReceiptOutput.share(bytes, fileName);
+  if (!await ContactLauncher.whatsApp(phone, text: text)) {
+    throw StateError('could not open WhatsApp');
+  }
+  return WhatsAppSend.sent;
 }

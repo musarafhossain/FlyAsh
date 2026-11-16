@@ -1,6 +1,10 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flyash/app.dart';
+import 'package:flyash/core/router/app_router.dart';
+import 'package:flyash/core/utils/contact_launcher.dart';
 import 'package:flyash/core/l10n/l10n.dart';
 import 'package:flyash/features/sales/domain/sale.dart';
 import 'package:flyash/features/sales/presentation/receipt_pdf.dart';
@@ -9,16 +13,27 @@ import 'package:flyash/l10n/app_localizations_bn.dart';
 import 'package:flyash/l10n/app_localizations_en.dart';
 
 import 'sale_actions_test.dart' show fromMenu;
+import '../helpers.dart';
 import 'sale_form_test.dart';
 
 /// Captures what would be shared / printed.
 final sent = <(String how, Uint8List bytes, String name)>[];
 
 void main() {
+  var whatsApp = WhatsAppSend.sent;
+  final whatsAppCalls = <(String name, String phone, String text)>[];
+
   setUp(() {
     sent.clear();
+    whatsAppCalls.clear();
+    whatsApp = WhatsAppSend.sent;
     ReceiptOutput.share = (b, n) async => sent.add(('share', b, n));
     ReceiptOutput.print = (b, n) async => sent.add(('print', b, n));
+    ReceiptOutput.whatsApp = (b, n, phone, text) async {
+      sent.add(('whatsApp', b, n));
+      whatsAppCalls.add((n, phone, text));
+      return whatsApp;
+    };
   });
 
   // The PDF is built with real async work (fonts, logo), so the taps run
@@ -53,6 +68,62 @@ void main() {
     await openAt(tester, '/sales/104');
     await tapAndBuild(tester, 'Print receipt');
     expect(sent.single.$1, 'print');
+  });
+
+  testWidgets('⋮ Send receipt on WhatsApp: to the customer, with a message', (
+    tester,
+  ) async {
+    await openAt(tester, '/sales/104');
+    await tapAndBuild(tester, 'Send receipt on WhatsApp');
+    final (name, phone, text) = whatsAppCalls.single;
+    expect(name, 'INV-000104');
+    expect(phone, isNotEmpty);
+    expect(text, contains('INV-000104'));
+    expect(text, contains('Maa Tara Brick Field'));
+    expect(String.fromCharCodes(sent.single.$2.take(5)), '%PDF-');
+  });
+
+  testWidgets('WhatsApp not installed → a message', (tester) async {
+    whatsApp = WhatsAppSend.notInstalled;
+    await openAt(tester, '/sales/104');
+    await tapAndBuild(tester, 'Send receipt on WhatsApp');
+    expect(
+      find.text('WhatsApp is not installed on this phone'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('no customer phone → the WhatsApp item is disabled', (
+    tester,
+  ) async {
+    backend = FakeSalesBackend();
+    final sale = backend.sales[104]!;
+    sale['customer'] = {...sale['customer']! as Map, 'phone': null};
+    setScreenSize(tester, const Size(400, 900));
+    await tester.pumpWidget(
+      await testApp(
+        const FlyAshApp(),
+        prefs: {'business.date': '2026-11-09'},
+        token: 'oat_saved',
+        api: signedInRoutes(backend.routes),
+      ),
+    );
+    await tester.pumpAndSettle();
+    testContainer.read(routerProvider).go('/sales/104');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
+    expect(find.text('No phone number for this customer'), findsOneWidget);
+    final item = tester.widget<PopupMenuItem<Object?>>(
+      find.ancestor(
+        of: find.text('Send receipt on WhatsApp'),
+        matching: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      ),
+    );
+    expect(item.enabled, isFalse);
+    await tester.tap(find.text('Send receipt on WhatsApp'));
+    await tester.pumpAndSettle();
+    expect(whatsAppCalls, isEmpty);
   });
 
   testWidgets('no factory profile → "Could not make the receipt"', (
@@ -148,6 +219,17 @@ void main() {
         );
       });
     }
+  });
+
+  test('WhatsApp link: country code, number and the message', () async {
+    Uri? opened;
+    ContactLauncher.launch = (uri) async {
+      opened = uri;
+      return true;
+    };
+    expect(ContactLauncher.waNumber('+91 98300 12345'), '919830012345');
+    await ContactLauncher.whatsApp('9830012345', text: 'Receipt INV-1');
+    expect(opened.toString(), 'https://wa.me/919830012345?text=Receipt+INV-1');
   });
 
   test('file names keep letters, digits, - and _', () {

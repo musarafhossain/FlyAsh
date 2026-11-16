@@ -11,6 +11,8 @@ class ActionMenuItem {
     required this.label,
     required this.onSelected,
     this.destructive = false,
+    this.enabled = true,
+    this.hint,
   });
 
   final IconData icon;
@@ -19,6 +21,12 @@ class ActionMenuItem {
 
   /// Shown in the error colour (Delete).
   final bool destructive;
+
+  /// Greyed out and not tappable (e.g. WhatsApp when there is no number).
+  final bool enabled;
+
+  /// A short line under the label, e.g. why the item is disabled.
+  final String? hint;
 }
 
 /// The action menu of a list row (opened by a long press): a popup next to
@@ -70,22 +78,44 @@ Future<void> showActionMenu(
         for (final item in group)
           PopupMenuItem<ActionMenuItem>(
             value: item,
+            enabled: item.enabled,
             height: 56,
             padding: const EdgeInsets.symmetric(horizontal: Space.s5),
             child: Row(
               children: [
                 Icon(
                   item.icon,
-                  color: item.destructive ? t.error : t.textSecondary,
+                  color: !item.enabled
+                      ? t.textDisabled
+                      : item.destructive
+                      ? t.error
+                      : t.textSecondary,
                 ),
                 const SizedBox(width: Space.s5),
                 Expanded(
-                  child: Text(
-                    item.label,
-                    style: AppTypography.body.copyWith(
-                      fontSize: 16,
-                      color: item.destructive ? t.error : t.textPrimary,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        item.label,
+                        style: AppTypography.body.copyWith(
+                          fontSize: 16,
+                          color: !item.enabled
+                              ? t.textDisabled
+                              : item.destructive
+                              ? t.error
+                              : t.textPrimary,
+                        ),
+                      ),
+                      if (item.hint != null)
+                        Text(
+                          item.hint!,
+                          style: AppTypography.caption.copyWith(
+                            color: t.textTertiary,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],

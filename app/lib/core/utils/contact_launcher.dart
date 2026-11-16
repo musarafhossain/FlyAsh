@@ -11,9 +11,18 @@ abstract final class ContactLauncher {
   static Future<bool> call(String phone) =>
       _safe(Uri(scheme: 'tel', path: '+91${_digits(phone)}'));
 
-  /// WhatsApp chat with the number (app on phones, web elsewhere).
-  static Future<bool> whatsApp(String phone) =>
-      _safe(Uri.https('wa.me', '/91${_digits(phone)}'));
+  /// WhatsApp chat with the number (app on phones, web elsewhere),
+  /// optionally with [text] typed in.
+  static Future<bool> whatsApp(String phone, {String? text}) => _safe(
+    Uri.https(
+      'wa.me',
+      '/${waNumber(phone)}',
+      text == null ? null : {'text': text},
+    ),
+  );
+
+  /// "9830012345" → "919830012345" (country code + number, as WhatsApp wants).
+  static String waNumber(String phone) => '91${_digits(phone)}';
 
   static String _digits(String phone) {
     final d = phone.replaceAll(RegExp(r'\D'), '');

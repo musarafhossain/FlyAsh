@@ -172,8 +172,9 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
     if (updated != null && mounted) setState(() => _sale = updated);
   }
 
-  /// Builds the receipt PDF on the device, then shares or prints it.
-  Future<void> _receipt({required bool print}) async {
+  /// Builds the receipt PDF on the device, then shares it, prints it or
+  /// sends it to the customer's WhatsApp.
+  Future<void> _receipt(_ReceiptTo to) async {
     final l = context.l10n;
     final sale = _sale!;
     final accent = AppColors.accent(
@@ -182,17 +183,40 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
     ).primary.toARGB32();
     setState(() => _busy = true);
     try {
+      final factory = await ref.read(factorySettingsProvider.future);
       final bytes = await buildReceiptPdf(
         sale: sale,
-        factory: await ref.read(factorySettingsProvider.future),
+        factory: factory,
         l: l,
         accent: accent,
         generatedOn: l.generatedOn(
           Fmt.dateTime(DateTime.now().toUtc().toIso8601String()),
         ),
       );
-      final name = receiptFileName(sale.summary.invoiceNo);
-      await (print ? ReceiptOutput.print : ReceiptOutput.share)(bytes, name);
+      final s = sale.summary;
+      final name = receiptFileName(s.invoiceNo);
+      switch (to) {
+        case _ReceiptTo.share:
+          await ReceiptOutput.share(bytes, name);
+        case _ReceiptTo.print:
+          await ReceiptOutput.print(bytes, name);
+        case _ReceiptTo.whatsApp:
+          final text = l.receiptWhatsAppText(
+            factory.factoryName.isEmpty ? 'FlyAsh' : factory.factoryName,
+            s.invoiceNo,
+            Fmt.money(s.total),
+            Fmt.money(s.dueAmount),
+          );
+          final sent = await ReceiptOutput.whatsApp(
+            bytes,
+            name,
+            s.customerPhone!,
+            text,
+          );
+          if (sent == WhatsAppSend.notInstalled && mounted) {
+            showMessage(context, l.whatsAppNotInstalled);
+          }
+      }
     } catch (_) {
       if (mounted) showMessage(context, l.receiptFailed);
     } finally {
@@ -251,14 +275,24 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
                 ],
                 [
                   ActionMenuItem(
+                    icon: Icons.chat_outlined,
+                    label: l.sendReceiptWhatsApp,
+                    // Needs the customer's number.
+                    enabled: sale.summary.customerPhone?.isNotEmpty ?? false,
+                    hint: (sale.summary.customerPhone?.isNotEmpty ?? false)
+                        ? null
+                        : l.noCustomerPhone,
+                    onSelected: () => _receipt(_ReceiptTo.whatsApp),
+                  ),
+                  ActionMenuItem(
                     icon: Icons.share_outlined,
                     label: l.shareReceipt,
-                    onSelected: () => _receipt(print: false),
+                    onSelected: () => _receipt(_ReceiptTo.share),
                   ),
                   ActionMenuItem(
                     icon: Icons.print_outlined,
                     label: l.printReceipt,
-                    onSelected: () => _receipt(print: true),
+                    onSelected: () => _receipt(_ReceiptTo.print),
                   ),
                 ],
                 [
@@ -707,3 +741,5 @@ class SaleDetailSkeleton extends StatelessWidget {
     );
   }
 }
+
+enum _ReceiptTo { share, print, whatsApp }
