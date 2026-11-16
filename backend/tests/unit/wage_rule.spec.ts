@@ -61,7 +61,11 @@ test.group('Wage rule · monthly', () => {
   })
 
   test('a raise in the month: the latest saved amount counts', ({ assert }) => {
-    const rows = [m('2026-10-01', '31000.00'), m('2026-10-02', '31000.00'), m('2026-10-20', '62000.00')]
+    const rows = [
+      m('2026-10-01', '31000.00'),
+      m('2026-10-02', '31000.00'),
+      m('2026-10-20', '62000.00'),
+    ]
     assert.equal(earnedForRows(rows), 6_200_000)
   })
 
@@ -76,14 +80,21 @@ test.group('Wage rule · monthly', () => {
   })
 
   test('the month’s wage sits on its first present day; the days add up', ({ assert }) => {
-    const rows = [m('2026-10-03', '62000.00'), m('2026-10-01', '31000.00'), m('2026-10-02', '31000.00')]
+    const rows = [
+      m('2026-10-03', '62000.00'),
+      m('2026-10-01', '31000.00'),
+      m('2026-10-02', '31000.00'),
+    ]
     const byDay = earnedByDay(rows)
     assert.deepEqual(Object.fromEntries(byDay), {
       '2026-10-01': 6_200_000,
       '2026-10-02': 0,
       '2026-10-03': 0,
     })
-    assert.equal([...byDay.values()].reduce((a, b) => a + b, 0), earnedForRows(rows))
+    assert.equal(
+      [...byDay.values()].reduce((a, b) => a + b, 0),
+      earnedForRows(rows)
+    )
   })
 
   test('month boundaries: 31 Oct and 1 Nov are two months', ({ assert }) => {

@@ -21,7 +21,12 @@ export default class AttendanceController {
    * is present. `summary` counts every labour of the day, not only the page.
    */
   async show({ request, response }: HttpContext) {
-    const { date = today(), page, limit, search } = await request.validateUsing(attendanceDayValidator)
+    const {
+      date = today(),
+      page,
+      limit,
+      search,
+    } = await request.validateUsing(attendanceDayValidator)
     // Without `page` (apps older than 1.1.2): every labour, like before.
     const paging =
       page === undefined
@@ -163,16 +168,14 @@ export default class AttendanceController {
 
     // Summary for the whole day (every labour employed that date).
     const employed = Labour.activeOn(Labour.query(), date)
-    const total = Number((await employed.clone().count('* as n').first())?.$extras.n ?? 0)
-    const present = Number(
-      (
-        await Attendance.query()
-          .where('date', date)
-          .whereIn('labour_id', employed.clone().select('id'))
-          .count('* as n')
-          .first()
-      )?.$extras.n ?? 0
-    )
+    const employedCount = await employed.clone().count('* as n').first()
+    const presentCount = await Attendance.query()
+      .where('date', date)
+      .whereIn('labour_id', employed.clone().select('id'))
+      .count('* as n')
+      .first()
+    const total = Number(employedCount?.$extras.n ?? 0)
+    const present = Number(presentCount?.$extras.n ?? 0)
     return {
       date,
       summary: { total, present, absent: total - present },

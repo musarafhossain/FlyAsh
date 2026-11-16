@@ -25,11 +25,18 @@ async function present(client: any, user: any, labourId: string, dates: string[]
   }
 }
 
-async function pay(client: any, user: any, labourId: string, month: string, amount: number, date: string) {
+async function pay(
+  client: any,
+  user: any,
+  labourId: string,
+  wageMonth: string,
+  amount: number,
+  date: string
+) {
   const res = await client
     .post(`${API}/labours/${labourId}/wage-payments`)
     .loginAs(user)
-    .json({ wage_month: month, amount, payment_date: date })
+    .json({ wage_month: wageMonth, amount, payment_date: date })
   res.assertStatus(201)
 }
 
@@ -73,16 +80,40 @@ test.group('Wage calculation', (group) => {
     await pay(client, user, lb.id, '2026-08', 9000, '2026-09-02')
     await pay(client, user, lb.id, '2026-10', 5000, '2026-11-03')
 
-    const [aug, sep, oct, nov] = await Promise.all(MONTHS.map((ym) => month(client, user, lb.id, ym)))
-    assert.containsSubset(aug, { present_days: 1, earned: '9000.00', paid: '9000.00', balance: '0.00', status: 'paid' })
+    const [aug, sep, oct, nov] = await Promise.all(
+      MONTHS.map((ym) => month(client, user, lb.id, ym))
+    )
+    assert.containsSubset(aug, {
+      present_days: 1,
+      earned: '9000.00',
+      paid: '9000.00',
+      balance: '0.00',
+      status: 'paid',
+    })
     assert.containsSubset(sep, { present_days: 0, earned: '0.00', paid: '0.00', balance: '0.00' })
     // October: 4 days, latest saved wage after the raise = 12,000
-    assert.containsSubset(oct, { present_days: 4, earned: '12000.00', paid: '5000.00', balance: '7000.00', status: 'partial' })
-    assert.containsSubset(nov, { present_days: 1, earned: '12000.00', paid: '0.00', balance: '12000.00', status: 'due' })
+    assert.containsSubset(oct, {
+      present_days: 4,
+      earned: '12000.00',
+      paid: '5000.00',
+      balance: '7000.00',
+      status: 'partial',
+    })
+    assert.containsSubset(nov, {
+      present_days: 1,
+      earned: '12000.00',
+      paid: '0.00',
+      balance: '12000.00',
+      status: 'due',
+    })
 
     // Lifetime (SQL) = 9,000 + 0 + 12,000 + 12,000; paid 14,000
     const life = (await client.get(`${API}/labours/${lb.id}`).loginAs(user)).body().data
-    assert.containsSubset(life, { total_earned: '33000.00', total_paid: '14000.00', total_balance: '19000.00' })
+    assert.containsSubset(life, {
+      total_earned: '33000.00',
+      total_paid: '14000.00',
+      total_balance: '19000.00',
+    })
     const listed = (await client.get(`${API}/labours?search=Monthly M`).loginAs(user)).body().data
     assert.containsSubset(listed.items[0], { total_earned: '33000.00', total_balance: '19000.00' })
     assert.deepEqual(nov.lifetime, { earned: '33000.00', paid: '14000.00', balance: '19000.00' })
@@ -91,7 +122,12 @@ test.group('Wage calculation', (group) => {
     const day = (await client.get(`${API}/attendance?date=2026-11-01&page=1`).loginAs(user)).body()
       .data
     const row = day.items.find((i: any) => i.labour_id === lb.id)
-    assert.containsSubset(row, { wage_type: 'monthly', present: true, day_wage: '12000.00', default_day_wage: '12000.00' })
+    assert.containsSubset(row, {
+      wage_type: 'monthly',
+      present: true,
+      day_wage: '12000.00',
+      default_day_wage: '12000.00',
+    })
   })
 
   test('daily: per present day at the saved wage; raise; overpaid; absent days', async ({

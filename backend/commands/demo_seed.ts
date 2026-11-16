@@ -37,7 +37,7 @@ export default class DemoSeed extends BaseCommand {
   }
 
   async run() {
-    const env = (await import('#start/env')).default
+    const { default: env } = await import('#start/env')
     const database = String(env.get('DB_DATABASE'))
     if (!database.includes('test')) {
       return this.fail(`Refusing to seed "${database}": the database name must contain "test"`)
@@ -65,7 +65,8 @@ export default class DemoSeed extends BaseCommand {
     const end = DateTime.fromISO(today())
     const start = end.minus({ months }).startOf('day')
     const iso = (d: ReturnType<typeof DateTime.fromISO>) => d.toISODate()!
-    const userIds = (await User.query().select('id')).map((u) => u.id)
+    const users = await User.query().select('id')
+    const userIds = users.map((u) => u.id)
     const by = () => (userIds.length ? this.pick(userIds) : null)
 
     this.logger.info(`Seeding "${database}" from ${iso(start)} to ${iso(end)}`)
@@ -82,11 +83,35 @@ export default class DemoSeed extends BaseCommand {
     const sellable = products.filter((p) => p.isActive)
 
     // Customers (a few without a phone)
-    const first = ['Rahim', 'Karim', 'Sujit', 'Amit', 'Bikash', 'Tapas', 'Rafiq', 'Subrata',
-      'Anil', 'Monirul', 'Sahidul', 'Prasenjit', 'Gautam', 'Imran', 'Dipak', 'Nazrul']
+    const first = [
+      'Rahim',
+      'Karim',
+      'Sujit',
+      'Amit',
+      'Bikash',
+      'Tapas',
+      'Rafiq',
+      'Subrata',
+      'Anil',
+      'Monirul',
+      'Sahidul',
+      'Prasenjit',
+      'Gautam',
+      'Imran',
+      'Dipak',
+      'Nazrul',
+    ]
     const last = ['Sheikh', 'Mondal', 'Das', 'Ghosh', 'Biswas', 'Sarkar', 'Ali', 'Roy', 'Paul']
-    const places = ['Barasat', 'Habra', 'Bongaon', 'Madhyamgram', 'Basirhat', 'Ashoknagar',
-      'Gobardanga', 'Duttapukur']
+    const places = [
+      'Barasat',
+      'Habra',
+      'Bongaon',
+      'Madhyamgram',
+      'Basirhat',
+      'Ashoknagar',
+      'Gobardanga',
+      'Duttapukur',
+    ]
     const customers = []
     for (let i = 0; i < 60; i++) {
       customers.push(
@@ -137,7 +162,9 @@ export default class DemoSeed extends BaseCommand {
             transport_charge: this.chance(0.55) ? this.pick([500, 800, 1000, 1200, 1500, 2000]) : 0,
             discount: this.chance(0.15) ? this.pick([100, 200, 300, 500]) : 0,
             tax_percent: this.chance(0.2) ? this.pick([5, 12, 18]) : 0,
-            notes: this.chance(0.1) ? this.pick(['Deliver before noon', 'Call before coming', 'Unload at the back gate']) : null,
+            notes: this.chance(0.1)
+              ? this.pick(['Deliver before noon', 'Call before coming', 'Unload at the back gate'])
+              : null,
           },
           by()
         )
@@ -153,17 +180,29 @@ export default class DemoSeed extends BaseCommand {
         }
         const method = () => this.pick(['cash', 'cash', 'cash', 'upi', 'upi', 'bank'] as const)
         if (roll < 0.65) {
-          await SaleService.addPayment(sale, { amount: total, payment_date: saleDate, method: method() }, by())
+          await SaleService.addPayment(
+            sale,
+            { amount: total, payment_date: saleDate, method: method() },
+            by()
+          )
         } else if (roll < 0.9) {
           const part = Math.round(total * this.pick([0.3, 0.4, 0.5, 0.6]))
-          await SaleService.addPayment(sale, { amount: part, payment_date: saleDate, method: method() }, by())
+          await SaleService.addPayment(
+            sale,
+            { amount: part, payment_date: saleDate, method: method() },
+            by()
+          )
           if (this.chance(0.75) && d.plus({ days: 7 }) <= end) {
             await sale.refresh()
             const rest = Number(sale.dueAmount)
             if (rest > 0) {
               await SaleService.addPayment(
                 sale,
-                { amount: this.chance(0.7) ? rest : Math.round(rest / 2), payment_date: payDate(this.int(7, 30)), method: method() },
+                {
+                  amount: this.chance(0.7) ? rest : Math.round(rest / 2),
+                  payment_date: payDate(this.int(7, 30)),
+                  method: method(),
+                },
                 by()
               )
             }
@@ -183,9 +222,24 @@ export default class DemoSeed extends BaseCommand {
     }
 
     // Labours: 2 monthly, the rest daily; one left last month
-    const names = ['Kartik Mondal', 'Sujit Das', 'Bablu Sheikh', 'Rajesh Roy', 'Habib Ali',
-      'Gopal Ghosh', 'Samir Biswas', 'Nitai Sarkar', 'Abdul Karim', 'Pintu Das', 'Ratan Mondal',
-      'Asit Roy', 'Mofizul Islam', 'Tarun Paul', 'Jahangir Sheikh', 'Bapi Ghosh']
+    const names = [
+      'Kartik Mondal',
+      'Sujit Das',
+      'Bablu Sheikh',
+      'Rajesh Roy',
+      'Habib Ali',
+      'Gopal Ghosh',
+      'Samir Biswas',
+      'Nitai Sarkar',
+      'Abdul Karim',
+      'Pintu Das',
+      'Ratan Mondal',
+      'Asit Roy',
+      'Mofizul Islam',
+      'Tarun Paul',
+      'Jahangir Sheikh',
+      'Bapi Ghosh',
+    ]
     const leftOn = iso(end.minus({ days: 40 }))
     const labours = []
     for (const [index, name] of names.entries()) {
@@ -197,8 +251,12 @@ export default class DemoSeed extends BaseCommand {
           phone: index % 6 === 5 ? null : `7${String(600000000 + index * 104729).padStart(9, '0')}`,
           address: `${this.pick(places)}`,
           wageType: monthly ? 'monthly' : 'daily',
-          wageAmount: monthly ? this.pick(['14000.00', '16000.00']) : this.pick(['450.00', '500.00', '550.00', '600.00']),
-          joiningDate: iso(joinedLate ? end.minus({ months: 2 }).startOf('month') : start.minus({ days: 20 })),
+          wageAmount: monthly
+            ? this.pick(['14000.00', '16000.00'])
+            : this.pick(['450.00', '500.00', '550.00', '600.00']),
+          joiningDate: iso(
+            joinedLate ? end.minus({ months: 2 }).startOf('month') : start.minus({ days: 20 })
+          ),
           isActive: index !== 9,
           leftDate: index === 9 ? leftOn : null,
           createdBy: by(),
@@ -286,7 +344,11 @@ export default class DemoSeed extends BaseCommand {
       'Electricity Bill': [12000, 25000, ['Monthly electricity bill']],
     }
     let expenseCount = 0
-    const addExpense = async (category: string, [min, max, notes]: [number, number, string[]], date: string) => {
+    const addExpense = async (
+      category: string,
+      [min, max, notes]: [number, number, string[]],
+      date: string
+    ) => {
       await Expense.create({
         category,
         expenseDate: date,
