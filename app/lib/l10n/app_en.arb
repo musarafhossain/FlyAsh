@@ -744,5 +744,56 @@
       }
     }
   },
-  "removeTax": "Remove tax"
+  "removeTax": "Remove tax",
+  "reportSales": "Sales",
+  "reportSalesHint": "Sales and amount, by product and day",
+  "reportDues": "Dues",
+  "reportDuesHint": "Customers who owe money",
+  "reportExpenses": "Expenses",
+  "reportExpensesHint": "Spending by category",
+  "reportWages": "Wages",
+  "reportWagesHint": "Earned, paid and balance per labour",
+  "reportNetProfit": "Net profit",
+  "reportNetProfitHint": "Sales − expenses − wages",
+  "reportCollections": "Collections",
+  "reportCollectionsHint": "Money received, by method and day",
+  "presetThisYear": "This year",
+  "exportPdf": "Export PDF",
+  "exportExcel": "Export Excel",
+  "exportFailed": "Could not export the report",
+  "salesCountLabelShort": "Number of sales",
+  "salesAmount": "Sales amount",
+  "byProduct": "By product",
+  "byDay": "By day",
+  "topCategory": "Top category",
+  "byCategory": "By category",
+  "byMethod": "By method",
+  "byMonth": "By month",
+  "productColumn": "Product",
+  "quantityColumn": "Quantity",
+  "amountColumn": "Amount",
+  "dateColumn": "Date",
+  "categoryColumn": "Category",
+  "shareColumn": "Share",
+  "methodColumn": "Method",
+  "monthColumn": "Month",
+  "customerColumn": "Customer",
+  "oldestDueColumn": "Oldest due",
+  "salesColumn": "Sales",
+  "labourColumn": "Labour",
+  "daysColumn": "Days",
+  "totalDueLabel": "Total due",
+  "customersWithDue": "Customers with dues",
+  "salesNoTax": "Sales (without tax)",
+  "netProfit": "Net profit",
+  "received": "Received",
+  "noReportData": "Nothing in this period",
+  "generatedOn": "Generated on {date}",
+  "@generatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

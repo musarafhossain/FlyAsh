@@ -1357,4 +1357,138 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removeTax => 'Remove tax';
+
+  @override
+  String get reportSales => 'Sales';
+
+  @override
+  String get reportSalesHint => 'Sales and amount, by product and day';
+
+  @override
+  String get reportDues => 'Dues';
+
+  @override
+  String get reportDuesHint => 'Customers who owe money';
+
+  @override
+  String get reportExpenses => 'Expenses';
+
+  @override
+  String get reportExpensesHint => 'Spending by category';
+
+  @override
+  String get reportWages => 'Wages';
+
+  @override
+  String get reportWagesHint => 'Earned, paid and balance per labour';
+
+  @override
+  String get reportNetProfit => 'Net profit';
+
+  @override
+  String get reportNetProfitHint => 'Sales − expenses − wages';
+
+  @override
+  String get reportCollections => 'Collections';
+
+  @override
+  String get reportCollectionsHint => 'Money received, by method and day';
+
+  @override
+  String get presetThisYear => 'This year';
+
+  @override
+  String get exportPdf => 'Export PDF';
+
+  @override
+  String get exportExcel => 'Export Excel';
+
+  @override
+  String get exportFailed => 'Could not export the report';
+
+  @override
+  String get salesCountLabelShort => 'Number of sales';
+
+  @override
+  String get salesAmount => 'Sales amount';
+
+  @override
+  String get byProduct => 'By product';
+
+  @override
+  String get byDay => 'By day';
+
+  @override
+  String get topCategory => 'Top category';
+
+  @override
+  String get byCategory => 'By category';
+
+  @override
+  String get byMethod => 'By method';
+
+  @override
+  String get byMonth => 'By month';
+
+  @override
+  String get productColumn => 'Product';
+
+  @override
+  String get quantityColumn => 'Quantity';
+
+  @override
+  String get amountColumn => 'Amount';
+
+  @override
+  String get dateColumn => 'Date';
+
+  @override
+  String get categoryColumn => 'Category';
+
+  @override
+  String get shareColumn => 'Share';
+
+  @override
+  String get methodColumn => 'Method';
+
+  @override
+  String get monthColumn => 'Month';
+
+  @override
+  String get customerColumn => 'Customer';
+
+  @override
+  String get oldestDueColumn => 'Oldest due';
+
+  @override
+  String get salesColumn => 'Sales';
+
+  @override
+  String get labourColumn => 'Labour';
+
+  @override
+  String get daysColumn => 'Days';
+
+  @override
+  String get totalDueLabel => 'Total due';
+
+  @override
+  String get customersWithDue => 'Customers with dues';
+
+  @override
+  String get salesNoTax => 'Sales (without tax)';
+
+  @override
+  String get netProfit => 'Net profit';
+
+  @override
+  String get received => 'Received';
+
+  @override
+  String get noReportData => 'Nothing in this period';
+
+  @override
+  String generatedOn(String date) {
+    return 'Generated on $date';
+  }
 }

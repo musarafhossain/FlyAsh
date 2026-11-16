@@ -153,17 +153,12 @@ void main() {
     expect(find.widgetWithText(InputChip, 'Today'), findsOneWidget);
   });
 
-  testWidgets('Total due opens customers with dues', (tester) async {
+  testWidgets('Total due opens the dues report', (tester) async {
     await openHome(tester);
     await tester.tap(find.text('Total due'));
     await tester.pumpAndSettle();
-    expect(currentLocation(), '/customers?filter=due');
-    expect(
-      api.requests
-          .lastWhere((r) => r.path == '/customers')
-          .queryParameters['has_due'],
-      'true',
-    );
+    expect(currentLocation(), '/reports/dues');
+    expect(api.requests.any((r) => r.path == '/reports/dues'), isTrue);
   });
 
   for (final (label, location) in [

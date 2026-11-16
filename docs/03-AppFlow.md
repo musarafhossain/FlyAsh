@@ -143,7 +143,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 Home (no greeting, name, factory or date line; the page starts with the hero card)
  ├─ Pull to refresh → GET /dashboard
  ├─ Hero "Today's Sales" (light card; tap) → /sales?period=today
- ├─ KPI "Total due" → /customers?filter=due (the dues report comes in F16)
+ ├─ KPI "Total due" → /reports/dues (dues report)
  ├─ KPI "Deliveries today" → /sales/upcoming
  ├─ KPI "Present today" → /attendance (today)
  ├─ KPI "Month expenses" → /expenses
@@ -303,11 +303,23 @@ A category is **free text** saved on the expense. There is no category list to m
 ## 9. Reports
 
 ```
-Reports grid → choose report → Report screen
- ├─ Period presets (Today, This week, This month, Last month, This year, Custom)
- ├─ Summary cards → Chart → Table
- └─ Export (⋮) → PDF / Excel → generated on the device → share / save
+Reports grid (6 tiles; 2 columns on phone, 3 on wider screens) → tap → /reports/:type
+ ├─ Period: chips Today · This week · This month (default) · Last month · This year · Custom (date range picker)
+ │    Wages: month selector ‹ Nov 2026 › (no future months) · Dues: no period (all open dues now)
+ ├─ Summary cards → Chart (tap a bar for its value) → Table(s)
+ ├─ Pull to refresh; any data change (sale, payment, expense, wage …) reloads the open report
+ └─ ⋮ → Export PDF / Export Excel → made on the device from what is shown → share / print / save
+       (on the web the file is downloaded); failure → "Could not export the report"
 Dues report rows → Customer detail
+Unknown /reports/<x> → back to the grid
+
+Report contents
+ Sales        Sales amount, number of sales · bars by day · tables by product (qty, amount), by day
+ Dues         Total due, customers · table customer + phone, oldest due, total due (largest first)
+ Expenses     Total, top category · horizontal bars by category · table category, share %, amount
+ Wages        Earned, paid, balance · horizontal bars of earned per labour · table days, earned, paid, balance
+ Net profit   Sales (without tax), expenses, wages, net profit · monthly net-profit bars (losses red, below a zero line) · monthly table
+ Collections  Received · bars by day · tables by method (Cash, UPI …), by day
 ```
 
 ## 10. Users & Profile

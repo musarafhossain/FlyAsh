@@ -47,6 +47,9 @@ import '../../features/users/presentation/pages/user_form_page.dart';
 import '../../features/users/presentation/pages/users_list_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import 'app_shell.dart';
+import '../../features/reports/domain/reports.dart';
+import '../../features/reports/presentation/pages/report_page.dart';
+import '../../features/reports/presentation/pages/reports_page.dart';
 import 'back_guard.dart';
 import 'web_history_sync.dart';
 import 'shell_pager.dart';
@@ -207,6 +210,25 @@ final routerProvider = Provider<GoRouter>((ref) {
 /// The routes of one section (its own navigation stack in the shell).
 /// Sections without a real screen yet show a placeholder.
 List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
+  // Reports grid → one report (/reports/sales, /reports/net-profit …).
+  '/reports' => [
+    GoRoute(
+      path: '/reports',
+      builder: (_, _) => const ReportsPage(),
+      routes: [
+        GoRoute(
+          path: ':type',
+          redirect: (_, state) =>
+              ReportType.fromPath(state.pathParameters['type']) == null
+              ? '/reports'
+              : null,
+          builder: (_, state) => ReportPage(
+            type: ReportType.fromPath(state.pathParameters['type'])!,
+          ),
+        ),
+      ],
+    ),
+  ],
   '/users' => [
     GoRoute(
       path: '/users',

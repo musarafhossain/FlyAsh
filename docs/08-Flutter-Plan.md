@@ -39,7 +39,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F13** ✅ | **Wages** | Wages tab inside Labours (`/labours/wages`): wage sheet, labour wage detail, pay wages (no advances) | F12 |
 | **F14** ✅ | **Expenses** | Expense list with the total, search and a filter sheet; form with a free-text category | F6 |
 | **F15** ✅ | **Dashboard** | Home screen with all cards and quick actions (no greeting header) | F11, F13, F14 |
-| F16 | Reports & export | 6 reports with charts and tables, PDF/Excel export | F15 |
+| **F16** ✅ | **Reports & export** | 6 reports with charts and tables, PDF/Excel export | F15 |
 | F17 | Receipt PDF | Sale receipt with the logo: share (WhatsApp), print, save | F11 |
 | F18 | App update | Version check, optional/forced update for Android, Windows, Web | F6 |
 | F19 | Polish & release builds | Accessibility pass, performance, APK, Windows installer, web build | all |
@@ -95,5 +95,6 @@ The app is built **one small step at a time**. Each step ends with a working app
   - `ShellPager` (2026-11-16): swipe between the 4 bottom-bar sections on phone / tablet (02-TRD §7.6). Tests that scroll a page must name its own vertical `Scrollable` (the pager is a horizontal one), and finders may need `.hitTestable()` because neighbour sections are built.
   - `kStatusBarStyle`: black status bar. `togglePopover` (app_bar_actions.dart): language / appearance popovers with a 16 px edge gap.
 - **Design principles pass (2026-11-16, 04-UI-UX §14):** `core/widgets/motion.dart` (`Motion` tokens, `PressScale`, `StaggeredEntrance`), `core/theme/oklch.dart` (avatar colours), `heroTag` on `ColorAvatar` / `InitialsAvatar` / `ProductIcon`, detail pages take `initial` from `push(extra: record)`, `PhoneInputFormatter` + `normalizePhone` (also on the API), typography tracking, dialogs at the optical centre, haptics.
+- **Reports (F16, 2026-11-16):** `features/reports/` — `ReportsRepository` (6 endpoints; dues pages through `/reports/dues` with `grand_total`), `report_views.dart` turns each report into a `ReportView` (summary figures, one chart, tables) that both the screen (`ReportBody`) and the export use. The page keeps the raw data and builds the view in `build()`, so a language change shows at once. Charts: `fl_chart` bars (one series, no legend, tooltip, losses in the error colour under a zero line) and plain horizontal bars for categories / labours. Export (`report_export.dart`): `pdf` A4 with Inter + Hind Siliguri fallback (Bengali names) → `Printing.sharePdf`; `excel` .xlsx → `share_plus`. Home "Total due" opens `/reports/dues`. Tests: `test/features/reports_test.dart` (each report, period chips → from/to, wages month, dues → customer, export bytes, overflow 360/800/1440 light + dark).
 - **Riverpod retries are off** (`retry: noRetry`): a failed load shows an error with a Retry button instead of retrying silently.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent stays Royal Blue unless changed in F1.

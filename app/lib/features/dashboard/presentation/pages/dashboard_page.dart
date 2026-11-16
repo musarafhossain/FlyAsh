@@ -149,7 +149,7 @@ class _Body extends ConsumerWidget {
           value: Fmt.money(d?.totalDue),
           loading: loading,
           tint: KpiTint.rose,
-          onTap: () => context.go('/customers?filter=due'),
+          onTap: () => context.go('/reports/dues'),
         ),
         KpiChip(
           icon: Icons.local_shipping_outlined,

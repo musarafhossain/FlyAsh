@@ -1353,4 +1353,138 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get removeTax => 'ট্যাক্স সরান';
+
+  @override
+  String get reportSales => 'বিক্রি';
+
+  @override
+  String get reportSalesHint => 'বিক্রি ও টাকা, প্রোডাক্ট ও দিন অনুযায়ী';
+
+  @override
+  String get reportDues => 'বাকি';
+
+  @override
+  String get reportDuesHint => 'যে কাস্টমারদের টাকা বাকি';
+
+  @override
+  String get reportExpenses => 'খরচ';
+
+  @override
+  String get reportExpensesHint => 'ক্যাটাগরি অনুযায়ী খরচ';
+
+  @override
+  String get reportWages => 'মজুরি';
+
+  @override
+  String get reportWagesHint => 'প্রতি শ্রমিকের আয়, দেওয়া ও বাকি';
+
+  @override
+  String get reportNetProfit => 'নিট লাভ';
+
+  @override
+  String get reportNetProfitHint => 'বিক্রি − খরচ − মজুরি';
+
+  @override
+  String get reportCollections => 'আদায়';
+
+  @override
+  String get reportCollectionsHint => 'পাওয়া টাকা, মাধ্যম ও দিন অনুযায়ী';
+
+  @override
+  String get presetThisYear => 'এই বছর';
+
+  @override
+  String get exportPdf => 'PDF এক্সপোর্ট';
+
+  @override
+  String get exportExcel => 'Excel এক্সপোর্ট';
+
+  @override
+  String get exportFailed => 'রিপোর্ট এক্সপোর্ট করা যায়নি';
+
+  @override
+  String get salesCountLabelShort => 'বিক্রির সংখ্যা';
+
+  @override
+  String get salesAmount => 'বিক্রির টাকা';
+
+  @override
+  String get byProduct => 'প্রোডাক্ট অনুযায়ী';
+
+  @override
+  String get byDay => 'দিন অনুযায়ী';
+
+  @override
+  String get topCategory => 'সবচেয়ে বেশি খরচ';
+
+  @override
+  String get byCategory => 'ক্যাটাগরি অনুযায়ী';
+
+  @override
+  String get byMethod => 'মাধ্যম অনুযায়ী';
+
+  @override
+  String get byMonth => 'মাস অনুযায়ী';
+
+  @override
+  String get productColumn => 'প্রোডাক্ট';
+
+  @override
+  String get quantityColumn => 'পরিমাণ';
+
+  @override
+  String get amountColumn => 'টাকা';
+
+  @override
+  String get dateColumn => 'তারিখ';
+
+  @override
+  String get categoryColumn => 'ক্যাটাগরি';
+
+  @override
+  String get shareColumn => 'অংশ';
+
+  @override
+  String get methodColumn => 'মাধ্যম';
+
+  @override
+  String get monthColumn => 'মাস';
+
+  @override
+  String get customerColumn => 'কাস্টমার';
+
+  @override
+  String get oldestDueColumn => 'সবচেয়ে পুরনো বাকি';
+
+  @override
+  String get salesColumn => 'বিক্রি';
+
+  @override
+  String get labourColumn => 'শ্রমিক';
+
+  @override
+  String get daysColumn => 'দিন';
+
+  @override
+  String get totalDueLabel => 'মোট বাকি';
+
+  @override
+  String get customersWithDue => 'বাকি থাকা কাস্টমার';
+
+  @override
+  String get salesNoTax => 'বিক্রি (ট্যাক্স ছাড়া)';
+
+  @override
+  String get netProfit => 'নিট লাভ';
+
+  @override
+  String get received => 'পাওয়া';
+
+  @override
+  String get noReportData => 'এই সময়ে কিছু নেই';
+
+  @override
+  String generatedOn(String date) {
+    return 'তৈরি: $date';
+  }
 }

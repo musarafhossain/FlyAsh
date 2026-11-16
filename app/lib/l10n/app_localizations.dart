@@ -2545,6 +2545,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove tax'**
   String get removeTax;
+
+  /// No description provided for @reportSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get reportSales;
+
+  /// No description provided for @reportSalesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales and amount, by product and day'**
+  String get reportSalesHint;
+
+  /// No description provided for @reportDues.
+  ///
+  /// In en, this message translates to:
+  /// **'Dues'**
+  String get reportDues;
+
+  /// No description provided for @reportDuesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers who owe money'**
+  String get reportDuesHint;
+
+  /// No description provided for @reportExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get reportExpenses;
+
+  /// No description provided for @reportExpensesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by category'**
+  String get reportExpensesHint;
+
+  /// No description provided for @reportWages.
+  ///
+  /// In en, this message translates to:
+  /// **'Wages'**
+  String get reportWages;
+
+  /// No description provided for @reportWagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned, paid and balance per labour'**
+  String get reportWagesHint;
+
+  /// No description provided for @reportNetProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Net profit'**
+  String get reportNetProfit;
+
+  /// No description provided for @reportNetProfitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales − expenses − wages'**
+  String get reportNetProfitHint;
+
+  /// No description provided for @reportCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections'**
+  String get reportCollections;
+
+  /// No description provided for @reportCollectionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Money received, by method and day'**
+  String get reportCollectionsHint;
+
+  /// No description provided for @presetThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get presetThisYear;
+
+  /// No description provided for @exportPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Export PDF'**
+  String get exportPdf;
+
+  /// No description provided for @exportExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Excel'**
+  String get exportExcel;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not export the report'**
+  String get exportFailed;
+
+  /// No description provided for @salesCountLabelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of sales'**
+  String get salesCountLabelShort;
+
+  /// No description provided for @salesAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales amount'**
+  String get salesAmount;
+
+  /// No description provided for @byProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'By product'**
+  String get byProduct;
+
+  /// No description provided for @byDay.
+  ///
+  /// In en, this message translates to:
+  /// **'By day'**
+  String get byDay;
+
+  /// No description provided for @topCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Top category'**
+  String get topCategory;
+
+  /// No description provided for @byCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get byCategory;
+
+  /// No description provided for @byMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'By method'**
+  String get byMethod;
+
+  /// No description provided for @byMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'By month'**
+  String get byMonth;
+
+  /// No description provided for @productColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get productColumn;
+
+  /// No description provided for @quantityColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantityColumn;
+
+  /// No description provided for @amountColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amountColumn;
+
+  /// No description provided for @dateColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateColumn;
+
+  /// No description provided for @categoryColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get categoryColumn;
+
+  /// No description provided for @shareColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareColumn;
+
+  /// No description provided for @methodColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get methodColumn;
+
+  /// No description provided for @monthColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get monthColumn;
+
+  /// No description provided for @customerColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customerColumn;
+
+  /// No description provided for @oldestDueColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest due'**
+  String get oldestDueColumn;
+
+  /// No description provided for @salesColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get salesColumn;
+
+  /// No description provided for @labourColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Labour'**
+  String get labourColumn;
+
+  /// No description provided for @daysColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get daysColumn;
+
+  /// No description provided for @totalDueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total due'**
+  String get totalDueLabel;
+
+  /// No description provided for @customersWithDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers with dues'**
+  String get customersWithDue;
+
+  /// No description provided for @salesNoTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales (without tax)'**
+  String get salesNoTax;
+
+  /// No description provided for @netProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Net profit'**
+  String get netProfit;
+
+  /// No description provided for @received.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get received;
+
+  /// No description provided for @noReportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period'**
+  String get noReportData;
+
+  /// No description provided for @generatedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated on {date}'**
+  String generatedOn(String date);
 }
 
 class _AppLocalizationsDelegate

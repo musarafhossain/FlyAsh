@@ -565,7 +565,7 @@ Implements 04-UI-UX §5–§8:
 
 ### 7.8 Receipts and exports
 
-Receipt PDFs and report exports are generated **in the app** (`pdf` / `excel`) from data the API already returns. They are shared with `share_plus` or printed with `printing`, so the server needs no PDF engine.
+Receipt PDFs and report exports are generated **in the app** (`pdf` / `excel`) from data the API already returns. They are shared with `share_plus` or printed with `printing`, so the server needs no PDF engine. Report PDFs embed Inter with Hind Siliguri as a fallback, so Bengali names print correctly; on the web the Excel file is downloaded.
 
 ### 7.9 Platform notes
 

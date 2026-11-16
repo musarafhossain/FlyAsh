@@ -140,8 +140,8 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] App: hero, KPI row, quick actions, recent sales (no greeting header). Every card links to its screen
 
 ### Step 13 · Reports & export
-- [ ] API: the 6 report endpoints (05 §5.9) using `ReportService`
-- [ ] App: reports grid, report screen (period presets, summary, `fl_chart` chart, table), PDF + Excel export
+- [x] API: the 6 report endpoints (05 §5.9) using `ReportService`
+- [x] App: reports grid, report screen (period presets, summary, `fl_chart` chart, table), PDF + Excel export (F16, 2026-11-16)
 - [ ] Test: net profit = sales without tax − expenses − wages on sample data
 
 ### Step 14 · Settings, factory profile, localization
