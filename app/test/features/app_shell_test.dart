@@ -158,8 +158,8 @@ void main() {
 
     await tester.tap(find.text('Reports'));
     await tester.pumpAndSettle();
-    // Reports opens the net profit report directly.
-    expect(appBarTitle('Net profit'), findsOneWidget);
+    // Reports opens the net profit report directly; the title stays Reports.
+    expect(appBarTitle('Reports'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Collapse menu'));
     await tester.pumpAndSettle();

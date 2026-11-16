@@ -89,7 +89,11 @@ void main() {
   ) async {
     await openAt(tester, '/reports');
     expect(path(), '/reports');
-    expect(find.text('Net profit'), findsWidgets); // title + card
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('Reports')),
+      findsOneWidget,
+    );
+    expect(find.text('Net profit'), findsOneWidget); // the card
     expect(find.byKey(const Key('reportTile-sales')), findsNothing);
     expect(api.requests.where((r) => r.path.startsWith('/reports')), [
       isA<RequestOptions>().having(

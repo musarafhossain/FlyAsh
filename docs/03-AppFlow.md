@@ -308,7 +308,7 @@ A category is **free text** saved on the expense. There is no category list to m
 Since 2026-11-16 Reports is one screen: the net profit report (the list of six reports was removed; old `/reports/<type>` links open `/reports`).
 
 ```
-Reports (/reports) = Net profit
+Reports (/reports) = Net profit (app bar title: "Reports", like the sidebar)
  ├─ Period chips: Today · Last 7 days (today and the 6 days before) · This month (default) · Last month · This year · Custom (date range picker)
  ├─ The dates · Export → PDF / Excel (made on the device; share / print / save; downloaded on the web)
  ├─ 4 stat cards (2 × 2 on a phone): Sales (with tax) · Expenses · Wages paid · Net profit (red tint when a loss)

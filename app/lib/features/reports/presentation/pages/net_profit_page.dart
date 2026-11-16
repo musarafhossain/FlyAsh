@@ -143,7 +143,8 @@ class _NetProfitPageState extends ConsumerState<NetProfitPage> {
     return Scaffold(
       appBar: AppBar(
         leading: ShellMenuButton.maybe(context),
-        title: Text(l.reportNetProfit),
+        // The section's name (the sidebar says Reports too).
+        title: Text(l.navReports),
         actions: const [AppBarActions()],
       ),
       body: PageBody(
