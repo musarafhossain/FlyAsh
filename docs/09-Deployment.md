@@ -96,4 +96,4 @@ cd /var/www/workspace/FlyAsh/backend/build && node ace user:create --name=".." -
 
 ## Mail
 
-On the test server mail is `MAIL_MAILER=log`, so nothing is sent and OTP codes show in `pm2 logs flyash-api`. For production, set `MAIL_MAILER=smtp` and the `SMTP_*` values in `backend/.env`, then run `pm2 restart flyash-api --update-env`.
+Since 2026-11-16 the server sends real email (password-reset OTPs) through **Gmail SMTP**: `MAIL_MAILER=smtp`, `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_USERNAME` / `MAIL_FROM_ADDRESS` = the sending Gmail address, `SMTP_PASSWORD` = a 16-character Google **App Password** (not the account password) — in `backend/.env` (copied to `build/.env` on deploy). Gmail allows about 500 emails a day. A failed send is logged as "Failed to send password reset OTP email" (`pm2 logs flyash-api`). To change the account: edit those keys, `cp .env build/.env`, `pm2 reload flyash-api --update-env`. For testing without sending, set `MAIL_MAILER=log` (the email is printed in the log instead).

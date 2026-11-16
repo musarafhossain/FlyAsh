@@ -168,7 +168,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 
 ### Step 17 · VPS deployment & first release
 - [x] VPS (test server `flyash.musaraf.org.in`): Node via nvm, PM2, Nginx, **MySQL 8**, certbot (09-Deployment)
-- [ ] Production `.env` with real SMTP (a Gmail App Password, `MAIL_MAILER=smtp`) — still `MAIL_MAILER=log`
+- [x] Production `.env` with real SMTP (a Gmail App Password, `MAIL_MAILER=smtp`) — since 2026-11-16
 - [x] Deploy the API (`deploy/deploy.sh`: build, migrations, PM2 reload), users created
 - [x] Web build on the same domain, `/downloads` set up (Nginx)
 - [ ] Nightly backup cron (DB, 30 days) **and one test restore** — waiting for the owner's go-ahead (manual backups are taken before each deploy)
