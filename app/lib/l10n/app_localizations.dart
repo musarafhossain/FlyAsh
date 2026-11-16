@@ -2994,6 +2994,30 @@ abstract class AppLocalizations {
     String total,
     String due,
   );
+
+  /// No description provided for @gstNumberOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'GST number (optional)'**
+  String get gstNumberOptional;
+
+  /// No description provided for @gstNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed on receipts, e.g. 19ABCDE1234F1Z5'**
+  String get gstNumberHint;
+
+  /// No description provided for @gstNumberRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid 15-character GSTIN, e.g. 19ABCDE1234F1Z5'**
+  String get gstNumberRule;
+
+  /// No description provided for @gstinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'GSTIN'**
+  String get gstinLabel;
 }
 
 class _AppLocalizationsDelegate

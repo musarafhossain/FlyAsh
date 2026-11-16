@@ -481,5 +481,9 @@
   "sendReceiptWhatsApp": "রসিদ WhatsApp-এ পাঠান",
   "noCustomerPhone": "এই কাস্টমারের ফোন নম্বর নেই",
   "whatsAppNotInstalled": "এই ফোনে WhatsApp নেই",
-  "receiptWhatsAppText": "{factory}: রসিদ {invoice}। মোট {total}, বাকি {due}।"
+  "receiptWhatsAppText": "{factory}: রসিদ {invoice}। মোট {total}, বাকি {due}।",
+  "gstNumberOptional": "GST নম্বর (ঐচ্ছিক)",
+  "gstNumberHint": "রসিদে ছাপা হবে, যেমন 19ABCDE1234F1Z5",
+  "gstNumberRule": "সঠিক ১৫ অক্ষরের GSTIN দিন, যেমন 19ABCDE1234F1Z5",
+  "gstinLabel": "GSTIN"
 }

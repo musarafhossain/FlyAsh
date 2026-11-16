@@ -121,7 +121,7 @@ export class ExpenseSchema extends BaseModel {
 }
 
 export class FactorySettingSchema extends BaseModel {
-  static $columns = ['address', 'createdAt', 'email', 'factoryName', 'id', 'invoicePrefix', 'lastInvoiceNo', 'ownerName', 'phone', 'updatedAt', 'updatedBy'] as const
+  static $columns = ['address', 'createdAt', 'email', 'factoryName', 'gstNumber', 'id', 'invoicePrefix', 'lastInvoiceNo', 'ownerName', 'phone', 'updatedAt', 'updatedBy'] as const
   $columns = FactorySettingSchema.$columns
   @column()
   declare address: string | null
@@ -131,6 +131,8 @@ export class FactorySettingSchema extends BaseModel {
   declare email: string | null
   @column()
   declare factoryName: string
+  @column()
+  declare gstNumber: string | null
   @column({ isPrimary: true })
   declare id: string
   @column()

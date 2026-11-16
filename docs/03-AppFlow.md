@@ -347,7 +347,7 @@ My Profile (Settings or drawer header tap; the drawer also has a sun/moon Light 
 ```
 Settings
  ├─ My profile → §10
- ├─ Factory profile → name, owner name, phone, email, address, invoice prefix → PUT /settings/factory
+ ├─ Factory profile → name, owner name, phone, email, address, GST number (optional, 15-char GSTIN, upper case), invoice prefix → PUT /settings/factory
  ├─ Appearance → mode, accent (applied instantly, saved locally and to the account with PUT /auth/preferences), font size (saved locally)
  ├─ Language → English / বাংলা (applied instantly, saved locally and to the account with PUT /auth/preferences)
  ├─ About & Updates → app version + build → "Check for updates" → §12

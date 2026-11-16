@@ -1590,4 +1590,16 @@ class AppLocalizationsBn extends AppLocalizations {
   ) {
     return '$factory: রসিদ $invoice। মোট $total, বাকি $due।';
   }
+
+  @override
+  String get gstNumberOptional => 'GST নম্বর (ঐচ্ছিক)';
+
+  @override
+  String get gstNumberHint => 'রসিদে ছাপা হবে, যেমন 19ABCDE1234F1Z5';
+
+  @override
+  String get gstNumberRule => 'সঠিক ১৫ অক্ষরের GSTIN দিন, যেমন 19ABCDE1234F1Z5';
+
+  @override
+  String get gstinLabel => 'GSTIN';
 }

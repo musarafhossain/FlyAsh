@@ -50,15 +50,21 @@ class _FactoryFormState extends ConsumerState<_FactoryForm> with FormSubmit {
   late final _phone = TextEditingController(text: widget.initial.phone);
   late final _email = TextEditingController(text: widget.initial.email);
   late final _address = TextEditingController(text: widget.initial.address);
+  late final _gst = TextEditingController(text: widget.initial.gstNumber);
   late final _prefix = TextEditingController(
     text: widget.initial.invoicePrefix,
   );
 
   static final _prefixPattern = RegExp(r'^[A-Z0-9-]{1,10}$');
 
+  /// GSTIN: state code (2) + PAN (10) + entity + Z + check.
+  static final _gstPattern = RegExp(
+    r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$',
+  );
+
   @override
   void dispose() {
-    for (final c in [_name, _owner, _phone, _email, _address, _prefix]) {
+    for (final c in [_name, _owner, _phone, _email, _address, _gst, _prefix]) {
       c.dispose();
     }
     super.dispose();
@@ -76,6 +82,7 @@ class _FactoryFormState extends ConsumerState<_FactoryForm> with FormSubmit {
               phone: textOrNull(_phone),
               email: textOrNull(_email),
               address: textOrNull(_address),
+              gstNumber: textOrNull(_gst)?.toUpperCase(),
               invoicePrefix: _prefix.text.trim().toUpperCase(),
             ),
           );
@@ -152,6 +159,30 @@ class _FactoryFormState extends ConsumerState<_FactoryForm> with FormSubmit {
             maxLength: 500,
             textCapitalization: TextCapitalization.sentences,
             decoration: deco(l.addressField, Icons.place_outlined, 'address'),
+          ),
+          const SizedBox(height: Space.s3),
+          TextFormField(
+            key: const Key('gstNumber'),
+            controller: _gst,
+            textCapitalization: TextCapitalization.characters,
+            textInputAction: TextInputAction.next,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp('[0-9A-Za-z]')),
+              LengthLimitingTextInputFormatter(15),
+              _UpperCase(),
+            ],
+            // Optional: empty is fine, otherwise a full GSTIN.
+            validator: (value) {
+              final text = value?.trim() ?? '';
+              return text.isEmpty || _gstPattern.hasMatch(text)
+                  ? null
+                  : l.gstNumberRule;
+            },
+            decoration: deco(
+              l.gstNumberOptional,
+              Icons.receipt_long_outlined,
+              'gst_number',
+            ).copyWith(helperText: l.gstNumberHint),
           ),
           const SizedBox(height: Space.s3),
           TextFormField(

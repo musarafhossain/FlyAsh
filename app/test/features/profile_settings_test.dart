@@ -203,6 +203,53 @@ void main() {
     expect(find.text('Factory profile updated'), findsOneWidget);
   });
 
+  testWidgets('factory profile: GST number is optional, checked, upper case', (
+    tester,
+  ) async {
+    final requests = await open(tester, '/settings/factory');
+    final gst = find.byKey(const Key('gstNumber'));
+    final save = find.widgetWithText(FilledButton, 'Save');
+    Map<String, Object?> lastPut() => body(
+      requests.lastWhere(
+        (r) => r.method == 'PUT' && r.path == '/settings/factory',
+      ),
+    );
+
+    await tester.ensureVisible(gst);
+    await tester.enterText(gst, '12345');
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Enter a valid 15-character GSTIN, e.g. 19ABCDE1234F1Z5'),
+      findsOneWidget,
+    );
+
+    await tester.enterText(gst, '19abcde1234f1z5');
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(lastPut()['gst_number'], '19ABCDE1234F1Z5');
+  });
+
+  testWidgets('factory profile: an empty GST number is fine (sent as null)', (
+    tester,
+  ) async {
+    final requests = await open(tester, '/settings/factory');
+    final gst = find.byKey(const Key('gstNumber'));
+    await tester.ensureVisible(gst);
+    await tester.enterText(gst, '');
+    final save = find.widgetWithText(FilledButton, 'Save');
+    await tester.ensureVisible(save);
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    final put = requests.lastWhere(
+      (r) => r.method == 'PUT' && r.path == '/settings/factory',
+    );
+    expect(body(put)['gst_number'], isNull);
+    expect(find.text('Factory profile updated'), findsOneWidget);
+  });
+
   testWidgets('appearance applies instantly and saves to the account', (
     tester,
   ) async {

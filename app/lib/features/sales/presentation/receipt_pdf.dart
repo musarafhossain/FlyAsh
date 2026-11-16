@@ -120,37 +120,51 @@ pw.Document _receipt(
         ],
       ),
       build: (context) => [
-        // Header: logo + factory · receipt title + invoice no.
-        pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Image(logo, width: 52, height: 52),
-            pw.SizedBox(width: 12),
-            pw.Expanded(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  t(
-                    factory.factoryName.isEmpty
-                        ? 'FlyAsh'
-                        : factory.factoryName,
-                    size: 16,
-                    bold: true,
-                    color: ink,
-                    maxWidth: 300,
-                  ),
-                  for (final x in factoryLines) ...[
-                    gap(2),
-                    small(x, maxWidth: 300),
-                  ],
-                ],
+        // Header, centred: logo + factory name, then address, phone ·
+        // email and the GSTIN (when set).
+        pw.Center(
+          child: pw.Row(
+            mainAxisSize: pw.MainAxisSize.min,
+            children: [
+              pw.Image(logo, width: 48, height: 48),
+              pw.SizedBox(width: 10),
+              t(
+                factory.factoryName.isEmpty ? 'FlyAsh' : factory.factoryName,
+                size: 18,
+                bold: true,
+                color: ink,
+                maxWidth: 380,
               ),
+            ],
+          ),
+        ),
+        for (final x in factoryLines) ...[
+          gap(2),
+          pw.Center(child: small(x, maxWidth: 480)),
+        ],
+        if (factory.gstNumber?.isNotEmpty ?? false) ...[
+          gap(2),
+          pw.Center(
+            child: t(
+              '${l.gstinLabel}: ${factory.gstNumber}',
+              size: 9,
+              bold: true,
+              color: ink,
             ),
+          ),
+        ],
+        gap(14),
+        pw.Container(height: 2, color: brand),
+        gap(10),
+        // Receipt · invoice no. and sale type.
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.end,
+          children: [
+            t(l.receipt, size: 16, bold: true, color: brand),
+            pw.Spacer(),
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.end,
               children: [
-                t(l.receipt, size: 18, bold: true, color: brand),
-                gap(2),
                 t(s.invoiceNo, size: 11, bold: true, color: ink),
                 small(l.saleTypeText(s.type)),
               ],
@@ -158,7 +172,7 @@ pw.Document _receipt(
           ],
         ),
         gap(14),
-        pw.Container(height: 2, color: brand),
+        pw.Container(height: 0.5, color: line),
         gap(14),
 
         // Bill to · dates.

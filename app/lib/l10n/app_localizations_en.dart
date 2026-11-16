@@ -1595,4 +1595,17 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return '$factory: receipt $invoice. Total $total, due $due.';
   }
+
+  @override
+  String get gstNumberOptional => 'GST number (optional)';
+
+  @override
+  String get gstNumberHint => 'Printed on receipts, e.g. 19ABCDE1234F1Z5';
+
+  @override
+  String get gstNumberRule =>
+      'Enter a valid 15-character GSTIN, e.g. 19ABCDE1234F1Z5';
+
+  @override
+  String get gstinLabel => 'GSTIN';
 }

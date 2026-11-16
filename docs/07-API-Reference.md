@@ -5467,6 +5467,7 @@ GET /api/v1/reports/collections?from=2026-11-01&to=2026-11-15
     "phone": "9833333333",
     "email": "maatara@test.com",
     "address": "Barasat, WB",
+    "gst_number": "19ABCDE1234F1Z5",
     "invoice_prefix": "INV-",
     "updated_by": "019a6b2c-1001-7001-8001-000000000001",
     "created_at": "2026-11-08T14:18:10.000Z",
@@ -5492,6 +5493,7 @@ The invoice prefix applies to new sales only. The logo is a static asset in the 
 | `phone` | string \| null | no | 10 digits |
 | `email` | string \| null | no | — |
 | `address` | string \| null | no | max 500 |
+| `gst_number` | string \| null | no | GSTIN, 15 chars: 2-digit state code + PAN + entity + `Z` + check (`19ABCDE1234F1Z5`), upper-cased. Empty / null / left out clears it. Wrong format → 422 "Enter a valid 15-character GSTIN…" |
 | `invoice_prefix` | string | no | 1–10 chars: A–Z, 0–9, `-` (upper-cased) |
 
 **Example request**
@@ -5506,6 +5508,7 @@ Content-Type: application/json
   "phone": "9833333333",
   "email": "maatara@test.com",
   "address": "Barasat, WB",
+  "gst_number": "19ABCDE1234F1Z5",
   "invoice_prefix": "INV-"
 }
 ```

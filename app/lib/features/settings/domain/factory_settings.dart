@@ -11,6 +11,7 @@ class FactorySettings {
     this.phone,
     this.email,
     this.address,
+    this.gstNumber,
     this.invoicePrefix = 'INV-',
   });
 
@@ -19,6 +20,9 @@ class FactorySettings {
   final String? phone;
   final String? email;
   final String? address;
+
+  /// Optional GSTIN (15 characters), printed on receipts.
+  final String? gstNumber;
   final String invoicePrefix;
 
   factory FactorySettings.fromJson(Json json) => FactorySettings(
@@ -27,6 +31,7 @@ class FactorySettings {
     phone: json['phone'] as String?,
     email: json['email'] as String?,
     address: json['address'] as String?,
+    gstNumber: json['gst_number'] as String?,
     invoicePrefix: json['invoice_prefix'] as String? ?? 'INV-',
   );
 
@@ -36,6 +41,7 @@ class FactorySettings {
     'phone': phone,
     'email': email,
     'address': address,
+    'gst_number': gstNumber,
     'invoice_prefix': invoicePrefix,
   };
 }

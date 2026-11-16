@@ -107,6 +107,7 @@ The row is deleted after a successful reset, so the reset token is single use. O
 | phone | VARCHAR(15) | yes | NULL | |
 | email | VARCHAR(150) | yes | NULL | |
 | address | VARCHAR(500) | yes | NULL | |
+| gst_number | VARCHAR(15) | yes | NULL | Optional GSTIN (e.g. `19ABCDE1234F1Z5`), upper case; printed on receipts (migration 0027) |
 | invoice_prefix | VARCHAR(10) | no | 'INV-' | |
 | last_invoice_no | INT UNSIGNED | no | 0 | Counter for invoice numbers; locked (`FOR UPDATE`) and +1 inside the sale transaction |
 | updated_by | CHAR(36) FK → users.id | yes | NULL | |
@@ -540,7 +541,7 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 
 | Endpoint | Request body | `data` |
 |---|---|---|
-| `GET /settings/factory` · `PUT /settings/factory` | `{ factory_name, owner_name?, phone?, email?, address?, invoice_prefix? }` | `{ …fields }` |
+| `GET /settings/factory` · `PUT /settings/factory` | `{ factory_name, owner_name?, phone?, email?, address?, gst_number?, invoice_prefix? }` | `{ …fields }` |
 | 🌐 `GET /app/version?platform&build` | — | `{ latest_version, latest_build, update_available, force_update, download_url, release_notes }` |
 | 🌐 `GET /health` | — | `{ status: "ok", db: "ok", time }` |
 

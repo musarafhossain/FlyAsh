@@ -22,7 +22,8 @@
       "database.unique": "এই {field} আগে থেকেই ব্যবহার হচ্ছে",
       "database.exists": "বাছাই করা {field} পাওয়া যায়নি",
       "validDate": "{field} একটি সঠিক তারিখ হতে হবে (YYYY-MM-DD)",
-      "notFuture": "{field} ভবিষ্যতের তারিখ হতে পারবে না"
+      "notFuture": "{field} ভবিষ্যতের তারিখ হতে পারবে না",
+      "gst_number.regex": "সঠিক ১৫ অক্ষরের GSTIN দিন, যেমন 19ABCDE1234F1Z5"
     },
     "fields": {
       "name": "নাম",
@@ -88,7 +89,8 @@
       "build": "বিল্ড নম্বর",
       "locale": "ভাষা",
       "theme_mode": "থিম মোড",
-      "accent_color": "থিম কালার"
+      "accent_color": "থিম কালার",
+      "gst_number": "GST নম্বর"
     }
   }
 }

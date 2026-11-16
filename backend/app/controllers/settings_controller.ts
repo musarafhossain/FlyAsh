@@ -22,6 +22,8 @@ export default class SettingsController {
       phone: data.phone ?? null,
       email: data.email ?? null,
       address: data.address ?? null,
+      // Optional; an empty value clears it.
+      gstNumber: data.gst_number || null,
       invoicePrefix: data.invoice_prefix ?? settings.invoicePrefix,
       updatedBy: auth.getUserOrFail().id,
     })

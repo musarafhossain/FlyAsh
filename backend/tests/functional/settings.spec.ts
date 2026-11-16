@@ -44,6 +44,35 @@ test.group('Settings', (group) => {
       })
     assert.match(sale.body().data.invoice_no, /^MT-\d{6}$/)
   })
+
+  test('factory profile: optional GST number (checked, upper case, clearable)', async ({
+    client,
+    assert,
+  }) => {
+    const user = await createUser()
+    const put = (gst: string | null) =>
+      client.put(`${API}/settings/factory`).loginAs(user).json({
+        factory_name: 'Maa Tara Fly Ash Bricks',
+        gst_number: gst,
+      })
+
+    const saved = await put('19abcde1234f1z5')
+    saved.assertStatus(200)
+    assert.equal(saved.body().data.gst_number, '19ABCDE1234F1Z5')
+
+    const bad = await put('12345')
+    bad.assertStatus(422)
+    assert.include(JSON.stringify(bad.body()), 'GSTIN')
+
+    const cleared = await put(null)
+    assert.isNull(cleared.body().data.gst_number)
+
+    const withoutField = await client
+      .put(`${API}/settings/factory`)
+      .loginAs(user)
+      .json({ factory_name: 'Maa Tara Fly Ash Bricks' })
+    assert.isNull(withoutField.body().data.gst_number)
+  })
 })
 
 test.group('App version', (group) => {

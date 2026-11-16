@@ -22,7 +22,8 @@
       "database.unique": "This {field} is already taken",
       "database.exists": "The selected {field} does not exist",
       "validDate": "The {field} field must be a valid date (YYYY-MM-DD)",
-      "notFuture": "The {field} field cannot be a future date"
+      "notFuture": "The {field} field cannot be a future date",
+      "gst_number.regex": "Enter a valid 15-character GSTIN, e.g. 19ABCDE1234F1Z5"
     },
     "fields": {
       "name": "name",
@@ -88,7 +89,8 @@
       "build": "build number",
       "locale": "language",
       "theme_mode": "theme mode",
-      "accent_color": "theme color"
+      "accent_color": "theme color",
+      "gst_number": "GST number"
     }
   }
 }
