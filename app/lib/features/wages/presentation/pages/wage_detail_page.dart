@@ -24,7 +24,7 @@ import '../../../sales/presentation/sale_labels.dart';
 import '../../data/wages_repository_impl.dart';
 import '../../domain/wages.dart';
 import '../widgets/wage_sheets.dart';
-import '../widgets/wages_tab.dart';
+import '../widgets/wage_widgets.dart';
 import '../../../../core/widgets/skeletons.dart';
 import '../../../../core/widgets/action_menu.dart';
 import '../widgets/lifetime_wage_card.dart';

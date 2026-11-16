@@ -88,7 +88,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 └──────────────────────────────────────────┘
 ☰ (app bar, left) → opens the side drawer:
   Dashboard · Sales · Upcoming Deliveries · Customers · Products
-  Labours (tabs: Labours · Wages) · Attendance · Expenses · Reports · Users · Settings
+  Labours (labour list only) · Attendance · Expenses · Reports · Users · Settings
   [Need help?]  ·  Log out
 ```
 
@@ -128,7 +128,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 | `/customers` · `/customers/new` · `/customers/:id` · `/customers/:id/edit` | Customers | |
 | `/products` · `/products/new` · `/products/:id` · `/products/:id/edit` | Products | `:id` is a read-only detail page |
 | `/labours` · `/labours/new` · `/labours/:id` · `/labours/:id/edit` | Labours (tab 1) | |
-| `/labours/wages?month=` · `/labours/wages/:labourId?month=` | Wage sheet (tab 2) / labour wage detail | Wages is a tab inside Labours, not a separate section |
+| `/labours/:id/wages?month=` | Labour wage detail | From the labour's page (⋮ → Wage). There is no wage sheet screen; the month for everyone is Reports → Wages. An old `/labours/wages` link opens `/labours` |
 | `/reports` · `/reports/:type` | Reports | `type` = sales, dues, expenses, wages, net-profit, collections |
 | `:id` in every route | | A UUID (v7), not a number |
 | `/users` · `/users/new` · `/users/:id` · `/users/:id/edit` | Users | |
@@ -241,8 +241,7 @@ A product has a **price only**: no unit and no cost.
 ### 7.1 Labours
 
 ```
-Labours section = 2 tabs: Labours (/labours) · Wages (/labours/wages)
-  (sliding pill tabs like Sales; each tab has its own URL, and switching slides the pill)
+Labours section = the labour list only (/labours), no tabs (the Wages tab was removed on 2026-11-16)
 
 Labours list ─ search ─ FAB → Labour form: name, phone, address,
                                wage type Daily/Monthly + wage amount (both required), joining date
@@ -276,12 +275,12 @@ Attendance always opens on today: a past day picked with ‹ / the calendar is r
 - ✏ sits right next to the wage (not next to the switch) and works only while the labour is **absent**: it opens "Day wage for <name>" (compact dialog) → Save. The row shows the new wage like any wage (no "edited" label) and ↺ appears next to ✏; ↺ goes back to the usual wage (shown only when the wage is not the usual one; off while present, like ✏). The wage is sent with the next switch-on and **kept while the list is open**, also after switching back to absent (a 300 stays 300). Changing the date clears it.
 - Only the switch marks attendance; tapping the row does nothing.
 
-### 7.3 Wages (tab inside Labours)
+### 7.3 Wages (per labour)
+
+There is no wage sheet screen in the Labours section any more. A labour's wages open from their page; the month's wages for everyone are in Reports → Wages (§9).
 
 ```
-Labours → Wages tab (/labours/wages, month selector) → GET /wages?month
- ├─ Hero: total earned · strip: Paid · Balance
- └─ Row per labour → Labour wage detail (/labours/wages/:labourId?month)
+Labour detail → ⋮ → Wage → Labour wage detail (/labours/:id/wages?month, ‹ month ›)
         ├─ Breakdown: present days × rate − paid = balance
         ├─ Day-by-day attendance list
         ├─ ⋮ → "Pay wage" → sheet (amount prefilled with the balance, date, method, note) → POST /labours/:id/wage-payments

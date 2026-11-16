@@ -23,7 +23,6 @@ const screens = [
   '/customers',
   '/attendance',
   '/labours',
-  '/labours/wages',
   '/expenses',
   '/expenses/new',
   '/reports',

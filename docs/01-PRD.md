@@ -201,7 +201,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 
 | ID | Requirement | Priority |
 |---|---|---|
-| WAGE-1 | **Monthly wage sheet:** pick a month and see every labour's present days, absent days, **earned wage**, paid and **balance** | P0 |
+| WAGE-1 | **Monthly wage sheet:** pick a month and see every labour's present days, absent days, **earned wage**, paid and **balance** — shown as Reports → Wages (the separate Wages tab in Labours was removed on 2026-11-16) | P0 |
 | WAGE-2 | ~~Advances~~ removed: money given before the month ends is simply a wage payment | — |
 | WAGE-3 | **Wage payments:** record a payment to a labour for a month (date, amount, method, note). Partial payments are allowed | P0 |
 | WAGE-4 | Status per labour per month: **Paid / Partial / Due** | P0 |

@@ -415,7 +415,7 @@ Bottom nav:  Home │ Sales │ Attendance │ Expenses      (☰ in the app bar
 
 Drawer (☰):
   Dashboard · Sales · Upcoming Deliveries · Customers · Products
-  Labours (tabs: Labours · Wages) · Attendance · Expenses · Reports
+  Labours (labour list only) · Attendance · Expenses · Reports
   Users
   Settings (My profile · Factory profile · Appearance · Language · Password · About & Updates)
 ```

@@ -368,38 +368,11 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
       ],
     ),
   ],
-  // Labours · Wages are two tabs of one section; switching tabs does not
-  // animate like opening a new page. Both use the same page key, so the
-  // page is updated in place and the tab pill slides. "/labours/wages"
-  // comes first so it is not read as a labour id.
+  // The labour list only; a labour's wages are at /labours/:id/wages.
   '/labours' => [
     GoRoute(
-      path: LabourSectionTab.wages.path,
-      pageBuilder: (_, state) => NoTransitionPage(
-        key: _laboursSectionKey,
-        child: LaboursPage(
-          tab: LabourSectionTab.wages,
-          month: state.uri.queryParameters['month'],
-        ),
-      ),
-      routes: [
-        GoRoute(
-          path: ':labourId',
-          redirect: (_, state) =>
-              _idParam(state, 'labourId') == null ? '/labours/wages' : null,
-          builder: (_, state) => WageDetailPage(
-            labourId: _idParam(state, 'labourId')!,
-            month: state.uri.queryParameters['month'],
-          ),
-        ),
-      ],
-    ),
-    GoRoute(
-      path: LabourSectionTab.labours.path,
-      pageBuilder: (_, state) => const NoTransitionPage(
-        key: _laboursSectionKey,
-        child: LaboursPage(tab: LabourSectionTab.labours),
-      ),
+      path: '/labours',
+      builder: (_, _) => const LaboursPage(),
       routes: [
         GoRoute(path: 'new', builder: (_, _) => const LabourFormPage()),
         GoRoute(
@@ -415,6 +388,14 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
               path: 'edit',
               builder: (_, state) =>
                   LabourFormPage(labourId: _idParam(state, 'id')),
+            ),
+            // The labour's wages for a month (?month=YYYY-MM).
+            GoRoute(
+              path: 'wages',
+              builder: (_, state) => WageDetailPage(
+                labourId: _idParam(state, 'id')!,
+                month: state.uri.queryParameters['month'],
+              ),
             ),
           ],
         ),
@@ -464,7 +445,6 @@ List<RouteBase> sectionRoutes(NavItem item) => switch (item.path) {
 };
 
 /// One page for both Labours tabs (see the '/labours' routes).
-const _laboursSectionKey = ValueKey('labours-section');
 
 /// The record handed over with `push(..., extra: record)` (a list row
 /// opening its detail page), or null (deep link, refresh, other type).

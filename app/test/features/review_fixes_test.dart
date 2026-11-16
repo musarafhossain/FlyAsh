@@ -274,7 +274,7 @@ void main() {
 
   testWidgets('wage detail: Day by day title in the text colour, arrow turns, '
       'list slides open; no labour item in ⋮; all-time total', (tester) async {
-    await wages.openAt(tester, '/labours/wages/9?month=2026-11');
+    await wages.openAt(tester, '/labours/9/wages?month=2026-11');
     final title = tester.widget<Text>(find.text('Day by day'));
     expect(title.style!.color, isNot(const Color(0xFF000000)));
     final arrow = find.byType(AnimatedRotation);

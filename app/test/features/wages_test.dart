@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
 import 'package:flyash/core/router/app_router.dart';
-import 'package:flyash/core/widgets/data_table_card.dart';
 
 import '../fake_api.dart';
 import '../helpers.dart';
@@ -215,62 +214,25 @@ Future<void> longPress(WidgetTester tester, String text) async {
 }
 
 void main() {
-  testWidgets('long press: View | Pay wage (no advance)', (tester) async {
-    await openAt(tester, '/labours/wages');
-    expect(find.textContaining('Showing'), findsNothing);
-    await longPress(tester, 'Abdul Karim');
-    expect(rowMenu(tester), ['View', 'Pay wage']);
-    await tapMenu(tester, 'Pay wage');
-    expect(find.text('Pay Abdul Karim for Nov 2026'), findsOneWidget);
-  });
-
-  testWidgets('wage sheet: month, totals, rows; no future months', (
-    tester,
-  ) async {
-    await openAt(tester, '/labours/wages');
-    expect(last('GET', '/wages').queryParameters['month'], '2026-11');
-    expect(find.text('Nov 2026'), findsOneWidget);
-    expect(find.text('Earned in Nov 2026'), findsOneWidget);
-    expect(find.text('₹7,150'), findsOneWidget); // 3,150 + 4,000
-    expect(find.text('₹500'), findsWidgets); // paid
-    expect(find.text('₹6,650'), findsOneWidget); // balance
-    expect(find.text('7 days · earned ₹3,150'), findsOneWidget);
-    expect(find.text('₹3,500'), findsOneWidget); // Kartik's balance
-    expect(find.text('Due'), findsOneWidget); // Abdul
-    expect(find.text('Partial'), findsOneWidget); // Kartik (paid early)
-
-    final next = find.ancestor(
-      of: find.byIcon(Icons.chevron_right),
-      matching: find.byType(IconButton),
+  testWidgets('labour page ⋮ Wage opens /labours/:id/wages', (tester) async {
+    await openAt(tester, '/labours/1');
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byWidgetPredicate((w) => w is PopupMenuItem),
+        matching: find.text('Wage'),
+      ),
     );
-    expect(tester.widget<IconButton>(next.first).onPressed, isNull);
-    await tester.tap(find.byTooltip('Previous').first);
     await tester.pumpAndSettle();
-    expect(last('GET', '/wages').queryParameters['month'], '2026-10');
-    expect(find.text('Oct 2026'), findsOneWidget);
-  });
-
-  testWidgets('desktop: the sheet is a table', (tester) async {
-    await openAt(tester, '/labours/wages', size: const Size(1440, 900));
-    expect(find.byType(DataTableCard), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('?month= opens that month; a row opens the labour for it', (
-    tester,
-  ) async {
-    await openAt(tester, '/labours/wages?month=2026-10');
-    expect(last('GET', '/wages').queryParameters['month'], '2026-10');
-    await tester.tap(find.text('Kartik Mondal'));
-    await tester.pumpAndSettle();
-    expect(currentLocation(), '/labours/wages/1?month=2026-10');
-    expect(last('GET', '/labours/1/wages').queryParameters['month'], '2026-10');
+    expect(currentLocation(), '/labours/1/wages?month=2026-11');
+    expect(last('GET', '/labours/1/wages').queryParameters['month'], '2026-11');
   });
 
   testWidgets('detail: breakdown, pay wage prefilled with the balance', (
     tester,
   ) async {
-    await openAt(tester, '/labours/wages/1?month=2026-11');
+    await openAt(tester, '/labours/1/wages?month=2026-11');
     expect(find.text('Present 8 · Absent 0'), findsOneWidget);
     expect(find.text('₹4,000'), findsOneWidget); // earned
     expect(find.text('− ₹500'), findsOneWidget); // paid early
@@ -310,7 +272,7 @@ void main() {
   testWidgets('delete a payment (long press) asks first; balance goes up', (
     tester,
   ) async {
-    await openAt(tester, '/labours/wages/1?month=2026-11');
+    await openAt(tester, '/labours/1/wages?month=2026-11');
     final row = find.text('03 Nov 2026 · Cash');
     await tester.ensureVisible(row);
     await tester.pumpAndSettle();
@@ -327,7 +289,7 @@ void main() {
   });
 
   testWidgets('day by day opens on tap', (tester) async {
-    await openAt(tester, '/labours/wages/9?month=2026-11');
+    await openAt(tester, '/labours/9/wages?month=2026-11');
     expect(find.text('01 Nov 2026'), findsNothing);
     await tapVisible(tester, find.text('Day by day'));
     expect(find.text('01 Nov 2026'), findsOneWidget);
@@ -355,7 +317,7 @@ void main() {
     expect(last('POST', '/labours/1/wage-payments'), isNotNull);
 
     await tapVisible(tester, find.text('View all'));
-    expect(currentLocation(), '/labours/wages/1?month=2026-11');
+    expect(currentLocation(), '/labours/1/wages?month=2026-11');
   });
 
   for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {
@@ -377,11 +339,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        for (final path in [
-          '/labours/wages',
-          '/labours/wages/1?month=2026-11',
-          '/labours/1',
-        ]) {
+        for (final path in ['/labours/1/wages?month=2026-11', '/labours/1']) {
           testContainer.read(routerProvider).go(path);
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull, reason: path);

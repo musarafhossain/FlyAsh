@@ -36,7 +36,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F10** ✅ | **Sales: list & detail** | Sales list with filters, sale detail, upcoming deliveries | F8, F9 |
 | **F11** ✅ | **Sales: form & payments** | New/edit sale and booking, inline customer, tax %, live totals, add/remove payment, deliver, cancel (actions in the ⋮ menu) | F10 |
 | **F12** ✅ | **Labours & attendance** | Labours tab: list, form (wage type Daily/Monthly + wage amount required on create), detail; attendance screen with one Present switch per labour (saves at once; no half day) | F6 |
-| **F13** ✅ | **Wages** | Wages tab inside Labours (`/labours/wages`): wage sheet, labour wage detail, pay wages (no advances) | F12 |
+| **F13** ✅ | **Wages** | Labour wage detail (`/labours/:id/wages`), pay wages (no advances). The Wages tab / wage sheet was removed on 2026-11-16 (Reports → Wages covers it) | F12 |
 | **F14** ✅ | **Expenses** | Expense list with the total, search and a filter sheet; form with a free-text category | F6 |
 | **F15** ✅ | **Dashboard** | Home screen with all cards and quick actions (no greeting header) | F11, F13, F14 |
 | **F16** ✅ | **Reports & export** | 6 reports with charts and tables, PDF/Excel export | F15 |
@@ -79,7 +79,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Live-test cleanup also covers** `expenses` (created_by), `labours`, `attendances`, `wage_payments` (rows of the temporary user's labours). Ids are UUIDs, so there is no AUTO_INCREMENT to reset.
 - **Live tests that create sales** cannot clean up through the API (records with sales are kept); afterwards delete the temporary user's rows from `sales`, `sale_items`, `sale_payments`, `customers`, `products`, `users` and set `factory_settings.last_invoice_no` back to its value before the run (invoice numbers come from that counter, not from an id). Locally, reseeding the database does the same.
 - **Dates in forms:** `DateField` (core/widgets/date_field.dart) for any business-date input with first/last limits.
-- **Shell branches** set `initialLocation: item.path`, so the route order inside a section (e.g. `/labours/wages` before `/labours`) never changes which page a sidebar tap opens.
+- **Shell branches** set `initialLocation: item.path`, so the route order inside a section never changes which page a sidebar tap opens.
 - **Deep links with filters:** `/sales?period=today` and `/customers?filter=due` (used by Home). Shell root pages stay alive, so they apply a changed query in `didUpdateWidget`.
 - **Changes after testing (2026-11):** shared pieces every section uses now:
   - Lists: `ListGroup(flat: true)` + `ListRowSurface(onLongPress:)`; long press calls `showActionMenu` (popup next to the row); no "Showing x of y".
@@ -103,5 +103,6 @@ The app is built **one small step at a time**. Each step ends with a working app
 - **Receipt → WhatsApp (2026-11-16):** sale ⋮ → "Send receipt on WhatsApp" (`ReceiptOutput.whatsApp`, native `flyash/whatsapp` channel on Android, see 02-TRD §8). `ActionMenuItem` gained `enabled` + `hint` (the item is greyed out with "No phone number for this customer"). Checked on the Android 16 emulator: the PDF is written and handed to the FileProvider; without WhatsApp the "not installed" message shows. Tests in `receipt_test.dart`.
 - **Attendance date (2026-11-16):** leaving the Attendance section resets the day to today (`onSectionLeft` → `_goTo(today)`), like the search reset. Test: `attendance_test.dart` "leaving Attendance and coming back opens today again".
 - **Factory GST + receipt header (2026-11-16):** optional `gst_number` in the factory profile (server migration 0027, GSTIN check in the app and on the server), printed as "GSTIN: …" on receipts. The receipt header is now centred: logo beside the factory name, then address, phone · email, GSTIN; "Receipt" and the invoice no. sit in one row under the accent rule.
+- **Labours without tabs (2026-11-16):** the Wages tab (wage sheet) is gone; `LaboursPage` is just the labour list. Wage detail moved to `/labours/:id/wages` (old `/labours/wages…` links fall back to `/labours`). Shared wage widgets live in `wages/presentation/widgets/wage_widgets.dart`. Tests: `labours_section_test.dart`, `wages_test.dart`.
 - **Riverpod retries are off** (`retry: noRetry`): a failed load shows an error with a Retry button instead of retrying silently.
 - **Logo colors** (teal, slate, orange, leaf green) sit well with the Emerald and Ash Slate accents; the default accent is Brick Terracotta (changed from Royal Blue on 2026-11-16; app, web splash, report PDFs and the server default for new users).

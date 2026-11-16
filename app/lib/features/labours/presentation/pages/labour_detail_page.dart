@@ -125,7 +125,7 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
 
   Future<void> _openWages() async {
     await context.push(
-      '/labours/wages/${widget.labourId}?month=${_today.substring(0, 7)}',
+      '/labours/${widget.labourId}/wages?month=${_today.substring(0, 7)}',
     );
     if (mounted) unawaited(_loadWage());
   }
