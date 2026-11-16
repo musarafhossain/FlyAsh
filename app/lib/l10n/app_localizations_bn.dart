@@ -1602,4 +1602,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get gstinLabel => 'GSTIN';
+
+  @override
+  String get salesWithTax => 'বিক্রি (ট্যাক্স সহ)';
+
+  @override
+  String get wagesPaid => 'মজুরি দেওয়া';
+
+  @override
+  String get presetLast7Days => 'গত ৭ দিন';
+
+  @override
+  String get export => 'এক্সপোর্ট';
 }

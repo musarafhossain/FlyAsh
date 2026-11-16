@@ -41,7 +41,7 @@ The app supports **multiple users with equal access** (no roles). There is no si
 | G3 | Never lose track of dues | A dues list per customer, always correct to the rupee |
 | G4 | Attendance in under 1 minute per day | One switch per labour (Present / Absent), saved at once |
 | G5 | Wages calculated automatically | The monthly wage sheet needs no manual maths |
-| G6 | Real net profit | Net profit = sales (without tax) − expenses − wages, for any period |
+| G6 | Real net profit | Net profit = sales (with tax) − expenses − wages paid, for any period |
 
 ## 3. Users
 
@@ -74,7 +74,7 @@ The app supports **multiple users with equal access** (no roles). There is no si
 | Attendance | Toggle-based attendance for any date (defaults to today) |
 | Wages | Automatic monthly wage calculation and wage payments (no separate advances) |
 | Expenses | Extra expenses with a free-text category |
-| Reports | Sales, dues, expenses, wages, net profit, with PDF/Excel export |
+| Reports | Net profit (sales with tax, expenses, wages paid), with PDF/Excel export |
 | Settings | Factory profile, appearance (theme), language, password |
 | App Update | In-app update check and install for Android, Windows and Web |
 
@@ -201,7 +201,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 
 | ID | Requirement | Priority |
 |---|---|---|
-| WAGE-1 | **Monthly wage sheet:** pick a month and see every labour's present days, absent days, **earned wage**, paid and **balance** — shown as Reports → Wages (the separate Wages tab in Labours was removed on 2026-11-16) | P0 |
+| WAGE-1 | **Monthly wage sheet:** pick a month and see every labour's present days, absent days, **earned wage**, paid and **balance** — *removed from the app on 2026-11-16* (the Labours Wages tab and Reports → Wages are gone; each labour's month is on their wage page; `GET /wages` stays in the API) | P0 |
 | WAGE-2 | ~~Advances~~ removed: money given before the month ends is simply a wage payment | — |
 | WAGE-3 | **Wage payments:** record a payment to a labour for a month (date, amount, method, note). Partial payments are allowed | P0 |
 | WAGE-4 | Status per labour per month: **Paid / Partial / Due** | P0 |
@@ -224,12 +224,12 @@ All reports take a date range (Today / This week / This month / Last month / Thi
 
 | ID | Report | Content | Priority |
 |---|---|---|---|
-| REP-1 | **Sales report** | Number of sales and sales amount. Breakdown by product. Daily chart | P0 |
-| REP-2 | **Dues report** | Every customer with dues: name, phone, total due, oldest due date. Sorted by due | P0 |
-| REP-3 | **Expense report** | Total, and a breakdown by category (chart and table) | P0 |
-| REP-4 | **Wage report** | Per month: total earned, paid, balance, per labour | P1 |
-| REP-5 | **Net profit report** | Sales (without tax) − expenses − wages = **net profit** for the period, with a monthly trend chart | P0 |
-| REP-6 | **Collection report** | Money received (all payments) by date and method | P1 |
+| REP-1 | **Sales report** | Number of sales and sales amount. Breakdown by product. Daily chart — *removed from the app on 2026-11-16 (the API endpoint stays)* | P0 |
+| REP-2 | **Dues report** | Every customer with dues: name, phone, total due, oldest due date. Sorted by due — *removed from the app on 2026-11-16 (the API endpoint stays)* | P0 |
+| REP-3 | **Expense report** | Total, and a breakdown by category (chart and table) — *removed from the app on 2026-11-16 (the API endpoint stays)* | P0 |
+| REP-4 | **Wage report** | Per month: total earned, paid, balance, per labour — *removed from the app on 2026-11-16 (the API endpoint stays)* | P1 |
+| REP-5 | **Net profit report** (the Reports screen) | Sales (with tax) − expenses − wages paid = **net profit** for the period, with a monthly chart and a card per month | P0 |
+| REP-6 | **Collection report** | Money received (all payments) by date and method — *removed from the app on 2026-11-16 (the API endpoint stays)* | P1 |
 | REP-7 | **Export** any report as PDF or Excel | P1 |
 
 ### 5.11 Settings (SET)
@@ -335,7 +335,7 @@ All calculations are done **on the server**. The app only displays the results. 
 |---|---|
 | Expense date | Counted in the period of its `expense_date` |
 | **Wages in a period** | Earned wages from attendance in that period (not the payments) |
-| **Net profit** | `sales without tax (delivered in period) − expenses (in period) − wages_earned (in period)` |
+| **Net profit** | `sales with tax (delivered in period) − expenses (in period) − wages paid (wage payments in period)` (changed on 2026-11-16; was sales without tax − wages earned) |
 | Collections | Money actually received, counted by payment date (separate from profit) |
 
 ### 6.5 Dashboard definitions

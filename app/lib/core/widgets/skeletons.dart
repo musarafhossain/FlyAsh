@@ -485,3 +485,39 @@ class SkeletonText extends StatelessWidget {
     );
   }
 }
+
+/// A placeholder exactly one line of [style] high (an invisible "0" sets
+/// the height), so a value that loads in its place does not move anything.
+/// [width] fixed, or [widthFactor] of the available width.
+class SkeletonLine extends StatelessWidget {
+  const SkeletonLine({
+    super.key,
+    required this.style,
+    this.width,
+    this.widthFactor = 0.8,
+  });
+
+  final TextStyle style;
+  final double? width;
+  final double widthFactor;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: width ?? double.infinity,
+    child: Stack(
+      children: [
+        Text('0', style: style.copyWith(color: Colors.transparent)),
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: FractionallySizedBox(
+              widthFactor: width == null ? widthFactor : 1,
+              heightFactor: 0.8,
+              child: const SkeletonBox(),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}

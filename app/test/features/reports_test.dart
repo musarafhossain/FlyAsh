@@ -6,6 +6,7 @@ import 'package:flyash/app.dart';
 import 'package:flyash/core/l10n/locale_controller.dart';
 import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/core/widgets/cards.dart';
+import 'package:flyash/core/widgets/state_views.dart';
 import 'package:flyash/features/reports/presentation/report_export.dart';
 import 'package:flyash/features/reports/presentation/widgets/report_view.dart';
 
@@ -14,110 +15,35 @@ import '../helpers.dart';
 
 Reply _ok(Object? data) => (200, envelope(200, 'ok', data), {});
 
-/// The six report endpoints (07-API §14), with what was asked recorded.
+/// `GET /reports/net-profit` (07-API §14): sales with tax − expenses −
+/// wages paid, with a row per month.
 class FakeReports {
   final requests = <RequestOptions>[];
 
   FakeRoutes get routes => {
-    'GET /reports/sales': (o) => _ok({
-      'from': o.queryParameters['from'],
-      'to': o.queryParameters['to'],
-      'count': 3,
-      'amount': '19500.50',
-      'by_product': [
-        {
-          'product_name': 'Fly Ash Brick',
-          'quantity': '3000.00',
-          'amount': '19500.50',
-        },
-      ],
-      'daily': [
-        {'date': '2026-11-02', 'amount': '6500.00'},
-        {'date': '2026-11-05', 'amount': '13000.50'},
-      ],
-    }),
-    'GET /reports/expenses': (o) => _ok({
-      'from': o.queryParameters['from'],
-      'to': o.queryParameters['to'],
-      'total': '1350.00',
-      'by_category': [
-        {'name': 'Diesel', 'amount': '850.00', 'percent': 63.0},
-        {'name': 'Labour Tiffin', 'amount': '500.00', 'percent': 37.0},
-      ],
-    }),
     'GET /reports/net-profit': (o) => _ok({
       'from': o.queryParameters['from'],
       'to': o.queryParameters['to'],
       'sales': '19500.00',
       'expenses': '1350.00',
-      'wages': '20000.00',
+      'wages_paid': '20000.00',
       'net_profit': '-1850.00',
       'monthly': [
         {
           'month': '2026-10',
           'sales': '9000.00',
           'expenses': '350.00',
-          'wages': '8000.00',
+          'wages_paid': '8000.00',
           'net_profit': '650.00',
         },
         {
           'month': '2026-11',
           'sales': '10500.00',
           'expenses': '1000.00',
-          'wages': '12000.00',
+          'wages_paid': '12000.00',
           'net_profit': '-2500.00',
         },
       ],
-    }),
-    'GET /reports/collections': (o) => _ok({
-      'from': o.queryParameters['from'],
-      'to': o.queryParameters['to'],
-      'total': '7000.00',
-      'by_method': [
-        {'method': 'cash', 'amount': '5000.00'},
-        {'method': 'upi', 'amount': '2000.00'},
-      ],
-      'daily': [
-        {'date': '2026-11-03', 'amount': '7000.00'},
-      ],
-    }),
-    'GET /reports/wages': (o) => _ok({
-      'month': o.queryParameters['month'],
-      'earned': '4050.00',
-      'paid': '1000.00',
-      'balance': '3050.00',
-      'rows': [
-        {
-          'labour_id': '9',
-          'name': 'Abdul Karim',
-          'wage_type': 'daily',
-          'wage_amount': '450.00',
-          'is_active': true,
-          'present_days': 9,
-          'absent_days': 6,
-          'earned': '4050.00',
-          'paid': '1000.00',
-          'balance': '3050.00',
-          'status': 'partial',
-        },
-      ],
-    }),
-    'GET /reports/dues': (o) => _ok({
-      'items': [
-        {
-          'customer_id': '1',
-          'name': 'Rahim Traders',
-          'phone': '9830000000',
-          'total_due': '64965.00',
-          'oldest_due_date': '2026-10-16',
-          'sales_count': 2,
-        },
-      ],
-      'page': 1,
-      'limit': 100,
-      'total': 1,
-      'last_page': 1,
-      'grand_total': '64965.00',
     }),
   };
 }
@@ -130,6 +56,7 @@ Future<void> openAt(
   Size size = const Size(400, 900),
   bool dark = false,
   bool bengali = false,
+  bool settle = true,
 }) async {
   api = FakeReports();
   setScreenSize(tester, size);
@@ -148,7 +75,7 @@ Future<void> openAt(
   );
   await tester.pumpAndSettle();
   testContainer.read(routerProvider).go(location);
-  await tester.pumpAndSettle();
+  if (settle) await tester.pumpAndSettle();
 }
 
 String path() =>
@@ -157,189 +84,180 @@ String path() =>
 RequestOptions last(String p) => api.requests.lastWhere((r) => r.path == p);
 
 void main() {
-  testWidgets('grid: six reports; a tile opens its report', (tester) async {
-    await openAt(tester, '/reports');
-    for (final t in [
-      'sales',
-      'dues',
-      'expenses',
-      'wages',
-      'net-profit',
-      'collections',
-    ]) {
-      expect(find.byKey(Key('reportTile-$t')), findsOneWidget);
-    }
-    await tester.tap(find.byKey(const Key('reportTile-sales')));
-    await tester.pumpAndSettle();
-    expect(path(), '/reports/sales');
-  });
-
-  testWidgets('sales: this month by default; stat cards, chart, tables', (
+  testWidgets('Reports opens net profit directly (no list of reports)', (
     tester,
   ) async {
-    await openAt(tester, '/reports/sales');
-    expect(last('/reports/sales').queryParameters, {
+    await openAt(tester, '/reports');
+    expect(path(), '/reports');
+    expect(find.text('Net profit'), findsWidgets); // title + card
+    expect(find.byKey(const Key('reportTile-sales')), findsNothing);
+    expect(api.requests.where((r) => r.path.startsWith('/reports')), [
+      isA<RequestOptions>().having(
+        (r) => r.path,
+        'path',
+        '/reports/net-profit',
+      ),
+    ]);
+  });
+
+  testWidgets('4 cards: Sales (with tax), Expenses, Wages paid, Net profit', (
+    tester,
+  ) async {
+    await openAt(tester, '/reports');
+    expect(last('/reports/net-profit').queryParameters, {
       'from': '2026-11-01',
       'to': '2026-11-16',
     });
-    expect(find.text('₹19,500.50'), findsWidgets, reason: 'paise kept');
-    expect(find.text('3'), findsWidgets);
-    expect(find.byKey(const Key('reportChart')), findsOneWidget);
-    expect(find.byType(ReportBarChart), findsOneWidget);
-    expect(find.text('Fly Ash Brick'), findsOneWidget);
-    expect(find.text('3,000'), findsOneWidget, reason: 'quantity');
+    expect(find.byType(KpiChip), findsNWidgets(4));
+    for (final label in [
+      'Sales (with tax)',
+      'Expenses',
+      'Wages paid',
+      'Net profit',
+    ]) {
+      expect(
+        find.descendant(of: find.byType(KpiChip), matching: find.text(label)),
+        findsOneWidget,
+        reason: label,
+      );
+    }
+    expect(find.text('₹19,500'), findsOneWidget);
+    expect(find.text('₹20,000'), findsOneWidget);
+    expect(find.text('-₹1,850'), findsOneWidget);
+    expect(find.text('Sales (without tax)'), findsNothing);
   });
 
-  testWidgets('period chips ask the server for that range', (tester) async {
-    await openAt(tester, '/reports/sales');
+  testWidgets('by month: chart + a card per month, newest first', (
+    tester,
+  ) async {
+    await openAt(tester, '/reports');
+    expect(find.byType(ReportBarChart), findsOneWidget);
+    final nov = find.byKey(const Key('month-2026-11'));
+    final oct = find.byKey(const Key('month-2026-10'));
+    expect(nov, findsOneWidget);
+    expect(oct, findsOneWidget);
+    expect(
+      tester.getTopLeft(nov).dy,
+      lessThan(tester.getTopLeft(oct).dy),
+      reason: 'newest first',
+    );
+    expect(
+      find.descendant(of: nov, matching: find.text('-₹2,500')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: nov, matching: find.text('₹12,000')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('"Last 7 days" asks for today and the 6 days before', (
+    tester,
+  ) async {
+    await openAt(tester, '/reports');
+    await tester.tap(find.byKey(const Key('period-last7Days')));
+    await tester.pumpAndSettle();
+    expect(last('/reports/net-profit').queryParameters, {
+      'from': '2026-11-10',
+      'to': '2026-11-16',
+    });
+    expect(find.text('10 Nov 2026 – 16 Nov 2026'), findsOneWidget);
     await tester.tap(find.byKey(const Key('period-today')));
     await tester.pumpAndSettle();
-    expect(last('/reports/sales').queryParameters, {
+    expect(last('/reports/net-profit').queryParameters, {
       'from': '2026-11-16',
       'to': '2026-11-16',
     });
-    await tester.tap(find.byKey(const Key('period-thisYear')));
-    await tester.pumpAndSettle();
-    expect(last('/reports/sales').queryParameters['from'], '2026-01-01');
     await tester.tap(find.byKey(const Key('period-lastMonth')));
     await tester.pumpAndSettle();
-    expect(last('/reports/sales').queryParameters, {
+    expect(last('/reports/net-profit').queryParameters, {
       'from': '2026-10-01',
       'to': '2026-10-31',
     });
-    expect(find.text('01 Oct 2026 – 31 Oct 2026'), findsOneWidget);
   });
 
-  testWidgets('expenses: horizontal bars by category with the amounts', (
+  testWidgets('loading: the same cards with placeholders (no layout jump)', (
     tester,
   ) async {
-    await openAt(tester, '/reports/expenses');
-    expect(find.byType(ReportHorizontalBars), findsOneWidget);
-    // Chart, table and the "Top category" card.
-    expect(find.text('Diesel'), findsNWidgets(3));
-    expect(find.text('Top category'), findsOneWidget);
-    expect(find.text('By category'), findsOneWidget, reason: 'said once');
-    expect(find.text('63.0%'), findsOneWidget);
-  });
-
-  testWidgets('net profit: 4 stat cards, a loss shown below the axis', (
-    tester,
-  ) async {
-    await openAt(tester, '/reports/net-profit');
+    await openAt(tester, '/reports', settle: false);
+    await tester.pump();
+    await tester.pump();
+    // Real cards and labels, values pulsing.
     expect(find.byType(KpiChip), findsNWidgets(4));
-    expect(find.text('-₹1,850'), findsWidgets);
-    expect(find.byType(ReportBarChart), findsOneWidget);
-  });
-
-  testWidgets('collections: by method uses the method names', (tester) async {
-    await openAt(tester, '/reports/collections');
-    expect(find.text('Cash'), findsOneWidget);
-    expect(find.text('UPI'), findsOneWidget);
-  });
-
-  testWidgets('wages: month selector, no future months', (tester) async {
-    await openAt(tester, '/reports/wages');
-    expect(last('/reports/wages').queryParameters['month'], '2026-11');
-    expect(find.byKey(const Key('reportPeriods')), findsNothing);
-    await tester.tap(find.byTooltip('Previous'));
+    expect(find.text('Wages paid'), findsWidgets);
+    expect(find.byType(SkeletonBox), findsWidgets);
+    expect(find.byKey(const Key('reportChart')), findsOneWidget);
+    final chartBefore = tester.getRect(find.byKey(const Key('reportChart')));
     await tester.pumpAndSettle();
-    expect(last('/reports/wages').queryParameters['month'], '2026-10');
-    expect(find.text('Abdul Karim'), findsWidgets);
+    final chartAfter = tester.getRect(find.byKey(const Key('reportChart')));
+    expect(chartAfter.top, chartBefore.top, reason: 'chart stays in place');
+    expect(chartAfter.height, chartBefore.height);
   });
 
-  testWidgets('dues: no period; a row opens the customer', (tester) async {
-    await openAt(tester, '/reports/dues');
-    expect(find.byKey(const Key('reportPeriods')), findsNothing);
-    expect(find.text('₹64,965'), findsWidgets);
-    await tester.tap(find.textContaining('Rahim Traders'));
+  testWidgets('language change shows at once', (tester) async {
+    await openAt(tester, '/reports');
+    await testContainer.read(localeProvider.notifier).setLocale('bn');
     await tester.pumpAndSettle();
-    expect(path(), '/customers/1');
+    expect(find.text('মজুরি দেওয়া'), findsWidgets);
+    expect(find.text('বিক্রি (ট্যাক্স সহ)'), findsWidgets);
   });
 
-  testWidgets('⋮ offers Export PDF and Export Excel', (tester) async {
-    await openAt(tester, '/reports/sales');
-    await tester.tap(find.byTooltip('More actions'));
+  testWidgets('Export (next to the dates) offers PDF and Excel', (
+    tester,
+  ) async {
+    await openAt(tester, '/reports');
+    await tester.tap(find.byKey(const Key('reportExport')));
     await tester.pumpAndSettle();
     expect(find.text('Export PDF'), findsOneWidget);
     expect(find.text('Export Excel'), findsOneWidget);
   });
 
-  testWidgets('a language change shows at once (no reload)', (tester) async {
-    await openAt(tester, '/reports/expenses');
-    final asked = api.requests.length;
-    await testContainer.read(localeProvider.notifier).setLocale('bn');
-    await tester.pumpAndSettle();
-    expect(find.text('Top category'), findsNothing);
-    expect(find.text('সবচেয়ে বেশি খরচ'), findsOneWidget);
-    expect(
-      api.requests.where((r) => r.path.startsWith('/reports')),
-      hasLength(
-        api.requests
-            .take(asked)
-            .where((r) => r.path.startsWith('/reports'))
-            .length,
-      ),
-    );
-  });
-
-  testWidgets('an unknown report goes back to the grid', (tester) async {
-    await openAt(tester, '/reports/nope');
+  testWidgets('old report links open /reports', (tester) async {
+    await openAt(tester, '/reports/sales');
     expect(path(), '/reports');
   });
 
-  for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {
+  for (final size in const [Size(320, 700), Size(360, 800), Size(1440, 900)]) {
     for (final dark in [false, true]) {
       testWidgets('no overflow at ${size.width.toInt()} px '
           '(${dark ? 'dark' : 'light'}, Bengali)', (tester) async {
         await openAt(tester, '/reports', size: size, dark: dark, bengali: true);
-        for (final p in [
-          '/reports/sales',
-          '/reports/dues',
-          '/reports/expenses',
-          '/reports/wages',
-          '/reports/net-profit',
-          '/reports/collections',
-        ]) {
-          testContainer.read(routerProvider).go(p);
-          await tester.pumpAndSettle();
-          expect(tester.takeException(), isNull, reason: p);
-        }
+        expect(tester.takeException(), isNull);
       });
     }
   }
 
   group('export files', () {
     const view = ReportView(
-      title: 'Sales',
+      title: 'Net profit',
       period: '01 Nov 2026 – 16 Nov 2026',
       summary: [
         ReportFigure(
-          'Sales amount',
-          '₹19,500.50',
+          'Sales (with tax)',
+          '₹19,500',
           Icons.trending_up,
           KpiTint.sky,
         ),
       ],
       tables: [
         ReportTable(
-          title: 'By product',
+          title: 'By month',
           columns: [
-            ReportColumn('Product'),
-            ReportColumn('Amount', numeric: true),
+            ReportColumn('Month'),
+            ReportColumn('Net profit', numeric: true),
           ],
           rows: [
-            ['ফ্লাই অ্যাশ ইট', '₹19,500.50'],
+            ['নভেম্বর', '₹-2,500'],
           ],
         ),
       ],
     );
 
-    testWidgets('PDF (with a Bengali name) is a real PDF file', (tester) async {
+    testWidgets('PDF (with Bengali) is a real PDF file', (tester) async {
       final bytes = await tester.runAsync(
         () => buildReportPdf(view, generatedOn: 'Generated on 16 Nov 2026'),
       );
       expect(String.fromCharCodes(bytes!.take(5)), '%PDF-');
-      expect(bytes.length, greaterThan(1000));
     });
 
     test('Excel is a real .xlsx (zip) file', () {
@@ -352,8 +270,8 @@ void main() {
 
     test('file names carry the report and the period', () {
       expect(
-        reportFileName('sales', '2026-11-01_2026-11-16'),
-        'flyash-sales-2026-11-01_2026-11-16',
+        reportFileName('net-profit', '2026-11-01_2026-11-16'),
+        'flyash-net-profit-2026-11-01_2026-11-16',
       );
     });
   });

@@ -832,5 +832,9 @@
   "gstNumberOptional": "GST number (optional)",
   "gstNumberHint": "Printed on receipts, e.g. 19ABCDE1234F1Z5",
   "gstNumberRule": "Enter a valid 15-character GSTIN, e.g. 19ABCDE1234F1Z5",
-  "gstinLabel": "GSTIN"
+  "gstinLabel": "GSTIN",
+  "salesWithTax": "Sales (with tax)",
+  "wagesPaid": "Wages paid",
+  "presetLast7Days": "Last 7 days",
+  "export": "Export"
 }

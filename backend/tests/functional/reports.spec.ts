@@ -82,6 +82,11 @@ async function seedOctober(client: any) {
       .loginAs(user)
       .json({ date, records: [{ labour_id: labour.body().data.id, present: true }] })
   }
+  // Wages paid in October (net profit counts payments, not wages earned).
+  await client
+    .post(`${API}/labours/${labour.body().data.id}/wage-payments`)
+    .loginAs(user)
+    .json({ wage_month: '2026-10', amount: 600, payment_date: '2026-10-05' })
 
   return { user, customer }
 }
@@ -133,23 +138,47 @@ test.group('Reports', (group) => {
     const net = (
       await client.get(`${API}/reports/net-profit?from=2026-09-01&to=2026-10-31`).loginAs(user)
     ).body().data
-    // sales without tax 19500 − expenses 850 − wages 1000
+    // sales (with tax) 19500 − expenses 850 − wages paid 600
     assert.containsSubset(net, {
       sales: '19500.00',
       expenses: '850.00',
-      wages: '1000.00',
-      net_profit: '17650.00',
+      wages_paid: '600.00',
+      net_profit: '18050.00',
     })
+    assert.notProperty(net, 'wages')
     assert.deepEqual(
       net.monthly.map((m: any) => [m.month, m.net_profit]),
       [
         ['2026-09', '0.00'],
-        ['2026-10', '17650.00'],
+        ['2026-10', '18050.00'],
       ]
     )
 
     const wages = (await client.get(`${API}/reports/wages?month=2026-10`).loginAs(user)).body().data
     assert.equal(wages.earned, '1000.00')
+  })
+
+  test('net profit counts sales with tax', async ({ client, assert }) => {
+    const user = await createUser()
+    const product = await client
+      .post(`${API}/products`)
+      .loginAs(user)
+      .json({ name: 'Tax Brick', default_price: 10 })
+    await client
+      .post(`${API}/sales`)
+      .loginAs(user)
+      .json({
+        type: 'instant',
+        new_customer: { name: 'Tax Buyer', phone: '9811112222' },
+        sale_date: '2026-09-10',
+        items: [{ product_id: product.body().data.id, quantity: 100 }],
+        tax_percent: 5,
+      })
+    const net = (
+      await client.get(`${API}/reports/net-profit?from=2026-09-01&to=2026-09-30`).loginAs(user)
+    ).body().data
+    // 1000 + 5 % tax = 1050, all counted as sales
+    assert.containsSubset(net, { sales: '1050.00', net_profit: '1050.00' })
   })
 
   test('dashboard returns every card', async ({ client, assert }) => {

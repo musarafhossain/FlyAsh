@@ -317,10 +317,11 @@ GROUP BY a.labour_id;
 ### 4.3 Net profit for a period
 
 ```
-sales        = Σ (sales.total − sales.tax_amount)   WHERE status='delivered' AND deleted_at IS NULL AND delivered_date BETWEEN from AND to
+sales        = Σ sales.total (with tax)   WHERE status='delivered' AND deleted_at IS NULL AND delivered_date BETWEEN from AND to
 expenses     = Σ expenses.amount WHERE expense_date BETWEEN from AND to
-wages        = Σ earned (formula 4.2) WHERE attendances.date BETWEEN from AND to
-net_profit   = sales − expenses − wages
+wages_paid   = Σ wage_payments.amount WHERE payment_date BETWEEN from AND to
+net_profit   = sales − expenses − wages_paid
+(since 2026-11-16; before: sales without tax − wages earned)
 ```
 
 ### 4.4 Customer due
@@ -534,7 +535,7 @@ For a paginated list with an extra total, `data` is `{ items, page, limit, total
 | `GET /reports/dues?page&limit` | Paginated `{ customer_id, name, phone, total_due, oldest_due_date }` + `grand_total` |
 | `GET /reports/expenses?from&to` | `{ total, by_category: [{ name, amount, percent }] }` |
 | `GET /reports/wages?month` | `{ earned, paid, balance, rows: WageRow[] }` |
-| `GET /reports/net-profit?from&to` | `{ sales, expenses, wages, net_profit, monthly: [{ month, sales, expenses, wages, net_profit }] }` (sales without tax) |
+| `GET /reports/net-profit?from&to` | `{ sales, expenses, wages_paid, net_profit, monthly: [{ month, sales, expenses, wages_paid, net_profit }] }` (sales with tax; wages = wage payments by payment date) |
 | `GET /reports/collections?from&to` | `{ total, by_method: [{ method, amount }], daily: [{ date, amount }] }` |
 
 ### 5.10 Settings, app version

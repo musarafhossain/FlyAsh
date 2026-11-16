@@ -23,7 +23,7 @@ String currentPath() =>
 
 /// The Labours section is the labour list only (2026-11-16): no Wages tab.
 /// A labour's wages: their page → ⋮ → Wage details (/labours/:id/wages);
-/// everyone's month: Reports → Wages.
+/// there is no all-labours month view any more.
 void main() {
   test('Wages is not a section', () {
     expect(kNavItems.map((i) => i.path), isNot(contains('/wages')));

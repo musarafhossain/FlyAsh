@@ -3018,6 +3018,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'GSTIN'**
   String get gstinLabel;
+
+  /// No description provided for @salesWithTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales (with tax)'**
+  String get salesWithTax;
+
+  /// No description provided for @wagesPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Wages paid'**
+  String get wagesPaid;
+
+  /// No description provided for @presetLast7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get presetLast7Days;
+
+  /// No description provided for @export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get export;
 }
 
 class _AppLocalizationsDelegate

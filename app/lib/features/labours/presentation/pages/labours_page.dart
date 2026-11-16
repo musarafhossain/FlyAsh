@@ -6,8 +6,7 @@ import '../../../../core/router/app_shell.dart';
 import '../widgets/labours_tab.dart';
 
 /// Labours section (03-AppFlow §7.1): the labour list only (no tabs).
-/// A labour's wages are on their page (⋮ → Wage details / Pay wage); the
-/// month's wages for everyone are in Reports → Wages.
+/// A labour's wages are on their page (⋮ → Wage / Pay wage).
 class LaboursPage extends StatelessWidget {
   const LaboursPage({super.key});
 

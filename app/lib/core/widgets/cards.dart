@@ -5,6 +5,7 @@ import 'motion.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
+import 'skeletons.dart';
 import 'state_views.dart';
 
 /// Categorical tints for KPI chips (04-UI-UX §5.4).
@@ -188,24 +189,32 @@ class KpiChip extends StatelessWidget {
                 ),
                 const SizedBox(height: Space.s1),
                 if (loading)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 2),
-                    child: FractionallySizedBox(
-                      widthFactor: 0.8,
-                      child: SkeletonBox(height: 20),
-                    ),
-                  )
+                  // Exactly the value's line height: no jump when it loads.
+                  SkeletonLine(style: AppTypography.h3)
                 else
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
+                  // A long amount shrinks to fit, but the line keeps its
+                  // full height (same as the loading placeholder).
+                  Stack(
                     alignment: Alignment.centerLeft,
-                    child: CountUpText(
-                      value,
-                      style: AppTypography.h3.copyWith(
-                        color: t.textPrimary,
-                        fontFeatures: AppTypography.tabular,
+                    children: [
+                      Text(
+                        '0',
+                        style: AppTypography.h3.copyWith(
+                          color: Colors.transparent,
+                        ),
                       ),
-                    ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: CountUpText(
+                          value,
+                          style: AppTypography.h3.copyWith(
+                            color: t.textPrimary,
+                            fontFeatures: AppTypography.tabular,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),

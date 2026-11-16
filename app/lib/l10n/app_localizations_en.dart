@@ -1608,4 +1608,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gstinLabel => 'GSTIN';
+
+  @override
+  String get salesWithTax => 'Sales (with tax)';
+
+  @override
+  String get wagesPaid => 'Wages paid';
+
+  @override
+  String get presetLast7Days => 'Last 7 days';
+
+  @override
+  String get export => 'Export';
 }

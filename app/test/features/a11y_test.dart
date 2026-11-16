@@ -26,7 +26,6 @@ const screens = [
   '/expenses',
   '/expenses/new',
   '/reports',
-  '/reports/sales',
   '/settings',
   '/settings/about',
 ];

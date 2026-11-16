@@ -5333,7 +5333,7 @@ GET /api/v1/reports/wages?month=2026-10
 
 **Net profit report** · 🔒 Bearer token
 
-`net_profit = sales (without tax) − expenses − wages` for the range, plus a `monthly` series.
+`net_profit = sales (with tax) − expenses − wages_paid` for the range, plus a `monthly` series. `sales` = delivered sales with tax (delivered date); `wages_paid` = wage payments by payment date. (Changed on 2026-11-16; the field `wages` was wages earned.) The app's Reports screen shows only this report.
 
 **Query parameters**
 
@@ -5362,22 +5362,22 @@ GET /api/v1/reports/net-profit?from=2026-10-01&to=2026-11-15
     "to": "2026-11-15",
     "sales": "1662240.00",
     "expenses": "60250.00",
-    "wages": "221862.91",
-    "net_profit": "1380127.09",
+    "wages_paid": "210000.00",
+    "net_profit": "1391990.00",
     "monthly": [
       {
         "month": "2026-10",
         "sales": "1160944.00",
         "expenses": "37000.00",
-        "wages": "154612.91",
-        "net_profit": "969331.09"
+        "wages_paid": "150000.00",
+        "net_profit": "973944.00"
       },
       {
         "month": "2026-11",
         "sales": "501296.00",
         "expenses": "23250.00",
-        "wages": "67250.00",
-        "net_profit": "410796.00"
+        "wages_paid": "60000.00",
+        "net_profit": "418046.00"
       }
     ]
   }

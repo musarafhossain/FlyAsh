@@ -170,26 +170,32 @@ export default class ReportService {
     }
   }
 
+  /**
+   * Net profit = sales (with tax, on the delivered date) − expenses −
+   * wages paid (wage payments by payment date). Changed on 2026-11-16 from
+   * "sales without tax − wages earned" at the owner's request.
+   */
   private static async netProfitFor(from: string, to: string) {
-    // Sales without tax (tax is collected for the government)
-    const sales = await deliveredSales(from, to)
-      .sum('total as total')
-      .sum('tax_amount as tax')
-      .first()
+    const sales = await deliveredSales(from, to).sum('total as total').first()
     const expenses = await db
       .from('expenses')
       .whereBetween('expense_date', [from, to])
       .sum('amount as total')
       .first()
-    const wages = await WageService.earnedBetween(from, to)
+    const wagesPaid = await db
+      .from('wage_payments')
+      .whereBetween('payment_date', [from, to])
+      .sum('amount as total')
+      .first()
 
-    const salesTotal = toPaise(sales?.total) - toPaise(sales?.tax)
+    const salesTotal = toPaise(sales?.total)
     const expenseTotal = toPaise(expenses?.total)
+    const paidTotal = toPaise(wagesPaid?.total)
     return {
       sales: fromPaise(salesTotal),
       expenses: fromPaise(expenseTotal),
-      wages: fromPaise(wages),
-      net_profit: fromPaise(salesTotal - expenseTotal - wages),
+      wages_paid: fromPaise(paidTotal),
+      net_profit: fromPaise(salesTotal - expenseTotal - paidTotal),
     }
   }
 }

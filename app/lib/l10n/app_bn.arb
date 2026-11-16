@@ -485,5 +485,9 @@
   "gstNumberOptional": "GST নম্বর (ঐচ্ছিক)",
   "gstNumberHint": "রসিদে ছাপা হবে, যেমন 19ABCDE1234F1Z5",
   "gstNumberRule": "সঠিক ১৫ অক্ষরের GSTIN দিন, যেমন 19ABCDE1234F1Z5",
-  "gstinLabel": "GSTIN"
+  "gstinLabel": "GSTIN",
+  "salesWithTax": "বিক্রি (ট্যাক্স সহ)",
+  "wagesPaid": "মজুরি দেওয়া",
+  "presetLast7Days": "গত ৭ দিন",
+  "export": "এক্সপোর্ট"
 }
