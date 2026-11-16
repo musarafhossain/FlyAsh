@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+
+import 'web_history_sync.dart';
 
 /// The back button closes what is open on top (the drawer, a dialog, a
 /// bottom sheet, a ⋮ menu) before it changes the page (03-AppFlow §3.1).
@@ -65,7 +69,11 @@ class BackGuard with WidgetsBindingObserver {
   Future<bool> didPushRouteInformation(
     RouteInformation routeInformation,
   ) async {
-    if (!_web || !closeTop()) return false;
+    if (!_web) return false;
+    // The browser moves in its history: pages closed now are not "closed by
+    // the app" (WebHistorySync).
+    unawaited(WebHistorySync.instance.browserMoved());
+    if (!closeTop()) return false;
     // The browser already shows the previous URL: show the current one
     // again, as a new entry, so the next back goes where it should.
     final uri = currentUri?.call();
@@ -90,8 +98,13 @@ class BackGuardObserver extends NavigatorObserver {
   }
 
   @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) =>
-      BackGuard.instance.closed(route);
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    BackGuard.instance.closed(route);
+    // A page (not a dialog) closed: keep the browser history in step.
+    if (route.settings is Page) {
+      unawaited(WebHistorySync.instance.pagePopped());
+    }
+  }
 
   @override
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) =>

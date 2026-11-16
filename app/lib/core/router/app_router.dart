@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -46,6 +48,7 @@ import '../../features/users/presentation/pages/users_list_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import 'app_shell.dart';
 import 'back_guard.dart';
+import 'web_history_sync.dart';
 import 'shell_pager.dart';
 import 'nav_items.dart';
 
@@ -189,7 +192,14 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
   BackGuard.instance.currentUri = () =>
       router.routeInformationProvider.value.uri;
+  // Web: the browser history follows the page stack (see WebHistorySync).
+  WebHistorySync.instance.currentLocation = () =>
+      router.routeInformationProvider.value.uri.toString();
+  void onNavigate() => unawaited(WebHistorySync.instance.navigated());
+  router.routeInformationProvider.addListener(onNavigate);
+  onNavigate();
   ref.onDispose(() {
+    router.routeInformationProvider.removeListener(onNavigate);
     router.dispose();
     refresh.dispose();
   });

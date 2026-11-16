@@ -101,6 +101,7 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 - The system status bar (clock, battery) is black on every screen.
 - **Back button — what is open on top closes first:** the drawer, a dialog, a bottom sheet or a ⋮ / long-press menu. Only when nothing is open does back change the page.
   - Android: back pops the section's stack; on a section's first screen it goes to Home; on Home it leaves the app (there is no "press back again" prompt).
+  - Web, after the app closes a page itself (Save on a form, the ← arrow): the browser history steps back too, so the closed page is not "behind" you. Example: list → edit → Save → list; browser back now goes to the page before the list, not to the edit form again. (Browser **forward** can still reopen the closed page.)
   - Web: the browser's back button follows the same rule. With the drawer, a dialog, a sheet or a menu open it closes it, keeps the page and puts the current URL back in the address bar; with nothing open it goes to the previous page.
 
 ### 3.2 Route table (go_router)
