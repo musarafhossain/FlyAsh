@@ -124,7 +124,9 @@ class _ReportTile extends StatelessWidget {
     return AppCard(
       onTap: onTap,
       child: SizedBox(
-        height: 116,
+        // Icon (40) + gap (12) + title and 2 hint lines, which grow with the
+        // font size setting; all tiles stay the same height.
+        height: 52 + MediaQuery.textScalerOf(context).scale(64),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

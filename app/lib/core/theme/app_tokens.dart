@@ -90,7 +90,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
         border: const Color(0xFFE3E8F0),
         textPrimary: const Color(0xFF0F172A),
         textSecondary: const Color(0xFF475569),
-        textTertiary: const Color(0xFF64748B),
+        // 4.85:1 on the background, 4.75:1 on surfaceVariant (WCAG AA).
+        textTertiary: const Color(0xFF5E6E84),
         textDisabled: const Color(0xFF94A3B8),
         overlay: const Color(0x730F172A),
         primary: a.primary,

@@ -30,9 +30,10 @@ class SegmentedTabs<T> extends StatelessWidget {
     final index = keys.indexOf(selected).clamp(0, keys.length - 1);
     final duration = Motion.reduced(context) ? Duration.zero : Motion.base;
 
+    // 48 dp high: each segment is a full 48 dp tap target; the sliding pill
+    // is drawn 4 dp inside it.
     return Container(
-      height: 44,
-      padding: const EdgeInsets.all(Space.s1),
+      height: 48,
       decoration: BoxDecoration(
         color: t.surfaceVariant,
         borderRadius: Radii.fullAll,
@@ -48,10 +49,10 @@ class SegmentedTabs<T> extends StatelessWidget {
                 key: const Key('segmentedTabsThumb'),
                 duration: duration,
                 curve: Motion.standard,
-                left: width * index,
-                top: 0,
-                bottom: 0,
-                width: width,
+                left: width * index + Space.s1,
+                top: Space.s1,
+                bottom: Space.s1,
+                width: width - Space.s1 * 2,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: t.surface,
@@ -264,7 +265,8 @@ class CompactChoiceChip extends StatelessWidget {
     labelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
     labelPadding: const EdgeInsets.symmetric(horizontal: Space.s1),
     padding: const EdgeInsets.symmetric(horizontal: Space.s2),
-    visualDensity: VisualDensity.compact,
+    // Compact sideways only: the padded tap target stays 48 dp high.
+    visualDensity: const VisualDensity(horizontal: -4, vertical: 0),
     materialTapTargetSize: MaterialTapTargetSize.padded,
   );
 }

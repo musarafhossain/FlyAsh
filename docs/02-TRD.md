@@ -617,6 +617,8 @@ Version source: `pubspec.yaml` `version: 1.2.0+12` (`+12` = build number), read 
 
 Code (F18): `features/update/` — `UpdateRepository` (`GET /app/version`, never from the cache), `UpdateController` (the found update), `UpdateGate` (wraps the app in `MaterialApp.builder`: start-up check, forced screen in place of the app, dialog on the router's navigator once the splash is gone), `UpdateRun` (download progress, cancel, retry), `UpdateInstaller` (download / install / reload; replaced in tests).
 
+**Android release build (F19):** `--target-platform android-arm,android-arm64 --obfuscate --split-debug-info=build/symbols/<version>` → about 40 MB (x86_64 is left out: only PC emulators use it; 32-bit ARM phones still work). Keep `build/symbols/<version>` to read crash stack traces (`flutter symbolize`). For an x86_64 emulator test add `android-x64`. `res/xml/network_security_config.xml` allows plain HTTP only to `10.0.2.2` and `localhost` (the PC's dev server); everything else is HTTPS.
+
 **Android signing:** release APKs are signed with the FlyAsh release key (`app/android/app/flyash-release.jks` + `app/android/key.properties`, both git-ignored; Gradle falls back to the debug key when they are missing). **Every update must be signed with the same key**: keep a backup of both files outside the PC. An APK signed with another key cannot install over the app (the phone must uninstall first).
 
 ## 9. Development Environment (Windows + XAMPP)

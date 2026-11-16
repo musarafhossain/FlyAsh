@@ -2933,7 +2933,7 @@ abstract class AppLocalizations {
   /// No description provided for @updateInstallHint.
   ///
   /// In en, this message translates to:
-  /// **'The first time, Android asks to allow installs from FlyAsh. Allow it, then tap Install.'**
+  /// **'The first time, Android asks to allow installs from FlyAsh: allow it, come back and tap Update again.'**
   String get updateInstallHint;
 
   /// No description provided for @updateFailed.
@@ -2953,6 +2953,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have the latest version'**
   String get upToDate;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
 }
 
 class _AppLocalizationsDelegate

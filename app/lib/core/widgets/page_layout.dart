@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../l10n/l10n.dart';
+import 'form_submit.dart';
 
 import '../network/query_cache.dart';
 import '../theme/app_spacing.dart';
@@ -205,30 +209,44 @@ class InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: Space.s2),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 20, color: t.textTertiary),
-            const SizedBox(width: Space.s3),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: AppTypography.caption.copyWith(color: t.textTertiary),
-                ),
-                SelectableText(
-                  value,
-                  style: AppTypography.body.copyWith(color: t.textPrimary),
-                ),
+    // The whole row (≥ 48 dp) copies the value on long press.
+    return Semantics(
+      container: true,
+      onLongPressHint: context.l10n.copy,
+      child: InkWell(
+        onLongPress: () async {
+          await Clipboard.setData(ClipboardData(text: value));
+          if (context.mounted) showMessage(context, context.l10n.copied);
+        },
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(vertical: Space.s2),
+          child: Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 20, color: t.textTertiary),
+                const SizedBox(width: Space.s3),
               ],
-            ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTypography.caption.copyWith(
+                        color: t.textTertiary,
+                      ),
+                    ),
+                    Text(
+                      value,
+                      style: AppTypography.body.copyWith(color: t.textPrimary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

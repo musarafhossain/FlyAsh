@@ -34,7 +34,9 @@ release() { # $1 = extra flags
 case "$PLATFORM" in
   android)
     [ -f android/key.properties ] || { echo "android/key.properties missing (release key)"; exit 1; }
-    flutter build apk --release --dart-define=API_BASE_URL=$SITE/api/v1
+    # ARM phones only (no x86_64: ~40 MB instead of ~66 MB; 32-bit phones
+    # still work). Obfuscated; crash symbols kept in build/symbols/<version>.
+    flutter build apk --release --target-platform android-arm,android-arm64       --obfuscate --split-debug-info=build/symbols/$VERSION       --dart-define=API_BASE_URL=$SITE/api/v1
     FILE=flyash-$VERSION.apk
     ssh "$HOST" "mkdir -p $DOWNLOADS"
     scp build/app/outputs/flutter-apk/app-release.apk "$HOST:$DOWNLOADS/$FILE"

@@ -74,8 +74,11 @@ class LanguageSwitch extends ConsumerWidget {
         onTap: () => togglePopover(context, menu, width),
         child: Tooltip(
           message: l.language,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Container(
+            // 48 dp tap target (04-UI-UX §13).
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

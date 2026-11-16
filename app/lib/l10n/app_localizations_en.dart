@@ -1559,7 +1559,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateInstallHint =>
-      'The first time, Android asks to allow installs from FlyAsh. Allow it, then tap Install.';
+      'The first time, Android asks to allow installs from FlyAsh: allow it, come back and tap Update again.';
 
   @override
   String get updateFailed =>
@@ -1570,4 +1570,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get upToDate => 'You have the latest version';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get copied => 'Copied';
 }

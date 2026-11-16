@@ -28,6 +28,9 @@ class AuthLayout extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        // No shadow: a transparent bar would draw a grey band.
+        elevation: 0,
+        scrolledUnderElevation: 0,
         actions: const [
           LanguageSwitch(),
           SizedBox(width: Space.s2),

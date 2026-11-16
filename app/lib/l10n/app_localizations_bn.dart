@@ -1555,7 +1555,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get updateInstallHint =>
-      'প্রথমবার Android জানতে চাইবে FlyAsh থেকে ইনস্টল করার অনুমতি দেবেন কিনা। অনুমতি দিয়ে Install চাপুন।';
+      'প্রথমবার Android জানতে চাইবে FlyAsh থেকে ইনস্টলের অনুমতি দেবেন কিনা: অনুমতি দিয়ে ফিরে এসে আবার আপডেট চাপুন।';
 
   @override
   String get updateFailed => 'ডাউনলোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।';
@@ -1565,4 +1565,10 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get upToDate => 'আপনার কাছে সর্বশেষ ভার্সন আছে';
+
+  @override
+  String get copy => 'কপি';
+
+  @override
+  String get copied => 'কপি হয়েছে';
 }

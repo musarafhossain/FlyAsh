@@ -818,8 +818,10 @@
   "updateDownloading": "Downloading… {percent}%",
   "@updateDownloading": {"placeholders": {"percent": {"type": "String"}}},
   "updateDownloadingNoSize": "Downloading…",
-  "updateInstallHint": "The first time, Android asks to allow installs from FlyAsh. Allow it, then tap Install.",
+  "updateInstallHint": "The first time, Android asks to allow installs from FlyAsh: allow it, come back and tap Update again.",
   "updateFailed": "Download failed. Check the internet and try again.",
   "checkForUpdates": "Check for updates",
-  "upToDate": "You have the latest version"
+  "upToDate": "You have the latest version",
+  "copy": "Copy",
+  "copied": "Copied"
 }

@@ -65,8 +65,25 @@ class _FlyAshAppState extends ConsumerState<FlyAshApp> {
               Theme.of(context),
               media.size.width,
             ),
-            // Start-up update check; a forced update replaces the app.
-            child: UpdateGate(child: child!),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Start-up update check; a forced update replaces the app.
+                UpdateGate(child: child!),
+                // Black status bar on every screen. Android 15+ draws apps
+                // edge to edge and ignores statusBarColor, so it is painted
+                // here (0 high on the web and desktop).
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: media.padding.top,
+                  child: const IgnorePointer(
+                    child: ColoredBox(color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

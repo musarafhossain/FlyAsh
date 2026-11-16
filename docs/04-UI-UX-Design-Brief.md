@@ -94,7 +94,7 @@ All colors are **semantic tokens**. Components refer to tokens (`color.primary`,
 | `border` | `#E3E8F0` | `#26314A` | Card borders, dividers, input outlines |
 | `textPrimary` | `#0F172A` | `#E2E8F0` | Headings, primary values (16.6:1 / 13.9:1) |
 | `textSecondary` | `#475569` | `#94A3B8` | Labels, subtitles (7.6:1 / 6.7:1) |
-| `textTertiary` | `#64748B` | `#7C8BA1` | Captions, timestamps, placeholders (4.8:1 / 5.0:1) |
+| `textTertiary` | `#5E6E84` | `#7C8BA1` | Captions, timestamps, placeholders (4.85:1 on the background, 4.75:1 on `surfaceVariant` / 5.0:1) |
 | `textDisabled` | `#94A3B8` | `#4B5870` | Disabled text (exempt from contrast rules) |
 | `overlay` | `rgba(15,23,42,0.45)` | `rgba(0,0,0,0.60)` | Scrim behind the drawer, dialogs and sheets |
 | `shadow` | `rgba(15,23,42,0.06)` | none (use `border` instead) | Card elevation |
@@ -483,7 +483,8 @@ Drawer (☰):
 **Accessibility**
 
 - Every text and icon pair meets **WCAG 2.1 AA** in all 10 theme combinations (verified in §5).
-- Touch targets **≥ 48×48 dp** (≥ 56 for the main floor-entry actions: steppers, Save, attendance toggles).
+- Touch targets **≥ 48×48 dp** (≥ 56 for the main floor-entry actions: steppers, Save, attendance toggles). Checked by `test/features/a11y_test.dart` (Flutter's tap-target, label and text-contrast guidelines on every main screen, light and dark, plus no overflow at 1.3× text). Segmented tabs are 48 dp high (the pill is drawn 4 dp inside); compact chips keep a 48 dp tap height; the app bar avatar and language buttons are 48 dp; info rows (label + value) are 48 dp and copy the value on long press.
+- **Status bar:** always black with light icons. Android 15+ draws apps edge to edge and ignores `statusBarColor`, so the app paints a black strip behind the status bar itself (`app.dart`).
 - Status is never shown by color alone. Pills always have text, and charts have labels and arrows.
 - Screen-reader labels on all icon-only buttons (bell, filter, ⊕, ⋮, theme toggle).
 - Dynamic text up to 1.3× without clipping or overlap; scrolling is preferred over truncation for important values.

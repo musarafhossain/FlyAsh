@@ -144,14 +144,18 @@ class _UpdateDialogState extends State<_UpdateDialog> {
       child: AlertDialog(
         key: const Key('updateDialog'),
         title: Text(l.updateAvailableTitle, style: dialogTitleStyle(context)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _Details(widget.update),
-            const SizedBox(height: Space.s4),
-            _Status(_run),
-          ],
+        // Fixed width: the dialog does not shrink when the progress shows.
+        content: SizedBox(
+          width: 320,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Details(widget.update),
+              const SizedBox(height: Space.s4),
+              _Status(_run),
+            ],
+          ),
         ),
         actions: [
           OutlinedButton(

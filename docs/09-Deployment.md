@@ -53,7 +53,7 @@ bash deploy/publish-app.sh android "Important fix" 3    # builds below 3 must up
 bash deploy/publish-app.sh web "What is new"            # web build + reload prompt
 ```
 
-Android builds the signed APK, uploads it as `/var/www/flyash/downloads/flyash-<version>.apk` (`https://flyash.musaraf.org.in/downloads/…`) and runs `node ace app:release`. Installed apps see the update on their next launch or from Settings → About → Check for updates.
+Android builds the signed APK (ARM only, obfuscated, ≈40 MB; crash symbols in `app/build/symbols/<version>`), uploads it as `/var/www/flyash/downloads/flyash-<version>.apk` (`https://flyash.musaraf.org.in/downloads/…`) and runs `node ace app:release`. Installed apps see the update on their next launch or from Settings → About → Check for updates.
 
 **Release key:** `app/android/key.properties` + `app/android/app/flyash-release.jks` (not in git). Keep a copy somewhere safe (USB drive / cloud). Without them no update can be installed over the app.
 

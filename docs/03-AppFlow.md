@@ -372,7 +372,7 @@ flowchart TD
 
 - The start-up check runs once per launch, in the background; an optional update's dialog waits until the splash screen is gone (on the login page or Home). A failed check (no network) is ignored until the next launch.
 - Settings → About & Updates → "Check for updates": "You have the latest version" (toast), the dialog, or the forced screen.
-- Android: the first time, the system asks to allow "Install unknown apps" for FlyAsh. The dialog and the forced screen say so in one line ("Allow it, then tap Install").
+- Android (checked on an Android 16 emulator, 1.1.0 → 1.1.1): the first time, the system asks to allow "Install unknown apps" for FlyAsh → Settings → allow → back. Android then returns to the app without installing, so the hint says "allow it, come back and tap Update again"; the second tap reuses the finished download and opens the installer at once. Google Play Protect may then offer a scan ("More details → Install without scanning" also works).
 - A download in progress can be cancelled from an optional update (Cancel), but not from a forced one. Download failed → error line + **Retry**.
 - Web: "Update now" is **Reload** (nothing to download).
 

@@ -222,7 +222,8 @@ class AccountMenu extends ConsumerWidget {
             customBorder: const CircleBorder(),
             onTap: () => togglePopover(context, menu, _accountWidth),
             child: const Padding(
-              padding: EdgeInsets.all(Space.s1),
+              // 36 dp avatar in a 48 dp tap target.
+              padding: EdgeInsets.all(6),
               child: UserIconAvatar(size: 36),
             ),
           ),

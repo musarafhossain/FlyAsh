@@ -41,11 +41,21 @@ abstract final class UpdateInstaller {
   static void Function() reload = reloadPage;
 }
 
+/// Finished downloads of this session (url → file). After the first-time
+/// "allow installs" step Android returns to the app without installing;
+/// the next "Update now" then opens the installer at once.
+final _downloaded = <String, String>{};
+
 Future<String> _download(
   String url,
   void Function(double progress) onProgress,
   CancelToken cancel,
 ) async {
+  final done = _downloaded[url];
+  if (done != null && File(done).existsSync()) {
+    onProgress(1);
+    return done;
+  }
   final dir = await getTemporaryDirectory();
   final name = Uri.parse(
     url,
@@ -57,7 +67,7 @@ Future<String> _download(
     cancelToken: cancel,
     onReceiveProgress: (got, total) => onProgress(total > 0 ? got / total : -1),
   );
-  return path;
+  return _downloaded[url] = path;
 }
 
 Future<void> _install(String path, UpdatePlatform platform) async {

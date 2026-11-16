@@ -472,8 +472,10 @@
   "updateButton": "আপডেট করুন",
   "updateDownloading": "ডাউনলোড হচ্ছে… {percent}%",
   "updateDownloadingNoSize": "ডাউনলোড হচ্ছে…",
-  "updateInstallHint": "প্রথমবার Android জানতে চাইবে FlyAsh থেকে ইনস্টল করার অনুমতি দেবেন কিনা। অনুমতি দিয়ে Install চাপুন।",
+  "updateInstallHint": "প্রথমবার Android জানতে চাইবে FlyAsh থেকে ইনস্টলের অনুমতি দেবেন কিনা: অনুমতি দিয়ে ফিরে এসে আবার আপডেট চাপুন।",
   "updateFailed": "ডাউনলোড হয়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
   "checkForUpdates": "আপডেট আছে কিনা দেখুন",
-  "upToDate": "আপনার কাছে সর্বশেষ ভার্সন আছে"
+  "upToDate": "আপনার কাছে সর্বশেষ ভার্সন আছে",
+  "copy": "কপি",
+  "copied": "কপি হয়েছে"
 }

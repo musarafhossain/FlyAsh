@@ -160,9 +160,9 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 **Done when:** installing build N and publishing build N+1 updates the app on Android and Windows, and the banner appears on Web.
 
 ### Step 16 · Testing, polish & QA
-- [ ] All backend service tests pass (`node ace test`). Flutter tests pass (`flutter test`)
+- [x] All backend service tests pass (`node ace test`). Flutter tests pass (`flutter test`)
 - [ ] Manual smoke test on Android (real low-end phone), Chrome, Windows, in light and dark mode, EN and BN
-- [ ] Accessibility pass: contrast, 48 dp targets, screen reader labels, 1.3× text
+- [x] Accessibility pass: contrast, 48 dp targets, screen reader labels, 1.3× text (F19, `a11y_test.dart`)
 - [ ] Error states: no internet, 500, 401 mid-session, slow network
 - [ ] Performance: list first page < 1.5 s on 4G, no jank while scrolling
 
