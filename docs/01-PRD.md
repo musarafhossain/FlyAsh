@@ -220,7 +220,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 
 ### 5.10 Reports (REP)
 
-All reports take a date range (Today / This week / This month / Last month / This year / Custom).
+Since 2026-11-16 the app shows **one report, net profit** (REP-5). Its periods: Today / Last 7 days / This month / Last month / This year / Custom. REP-1…4 and REP-6 were removed from the app (their API endpoints stay).
 
 | ID | Report | Content | Priority |
 |---|---|---|---|

@@ -4992,7 +4992,7 @@ A plain list of names for the suggestion chips in the expense form: categories u
 
 ## 14. Dashboard & reports
 
-Sales count on the **delivered date**; collections on the **payment date**. `from`/`to` default to the 1st of the current month → today. **Net profit** uses sales without tax.
+Sales count on the **delivered date**; collections on the **payment date**. `from`/`to` default to the 1st of the current month → today. **Net profit** uses sales with tax and wages paid (since 2026-11-16). The app shows only the net profit report; the other report endpoints stay for API use.
 
 ### GET /dashboard
 

@@ -21,6 +21,10 @@
 
 Port 3333 is used by another app on this VPS, so FlyAsh uses **3334**.
 
+Other things on this VPS: the HisaabChat app (PM2 `hisaabchat-api`, DB `hisaabchat`). The old "Fly-Ash-Backend" project (PM2 `fly-ash-api`, folder `/var/www/workspace/fly-ash-backend`, DBs `fly_ash_prod` / `fly_ash_dev`) was removed on 2026-11-16; copies of its two databases are in `/root/old-fly_ash_*.sql.gz`.
+
+**Backups:** a `mysqldump` of `flyash` (and `flyash_test`) is taken into `/root/*-backup-<date>.sql.gz` before every deploy and data change. A nightly backup cron is not set up yet.
+
 ## Update the backend
 
 ```bash

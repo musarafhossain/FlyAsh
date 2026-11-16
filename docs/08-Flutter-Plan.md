@@ -39,7 +39,7 @@ The app is built **one small step at a time**. Each step ends with a working app
 | **F13** ✅ | **Wages** | Labour wage detail (`/labours/:id/wages`), pay wages (no advances). The Wages tab / wage sheet was removed on 2026-11-16 (Reports → Wages was removed too, so no all-labours month view remains) | F12 |
 | **F14** ✅ | **Expenses** | Expense list with the total, search and a filter sheet; form with a free-text category | F6 |
 | **F15** ✅ | **Dashboard** | Home screen with all cards and quick actions (no greeting header) | F11, F13, F14 |
-| **F16** ✅ | **Reports & export** | 6 reports with charts and tables, PDF/Excel export | F15 |
+| **F16** ✅ | **Reports & export** | Reports with charts and tables, PDF/Excel export (since 2026-11-16: the net profit report only) | F15 |
 | **F17** ✅ | **Receipt PDF** | Sale receipt with the logo: share (WhatsApp), print, save | F11 |
 | **F18** ✅ | **App update** | Version check, optional/forced update for Android, Windows, Web | F6 |
 | **F19** ✅ | **Polish & release builds** | Accessibility pass, performance, APK (Windows installer dropped for now: APK only) | all |

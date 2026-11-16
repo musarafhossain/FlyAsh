@@ -141,8 +141,8 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 
 ### Step 13 · Reports & export
 - [x] API: the 6 report endpoints (05 §5.9) using `ReportService`
-- [x] App: reports grid, report screen (period presets, summary, `fl_chart` chart, table), PDF + Excel export (F16, 2026-11-16)
-- [ ] Test: net profit = sales without tax − expenses − wages on sample data
+- [x] App: reports grid, report screen (period presets, summary, `fl_chart` chart, table), PDF + Excel export (F16, 2026-11-16). Later the same day: Reports = the net profit report only
+- [x] Test: net profit = sales with tax − expenses − wages paid on sample data (`reports.spec.ts`)
 
 ### Step 14 · Settings, factory profile, localization
 - [ ] API: `GET/PUT /settings/factory`
@@ -167,13 +167,13 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [ ] Performance: list first page < 1.5 s on 4G, no jank while scrolling
 
 ### Step 17 · VPS deployment & first release
-- [ ] VPS: Ubuntu 24.04, Node LTS, PM2, Nginx, MariaDB 11.4, UFW, certbot (TRD §10)
-- [ ] DB user `flyash`, production `.env` (SMTP with a Gmail App Password, `MAIL_MAILER=smtp`)
-- [ ] Deploy the API (`node ace build`, migrations, `pm2 start`), `node ace user:create` for the first real user
-- [ ] Deploy the web build to `app.<domain>`, set up `/downloads`
-- [ ] Nightly backup cron (DB, 30 days) **and one test restore**
-- [ ] Release v1.0.0+1: APK + Windows installer → `/downloads`, `node ace app:release` for android / windows / web
-- [ ] Install on the owner's devices and walk through a real day (sales, attendance, expense)
+- [x] VPS (test server `flyash.musaraf.org.in`): Node via nvm, PM2, Nginx, **MySQL 8**, certbot (09-Deployment)
+- [ ] Production `.env` with real SMTP (a Gmail App Password, `MAIL_MAILER=smtp`) — still `MAIL_MAILER=log`
+- [x] Deploy the API (`deploy/deploy.sh`: build, migrations, PM2 reload), users created
+- [x] Web build on the same domain, `/downloads` set up (Nginx)
+- [ ] Nightly backup cron (DB, 30 days) **and one test restore** — waiting for the owner's go-ahead (manual backups are taken before each deploy)
+- [x] Releases with `deploy/publish-app.sh`: APK (64-bit) + web, `node ace app:release`; latest 1.1.3+5 (2026-11-16). Windows installer: not now (APK only)
+- [x] Installed on the owner's phone; the real database `flyash` started clean on 2026-11-16 (users, tokens and factory profile kept)
 
 ---
 

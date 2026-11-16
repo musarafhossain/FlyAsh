@@ -230,7 +230,7 @@ A row means the labour was **present** that day. No row means absent (there is n
 
 **Unique:** `(labour_id, date)`. **Index:** `(date)`. "Not marked" = no row.
 
-Products have no unit (migration 0024) and no cost (migration 0025): a product is a name and a price. Sales keep no cost or per-sale profit; net profit = sales without tax − expenses − wages.
+Products have no unit (migration 0024) and no cost (migration 0025): a product is a name and a price. Sales keep no cost or per-sale profit; net profit = sales with tax − expenses − wages paid (since 2026-11-16, §4.3).
 
 ### 3.12 (removed) `labour_advances`
 

@@ -21,7 +21,7 @@
 | Backend | **AdonisJS 7** (TypeScript) on **Node.js 24 LTS** |
 | ORM / validation / auth | Lucid ORM · VineJS · `@adonisjs/auth` access tokens |
 | Email | `@adonisjs/mail` over SMTP (password reset OTP) |
-| Database | **MariaDB**: XAMPP's bundled MariaDB in development, MariaDB 11.4 LTS in production |
+| Database | **MariaDB / MySQL**: XAMPP's bundled MariaDB in development; the VPS (test server) runs **MySQL 8**. The schema works on both (window functions need MariaDB 10.2+ / MySQL 8) |
 | Web server (prod) | Nginx (reverse proxy + static files) + PM2 (Node process manager) |
 | OS (prod) | Ubuntu Server 24.04 LTS on a VPS |
 | SSL | Let's Encrypt (certbot) |

@@ -1,7 +1,7 @@
 # FlyAsh: Project Documents
 
 FlyAsh is a sales, labour and expense management app for a fly ash brick factory.
-It runs on **Android, Web and Windows**, built with **Flutter + AdonisJS + MariaDB**.
+It runs on **Android, Web and Windows**, built with **Flutter + AdonisJS + MariaDB / MySQL** (MariaDB in development, MySQL 8 on the VPS).
 
 | # | Document | What it answers |
 |---|---|---|
