@@ -45,6 +45,8 @@ Future<void> browserBack(WidgetTester tester, String previous) async {
     (_) {},
   );
   await tester.pumpAndSettle();
+  // Past BackGuard's safety timer.
+  await tester.pump(const Duration(seconds: 2));
 }
 
 void main() {
@@ -89,40 +91,29 @@ void main() {
   });
 
   group('web: the browser back button', () {
-    final reported = <Object?>[];
+    var forwardSteps = 0;
 
     setUp(() {
       BackGuard.webOverride = true;
-      reported.clear();
+      forwardSteps = 0;
+      BackGuard.instance
+        ..resetForTest()
+        ..stepForward = () => forwardSteps++;
     });
     tearDown(() => BackGuard.webOverride = false);
 
-    void recordUrlUpdates(WidgetTester tester) {
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.navigation,
-        (call) async {
-          if (call.method == 'routeInformationUpdated') {
-            reported.add(call.arguments);
-          }
-          return null;
-        },
-      );
-    }
-
-    testWidgets('drawer open: closes it, keeps the page and its URL', (
-      tester,
-    ) async {
+    testWidgets('drawer open: closes it, keeps the page, and steps forward '
+        'to the entry it was on (no new entry)', (tester) async {
       await openAt(tester, '/sales');
-      recordUrlUpdates(tester);
       await openDrawer(tester);
       await browserBack(tester, '/home');
       expect(drawerOpen(tester), isFalse);
       expect(path(), '/sales');
-      expect(
-        reported.whereType<Map<Object?, Object?>>().last['uri'],
-        '/sales',
-        reason: 'the address bar shows the current page again',
-      );
+      expect(forwardSteps, 1);
+      // The step forward arrives as a history event: it changes nothing
+      await browserBack(tester, '/sales');
+      expect(path(), '/sales');
+      expect(drawerOpen(tester), isFalse);
     });
 
     testWidgets('dialog open: closes it, keeps the page', (tester) async {

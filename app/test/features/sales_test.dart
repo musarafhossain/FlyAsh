@@ -392,12 +392,12 @@ void main() {
       200,
       scrollable: pageScroll,
     );
-    expect(find.text('+ ₹1,500.00'), findsOneWidget); // transport
-    expect(find.text('− ₹500.00'), findsOneWidget); // discount
-    expect(find.text('₹38,000.00'), findsOneWidget); // total
+    expect(find.text('+ ₹1,500'), findsOneWidget); // transport
+    expect(find.text('− ₹500'), findsOneWidget); // discount
+    expect(find.text('₹38,000'), findsOneWidget); // total
     expect(find.text('Profit'), findsNothing);
     expect(find.text('Production cost'), findsNothing);
-    expect(find.text('₹28,000.00'), findsOneWidget); // due
+    expect(find.text('₹28,000'), findsOneWidget); // due
 
     await tester.scrollUntilVisible(
       find.text('Payments (1)'),

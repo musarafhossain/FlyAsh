@@ -59,27 +59,11 @@ Future<bool> deleteProduct(
   ValueChanged<bool>? onBusy,
 }) async {
   final l = context.l10n;
-  final ok = await showConfirmDialog(
+  // The dialog waits for the server; the row goes when it is really gone.
+  return confirmDelete(
     context,
     title: l.deleteProductTitle(p.name),
     message: l.deleteProductMessage,
-    confirmLabel: l.delete,
-    destructive: true,
+    delete: () => ref.read(productsRepositoryProvider).delete(p.id),
   );
-  if (!ok || !context.mounted) return false;
-  onBusy?.call(true);
-  try {
-    // Optimistic: the row disappears at once and comes back on failure.
-    final message = await ref.optimisticRemove(
-      p.id,
-      () => ref.read(productsRepositoryProvider).delete(p.id),
-    );
-    if (context.mounted) showMessage(context, message);
-    return true;
-  } on Failure catch (f) {
-    if (context.mounted) showMessage(context, failureText(context, f));
-    return false;
-  } finally {
-    onBusy?.call(false);
-  }
 }

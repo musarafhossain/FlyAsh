@@ -19,8 +19,9 @@ export default class DashboardService {
       .sum('total as amount')
       .first()
 
+    // Delivered sales and open bookings, like the customer list's dues.
     const due = await notDeletedSales()
-      .where('status', 'delivered')
+      .whereIn('status', ['delivered', 'booked'])
       .sum('due_amount as total')
       .first()
 

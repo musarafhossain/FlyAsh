@@ -216,8 +216,11 @@ void main() {
     expect(find.byType(LabourTile), findsNWidgets(2));
     expect(find.text('₹450 / day'), findsOneWidget);
     expect(find.text('₹15,000 / month'), findsOneWidget);
-    expect(find.text('Present'), findsOneWidget);
-    expect(find.text('Absent'), findsOneWidget);
+    // All-time wage on the right, no present / absent
+    expect(find.text('Present'), findsNothing);
+    expect(find.text('Absent'), findsNothing);
+    expect(find.textContaining('Paid ₹'), findsNWidgets(2));
+    expect(find.textContaining('Bal ₹'), findsNWidgets(2));
     expect(find.byType(DataTableCard), findsNothing);
   });
 
@@ -233,10 +236,14 @@ void main() {
     expect(find.byType(LabourTile), findsNWidgets(3));
   });
 
-  testWidgets('desktop: a table with wage, joined and today', (tester) async {
+  testWidgets('desktop: a table with wage and all-time earned, paid, balance', (
+    tester,
+  ) async {
     await openLabours(tester, size: const Size(1440, 900));
     expect(find.byType(DataTableCard), findsOneWidget);
-    expect(find.text('25 Aug 2026'), findsWidgets);
+    expect(find.text('Earned'), findsOneWidget, reason: 'column header');
+    expect(find.text('Balance'), findsOneWidget);
+    expect(find.text('Today'), findsNothing, reason: 'no present column');
     expect(tester.takeException(), isNull);
   });
 

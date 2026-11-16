@@ -1326,4 +1326,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wageEdited => 'edited';
+
+  @override
+  String get keepThis => 'Keep this';
+
+  @override
+  String get yesDelete => 'Yes, delete';
+
+  @override
+  String get resetDayWage => 'Back to the usual wage';
+
+  @override
+  String get salesCountLabel => 'Sales';
+
+  @override
+  String get totalWageAllTime => 'Total wage (all time)';
+
+  @override
+  String get daysPresent => 'Days present';
+
+  @override
+  String paidShort(String amount) {
+    return 'Paid $amount';
+  }
+
+  @override
+  String balanceShort(String amount) {
+    return 'Bal $amount';
+  }
+
+  @override
+  String get removeTax => 'Remove tax';
 }

@@ -146,7 +146,7 @@ class _AddPaymentSheetState extends State<_AddPaymentSheet> {
               final value = Decimal.parse(x!.trim());
               if (value <= Decimal.zero) return l.invalidAmount;
               return value > due
-                  ? l.cannotExceedDue(Fmt.money(due.toString(), decimals: true))
+                  ? l.cannotExceedDue(Fmt.money(due.toString()))
                   : null;
             },
           ),

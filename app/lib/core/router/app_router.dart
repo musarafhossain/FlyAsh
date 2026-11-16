@@ -190,8 +190,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
-  BackGuard.instance.currentUri = () =>
-      router.routeInformationProvider.value.uri;
   // Web: the browser history follows the page stack (see WebHistorySync).
   WebHistorySync.instance.currentLocation = () =>
       router.routeInformationProvider.value.uri.toString();

@@ -199,7 +199,7 @@ void main() {
     await longPress(tester, 'Tiffin for 15 labours');
     expect(rowMenu(tester), ['Edit', 'Delete']);
     await tapMenu(tester, 'Delete');
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
     expect(find.text('Expense deleted'), findsOneWidget);
     expect(find.text('Tiffin for 15 labours'), findsNothing);
@@ -352,7 +352,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
     expect(find.text('Belt changed'), findsNothing);
   });

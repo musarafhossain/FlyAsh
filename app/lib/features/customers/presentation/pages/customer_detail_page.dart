@@ -11,6 +11,7 @@ import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/contact_launcher.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../core/widgets/action_menu.dart';
 import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/widgets/list_items.dart';
@@ -131,23 +132,15 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
           if (mounted) showMessage(context, failureText(context, f));
         }
       case _MenuAction.delete:
-        final ok = await showConfirmDialog(
+        // 409 (has sales): the server's message says to deactivate instead;
+        // the dialog stays open with it.
+        final deleted = await confirmDelete(
           context,
           title: l.deleteCustomerTitle(c.name),
           message: l.deleteCustomerMessage,
-          confirmLabel: l.delete,
-          destructive: true,
+          delete: () => repo.delete(c.id),
         );
-        if (!ok || !mounted) return;
-        try {
-          final message = await repo.delete(c.id);
-          if (!mounted) return;
-          showMessage(context, message);
-          context.pop();
-        } on Failure catch (f) {
-          // 409: has sales → the server says to deactivate instead.
-          if (mounted) showMessage(context, failureText(context, f));
-        }
+        if (deleted && mounted) context.pop();
     }
   }
 
@@ -171,32 +164,25 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
               onPressed: _edit,
               icon: const Icon(Icons.edit_outlined),
             ),
-            PopupMenuButton<_MenuAction>(
+            // The same ⋮ menu as every other detail page.
+            ActionMenuButton(
               tooltip: l.moreActions,
-              onSelected: _onMenu,
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  value: _MenuAction.toggleActive,
-                  child: ListTile(
-                    leading: Icon(
-                      c.isActive ? Icons.block : Icons.check_circle_outline,
-                    ),
-                    title: Text(c.isActive ? l.deactivate : l.activate),
+              groups: [
+                [
+                  ActionMenuItem(
+                    icon: c.isActive ? Icons.block : Icons.check_circle_outline,
+                    label: c.isActive ? l.deactivate : l.activate,
+                    onSelected: () => _onMenu(_MenuAction.toggleActive),
                   ),
-                ),
-                PopupMenuItem(
-                  value: _MenuAction.delete,
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.delete_outline,
-                      color: context.tokens.error,
-                    ),
-                    title: Text(
-                      l.delete,
-                      style: TextStyle(color: context.tokens.error),
-                    ),
+                ],
+                [
+                  ActionMenuItem(
+                    icon: Icons.delete_outline,
+                    label: l.delete,
+                    destructive: true,
+                    onSelected: () => _onMenu(_MenuAction.delete),
                   ),
-                ),
+                ],
               ],
             ),
           ],
@@ -219,11 +205,13 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                     ],
                   ))
           : PagedList<SaleSummary>(
+              skeleton: const SkeletonRows(),
               itemId: (item) => item.id,
               showCount: false,
               onRefresh: _load,
               controller: _sales,
               maxWidth: 960,
+              headerGap: 0, // the divider under "Sales" is the gap
               fetch: (page) => ref
                   .read(customersRepositoryProvider)
                   .sales(widget.customerId, page: page),
@@ -255,6 +243,12 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                         value: Fmt.money(c.totalDue),
                         tint: c.hasDue ? KpiTint.rose : KpiTint.sky,
                       ),
+                      KpiChip(
+                        icon: Icons.receipt_long_outlined,
+                        label: l.salesCountLabel,
+                        value: '${c.salesCount}',
+                        tint: KpiTint.amber,
+                      ),
                     ],
                   ),
                   SectionHeader(
@@ -262,6 +256,7 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                     actionLabel: c.isActive ? l.newSale : null,
                     onAction: c.isActive ? _newSale : null,
                   ),
+                  const Divider(height: 1),
                 ],
               ),
               empty: EmptyState(

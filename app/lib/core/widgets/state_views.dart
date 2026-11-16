@@ -4,6 +4,7 @@ import '../l10n/l10n.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
+import 'form_submit.dart' show showMessage;
 
 /// Nothing to show yet (§9.15): icon, title, hint and an optional action.
 class EmptyState extends StatelessWidget {
@@ -227,8 +228,31 @@ class SkeletonList extends StatelessWidget {
   );
 }
 
-/// Confirm dialog (§9.15). Returns true when confirmed.
-/// [destructive] shows the confirm button in the error color.
+/// Compact dialog buttons for phones (04-UI-UX §9.15): 40 px high, 13 px
+/// labels. Use for every dialog's actions.
+ButtonStyle dialogButtonStyle(BuildContext context) => ButtonStyle(
+  minimumSize: const WidgetStatePropertyAll(Size(64, 40)),
+  padding: const WidgetStatePropertyAll(
+    EdgeInsets.symmetric(horizontal: Space.s4),
+  ),
+  textStyle: WidgetStatePropertyAll(
+    AppTypography.label.copyWith(fontWeight: FontWeight.w600),
+  ),
+  visualDensity: VisualDensity.compact,
+);
+
+/// Title style for dialogs (smaller than page headings).
+TextStyle dialogTitleStyle(BuildContext context) =>
+    AppTypography.title.copyWith(color: context.tokens.textPrimary);
+
+/// Asks before an action. Returns true when confirmed (and, with
+/// [onConfirm], when the action succeeded).
+///
+/// With [onConfirm] the dialog stays open while the action runs: both
+/// buttons are disabled and a spinner shows next to the confirm label.
+/// [onConfirm] returns null when it worked (the dialog closes) or an error
+/// message: it is shown in the dialog and as a toast, the buttons are on
+/// again, and the user closes the dialog or tries again.
 Future<bool> showConfirmDialog(
   BuildContext context, {
   required String title,
@@ -236,36 +260,136 @@ Future<bool> showConfirmDialog(
   required String confirmLabel,
   String? cancelLabel,
   bool destructive = false,
+  Future<String?> Function()? onConfirm,
 }) async {
-  final t = context.tokens;
   final result = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(
-        title,
-        style: AppTypography.h3.copyWith(color: t.textPrimary),
-      ),
-      content: Text(
-        message,
-        style: AppTypography.body.copyWith(color: t.textSecondary),
-      ),
-      actions: [
-        OutlinedButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(cancelLabel ?? context.l10n.cancel),
-        ),
-        FilledButton(
-          style: destructive
-              ? FilledButton.styleFrom(
-                  backgroundColor: t.error,
-                  foregroundColor: t.surface,
-                )
-              : null,
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(confirmLabel),
-        ),
-      ],
+    builder: (_) => _ConfirmDialog(
+      title: title,
+      message: message,
+      confirmLabel: confirmLabel,
+      cancelLabel: cancelLabel ?? context.l10n.cancel,
+      destructive: destructive,
+      onConfirm: onConfirm,
+      toastContext: context,
     ),
   );
   return result ?? false;
+}
+
+class _ConfirmDialog extends StatefulWidget {
+  const _ConfirmDialog({
+    required this.title,
+    required this.message,
+    required this.confirmLabel,
+    required this.cancelLabel,
+    required this.destructive,
+    required this.onConfirm,
+    required this.toastContext,
+  });
+
+  final String title;
+  final String message;
+  final String confirmLabel;
+  final String cancelLabel;
+  final bool destructive;
+  final Future<String?> Function()? onConfirm;
+  final BuildContext toastContext;
+
+  @override
+  State<_ConfirmDialog> createState() => _ConfirmDialogState();
+}
+
+class _ConfirmDialogState extends State<_ConfirmDialog> {
+  bool _busy = false;
+  String? _error;
+
+  Future<void> _confirm() async {
+    final action = widget.onConfirm;
+    if (action == null) {
+      Navigator.of(context).pop(true);
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final error = await action();
+    if (!mounted) return;
+    if (error == null) {
+      Navigator.of(context).pop(true);
+      return;
+    }
+    setState(() {
+      _busy = false;
+      _error = error;
+    });
+    if (widget.toastContext.mounted) showMessage(widget.toastContext, error);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final style = dialogButtonStyle(context);
+    final fg = widget.destructive ? t.surface : t.onPrimary;
+    return PopScope(
+      // No closing (back, tap outside) while the action runs.
+      canPop: !_busy,
+      child: AlertDialog(
+        title: Text(widget.title, style: dialogTitleStyle(context)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.message,
+              style: AppTypography.body.copyWith(color: t.textSecondary),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: Space.s3),
+              Text(
+                _error!,
+                key: const Key('confirmDialogError'),
+                style: AppTypography.body.copyWith(color: t.error),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          OutlinedButton(
+            style: style,
+            onPressed: _busy ? null : () => Navigator.of(context).pop(false),
+            child: Text(widget.cancelLabel),
+          ),
+          FilledButton(
+            style: widget.destructive
+                ? style.merge(
+                    FilledButton.styleFrom(
+                      backgroundColor: t.error,
+                      foregroundColor: t.surface,
+                      disabledBackgroundColor: t.error.withValues(alpha: 0.6),
+                      disabledForegroundColor: t.surface,
+                    ),
+                  )
+                : style,
+            onPressed: _busy ? null : _confirm,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(widget.confirmLabel),
+                if (_busy) ...[
+                  const SizedBox(width: Space.s2),
+                  SizedBox.square(
+                    key: const Key('confirmDialogSpinner'),
+                    dimension: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: fg),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

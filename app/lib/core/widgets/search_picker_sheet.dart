@@ -9,6 +9,9 @@ import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import 'paged_list.dart';
 import 'state_views.dart';
+import 'list_items.dart';
+import 'search_field.dart';
+import 'skeletons.dart';
 
 /// Bottom sheet to pick one item from a paginated, searchable API list
 /// (customer, product …). Pops with the chosen item, or null.
@@ -88,10 +91,9 @@ class _SearchPickerState<T> extends State<_SearchPicker<T>> {
                 style: AppTypography.h3.copyWith(color: t.textPrimary),
               ),
               const SizedBox(height: Space.s3),
-              TextField(
+              SearchField(
                 controller: _search,
-                autofocus: MediaQuery.sizeOf(context).width >= 600,
-                textInputAction: TextInputAction.search,
+                hintText: widget.searchHint,
                 onChanged: (_) {
                   _debounce?.cancel();
                   _debounce = Timer(
@@ -99,10 +101,6 @@ class _SearchPickerState<T> extends State<_SearchPicker<T>> {
                     _list.refresh,
                   );
                 },
-                decoration: InputDecoration(
-                  hintText: widget.searchHint,
-                  prefixIcon: const Icon(Icons.search),
-                ),
               ),
               if (widget.header != null) ...[
                 const SizedBox(height: Space.s2),
@@ -116,13 +114,12 @@ class _SearchPickerState<T> extends State<_SearchPicker<T>> {
             controller: _list,
             fetch: (page) => widget.fetch(page, _search.text.trim()),
             empty: EmptyState(icon: Icons.search_off, title: l.noResults),
-            builder: (context, items) => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            skeleton: const SkeletonRows(trailing: SkeletonTrailing.amount),
+            // The same flat rows, split by lines, as the lists themselves.
+            builder: (context, items) => ListGroup(
+              flat: true,
               children: [
-                for (final item in items) ...[
-                  widget.itemBuilder(context, item),
-                  const SizedBox(height: Space.s2),
-                ],
+                for (final item in items) widget.itemBuilder(context, item),
               ],
             ),
           ),

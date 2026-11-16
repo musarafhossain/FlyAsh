@@ -21,6 +21,9 @@ import '../../../../core/network/data_changed.dart';
 import '../../data/products_repository_impl.dart';
 import '../../domain/product.dart';
 import '../product_actions.dart';
+import '../../../../core/widgets/search_field.dart';
+import '../../../../core/router/section_events.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Which products the list shows.
 enum ProductFilter { all, active, inactive }
@@ -107,6 +110,13 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Leaving the section clears the search (03-AppFlow §13).
+    ref.onSectionLeft('/products', () {
+      if (_search.text.isEmpty) return;
+      setState(_search.clear);
+      _debounce?.cancel();
+      _list.refresh();
+    });
     final l = context.l10n;
     ref.onDataChanged({DataTag.products}, _list.revalidate);
     final repo = ref.watch(productsRepositoryProvider);
@@ -128,6 +138,10 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
         label: Text(l.addProduct),
       ),
       body: PagedList<Product>(
+        skeleton: const SkeletonRows(
+          subtitle: false,
+          trailing: SkeletonTrailing.amount,
+        ),
         itemId: (item) => item.id,
         showCount: false,
         controller: _list,
@@ -143,24 +157,10 @@ class _ProductsListPageState extends ConsumerState<ProductsListPage> {
         header: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
+            SearchField(
               controller: _search,
+              hintText: l.searchProducts,
               onChanged: _onSearch,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: l.searchProducts,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: searching
-                    ? IconButton(
-                        tooltip: l.clear,
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          _search.clear();
-                          _onSearch('');
-                        },
-                      )
-                    : null,
-              ),
             ),
             const SizedBox(height: Space.s3),
             Wrap(
@@ -305,7 +305,7 @@ class ProductTile extends StatelessWidget {
                   const SizedBox(height: Space.s1),
                 ],
                 Text(
-                  Fmt.money(p.defaultPrice, decimals: true),
+                  Fmt.money(p.defaultPrice),
                   style: AppTypography.bodyStrong.copyWith(
                     color: t.textPrimary,
                     fontFeatures: AppTypography.tabular,
@@ -329,7 +329,7 @@ class _ProductsTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    String money(String v) => Fmt.money(v, decimals: true);
+    String money(String v) => Fmt.money(v);
     return DataTableCard(
       columns: [
         TableColumnDef(l.productName, flex: 4),

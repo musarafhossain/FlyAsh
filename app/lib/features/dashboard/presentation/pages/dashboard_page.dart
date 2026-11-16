@@ -11,13 +11,13 @@ import '../../../../core/network/query_cache.dart';
 import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/router/app_shell.dart';
+import '../../../../core/router/section_app_bar.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/list_items.dart';
-import '../../../../core/widgets/skeletons.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../sales/presentation/widgets/sale_list_items.dart';
 import '../../data/dashboard_repository_impl.dart';
@@ -80,7 +80,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final overdue = data?.overdueDeliveries ?? 0;
 
     return Scaffold(
-      appBar: AppBar(
+      // In the swipe pager the bar stays put; only its contents change.
+      backgroundColor: sectionBackground(context),
+      appBar: SectionAppBar(
         leading: ShellMenuButton.maybe(context),
         title: Text(l.navHome),
         actions: [
@@ -113,7 +115,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               message: failureText(context, _error!),
                               onRetry: _load,
                             )
-                          : const _Loading())
+                          : const _Body(data: null))
                     : _Body(data: data),
               ),
             ),
@@ -124,78 +126,54 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }
 }
 
-class _Loading extends StatelessWidget {
-  const _Loading();
-
-  @override
-  /// Today's sales card, the KPI tiles, quick actions and
-  /// recent sales, in the same places as the real Home.
-  Widget build(BuildContext context) => const Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      SkeletonBox(height: 120, radius: Radii.lg),
-      SizedBox(height: Space.s3),
-      SkeletonKpis(count: 2),
-      SizedBox(height: Space.s2),
-      SkeletonKpis(count: 2),
-      SkeletonSectionTitle(),
-      Row(
-        children: [
-          Expanded(child: SkeletonBox(height: 84, radius: Radii.md)),
-          SizedBox(width: Space.s2),
-          Expanded(child: SkeletonBox(height: 84, radius: Radii.md)),
-          SizedBox(width: Space.s2),
-          Expanded(child: SkeletonBox(height: 84, radius: Radii.md)),
-          SizedBox(width: Space.s2),
-          Expanded(child: SkeletonBox(height: 84, radius: Radii.md)),
-        ],
-      ),
-      SkeletonSectionTitle(action: true),
-      SkeletonList(count: 3),
-    ],
-  );
-}
-
 class _Body extends ConsumerWidget {
   const _Body({required this.data});
 
-  final DashboardData data;
+  /// Null while loading: the same layout with the static texts (titles,
+  /// labels, quick actions) and placeholders only for the numbers and the
+  /// recent sales, so nothing moves when the data arrives.
+  final DashboardData? data;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final wide = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final d = data;
+    final loading = d == null;
 
     final kpis = KpiRow(
       children: [
         KpiChip(
           icon: Icons.account_balance_wallet_outlined,
           label: l.totalDue,
-          value: Fmt.money(d.totalDue),
+          value: Fmt.money(d?.totalDue),
+          loading: loading,
           tint: KpiTint.rose,
           onTap: () => context.go('/customers?filter=due'),
         ),
         KpiChip(
           icon: Icons.local_shipping_outlined,
-          label: d.overdueDeliveries > 0
-              ? l.deliveriesTodayOverdue('${d.overdueDeliveries}')
+          label: (d?.overdueDeliveries ?? 0) > 0
+              ? l.deliveriesTodayOverdue('${d!.overdueDeliveries}')
               : l.deliveriesToday,
-          value: '${d.deliveriesToday}',
+          value: '${d?.deliveriesToday ?? 0}',
+          loading: loading,
           tint: KpiTint.sky,
           onTap: () => context.go('/sales/upcoming'),
         ),
         KpiChip(
           icon: Icons.how_to_reg_outlined,
           label: l.presentToday,
-          value: '${d.presentToday}/${d.laboursTotal}',
+          value: '${d?.presentToday ?? 0}/${d?.laboursTotal ?? 0}',
+          loading: loading,
           tint: KpiTint.green,
           onTap: () => context.go('/attendance'),
         ),
         KpiChip(
           icon: Icons.receipt_long_outlined,
           label: l.monthExpenses,
-          value: Fmt.money(d.monthExpenses),
+          value: Fmt.money(d?.monthExpenses),
+          loading: loading,
           tint: KpiTint.amber,
           onTap: () => context.go('/expenses'),
         ),
@@ -211,21 +189,25 @@ class _Body extends ConsumerWidget {
             QuickActionTile(
               icon: Icons.point_of_sale_outlined,
               label: l.newSale,
+              tint: KpiTint.sky,
               onTap: () => context.go('/sales/new?type=instant'),
             ),
             QuickActionTile(
               icon: Icons.event_available_outlined,
               label: l.newBooking,
+              tint: KpiTint.rose,
               onTap: () => context.go('/sales/new?type=booking'),
             ),
             QuickActionTile(
               icon: Icons.how_to_reg_outlined,
               label: l.navAttendance,
+              tint: KpiTint.green,
               onTap: () => context.go('/attendance'),
             ),
             QuickActionTile(
               icon: Icons.receipt_long_outlined,
               label: l.addExpense,
+              tint: KpiTint.amber,
               onTap: () => context.go('/expenses/new'),
             ),
           ],
@@ -241,7 +223,8 @@ class _Body extends ConsumerWidget {
           actionLabel: l.viewAll,
           onAction: () => context.go('/sales'),
         ),
-        if (d.recentSales.isEmpty)
+        if (loading) const SkeletonList(count: 3),
+        if (d != null && d.recentSales.isEmpty)
           AppCard(
             child: Text(
               l.noSalesYet,
@@ -250,7 +233,7 @@ class _Body extends ConsumerWidget {
               ),
             ),
           ),
-        if (d.recentSales.isNotEmpty)
+        if (d != null && d.recentSales.isNotEmpty)
           ListGroup(
             flat: true,
             children: [
@@ -271,8 +254,9 @@ class _Body extends ConsumerWidget {
         HeroCard(
           icon: Icons.trending_up,
           label: l.todaysSales,
-          value: Fmt.money(d.todaySalesAmount),
-          caption: l.salesCountCaption('${d.todaySalesCount}'),
+          value: Fmt.money(d?.todaySalesAmount),
+          caption: l.salesCountCaption('${d?.todaySalesCount ?? 0}'),
+          loading: loading,
           onTap: () => context.go('/sales?period=today'),
         ),
         const SizedBox(height: Space.s3),

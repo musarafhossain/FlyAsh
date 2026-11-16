@@ -10,8 +10,11 @@ import {
   listCustomersValidator,
 } from '#validators/customer'
 
+// Delivered sales and open bookings count (a booking's due is owed too);
+// cancelled and deleted sales do not.
 const DUE_SQL = `(SELECT COALESCE(SUM(s.due_amount), 0) FROM sales s
-  WHERE s.customer_id = customers.id AND s.status = 'delivered' AND s.deleted_at IS NULL)`
+  WHERE s.customer_id = customers.id AND s.status IN ('delivered', 'booked')
+  AND s.deleted_at IS NULL)`
 
 export default class CustomersController {
   async index({ request, response }: HttpContext) {

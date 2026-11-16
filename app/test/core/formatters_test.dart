@@ -6,8 +6,19 @@ void main() {
   test('money uses ₹ and Indian grouping', () {
     expect(Fmt.money('48500.00'), '₹48,500');
     expect(Fmt.money('125000.00'), '₹1,25,000');
-    expect(Fmt.money('12345678.50', decimals: true), '₹1,23,45,678.50');
+    expect(Fmt.money('12345678.50'), '₹1,23,45,678.50');
     expect(Fmt.money(null), '₹0');
+  });
+
+  test('money: paise shown only when there are some (2 digits), rounded '
+      'half up to paise', () {
+    expect(Fmt.money('0.11'), '₹0.11');
+    expect(Fmt.money('800.5'), '₹800.50');
+    expect(Fmt.money('7.00'), '₹7');
+    expect(Fmt.money('7'), '₹7');
+    expect(Fmt.money('19320.00'), '₹19,320');
+    expect(Fmt.money('2.005'), '₹2.01');
+    expect(Fmt.money('2.004'), '₹2');
   });
 
   test('count keeps whole numbers clean and up to 2 decimals', () {

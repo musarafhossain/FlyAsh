@@ -18,6 +18,11 @@ import '../../../../core/network/data_changed.dart';
 import '../../../auth/domain/app_user.dart';
 import '../../data/users_repository_impl.dart';
 import '../user_actions.dart';
+import '../../../../core/widgets/search_field.dart';
+import '../../../../core/router/section_events.dart';
+import '../../../../core/widgets/skeletons.dart';
+import '../../../../core/theme/app_tokens.dart';
+import '../../../../core/theme/app_typography.dart';
 
 /// Users list (03-AppFlow §10): everyone except the logged-in user.
 /// Phone/tablet: cards. Desktop: a table.
@@ -56,6 +61,13 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Leaving the section clears the search (03-AppFlow §13).
+    ref.onSectionLeft('/users', () {
+      if (_search.text.isEmpty) return;
+      setState(_search.clear);
+      _debounce?.cancel();
+      _list.refresh();
+    });
     final l = context.l10n;
     ref.onDataChanged({DataTag.users}, _list.revalidate);
     final repo = ref.watch(usersRepositoryProvider);
@@ -76,28 +88,15 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
         label: Text(l.addUser),
       ),
       body: PagedList<AppUser>(
+        skeleton: const SkeletonRows(trailing: SkeletonTrailing.none),
         itemId: (item) => item.id,
         showCount: false,
         controller: _list,
         fetch: (page) => repo.list(page: page, search: _search.text),
-        header: TextField(
+        header: SearchField(
           controller: _search,
+          hintText: l.searchNamePhone,
           onChanged: _onSearch,
-          textInputAction: TextInputAction.search,
-          decoration: InputDecoration(
-            hintText: l.searchNamePhone,
-            prefixIcon: const Icon(Icons.search),
-            suffixIcon: searching
-                ? IconButton(
-                    tooltip: l.clear,
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      _search.clear();
-                      _onSearch('');
-                    },
-                  )
-                : null,
-          ),
         ),
         empty: searching
             ? EmptyState(icon: Icons.search_off, title: l.noResults)
@@ -117,15 +116,8 @@ class _UsersListPageState extends ConsumerState<UsersListPage> {
                 flat: true,
                 children: [
                   for (final u in users)
-                    EntityListTile(
-                      leading: InitialsAvatar(u.name, heroTag: 'user-${u.id}'),
-                      title: u.name,
-                      subtitle: u.phone,
-                      meta: l.lastLogin(lastLoginText(context, u)),
-                      status: u.isActive ? l.active : l.inactive,
-                      statusTone: u.isActive
-                          ? StatusTone.success
-                          : StatusTone.neutral,
+                    UserTile(
+                      user: u,
                       onTap: () => _open('/users/${u.id}', extra: u),
                       onLongPress: (row) => showUserMenu(
                         row,
@@ -161,7 +153,6 @@ class _UsersTable extends StatelessWidget {
         TableColumnDef(l.nameField, flex: 3),
         TableColumnDef(l.phoneField, flex: 2),
         TableColumnDef(l.emailField, flex: 3),
-        TableColumnDef(l.lastLoginColumn, flex: 2),
         TableColumnDef(l.status, flex: 2, alignEnd: true),
       ],
       rows: [
@@ -176,7 +167,6 @@ class _UsersTable extends StatelessWidget {
             ),
             CellText(u.phone),
             CellText(u.email ?? '—'),
-            CellText(lastLoginText(context, u)),
             StatusPill(
               u.isActive ? l.active : l.inactive,
               tone: u.isActive ? StatusTone.success : StatusTone.neutral,
@@ -184,6 +174,66 @@ class _UsersTable extends StatelessWidget {
           ],
       ],
       onTapRow: (i) => onOpen(users[i]),
+    );
+  }
+}
+
+/// Phone/tablet row, the same as a customer row: initials · name · phone
+/// (or "-") | "Inactive" when deactivated. No last login in the list.
+class UserTile extends StatelessWidget {
+  const UserTile({super.key, required this.user, this.onTap, this.onLongPress});
+
+  final AppUser user;
+  final VoidCallback? onTap;
+
+  /// Opens the action menu next to this row (gets the row's context).
+  final ValueChanged<BuildContext>? onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final u = user;
+    return Opacity(
+      opacity: u.isActive ? 1 : 0.6,
+      child: ListRowSurface(
+        onTap: onTap,
+        onLongPress: onLongPress == null ? null : () => onLongPress!(context),
+        padding: const EdgeInsets.symmetric(
+          horizontal: Space.s4,
+          vertical: Space.s3,
+        ),
+        child: Row(
+          children: [
+            InitialsAvatar(u.name, heroTag: 'user-${u.id}'),
+            const SizedBox(width: Space.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    u.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.title.copyWith(color: t.textPrimary),
+                  ),
+                  Text(
+                    u.phone.isEmpty ? '-' : u.phone,
+                    style: AppTypography.caption.copyWith(
+                      color: t.textSecondary,
+                      fontFeatures: AppTypography.tabular,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (!u.isActive) ...[
+              const SizedBox(width: Space.s2),
+              StatusPill(l.inactive),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

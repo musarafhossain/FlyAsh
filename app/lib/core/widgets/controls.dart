@@ -240,3 +240,31 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) =>
       old.value != value || old.arc != arc || old.track != track;
 }
+
+/// Small choice chip (payment method, tax %): caption-size label, compact,
+/// but still a 48 dp touch target (like the expense category chips).
+class CompactChoiceChip extends StatelessWidget {
+  const CompactChoiceChip({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final String label;
+  final bool selected;
+  final ValueChanged<bool> onSelected;
+
+  @override
+  Widget build(BuildContext context) => ChoiceChip(
+    label: Text(label),
+    selected: selected,
+    onSelected: onSelected,
+    showCheckmark: false,
+    labelStyle: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
+    labelPadding: const EdgeInsets.symmetric(horizontal: Space.s1),
+    padding: const EdgeInsets.symmetric(horizontal: Space.s2),
+    visualDensity: VisualDensity.compact,
+    materialTapTargetSize: MaterialTapTargetSize.padded,
+  );
+}

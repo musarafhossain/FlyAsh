@@ -8,7 +8,8 @@ import { API, createUser } from '#tests/helpers'
  * October 2026 sample:
  *  - instant sale 10 Oct: 1000 × 6.50 = 6500, paid 1000 UPI
  *  - booking 11 Oct delivered 20 Oct: 2000 × 6.50 = 13000, advance 3000 cash
- *  - booking 12 Oct not delivered: excluded from sales / dues
+ *  - booking 12 Oct not delivered (100 × 6.50 = 650 due): excluded from
+ *    sales, but its due counts in dues (owed on delivery)
  *  - expense 15 Oct: 850
  *  - daily labour ₹500 present 1 + 2 Oct: wages 1000
  */
@@ -110,9 +111,9 @@ test.group('Reports', (group) => {
     const dues = (await client.get(`${API}/reports/dues`).loginAs(user)).body().data
     const row = dues.items.find((d: any) => d.customer_id === customer.id)
     assert.containsSubset(row, {
-      total_due: '15500.00',
+      total_due: '16150.00',
       oldest_due_date: '2026-10-10',
-      sales_count: 2,
+      sales_count: 3,
     })
 
     const expenses = (await client.get(`${API}/reports/expenses?${range}`).loginAs(user)).body()

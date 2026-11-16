@@ -8,6 +8,7 @@ import '../../../../core/l10n/l10n.dart';
 import '../../../../core/network/session.dart';
 import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/router/app_shell.dart';
+import '../../../../core/router/section_app_bar.dart';
 import '../../../../core/utils/dates.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/list_items.dart';
@@ -22,6 +23,9 @@ import '../sale_labels.dart';
 import '../widgets/sale_filter_sheet.dart';
 import '../widgets/sale_list_items.dart';
 import '../sale_actions.dart';
+import '../../../../core/widgets/search_field.dart';
+import '../../../../core/router/section_events.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Sales list (03-AppFlow §5.3): tabs All / Instant / Booking, search by
 /// invoice no., customer or phone (400 ms debounce), filter sheet (date
@@ -107,6 +111,13 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Leaving the section clears the search (03-AppFlow §13).
+    ref.onSectionLeft('/sales', () {
+      if (_search.text.isEmpty) return;
+      setState(_search.clear);
+      _debounce?.cancel();
+      _apply(_filter.copyWith(search: ''));
+    });
     final l = context.l10n;
     ref.onDataChanged({DataTag.sales}, _list.revalidate);
     final repo = ref.watch(salesRepositoryProvider);
@@ -116,7 +127,9 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
         searching || _filter.type != null || _filter.activeCount > 0;
 
     return Scaffold(
-      appBar: AppBar(
+      // In the swipe pager the bar stays put; only its contents change.
+      backgroundColor: sectionBackground(context),
+      appBar: SectionAppBar(
         leading: ShellMenuButton.maybe(context),
         title: Text(l.navSales),
         actions: [
@@ -136,6 +149,7 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
         label: Text(l.newSale),
       ),
       body: PagedList<SaleSummary>(
+        skeleton: const SkeletonRows(),
         itemId: (item) => item.id,
         showCount: false,
         controller: _list,
@@ -156,25 +170,10 @@ class _SalesListPageState extends ConsumerState<SalesListPage> {
             Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: SearchField(
                     controller: _search,
+                    hintText: l.searchSales,
                     onChanged: _onSearch,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      hintText: l.searchSales,
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: searching
-                          ? IconButton(
-                              tooltip: l.clear,
-                              icon: const Icon(Icons.close),
-                              onPressed: () {
-                                _search.clear();
-                                _debounce?.cancel();
-                                _apply(_filter.copyWith(search: ''));
-                              },
-                            )
-                          : null,
-                    ),
                   ),
                 ),
                 const SizedBox(width: Space.s2),

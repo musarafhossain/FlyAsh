@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/error/failure.dart';
 import '../../../core/l10n/l10n.dart';
-import '../../../core/network/optimistic.dart';
 import '../../../core/network/session.dart';
 import '../../../core/widgets/action_menu.dart';
 import '../../../core/widgets/form_submit.dart';
@@ -151,10 +150,11 @@ Future<void> _cancel(BuildContext context, WidgetRef ref, SaleSummary s) async {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l.cancelBooking),
+        title: Text(l.cancelBooking, style: dialogTitleStyle(context)),
         content: Text(l.removePaymentsFirst),
         actions: [
           FilledButton(
+            style: dialogButtonStyle(context),
             onPressed: () => Navigator.of(context).pop(),
             child: Text(l.ok),
           ),
@@ -177,20 +177,10 @@ Future<void> _cancel(BuildContext context, WidgetRef ref, SaleSummary s) async {
 
 Future<void> _delete(BuildContext context, WidgetRef ref, SaleSummary s) async {
   final l = context.l10n;
-  final ok = await showConfirmDialog(
+  await confirmDelete(
     context,
     title: l.deleteSaleTitle(s.invoiceNo),
     message: l.deleteSaleMessage,
-    confirmLabel: l.delete,
-    destructive: true,
-  );
-  if (!ok || !context.mounted) return;
-  // Optimistic: the row disappears at once and comes back on failure.
-  await _run(
-    context,
-    () => ref.optimisticRemove(
-      s.id,
-      () => ref.read(salesRepositoryProvider).delete(s.id),
-    ),
+    delete: () => ref.read(salesRepositoryProvider).delete(s.id),
   );
 }

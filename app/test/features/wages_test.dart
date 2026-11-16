@@ -272,9 +272,9 @@ void main() {
   ) async {
     await openAt(tester, '/labours/wages/1?month=2026-11');
     expect(find.text('Present 8 · Absent 0'), findsOneWidget);
-    expect(find.text('₹4,000.00'), findsOneWidget); // earned
-    expect(find.text('− ₹500.00'), findsOneWidget); // paid early
-    expect(find.text('₹3,500.00'), findsOneWidget); // balance
+    expect(find.text('₹4,000'), findsOneWidget); // earned
+    expect(find.text('− ₹500'), findsOneWidget); // paid early
+    expect(find.text('₹3,500'), findsOneWidget); // balance
     expect(find.textContaining('Medical'), findsOneWidget);
     expect(find.textContaining('dvance'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Pay wage'), findsNothing);
@@ -302,7 +302,7 @@ void main() {
       'note': null,
     });
     expect(find.text('Wage payment recorded'), findsOneWidget);
-    expect(find.text('₹1,500.00'), findsOneWidget); // new balance
+    expect(find.text('₹1,500'), findsOneWidget); // new balance
     expect(find.text('Partial'), findsOneWidget);
     expect(find.text('09 Nov 2026 · UPI'), findsOneWidget);
   });
@@ -318,12 +318,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete payment'));
     await tester.pumpAndSettle();
-    expect(find.text('Delete payment of ₹500.00?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    expect(find.text('Delete payment of ₹500?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
     expect(last('DELETE', '/wage-payments/2'), isNotNull);
     expect(find.text('Wage payment deleted'), findsOneWidget);
-    expect(find.text('₹4,000.00'), findsNWidgets(2)); // earned = balance
+    expect(find.text('₹4,000'), findsNWidgets(2)); // earned = balance
   });
 
   testWidgets('day by day opens on tap', (tester) async {
@@ -333,7 +333,7 @@ void main() {
     expect(find.text('01 Nov 2026'), findsOneWidget);
     expect(find.text('02 Nov 2026'), findsOneWidget);
     expect(find.text('Present'), findsNWidgets(2));
-    expect(find.text('₹450.00'), findsNWidgets(2));
+    expect(find.text('₹450'), findsNWidgets(2));
   });
 
   testWidgets('labour page shows this month\'s wage and opens the detail', (

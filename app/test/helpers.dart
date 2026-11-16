@@ -89,3 +89,17 @@ double contrast(Color a, Color b) {
   final lo = la > lb ? lb : la;
   return (hi + 0.05) / (lo + 0.05);
 }
+
+/// A delete the server refused (03-AppFlow §13): the dialog stays open with
+/// the message (and a toast); "Keep this" closes it.
+Future<void> expectRefusedDelete(WidgetTester tester, String message) async {
+  expect(
+    find.descendant(of: find.byType(AlertDialog), matching: find.text(message)),
+    findsOneWidget,
+    reason: 'message in the dialog',
+  );
+  expect(find.text(message), findsNWidgets(2), reason: 'dialog + toast');
+  await tester.tap(find.widgetWithText(OutlinedButton, 'Keep this'));
+  await tester.pumpAndSettle();
+  expect(find.byType(AlertDialog), findsNothing);
+}

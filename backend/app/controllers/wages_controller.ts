@@ -57,9 +57,16 @@ export default class WagesController {
    * GET /labours/:id/wages?month=YYYY-MM
    */
   async labour({ params, request, response }: HttpContext) {
-    const labour = await Labour.findOrFail(params.id)
+    const labour = await Labour.withLifetime(Labour.query().select('labours.*'))
+      .where('labours.id', params.id)
+      .firstOrFail()
     const { month = currentMonth() } = await request.validateUsing(monthValidator)
-    return ok(response, await WageService.detail(labour, month), 'wages.detail')
+    // + lifetime: earned / paid / balance for all time
+    return ok(
+      response,
+      { ...(await WageService.detail(labour, month)), lifetime: labour.lifetime() },
+      'wages.detail'
+    )
   }
 
   async storePayment({ auth, params, request, response }: HttpContext) {

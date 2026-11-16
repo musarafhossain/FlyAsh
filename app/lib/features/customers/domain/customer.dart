@@ -16,6 +16,7 @@ class Customer {
     this.totalSales = '0.00',
     this.totalPaid = '0.00',
     this.totalDue = '0.00',
+    this.salesCount = 0,
   });
 
   final String id;
@@ -28,6 +29,9 @@ class Customer {
   final String totalSales;
   final String totalPaid;
   final String totalDue;
+
+  /// Delivered sales and open bookings.
+  final int salesCount;
 
   bool get hasPhone => phone.isNotEmpty;
 
@@ -44,6 +48,7 @@ class Customer {
     totalSales: totalSales,
     totalPaid: totalPaid,
     totalDue: totalDue,
+    salesCount: salesCount,
   );
 
   factory Customer.fromJson(Json json) => Customer(
@@ -55,6 +60,7 @@ class Customer {
     totalSales: '${json['total_sales'] ?? '0.00'}',
     totalPaid: '${json['total_paid'] ?? '0.00'}',
     totalDue: '${json['total_due'] ?? '0.00'}',
+    salesCount: (json['sales_count'] as num?)?.toInt() ?? 0,
   );
 }
 

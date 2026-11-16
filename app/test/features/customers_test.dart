@@ -347,13 +347,17 @@ void main() {
     };
   });
 
-  testWidgets('phone: cards with phone, address and the due in red', (
+  testWidgets('phone: rows with phone (no address) and the due in red', (
     tester,
   ) async {
     await openCustomers(tester);
     expect(find.byType(CustomerTile), findsNWidgets(3));
     expect(find.text('9830000000'), findsOneWidget);
-    expect(find.text('Basirhat, North 24 Parganas'), findsOneWidget);
+    expect(
+      find.text('Basirhat, North 24 Parganas'),
+      findsNothing,
+      reason: 'no address in the list',
+    );
     expect(find.text('₹1,22,000'), findsOneWidget);
     expect(find.text('No due'), findsNWidgets(2));
     expect(find.text('Inactive'), findsWidgets);
@@ -532,11 +536,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Customer has sales. Deactivate them instead'),
-      findsOneWidget,
+    await expectRefusedDelete(
+      tester,
+      'Customer has sales. Deactivate them instead',
     );
     expect(currentPath(), '/customers/1');
 
@@ -548,7 +552,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
     expect(find.text('Customer deleted successfully'), findsOneWidget);
     expect(currentPath(), '/customers');

@@ -2491,6 +2491,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'edited'**
   String get wageEdited;
+
+  /// No description provided for @keepThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this'**
+  String get keepThis;
+
+  /// No description provided for @yesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, delete'**
+  String get yesDelete;
+
+  /// No description provided for @resetDayWage.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the usual wage'**
+  String get resetDayWage;
+
+  /// No description provided for @salesCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales'**
+  String get salesCountLabel;
+
+  /// No description provided for @totalWageAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Total wage (all time)'**
+  String get totalWageAllTime;
+
+  /// No description provided for @daysPresent.
+  ///
+  /// In en, this message translates to:
+  /// **'Days present'**
+  String get daysPresent;
+
+  /// No description provided for @paidShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {amount}'**
+  String paidShort(String amount);
+
+  /// No description provided for @balanceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Bal {amount}'**
+  String balanceShort(String amount);
+
+  /// No description provided for @removeTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove tax'**
+  String get removeTax;
 }
 
 class _AppLocalizationsDelegate

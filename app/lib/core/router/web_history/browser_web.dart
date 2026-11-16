@@ -19,3 +19,5 @@ int? browserHistorySerial() {
 }
 
 void browserHistoryGo(int delta) => _history.go(delta);
+
+bool get hasBrowserHistory => true;

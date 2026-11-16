@@ -19,6 +19,9 @@ import '../../data/labours_repository_impl.dart';
 import '../../domain/labour.dart';
 import '../labour_labels.dart';
 import '../labour_actions.dart';
+import '../../../../core/widgets/search_field.dart';
+import '../../../../core/router/section_events.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 enum _LabourFilter { active, inactive, all }
 
@@ -57,6 +60,13 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
 
   @override
   Widget build(BuildContext context) {
+    // Leaving the section clears the search (03-AppFlow §13).
+    ref.onSectionLeft('/labours', () {
+      if (_search.text.isEmpty) return;
+      setState(_search.clear);
+      _debounce?.cancel();
+      _list.refresh();
+    });
     final l = context.l10n;
     ref.onDataChanged({DataTag.labours}, _list.revalidate);
     final repo = ref.watch(laboursRepositoryProvider);
@@ -73,6 +83,7 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
         label: Text(l.addLabour),
       ),
       body: PagedList<Labour>(
+        skeleton: const SkeletonRows(trailing: SkeletonTrailing.threeAmounts),
         itemId: (item) => item.id,
         showCount: false,
         controller: _list,
@@ -88,8 +99,9 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
         header: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
+            SearchField(
               controller: _search,
+              hintText: l.searchNamePhone,
               onChanged: (_) {
                 _debounce?.cancel();
                 _debounce = Timer(
@@ -98,22 +110,6 @@ class _LaboursTabState extends ConsumerState<LaboursTab> {
                 );
                 setState(() {});
               },
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: l.searchNamePhone,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: searching
-                    ? IconButton(
-                        tooltip: l.clear,
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          _search.clear();
-                          _list.refresh();
-                          setState(() {});
-                        },
-                      )
-                    : null,
-              ),
             ),
             const SizedBox(height: Space.s3),
             Wrap(
@@ -246,7 +242,39 @@ class LabourTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: Space.s2),
-            lb.isActive ? TodayPill(lb.presentToday) : StatusPill(l.inactive),
+            // All-time wage: earned, received, balance (no present/absent).
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (!lb.isActive) ...[
+                  StatusPill(l.inactive),
+                  const SizedBox(height: Space.s1),
+                ],
+                Text(
+                  Fmt.money(lb.totalEarned),
+                  style: AppTypography.bodyStrong.copyWith(
+                    color: t.textPrimary,
+                    fontFeatures: AppTypography.tabular,
+                  ),
+                ),
+                Text(
+                  l.paidShort(Fmt.money(lb.totalPaid)),
+                  style: AppTypography.caption.copyWith(
+                    color: t.success,
+                    fontFeatures: AppTypography.tabular,
+                  ),
+                ),
+                Text(
+                  l.balanceShort(Fmt.money(lb.totalBalance)),
+                  style: AppTypography.caption.copyWith(
+                    color: (double.tryParse(lb.totalBalance) ?? 0) > 0
+                        ? t.error
+                        : t.textSecondary,
+                    fontFeatures: AppTypography.tabular,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -268,8 +296,9 @@ class _LaboursTable extends StatelessWidget {
         TableColumnDef(l.nameField, flex: 4),
         TableColumnDef(l.phoneField, flex: 2),
         TableColumnDef(l.wage, flex: 2),
-        TableColumnDef(l.joined, flex: 2),
-        TableColumnDef(l.today, flex: 2, alignEnd: true),
+        TableColumnDef(l.earned, flex: 2, alignEnd: true),
+        TableColumnDef(l.paid, flex: 2, alignEnd: true),
+        TableColumnDef(l.balance, flex: 2, alignEnd: true),
       ],
       rows: [
         for (final lb in labours)
@@ -283,8 +312,9 @@ class _LaboursTable extends StatelessWidget {
             ),
             CellText(lb.phone ?? '—'),
             CellText(l.wageText(lb.wageType, lb.wageAmount)),
-            CellText(Fmt.date(lb.joiningDate)),
-            lb.isActive ? TodayPill(lb.presentToday) : StatusPill(l.inactive),
+            CellText(Fmt.money(lb.totalEarned)),
+            CellText(Fmt.money(lb.totalPaid)),
+            CellText(Fmt.money(lb.totalBalance)),
           ],
       ],
       onTapRow: (i) => onOpen(labours[i]),

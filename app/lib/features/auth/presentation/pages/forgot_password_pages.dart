@@ -328,10 +328,14 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       await showDialog<void>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: Text(context.l10n.resetTitle),
+          title: Text(
+            context.l10n.resetTitle,
+            style: dialogTitleStyle(context),
+          ),
           content: Text(failureText(context, f)),
           actions: [
             FilledButton(
+              style: dialogButtonStyle(context),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 context.go('/forgot-password');

@@ -27,6 +27,9 @@ import '../../../../core/widgets/action_menu.dart';
 import '../../../../core/widgets/form_submit.dart';
 import '../../../../core/error/failure.dart';
 import 'wage_sheets.dart';
+import '../../../../core/widgets/search_field.dart';
+import '../../../../core/router/section_events.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// "26 days" (days present).
 String daysText(AppLocalizations l, int presentDays) =>
@@ -198,12 +201,20 @@ class _WagesTabState extends ConsumerState<WagesTab> {
 
   @override
   Widget build(BuildContext context) {
+    // Leaving the section clears the search (03-AppFlow §13).
+    ref.onSectionLeft('/labours', () {
+      if (_search.text.isEmpty) return;
+      setState(_search.clear);
+      _debounce?.cancel();
+      _list.refresh();
+    });
     final l = context.l10n;
     ref.onDataChanged({DataTag.wages}, _list.revalidate);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
     final totals = _totals;
 
     return PagedList<WageRow>(
+      skeleton: const SkeletonRows(),
       showCount: false,
       controller: _list,
       fetch: _fetch,
@@ -244,8 +255,9 @@ class _WagesTabState extends ConsumerState<WagesTab> {
             ],
           ),
           const SizedBox(height: Space.s3),
-          TextField(
+          SearchField(
             controller: _search,
+            hintText: l.searchLabour,
             onChanged: (_) {
               _debounce?.cancel();
               _debounce = Timer(
@@ -253,11 +265,6 @@ class _WagesTabState extends ConsumerState<WagesTab> {
                 _list.refresh,
               );
             },
-            textInputAction: TextInputAction.search,
-            decoration: InputDecoration(
-              hintText: l.searchLabour,
-              prefixIcon: const Icon(Icons.search),
-            ),
           ),
         ],
       ),

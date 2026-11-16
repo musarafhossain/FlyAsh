@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 /// Motion tokens (04-UI-UX §7): short, snappy and the same everywhere.
 abstract final class Motion {
@@ -138,6 +139,90 @@ class _StaggeredEntranceState extends State<StaggeredEntrance>
           offset: Offset(0, 12 * (1 - _t.value)),
           child: child,
         ),
+      ),
+    );
+  }
+}
+
+/// Text whose number counts up to its value (Home cards, stat cards): from
+/// 0 when it first shows, and from the old value when it changes. The rest
+/// of the text ("₹", "/12" …) stays as is, and the last frame shows [text]
+/// exactly. Off with "Reduce motion".
+class CountUpText extends StatefulWidget {
+  const CountUpText(this.text, {super.key, this.style});
+
+  final String text;
+  final TextStyle? style;
+
+  @override
+  State<CountUpText> createState() => _CountUpTextState();
+}
+
+class _CountUpTextState extends State<CountUpText>
+    with SingleTickerProviderStateMixin {
+  static final _number = RegExp(r'\d[\d,]*(\.\d+)?');
+
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 700),
+  );
+  late final Animation<double> _t = CurvedAnimation(
+    parent: _c,
+    curve: Curves.easeOutCubic,
+  );
+  double _from = 0;
+
+  static double? _valueOf(String text) {
+    final m = _number.firstMatch(text);
+    return m == null ? null : double.tryParse(m[0]!.replaceAll(',', ''));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _c.forward();
+  }
+
+  @override
+  void didUpdateWidget(CountUpText old) {
+    super.didUpdateWidget(old);
+    if (old.text != widget.text) {
+      _from = _valueOf(old.text) ?? 0;
+      _c.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  String _frame(double t) {
+    final m = _number.firstMatch(widget.text);
+    if (m == null) return widget.text;
+    final target = double.parse(m[0]!.replaceAll(',', ''));
+    final decimals = m[1] == null ? 0 : m[1]!.length - 1;
+    final v = _from + (target - _from) * t;
+    final grouped = m[0]!.contains(',');
+    final pattern = grouped ? '#,##,##0' : '0';
+    final digits = NumberFormat(
+      decimals > 0 ? '$pattern.${'0' * decimals}' : pattern,
+      'en_IN',
+    ).format(v);
+    return widget.text.replaceRange(m.start, m.end, digits);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (Motion.reduced(context) || _valueOf(widget.text) == null) {
+      return Text(widget.text, style: widget.style);
+    }
+    return AnimatedBuilder(
+      animation: _t,
+      builder: (_, _) => Text(
+        _c.isCompleted ? widget.text : _frame(_t.value),
+        style: widget.style,
       ),
     );
   }

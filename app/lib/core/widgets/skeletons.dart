@@ -344,3 +344,144 @@ class DetailSkeleton extends StatelessWidget {
     );
   }
 }
+
+/// What sits on the right of a skeleton row (like the real rows).
+enum SkeletonTrailing {
+  none,
+
+  /// An amount (expenses, products).
+  amount,
+
+  /// An amount over a status pill (sales).
+  amountPill,
+
+  /// Three short amounts stacked (labours: earned · paid · balance).
+  threeAmounts,
+
+  /// The present switch (attendance).
+  toggle,
+}
+
+/// Placeholder rows shaped like a list's real rows (04-UI-UX §9.15): the
+/// avatar, a title and a subtitle line, and the list's own right side.
+class SkeletonRows extends StatelessWidget {
+  const SkeletonRows({
+    super.key,
+    this.count = 6,
+    this.avatar = true,
+    this.subtitle = true,
+    this.subtitleIcons = 0,
+    this.trailing = SkeletonTrailing.amountPill,
+    this.padding = const EdgeInsets.symmetric(vertical: Space.s3),
+  });
+
+  final int count;
+  final bool avatar;
+  final bool subtitle;
+
+  /// Small icon buttons after the subtitle (attendance: ✏).
+  final int subtitleIcons;
+  final SkeletonTrailing trailing;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    key: const Key('skeletonRows'),
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      for (var i = 0; i < count; i++) ...[
+        if (i > 0) const Divider(height: 1),
+        Padding(
+          padding: padding,
+          child: Row(
+            children: [
+              if (avatar) ...[
+                const SkeletonBox(width: 48, height: 48, radius: 24),
+                const SizedBox(width: Space.s3),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SkeletonBox(width: i.isEven ? 160 : 130, height: 16),
+                    if (subtitle) ...[
+                      const SizedBox(height: Space.s2),
+                      Row(
+                        children: [
+                          SkeletonBox(width: i.isEven ? 100 : 120, height: 12),
+                          for (var k = 0; k < subtitleIcons; k++) ...[
+                            const SizedBox(width: Space.s2),
+                            const SkeletonBox(width: 18, height: 18, radius: 9),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: Space.s3),
+              switch (trailing) {
+                SkeletonTrailing.none => const SizedBox.shrink(),
+                SkeletonTrailing.amount => const SkeletonBox(
+                  width: 64,
+                  height: 16,
+                ),
+                SkeletonTrailing.amountPill => const Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SkeletonBox(width: 64, height: 16),
+                    SizedBox(height: Space.s2),
+                    SkeletonBox(width: 52, height: 18, radius: 9),
+                  ],
+                ),
+                SkeletonTrailing.threeAmounts => const Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SkeletonBox(width: 64, height: 14),
+                    SizedBox(height: 4),
+                    SkeletonBox(width: 76, height: 11),
+                    SizedBox(height: 4),
+                    SkeletonBox(width: 70, height: 11),
+                  ],
+                ),
+                SkeletonTrailing.toggle => const SkeletonBox(
+                  width: 52,
+                  height: 32,
+                  radius: 16,
+                ),
+              },
+            ],
+          ),
+        ),
+      ],
+    ],
+  );
+}
+
+/// A line of real text with placeholders for its numbers: write the text
+/// with "\u0001" (and "\u0002") where the numbers go, e.g.
+/// `l.attendanceCount('\u0001', '\u0002')` → "▢ present · ▢ absent".
+class SkeletonText extends StatelessWidget {
+  const SkeletonText(this.template, {super.key, this.style});
+
+  final String template;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = template.split(RegExp('[\u0001\u0002]'));
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final (i, part) in parts.indexed) ...[
+          if (i > 0)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2),
+              child: SkeletonBox(width: 16, height: 12),
+            ),
+          if (part.isNotEmpty) Text(part, style: style),
+        ],
+      ],
+    );
+  }
+}

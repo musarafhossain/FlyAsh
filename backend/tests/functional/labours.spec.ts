@@ -133,6 +133,9 @@ test.group('Labours & attendance', (group) => {
     ])
     assert.equal(of(day, daily.id).day_wage, '600.00')
     assert.equal(of(day, monthly.id).day_wage, '800.50')
+    // The usual wage stays available next to the saved one
+    assert.equal(of(day, daily.id).default_day_wage, '450.00')
+    assert.equal(of(day, monthly.id).default_day_wage, '1000.00')
 
     // Already present: a new wage is ignored (the saved day keeps its wage)
     const again = await mark(client, user, '2026-10-03', [
@@ -143,6 +146,24 @@ test.group('Labours & attendance', (group) => {
     // Wages use the custom amounts
     const wages = await client.get(`${API}/labours/${monthly.id}/wages?month=2026-10`).loginAs(user)
     assert.equal(wages.body().data.earned, '800.50')
+
+    // Lifetime totals on the labour: earned (saved day wages) − paid
+    await client
+      .post(`${API}/labours/${monthly.id}/wage-payments`)
+      .loginAs(user)
+      .json({ wage_month: '2026-10', amount: 300, payment_date: '2026-10-05' })
+    const life = (await client.get(`${API}/labours/${monthly.id}`).loginAs(user)).body().data
+    assert.containsSubset(life, {
+      total_earned: '800.50',
+      total_paid: '300.00',
+      total_balance: '500.50',
+    })
+    const listed = (await client.get(`${API}/labours?search=Monthly`).loginAs(user)).body().data
+    assert.equal(listed.items[0].total_balance, '500.50')
+    const detail = (
+      await client.get(`${API}/labours/${monthly.id}/wages?month=2026-11`).loginAs(user)
+    ).body().data
+    assert.deepEqual(detail.lifetime, { earned: '800.50', paid: '300.00', balance: '500.50' })
 
     // Absent again: back to the default
     const cleared = await mark(client, user, '2026-10-03', [

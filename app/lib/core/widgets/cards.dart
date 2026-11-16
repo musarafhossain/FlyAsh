@@ -10,6 +10,14 @@ import 'state_views.dart';
 /// Categorical tints for KPI chips (04-UI-UX §5.4).
 enum KpiTint { rose, green, amber, sky }
 
+/// (icon colour, background) of a tint.
+(Color, Color) kpiTintColors(AppTokens t, KpiTint tint) => switch (tint) {
+  KpiTint.rose => (t.tintRose, t.tintRoseBg),
+  KpiTint.green => (t.tintGreen, t.tintGreenBg),
+  KpiTint.amber => (t.tintAmber, t.tintAmberBg),
+  KpiTint.sky => (t.tintSky, t.tintSkyBg),
+};
+
 /// Big card with the screen's most important number (§9.2): a soft accent
 /// tint (accent container) with the accent icon, in light and dark mode.
 class HeroCard extends StatelessWidget {
@@ -57,58 +65,79 @@ class HeroCard extends StatelessWidget {
         borderRadius: Radii.lgAll,
         child: Padding(
           padding: const EdgeInsets.all(Space.s5),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: t.primary,
-                  borderRadius: Radii.mdAll,
-                ),
-                child: Icon(icon, color: t.onPrimary),
-              ),
-              const SizedBox(width: Space.s4),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: AppTypography.caption.copyWith(
-                        color: t.textSecondary,
-                      ),
-                    ),
-                    if (loading)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: Space.s1),
-                        child: SkeletonBox(width: 150, height: 32),
-                      )
-                    else
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          value,
-                          style: AppTypography.display.copyWith(
-                            color: fg,
-                            fontFeatures: AppTypography.tabular,
-                          ),
-                        ),
-                      ),
-                    if (caption != null)
+          // Label, value and caption on the left; the icon top right and
+          // the arrow bottom right.
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Text(
-                        caption!,
+                        label,
                         style: AppTypography.caption.copyWith(
                           color: t.textSecondary,
                         ),
                       ),
+                      if (loading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: Space.s1),
+                          child: SkeletonBox(width: 150, height: 32),
+                        )
+                      else
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: CountUpText(
+                            value,
+                            style: AppTypography.display.copyWith(
+                              color: fg,
+                              fontFeatures: AppTypography.tabular,
+                            ),
+                          ),
+                        ),
+                      if (caption != null)
+                        loading
+                            ? const Padding(
+                                padding: EdgeInsets.only(top: 2),
+                                child: SkeletonBox(width: 60, height: 12),
+                              )
+                            : Text(
+                                caption!,
+                                style: AppTypography.caption.copyWith(
+                                  color: t.textSecondary,
+                                ),
+                              ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: Space.s3),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: t.primary,
+                        borderRadius: Radii.mdAll,
+                      ),
+                      child: Icon(icon, size: 22, color: t.onPrimary),
+                    ),
+                    if (onTap != null)
+                      Icon(
+                        Icons.arrow_forward,
+                        size: 20,
+                        color: t.textSecondary,
+                      ),
                   ],
                 ),
-              ),
-              if (onTap != null)
-                Icon(Icons.chevron_right, color: t.textSecondary),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -140,12 +169,7 @@ class KpiChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final (fg, bg) = switch (tint) {
-      KpiTint.rose => (t.tintRose, t.tintRoseBg),
-      KpiTint.green => (t.tintGreen, t.tintGreenBg),
-      KpiTint.amber => (t.tintAmber, t.tintAmberBg),
-      KpiTint.sky => (t.tintSky, t.tintSkyBg),
-    };
+    final (fg, bg) = kpiTintColors(t, tint);
     return AppCard(
       onTap: onTap,
       padding: const EdgeInsets.all(Space.s3),
@@ -175,7 +199,7 @@ class KpiChip extends StatelessWidget {
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
-                    child: Text(
+                    child: CountUpText(
                       value,
                       style: AppTypography.h3.copyWith(
                         color: t.textPrimary,
@@ -261,55 +285,72 @@ class AppCard extends StatelessWidget {
   }
 }
 
-/// Quick action tile: icon in an accent circle + label (§9.4).
+/// Quick action like an app icon on a phone's home screen (§9.4): a
+/// rounded, tinted square with the icon, the label below. Each action has
+/// its own tint (the same tints as the KPI tiles).
 class QuickActionTile extends StatelessWidget {
   const QuickActionTile({
     super.key,
     required this.icon,
     required this.label,
     required this.onTap,
+    this.tint = KpiTint.sky,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final KpiTint tint;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return AppCard(
-      onTap: onTap,
-      padding: const EdgeInsets.symmetric(
-        horizontal: Space.s3,
-        vertical: Space.s3,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: t.primaryContainer,
-              shape: BoxShape.circle,
+    final (fg, bg) = kpiTintColors(t, tint);
+    return PressScale(
+      scale: 0.94,
+      child: Semantics(
+        button: true,
+        label: label,
+        excludeSemantics: true,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: Radii.lgAll,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Space.s2),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: fg.withValues(alpha: 0.16)),
+                  ),
+                  child: Icon(icon, size: 26, color: fg),
+                ),
+                const SizedBox(height: Space.s2),
+                Text(
+                  label,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption.copyWith(
+                    color: t.textPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-            child: Icon(icon, size: 20, color: t.onPrimaryContainer),
           ),
-          const SizedBox(width: Space.s3),
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.label.copyWith(color: t.textPrimary),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// Grid of quick actions: 2 columns on phones, 4 on wider screens.
+/// Quick actions in one row of app-style icons (4 per row on every size).
 class QuickActionGrid extends StatelessWidget {
   const QuickActionGrid({super.key, required this.children});
 
@@ -317,18 +358,9 @@ class QuickActionGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, c) {
-        final cols = c.maxWidth < Breakpoints.medium ? 2 : 4;
-        final width = (c.maxWidth - Space.s2 * (cols - 1)) / cols;
-        return Wrap(
-          spacing: Space.s2,
-          runSpacing: Space.s2,
-          children: [
-            for (final child in children) SizedBox(width: width, child: child),
-          ],
-        );
-      },
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [for (final child in children) Expanded(child: child)],
     );
   }
 }

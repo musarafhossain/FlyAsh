@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'web_history/browser_stub.dart'
+    if (dart.library.js_interop) 'web_history/browser_web.dart';
 import 'web_history_sync.dart';
 
 /// The back button closes what is open on top (the drawer, a dialog, a
@@ -13,8 +14,8 @@ import 'web_history_sync.dart';
 ///   navigator already pops them first; the drawer is handled by `AppShell`.
 /// - Web: the browser's back button changes the URL, which would change the
 ///   page under an open drawer or dialog. This observer runs before the
-///   router: while something is open it closes it, keeps the page, and puts
-///   the current URL back into the address bar.
+///   router: while something is open it closes it, keeps the page, and steps
+///   the browser forward to the entry it was on.
 class BackGuard with WidgetsBindingObserver {
   BackGuard._();
 
@@ -28,9 +29,6 @@ class BackGuard with WidgetsBindingObserver {
 
   /// Open things, oldest first, each with how to close it.
   final _open = <Object, VoidCallback>{};
-
-  /// The page shown now (set by the router).
-  Uri Function()? currentUri;
 
   int _users = 0;
 
@@ -58,6 +56,12 @@ class BackGuard with WidgetsBindingObserver {
     if (_users++ == 0) WidgetsBinding.instance.addObserver(this);
   }
 
+  @visibleForTesting
+  void resetForTest() {
+    _restoring = false;
+    _open.clear();
+  }
+
   void detach() {
     if (--_users == 0) {
       WidgetsBinding.instance.removeObserver(this);
@@ -65,21 +69,35 @@ class BackGuard with WidgetsBindingObserver {
     }
   }
 
+  /// We stepped the browser forward again ourselves: the next history
+  /// event is that step, not the user.
+  bool _restoring = false;
+
+  /// Steps the browser forward one entry (tests replace it).
+  @visibleForTesting
+  void Function() stepForward = () => browserHistoryGo(1);
+
   @override
   Future<bool> didPushRouteInformation(
     RouteInformation routeInformation,
   ) async {
     if (!_web) return false;
+    if (_restoring) {
+      // Our own step forward: the page is already the right one.
+      _restoring = false;
+      return true;
+    }
     // The browser moves in its history: pages closed now are not "closed by
     // the app" (WebHistorySync).
     unawaited(WebHistorySync.instance.browserMoved());
     if (!closeTop()) return false;
-    // The browser already shows the previous URL: show the current one
-    // again, as a new entry, so the next back goes where it should.
-    final uri = currentUri?.call();
-    if (uri != null) {
-      await SystemNavigator.routeInformationUpdated(uri: uri, replace: false);
-    }
+    // The browser already went back one entry. Step forward to the entry we
+    // were on (it is still there) instead of adding a new one: no extra
+    // entries, and Chrome on Android does not skip it later.
+    _restoring = true;
+    stepForward();
+    // Safety net in case the step's event never arrives.
+    Future<void>.delayed(const Duration(seconds: 1), () => _restoring = false);
     return true; // handled: the router does not change the page
   }
 }

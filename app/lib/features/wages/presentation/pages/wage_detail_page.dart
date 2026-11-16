@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/l10n.dart';
@@ -28,6 +27,8 @@ import '../widgets/wage_sheets.dart';
 import '../widgets/wages_tab.dart';
 import '../../../../core/widgets/skeletons.dart';
 import '../../../../core/widgets/action_menu.dart';
+import '../widgets/lifetime_wage_card.dart';
+import '../../../../core/widgets/motion.dart';
 
 /// A labour's wage for a month (03-AppFlow §7.3): breakdown
 /// worked days × rate − paid = balance, ⋮ → Pay wage, the payments (an
@@ -132,14 +133,13 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
     required Future<String> Function() action,
   }) async {
     final l = context.l10n;
-    final ok = await showConfirmDialog(
+    final deleted = await confirmDelete(
       context,
       title: title,
       message: l.balanceRecalculated,
-      confirmLabel: l.delete,
-      destructive: true,
+      delete: action,
     );
-    if (ok) await _run(action);
+    if (deleted && mounted) await _load();
   }
 
   @override
@@ -165,14 +165,6 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
                     icon: Icons.payments_outlined,
                     label: l.payWage,
                     onSelected: _payWage,
-                  ),
-                ],
-                [
-                  ActionMenuItem(
-                    icon: Icons.person_outline,
-                    label: l.labourDetails,
-                    onSelected: () =>
-                        context.push('/labours/${widget.labourId}'),
                   ),
                 ],
               ],
@@ -221,7 +213,7 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
     final l = context.l10n;
     final t = context.tokens;
     final r = d.row;
-    String money(String v) => Fmt.money(v, decimals: true);
+    String money(String v) => Fmt.money(v);
 
     return [
       AppCard(
@@ -296,13 +288,9 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
                             destructive: true,
                             onSelected: () => _delete(
                               title: l.deletePaymentTitle(money(p.amount)),
-                              // Optimistic: the row disappears at once.
-                              action: () => ref.optimisticRemove(
-                                p.id,
-                                () => ref
-                                    .read(wagesRepositoryProvider)
-                                    .deletePayment(p.id),
-                              ),
+                              action: () => ref
+                                  .read(wagesRepositoryProvider)
+                                  .deletePayment(p.id),
                             ),
                           ),
                         ],
@@ -312,55 +300,124 @@ class _WageDetailPageState extends ConsumerState<WageDetailPage> {
         ],
       ),
       const SizedBox(height: Space.s3),
-      AppCard(
-        padding: EdgeInsets.zero,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ListTile(
-              title: Text(l.dayByDay, style: AppTypography.title),
-              trailing: Icon(_showDays ? Icons.expand_less : Icons.expand_more),
-              onTap: () => setState(() => _showDays = !_showDays),
-            ),
-            if (_showDays)
-              for (final day in d.days)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Space.s4,
-                    vertical: Space.s1,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          Fmt.date(day.date),
-                          style: AppTypography.body.copyWith(
-                            color: t.textPrimary,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          l.attendanceText(true),
-                          style: AppTypography.caption.copyWith(
-                            color: t.success,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        money(day.earned),
-                        style: AppTypography.body.copyWith(
-                          color: t.textSecondary,
-                          fontFeatures: AppTypography.tabular,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            if (_showDays) const SizedBox(height: Space.s3),
-          ],
-        ),
+      _DayByDay(
+        days: d.days,
+        open: _showDays,
+        onToggle: () => setState(() => _showDays = !_showDays),
       ),
+      if (d.lifetime != null) ...[
+        const SizedBox(height: Space.s3),
+        LifetimeWageCard(
+          earned: d.lifetime!.earned,
+          paid: d.lifetime!.paid,
+          balance: d.lifetime!.balance,
+        ),
+      ],
     ];
+  }
+}
+
+/// "Day by day": a header with an arrow that turns, and the list sliding
+/// open / closed below it.
+class _DayByDay extends StatelessWidget {
+  const _DayByDay({
+    required this.days,
+    required this.open,
+    required this.onToggle,
+  });
+
+  final List<WageDay> days;
+  final bool open;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final duration = Motion.reduced(context) ? Duration.zero : Motion.base;
+    return AppCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            key: const Key('dayByDayHeader'),
+            onTap: onToggle,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: Space.s4,
+                vertical: Space.s3,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l.dayByDay,
+                      style: AppTypography.title.copyWith(color: t.textPrimary),
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: open ? 0.5 : 0,
+                    duration: duration,
+                    curve: Motion.standard,
+                    child: Icon(Icons.expand_more, color: t.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          ClipRect(
+            child: AnimatedSize(
+              duration: duration,
+              curve: Motion.standard,
+              alignment: Alignment.topCenter,
+              child: !open
+                  ? const SizedBox(width: double.infinity)
+                  : Padding(
+                      padding: const EdgeInsets.only(bottom: Space.s3),
+                      child: Column(
+                        children: [
+                          for (final day in days)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: Space.s4,
+                                vertical: Space.s1,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      Fmt.date(day.date),
+                                      style: AppTypography.body.copyWith(
+                                        color: t.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      l.attendanceText(true),
+                                      style: AppTypography.caption.copyWith(
+                                        color: t.success,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    Fmt.money(day.earned),
+                                    style: AppTypography.body.copyWith(
+                                      color: t.textSecondary,
+                                      fontFeatures: AppTypography.tabular,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

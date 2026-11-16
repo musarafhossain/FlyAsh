@@ -36,7 +36,7 @@ void main() {
     tester,
   ) async {
     await openAt(tester, '/sales/104');
-    expect(find.text('₹23,500.00'), findsWidgets); // due before
+    expect(find.text('₹23,500'), findsWidgets); // due before
 
     // No action buttons on the page: they are in the ⋮ menu
     expect(find.widgetWithText(FilledButton, 'Add payment'), findsNothing);
@@ -50,7 +50,7 @@ void main() {
     );
     await tester.tap(find.widgetWithText(FilledButton, 'Add payment').last);
     await tester.pumpAndSettle();
-    expect(find.text('Cannot be more than the due ₹23,500.00'), findsOneWidget);
+    expect(find.text('Cannot be more than the due ₹23,500'), findsOneWidget);
 
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Amount'),
@@ -67,15 +67,15 @@ void main() {
       'payment_date': '2026-11-09',
     });
     expect(find.text('Payment added'), findsOneWidget);
-    expect(find.text('₹15,500.00'), findsWidgets); // new due
+    expect(find.text('₹15,500'), findsWidgets); // new due
     expect(find.text('Payments (2)'), findsOneWidget);
   });
 
   testWidgets('Delete a payment asks first; the due goes up', (tester) async {
     await openAt(tester, '/sales/104');
     await deleteFirstPayment(tester);
-    expect(find.text('Delete payment of ₹10,000.00?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    expect(find.text('Delete payment of ₹10,000?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
     expect(last('DELETE', '/sales/104/payments/90'), isNotNull);
     expect(find.text('Payment removed'), findsOneWidget);
@@ -122,7 +122,7 @@ void main() {
 
     // Remove the payment, then cancel.
     await deleteFirstPayment(tester);
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
 
     await fromMenu(tester, 'Cancel booking');
@@ -149,7 +149,7 @@ void main() {
 
     await fromMenu(tester, 'Delete sale');
     expect(find.text('Delete INV-000104?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
     expect(last('DELETE', '/sales/104'), isNotNull);
     expect(currentPath(), '/sales');

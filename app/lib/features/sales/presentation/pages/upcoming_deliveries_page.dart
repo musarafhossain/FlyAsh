@@ -16,6 +16,7 @@ import '../../domain/sale_summary.dart';
 import '../widgets/sale_action_sheets.dart';
 import '../widgets/sale_list_items.dart';
 import '../sale_actions.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Upcoming deliveries (03-AppFlow §5.4): booked sales by delivery date,
 /// overdue ones on top with an "Overdue" pill. Tap → sale detail;
@@ -78,6 +79,7 @@ class _UpcomingDeliveriesPageState
     return Scaffold(
       appBar: AppBar(title: Text(l.upcomingDeliveries)),
       body: PagedList<SaleSummary>(
+        skeleton: const SkeletonRows(),
         itemId: (item) => item.id,
         showCount: false,
         controller: _list,

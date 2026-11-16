@@ -1322,4 +1322,35 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get wageEdited => 'বদলানো';
+
+  @override
+  String get keepThis => 'রেখে দিন';
+
+  @override
+  String get yesDelete => 'হ্যাঁ, মুছে দিন';
+
+  @override
+  String get resetDayWage => 'সাধারণ মজুরিতে ফেরান';
+
+  @override
+  String get salesCountLabel => 'বিক্রি';
+
+  @override
+  String get totalWageAllTime => 'মোট মজুরি (শুরু থেকে)';
+
+  @override
+  String get daysPresent => 'উপস্থিত দিন';
+
+  @override
+  String paidShort(String amount) {
+    return 'দেওয়া $amount';
+  }
+
+  @override
+  String balanceShort(String amount) {
+    return 'বাকি $amount';
+  }
+
+  @override
+  String get removeTax => 'ট্যাক্স সরান';
 }

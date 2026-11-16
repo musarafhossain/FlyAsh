@@ -12,7 +12,9 @@ class AttendanceEntry {
     required this.wageAmount,
     this.present = false,
     String? dayWage,
-  }) : dayWage = dayWage ?? wageAmount;
+    String? defaultDayWage,
+  }) : dayWage = dayWage ?? wageAmount,
+       defaultDayWage = defaultDayWage ?? dayWage ?? wageAmount;
 
   final String labourId;
   final String name;
@@ -26,6 +28,10 @@ class AttendanceEntry {
   /// else the labour's wage for one day (monthly ÷ days in the month).
   final String dayWage;
 
+  /// The labour's usual wage for one day (also when this day was saved with
+  /// another wage).
+  final String defaultDayWage;
+
   factory AttendanceEntry.fromJson(Json json) => AttendanceEntry(
     labourId: idOf(json['labour_id']),
     name: json['name'] as String? ?? '',
@@ -33,6 +39,9 @@ class AttendanceEntry {
     wageAmount: '${json['wage_amount'] ?? '0'}',
     present: json['present'] == true,
     dayWage: json['day_wage'] == null ? null : '${json['day_wage']}',
+    defaultDayWage: json['default_day_wage'] == null
+        ? null
+        : '${json['default_day_wage']}',
   );
 }
 

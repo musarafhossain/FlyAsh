@@ -200,7 +200,7 @@ class _Header extends StatelessWidget {
                 ),
                 const SizedBox(height: Space.s1),
                 Text(
-                  Fmt.money(p.defaultPrice, decimals: true),
+                  Fmt.money(p.defaultPrice),
                   style: AppTypography.h2.copyWith(
                     color: t.primary,
                     fontFeatures: AppTypography.tabular,

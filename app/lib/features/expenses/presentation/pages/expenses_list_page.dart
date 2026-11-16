@@ -9,6 +9,7 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/network/session.dart';
 import '../../../../core/router/app_bar_actions.dart';
 import '../../../../core/router/app_shell.dart';
+import '../../../../core/router/section_app_bar.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -20,14 +21,15 @@ import '../../../../core/widgets/data_table_card.dart';
 import '../../../../core/widgets/paged_list.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../../core/network/data_changed.dart';
-import '../../../../core/network/optimistic.dart';
 import '../../data/expenses_repository_impl.dart';
 import '../../domain/expense.dart';
 import '../widgets/expense_filter_sheet.dart';
 import '../widgets/expense_icons.dart';
 import '../../../../core/widgets/action_menu.dart';
 import '../../../../core/widgets/form_submit.dart';
-import '../../../../core/error/failure.dart';
+import '../../../../core/widgets/search_field.dart';
+import '../../../../core/router/section_events.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Expenses (03-AppFlow §8): search, a filter button (period, default
 /// this month, and category) with the active filters as chips, the period
@@ -127,27 +129,12 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
             icon: Icons.delete_outline,
             label: l.delete,
             destructive: true,
-            onSelected: () async {
-              final ok = await showConfirmDialog(
-                context,
-                title: l.deleteExpenseTitle,
-                message: l.deleteExpenseMessage,
-                confirmLabel: l.delete,
-                destructive: true,
-              );
-              if (!ok || !mounted) return;
-              try {
-                // Optimistic: the row disappears at once and comes back
-                // on failure.
-                final message = await ref.optimisticRemove(
-                  e.id,
-                  () => ref.read(expensesRepositoryProvider).delete(e.id),
-                );
-                if (mounted) showMessage(context, message);
-              } on Failure catch (f) {
-                if (mounted) showMessage(context, failureText(context, f));
-              }
-            },
+            onSelected: () => confirmDelete(
+              context,
+              title: l.deleteExpenseTitle,
+              message: l.deleteExpenseMessage,
+              delete: () => ref.read(expensesRepositoryProvider).delete(e.id),
+            ),
           ),
         ],
       ],
@@ -156,6 +143,13 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Leaving the section clears the search (03-AppFlow §13).
+    ref.onSectionLeft('/expenses', () {
+      if (_search.text.isEmpty) return;
+      setState(_search.clear);
+      _debounce?.cancel();
+      _reload();
+    });
     final l = context.l10n;
     ref.onDataChanged({DataTag.expenses}, _list.revalidate);
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
@@ -163,7 +157,9 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
     final filtered = _filter.category != null || _search.text.trim().isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(
+      // In the swipe pager the bar stays put; only its contents change.
+      backgroundColor: sectionBackground(context),
+      appBar: SectionAppBar(
         leading: ShellMenuButton.maybe(context),
         title: Text(l.navExpenses),
         actions: const [AppBarActions()],
@@ -176,6 +172,7 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
         label: Text(l.addExpense),
       ),
       body: PagedList<Expense>(
+        skeleton: const SkeletonRows(trailing: SkeletonTrailing.amount),
         itemId: (item) => item.id,
         showCount: false,
         controller: _list,
@@ -186,8 +183,9 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
             Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: SearchField(
                     controller: _search,
+                    hintText: l.searchNote,
                     onChanged: (_) {
                       _debounce?.cancel();
                       _debounce = Timer(
@@ -195,11 +193,6 @@ class _ExpensesListPageState extends ConsumerState<ExpensesListPage> {
                         _reload,
                       );
                     },
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      hintText: l.searchNote,
-                      prefixIcon: const Icon(Icons.search),
-                    ),
                   ),
                 ),
                 const SizedBox(width: Space.s2),

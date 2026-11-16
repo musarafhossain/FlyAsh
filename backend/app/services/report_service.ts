@@ -53,13 +53,13 @@ export default class ReportService {
     }
   }
 
-  /** Customers with dues on delivered sales, highest first. */
+  /** Customers with dues on delivered sales and open bookings, highest first. */
   static async dues(page: number, limit: number) {
     const query = db
       .from('sales')
       .join('customers', 'customers.id', 'sales.customer_id')
       .whereNull('sales.deleted_at')
-      .where('sales.status', 'delivered')
+      .whereIn('sales.status', ['delivered', 'booked'])
       .where('sales.due_amount', '>', 0)
       .groupBy('customers.id', 'customers.name', 'customers.phone')
       .select('customers.id as customer_id', 'customers.name', 'customers.phone')

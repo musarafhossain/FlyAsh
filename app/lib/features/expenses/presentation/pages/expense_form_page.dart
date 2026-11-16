@@ -104,24 +104,14 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage>
 
   Future<void> _delete() async {
     final l = context.l10n;
-    final ok = await showConfirmDialog(
+    final deleted = await confirmDelete(
       context,
       title: l.deleteExpenseTitle,
       message: l.deleteExpenseMessage,
-      confirmLabel: l.delete,
-      destructive: true,
+      delete: () =>
+          ref.read(expensesRepositoryProvider).delete(widget.expenseId!),
     );
-    if (!ok || !mounted) return;
-    try {
-      final message = await ref
-          .read(expensesRepositoryProvider)
-          .delete(widget.expenseId!);
-      if (!mounted) return;
-      showMessage(context, message);
-      context.pop(true);
-    } on Failure catch (f) {
-      if (mounted) showMessage(context, failureText(context, f));
-    }
+    if (deleted && mounted) context.pop(true);
   }
 
   @override

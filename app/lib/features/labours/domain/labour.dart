@@ -16,6 +16,9 @@ class Labour {
     this.leftDate,
     this.isActive = true,
     this.presentToday = false,
+    this.totalEarned = '0.00',
+    this.totalPaid = '0.00',
+    this.totalBalance = '0.00',
   });
 
   final String id;
@@ -35,6 +38,15 @@ class Labour {
   /// Marked present today (no mark = absent).
   final bool presentToday;
 
+  /// All time: every present day at its saved wage.
+  final String totalEarned;
+
+  /// All time: every wage payment.
+  final String totalPaid;
+
+  /// [totalEarned] − [totalPaid].
+  final String totalBalance;
+
   bool get isMonthly => wageType == 'monthly';
 
   /// A copy with another active state (for optimistic updates).
@@ -49,6 +61,9 @@ class Labour {
     leftDate: active ? null : (leftDate ?? this.leftDate),
     isActive: active,
     presentToday: presentToday,
+    totalEarned: totalEarned,
+    totalPaid: totalPaid,
+    totalBalance: totalBalance,
   );
 
   factory Labour.fromJson(Json json) => Labour(
@@ -62,6 +77,9 @@ class Labour {
     leftDate: json['left_date'] as String?,
     isActive: json['is_active'] as bool? ?? true,
     presentToday: json['present_today'] == true,
+    totalEarned: '${json['total_earned'] ?? '0.00'}',
+    totalPaid: '${json['total_paid'] ?? '0.00'}',
+    totalBalance: '${json['total_balance'] ?? '0.00'}',
   );
 }
 

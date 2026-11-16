@@ -398,5 +398,14 @@
   "editDayWageTitle": "{name}-এর দিনের মজুরি",
   "editDayWageMessage": "{date} তারিখে {name}-কে উপস্থিত করলে এই মজুরি ধরা হবে।",
   "dayWageLocked": "উপস্থিত করা আছে: মজুরি বদলাতে আগে অনুপস্থিত করুন",
-  "wageEdited": "বদলানো"
+  "wageEdited": "বদলানো",
+  "keepThis": "রেখে দিন",
+  "yesDelete": "হ্যাঁ, মুছে দিন",
+  "resetDayWage": "সাধারণ মজুরিতে ফেরান",
+  "salesCountLabel": "বিক্রি",
+  "totalWageAllTime": "মোট মজুরি (শুরু থেকে)",
+  "daysPresent": "উপস্থিত দিন",
+  "paidShort": "দেওয়া {amount}",
+  "balanceShort": "বাকি {amount}",
+  "removeTax": "ট্যাক্স সরান"
 }

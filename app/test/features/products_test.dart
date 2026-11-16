@@ -180,7 +180,7 @@ void main() {
     await openProducts(tester);
     expect(find.byType(ProductTile), findsNWidgets(3));
     expect(find.textContaining('per '), findsNothing);
-    expect(find.text('₹7.00'), findsWidgets);
+    expect(find.text('₹7'), findsWidgets);
     expect(find.text('₹5.50'), findsOneWidget);
     expect(find.textContaining('→'), findsNothing);
     expect(find.text('Margin'), findsNothing);
@@ -314,7 +314,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(currentPath(), '/products/1');
     expect(find.byType(TextFormField), findsNothing, reason: 'read only');
-    expect(find.text('₹7.00'), findsWidgets);
+    expect(find.text('₹7'), findsWidgets);
     expect(find.text('Active'), findsWidgets);
     expect(find.byTooltip('Edit'), findsOneWidget);
     expect(find.byTooltip('More actions'), findsOneWidget);
@@ -366,11 +366,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Product is used in sales. Deactivate it instead'),
-      findsOneWidget,
+    await expectRefusedDelete(
+      tester,
+      'Product is used in sales. Deactivate it instead',
     );
     expect(currentPath(), '/products/3', reason: 'stays on the page');
 
@@ -385,7 +385,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
     expect(find.text('Product deleted successfully'), findsOneWidget);
     expect(currentPath(), '/products');
@@ -465,11 +465,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(sheet('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Product is used in sales. Deactivate it instead'),
-      findsOneWidget,
+    await expectRefusedDelete(
+      tester,
+      'Product is used in sales. Deactivate it instead',
     );
     expect(find.text('Old Brick'), findsOneWidget);
 
@@ -479,7 +479,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(sheet('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
     expect(find.text('Product deleted successfully'), findsOneWidget);
     expect(find.text('Red Brick'), findsNothing);
@@ -491,7 +491,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(sheet('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Cancel'));
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Keep this'));
     await tester.pumpAndSettle();
     expect(api.requests.where((r) => r.method == 'DELETE'), isEmpty);
     expect(find.text('Red Brick'), findsOneWidget);
@@ -570,11 +570,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(sheet('Delete'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Yes, delete'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Product is used in sales. Deactivate it instead'),
-      findsOneWidget,
+    await expectRefusedDelete(
+      tester,
+      'Product is used in sales. Deactivate it instead',
     );
     expect(find.text('Old Brick'), findsOneWidget, reason: 'undone');
   });

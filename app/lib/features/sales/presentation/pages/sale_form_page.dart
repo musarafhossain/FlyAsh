@@ -24,6 +24,8 @@ import '../../../../core/widgets/search_picker_sheet.dart';
 import '../../../../core/widgets/state_views.dart';
 import '../../../customers/data/customers_repository_impl.dart';
 import '../../../customers/domain/customer.dart';
+import '../../../customers/presentation/pages/customers_list_page.dart'
+    show CustomerTile;
 import '../../../products/data/products_repository_impl.dart';
 import '../../../products/domain/product.dart';
 import '../../../products/presentation/pages/products_list_page.dart';
@@ -267,13 +269,9 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
           label: Text(l.newCustomer),
         ),
       ),
-      itemBuilder: (context, c) => _PickTile(
-        leading: InitialsAvatar(c.name),
-        title: c.name,
-        subtitle: c.hasPhone ? c.phone : (c.address ?? ''),
-        trailing: c.hasDue ? l.dueAmount(Fmt.money(c.totalDue)) : null,
-        onTap: () => Navigator.of(context).pop(c),
-      ),
+      // The same row as the customer list ("-" when there is no phone).
+      itemBuilder: (context, c) =>
+          CustomerTile(customer: c, onTap: () => Navigator.of(context).pop(c)),
     );
     if (picked != null) {
       setState(() {
@@ -294,12 +292,9 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
       searchHint: l.searchProducts,
       fetch: (page, search) =>
           repo.list(page: page, search: search, active: true),
-      itemBuilder: (context, p) => _PickTile(
-        leading: const ProductIcon(size: 40),
-        title: p.name,
-        subtitle: Fmt.money(p.defaultPrice, decimals: true),
-        onTap: () => Navigator.of(context).pop(p),
-      ),
+      // The same row as the product list.
+      itemBuilder: (context, p) =>
+          ProductTile(product: p, onTap: () => Navigator.of(context).pop(p)),
     );
     if (picked == null) return;
     String plain(String v) => _dec(v).toString();
@@ -482,6 +477,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
         bottomNavigationBar: _loaded
             ? _SummaryBar(
                 total: _total,
+                paid: _paid,
                 due: _total - _paid,
                 busy: busy,
                 saveLabel: _isEdit ? l.save : l.saveSale,
@@ -504,7 +500,7 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
       final e = v.money(value);
       if (e != null) return e;
       return _dec(value!) > _total
-          ? l.cannotExceedTotal(Fmt.money(_total.toString(), decimals: true))
+          ? l.cannotExceedTotal(Fmt.money(_total.toString()))
           : null;
     }
 
@@ -777,29 +773,52 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
                 suffixText: '%',
                 prefixIcon: const Icon(Icons.percent),
                 errorText: fieldErrors['tax_percent'],
+                suffixIcon: _tax.text.trim().isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: l.removeTax,
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          _tax.clear();
+                          _changed();
+                        },
+                      ),
               ),
+            ),
+            // Quick tax: 5 · 12 · 18 %.
+            Wrap(
+              spacing: Space.s2,
+              children: [
+                for (final rate in const ['5', '12', '18'])
+                  CompactChoiceChip(
+                    key: Key('tax-$rate'),
+                    label: '$rate%',
+                    selected: _tax.text.trim() == rate,
+                    onSelected: (_) {
+                      _tax.text = rate;
+                      _changed();
+                    },
+                  ),
+              ],
             ),
             const SizedBox(height: Space.s3),
             LineItemSummaryCard(
               lines: [
-                SummaryLine(
-                  l.subtotal,
-                  Fmt.money(_subtotal.toString(), decimals: true),
-                ),
+                SummaryLine(l.subtotal, Fmt.money(_subtotal.toString())),
                 if (_taxAmount > Decimal.zero)
                   SummaryLine(
                     l.taxLine(_dec(_tax.text).toString()),
-                    '+ ${Fmt.money(_taxAmount.toString(), decimals: true)}',
+                    '+ ${Fmt.money(_taxAmount.toString())}',
                   ),
                 SummaryLine(
                   l.total,
-                  Fmt.money(_total.toString(), decimals: true),
+                  Fmt.money(_total.toString()),
                   emphasis: true,
                 ),
                 if (_isEdit)
                   SummaryLine(
                     l.alreadyPaid,
-                    Fmt.money(_paidBefore, decimals: true),
+                    Fmt.money(_paidBefore),
                     color: t.success,
                   ),
               ],
@@ -828,8 +847,8 @@ class _SaleFormPageState extends ConsumerState<SaleFormPage> with FormSubmit {
                 runSpacing: Space.s2,
                 children: [
                   for (final m in kPaymentMethods)
-                    ChoiceChip(
-                      label: Text(l.paymentMethodText(m)),
+                    CompactChoiceChip(
+                      label: l.paymentMethodText(m),
                       selected: _payMethod == m,
                       onSelected: (_) {
                         setState(() => _payMethod = m);
@@ -955,65 +974,6 @@ class _PickerField extends StatelessWidget {
   }
 }
 
-/// Row in a picker sheet.
-class _PickTile extends StatelessWidget {
-  const _PickTile({
-    required this.leading,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-    this.trailing,
-  });
-
-  final Widget leading;
-  final String title;
-  final String subtitle;
-  final String? trailing;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    return AppCard(
-      onTap: onTap,
-      padding: const EdgeInsets.symmetric(
-        horizontal: Space.s4,
-        vertical: Space.s3,
-      ),
-      child: Row(
-        children: [
-          leading,
-          const SizedBox(width: Space.s3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.title.copyWith(color: t.textPrimary),
-                ),
-                Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.caption.copyWith(color: t.textSecondary),
-                ),
-              ],
-            ),
-          ),
-          if (trailing != null)
-            Text(
-              trailing!,
-              style: AppTypography.caption.copyWith(color: t.error),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
 /// One item: product, quantity, price and the line total.
 class _ItemCard extends StatelessWidget {
   const _ItemCard({
@@ -1098,7 +1058,8 @@ class _ItemCard extends StatelessWidget {
                   decoration: InputDecoration(
                     labelText: l.quantity,
                     errorText: err('quantity'),
-                    errorMaxLines: 2,
+                    // One line; a long message is cut with "…".
+                    errorMaxLines: 1,
                   ),
                 ),
               ),
@@ -1115,31 +1076,27 @@ class _ItemCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: Space.s3),
+          // "Line total" on the left, the amount on the right.
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Spacer(),
+              Text(
+                l.lineTotal,
+                style: AppTypography.body.copyWith(color: t.textSecondary),
+              ),
+              const SizedBox(width: Space.s3),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      l.lineTotal,
-                      style: AppTypography.caption.copyWith(
-                        color: t.textTertiary,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      Fmt.money(row.lineTotal.toString()),
+                      style: AppTypography.title.copyWith(
+                        color: t.textPrimary,
+                        fontFeatures: AppTypography.tabular,
                       ),
                     ),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        Fmt.money(row.lineTotal.toString(), decimals: true),
-                        style: AppTypography.title.copyWith(
-                          color: t.textPrimary,
-                          fontFeatures: AppTypography.tabular,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -1150,10 +1107,11 @@ class _ItemCard extends StatelessWidget {
   }
 }
 
-/// Sticky bar: Total · Due (live) and Save.
+/// Sticky bar: Total · Paid · Due (live) and Save.
 class _SummaryBar extends StatelessWidget {
   const _SummaryBar({
     required this.total,
+    required this.paid,
     required this.due,
     required this.busy,
     required this.saveLabel,
@@ -1161,6 +1119,7 @@ class _SummaryBar extends StatelessWidget {
   });
 
   final Decimal total;
+  final Decimal paid;
   final Decimal due;
   final bool busy;
   final String saveLabel;
@@ -1218,6 +1177,7 @@ class _SummaryBar extends StatelessWidget {
               child: Row(
                 children: [
                   figure(l.total, total, t.textPrimary),
+                  figure(l.paid, paid, t.success),
                   figure(
                     l.due,
                     due,

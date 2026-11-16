@@ -2,3 +2,6 @@
 int? browserHistorySerial() => null;
 
 void browserHistoryGo(int delta) {}
+
+/// Not on the web.
+bool get hasBrowserHistory => false;

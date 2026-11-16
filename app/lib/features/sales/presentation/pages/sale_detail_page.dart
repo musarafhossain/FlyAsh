@@ -98,24 +98,20 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
 
   Future<void> _deletePayment(SalePayment p) async {
     final l = context.l10n;
-    final ok = await showConfirmDialog(
+    Sale? updated;
+    await confirmDelete(
       context,
-      title: l.deletePaymentTitle(Fmt.money(p.amount, decimals: true)),
+      title: l.deletePaymentTitle(Fmt.money(p.amount)),
       message: l.deletePaymentMessage,
-      confirmLabel: l.delete,
-      destructive: true,
-    );
-    if (!ok || !mounted) return;
-    // Optimistic: the payment row disappears at once and comes back on
-    // failure.
-    await _run(
-      () => ref.optimisticRemove(
-        p.id,
-        () => ref
+      delete: () async {
+        final (sale, message) = await ref
             .read(salesRepositoryProvider)
-            .deletePayment(widget.saleId, p.id),
-      ),
+            .deletePayment(widget.saleId, p.id);
+        updated = sale;
+        return message;
+      },
     );
+    if (updated != null && mounted) setState(() => _sale = updated);
   }
 
   Future<void> _deliver() async {
@@ -142,10 +138,11 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
       await showDialog<void>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text(l.cancelBooking),
+          title: Text(l.cancelBooking, style: dialogTitleStyle(context)),
           content: Text(l.removePaymentsFirst),
           actions: [
             FilledButton(
+              style: dialogButtonStyle(context),
               onPressed: () => Navigator.of(context).pop(),
               child: Text(l.ok),
             ),
@@ -173,27 +170,13 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
 
   Future<void> _delete() async {
     final l = context.l10n;
-    final ok = await showConfirmDialog(
+    final deleted = await confirmDelete(
       context,
       title: l.deleteSaleTitle(_sale!.summary.invoiceNo),
       message: l.deleteSaleMessage,
-      confirmLabel: l.delete,
-      destructive: true,
+      delete: () => ref.read(salesRepositoryProvider).delete(widget.saleId),
     );
-    if (!ok || !mounted) return;
-    setState(() => _busy = true);
-    try {
-      final message = await ref
-          .read(salesRepositoryProvider)
-          .delete(widget.saleId);
-      if (!mounted) return;
-      showMessage(context, message);
-      context.pop();
-    } on Failure catch (f) {
-      if (mounted) showMessage(context, failureText(context, f));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
+    if (deleted && mounted) context.pop();
   }
 
   @override
@@ -530,7 +513,7 @@ class _Items extends StatelessWidget {
             title: item.productName,
             subtitle:
                 '${Fmt.count(item.quantity)} × '
-                '${Fmt.money(item.unitPrice, decimals: true)}',
+                '${Fmt.money(item.unitPrice)}',
             amount: Fmt.money(item.lineTotal),
           ),
       ],
@@ -549,7 +532,7 @@ class _Summary extends StatelessWidget {
     final t = context.tokens;
     final s = sale.summary;
     final dueZero = Sale.isZeroAmount(s.dueAmount);
-    String money(String v) => Fmt.money(v, decimals: true);
+    String money(String v) => Fmt.money(v);
 
     return LineItemSummaryCard(
       title: l.amountSummary,
@@ -618,7 +601,7 @@ class _Payments extends ConsumerWidget {
               if ((p.note ?? '').isNotEmpty) p.note!,
               if (p.createdBy != null) l.byUser(p.createdBy!),
             ].join(' · '),
-            amount: Fmt.money(p.amount, decimals: true),
+            amount: Fmt.money(p.amount),
             amountColor: t.success,
             onLongPress: onDelete == null
                 ? null

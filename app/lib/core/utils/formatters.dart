@@ -30,11 +30,15 @@ abstract final class Fmt {
     'Dec',
   ];
 
-  /// "48500.00" → "₹48,500" (lists) · decimals: true → "₹48,500.00" (receipts)
-  static String money(String? value, {bool decimals = false}) {
-    final amount = Decimal.tryParse(value ?? '') ?? Decimal.zero;
-    final asNum = amount.toDouble(); // display only
-    return (decimals ? _money2 : _money0).format(asNum);
+  /// Money everywhere: "48500.00" → "₹48,500"; with paise both digits are
+  /// kept: "0.11" → "₹0.11", "800.5" → "₹800.50". The value is rounded to
+  /// paise (half up) first, so it never shows more than 2 decimals.
+  static String money(String? value) {
+    final amount = (Decimal.tryParse(value ?? '') ?? Decimal.zero).round(
+      scale: 2,
+    );
+    final whole = amount == amount.truncate();
+    return (whole ? _money0 : _money2).format(amount.toDouble());
   }
 
   /// 12400 or "12400.00" → "12,400" (quantities, counts). Keeps up to 2 decimals.

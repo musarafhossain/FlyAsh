@@ -20,6 +20,9 @@ import '../../../../core/network/data_changed.dart';
 import '../../data/customers_repository_impl.dart';
 import '../../domain/customer.dart';
 import '../customer_actions.dart';
+import '../../../../core/widgets/search_field.dart';
+import '../../../../core/router/section_events.dart';
+import '../../../../core/widgets/skeletons.dart';
 
 /// Which customers the list shows.
 enum CustomerFilter { all, hasDue, inactive }
@@ -85,6 +88,13 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Leaving the section clears the search (03-AppFlow §13).
+    ref.onSectionLeft('/customers', () {
+      if (_search.text.isEmpty) return;
+      setState(_search.clear);
+      _debounce?.cancel();
+      _list.refresh();
+    });
     final l = context.l10n;
     ref.onDataChanged({DataTag.customers}, _list.revalidate);
     final repo = ref.watch(customersRepositoryProvider);
@@ -106,6 +116,7 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
         label: Text(l.addCustomer),
       ),
       body: PagedList<Customer>(
+        skeleton: const SkeletonRows(trailing: SkeletonTrailing.amount),
         itemId: (item) => item.id,
         showCount: false,
         controller: _list,
@@ -118,25 +129,10 @@ class _CustomersListPageState extends ConsumerState<CustomersListPage> {
         header: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
+            SearchField(
               controller: _search,
+              hintText: l.searchNamePhone,
               onChanged: _onSearch,
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: l.searchNamePhone,
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: searching
-                    ? IconButton(
-                        tooltip: l.clear,
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          _search.clear();
-                          _onSearch('');
-                        },
-                      )
-                    : null,
-              ),
             ),
             const SizedBox(height: Space.s3),
             Wrap(
@@ -221,7 +217,7 @@ class DueText extends StatelessWidget {
   }
 }
 
-/// Phone/tablet row: initials · name · phone · address | due.
+/// Phone/tablet row: initials · name · phone (or "-") | due.
 class CustomerTile extends StatelessWidget {
   const CustomerTile({
     super.key,
@@ -264,23 +260,14 @@ class CustomerTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.title.copyWith(color: t.textPrimary),
                   ),
-                  if (c.hasPhone)
-                    Text(
-                      c.phone,
-                      style: AppTypography.caption.copyWith(
-                        color: t.textSecondary,
-                        fontFeatures: AppTypography.tabular,
-                      ),
+                  // No address in the list; "-" when there is no phone.
+                  Text(
+                    c.hasPhone ? c.phone : '-',
+                    style: AppTypography.caption.copyWith(
+                      color: t.textSecondary,
+                      fontFeatures: AppTypography.tabular,
                     ),
-                  if (c.address != null && c.address!.isNotEmpty)
-                    Text(
-                      c.address!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.caption.copyWith(
-                        color: t.textTertiary,
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),

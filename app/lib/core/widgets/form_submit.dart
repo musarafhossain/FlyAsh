@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../error/failure.dart';
 import '../l10n/l10n.dart';
+import 'state_views.dart' show showConfirmDialog;
 
 /// Shared submit flow for forms: validate → busy → call the API →
 /// field errors under the inputs (422) or one message above the button.
@@ -49,4 +50,37 @@ void showMessage(BuildContext context, String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
+}
+
+/// Delete with confirmation (03-AppFlow §13): "Keep this" / "Yes, delete".
+/// The dialog stays open while [delete] runs (buttons off, spinner); it
+/// closes when the server confirms and the success message is shown. On
+/// failure the server's message is shown (toast + in the dialog) and the
+/// dialog stays open. Returns true when deleted.
+Future<bool> confirmDelete(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required Future<String> Function() delete,
+}) async {
+  final l = context.l10n;
+  String? done;
+  final ok = await showConfirmDialog(
+    context,
+    title: title,
+    message: message,
+    confirmLabel: l.yesDelete,
+    cancelLabel: l.keepThis,
+    destructive: true,
+    onConfirm: () async {
+      try {
+        done = await delete();
+        return null;
+      } on Failure catch (f) {
+        return context.mounted ? failureText(context, f) : f.message;
+      }
+    },
+  );
+  if (ok && done != null && context.mounted) showMessage(context, done!);
+  return ok;
 }

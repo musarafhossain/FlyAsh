@@ -105,8 +105,13 @@ export default class LaboursController {
     )
   }
 
+  /**
+   * Adds present_today and the lifetime totals: earned_paise (every present
+   * day at its saved wage; monthly ÷ days in that month) and paid_total
+   * (all wage payments).
+   */
   private withTodayStatus(query: ModelQueryBuilderContract<typeof Labour>) {
-    return query
+    return Labour.withLifetime(query)
       .select('labours.*')
       .select(
         db.raw(

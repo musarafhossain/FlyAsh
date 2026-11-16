@@ -55,6 +55,7 @@ class FakeAttendance {
                   'day_wage': p.contains(id)
                       ? saved[id] ?? (id == '1' ? '500.00' : '450.00')
                       : (id == '1' ? '500.00' : '450.00'),
+                  'default_day_wage': id == '1' ? '500.00' : '450.00',
                 },
             ],
     };
@@ -119,16 +120,28 @@ Future<void> openAttendance(
   await tester.pumpAndSettle();
 }
 
-/// The switch on the row of [name].
-Finder switchOf(String name) => find.descendant(
-  of: find.ancestor(of: find.text(name), matching: find.byType(InkWell)).first,
-  matching: find.byType(Switch),
+/// The row of [name].
+Finder rowOf(String name) => find.ancestor(
+  of: find.text(name),
+  matching: find.byWidgetPredicate(
+    (w) => '${w.key}'.contains('attendanceRow-'),
+  ),
 );
+
+/// The switch on the row of [name].
+Finder switchOf(String name) =>
+    find.descendant(of: rowOf(name), matching: find.byType(Switch));
 
 /// The ✏ button on the row of [name].
 Finder pencilOf(String name) => find.descendant(
-  of: find.ancestor(of: find.text(name), matching: find.byType(InkWell)).first,
+  of: rowOf(name),
   matching: find.widgetWithIcon(IconButton, Icons.edit_outlined),
+);
+
+/// The ↺ button on the row of [name] (only when the wage is not the usual).
+Finder resetOf(String name) => find.descendant(
+  of: rowOf(name),
+  matching: find.widgetWithIcon(IconButton, Icons.restart_alt),
 );
 
 bool pencilEnabled(WidgetTester tester, String name) =>
@@ -194,11 +207,11 @@ void main() {
     ]);
     expect(api.present['2026-11-09'], {'12'});
 
-    // Tapping the name flips it too
+    // Only the switch marks attendance: tapping the name does nothing
     await tester.tap(find.text('Kartik Mondal'));
     await tester.pumpAndSettle();
-    expect(isOn(tester, 'Kartik Mondal'), isTrue);
-    expect(puts(), hasLength(3));
+    expect(isOn(tester, 'Kartik Mondal'), isFalse);
+    expect(puts(), hasLength(2));
   });
 
   testWidgets('✏ is on only while absent; an edited wage shows and is saved '
@@ -221,7 +234,11 @@ void main() {
     await tester.enterText(find.byType(TextFormField), '520.5');
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
-    expect(find.text('₹520.50 / day · edited'), findsOneWidget);
+    // Shown like any wage (no "edited" label), with ↺ next to ✏
+    expect(find.text('₹520.50 / day'), findsOneWidget);
+    expect(find.textContaining('edited'), findsNothing);
+    expect(resetOf('Asit Roy'), findsOneWidget);
+    expect(resetOf('Kartik Mondal'), findsNothing, reason: 'usual wage');
     expect(puts(), isEmpty, reason: 'nothing saved yet');
 
     await flip(tester, 'Asit Roy');
@@ -230,14 +247,25 @@ void main() {
     ]);
     expect(find.text('₹520.50 / day'), findsOneWidget, reason: 'saved wage');
     expect(pencilEnabled(tester, 'Asit Roy'), isFalse);
+    expect(
+      tester.widget<IconButton>(resetOf('Asit Roy')).onPressed,
+      isNull,
+      reason: '↺ off while present, like ✏',
+    );
 
-    // Absent again: back to the usual wage, ✏ on again
+    // Absent again: the wage stays 520.50 while the list is open
     await flip(tester, 'Asit Roy');
     expect(body(puts().last)['records'], [
       {'labour_id': '12', 'present': false},
     ]);
-    expect(find.text('₹450 / day'), findsNWidgets(2));
+    expect(find.text('₹520.50 / day'), findsOneWidget);
     expect(pencilEnabled(tester, 'Asit Roy'), isTrue);
+
+    // ↺ goes back to the usual wage and disappears
+    await tester.tap(resetOf('Asit Roy'));
+    await tester.pumpAndSettle();
+    expect(find.text('₹450 / day'), findsNWidgets(2));
+    expect(resetOf('Asit Roy'), findsNothing);
   });
 
   testWidgets('✏ cancel keeps the wage; the usual wage again sends no wage', (

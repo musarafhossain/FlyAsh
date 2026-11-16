@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../theme/app_spacing.dart';
 import 'nav_items.dart';
+import 'section_app_bar.dart';
+import '../theme/app_theme.dart' show kBarShadow;
 
 /// Holds the section navigators of the app shell (03-AppFlow §3.1).
 ///
@@ -31,6 +33,9 @@ class _ShellPagerState extends State<ShellPager> {
   late final PageController _pages = PageController(
     initialPage: _pageOf(widget.shell.currentIndex) ?? 0,
   );
+
+  /// The sections' app bars, drawn in the fixed bar (SectionAppBar).
+  final _bars = SectionBars();
 
   /// True while the pager slides because of a bottom-bar tap (not a finger),
   /// so the pages it passes do not switch the section.
@@ -69,15 +74,24 @@ class _ShellPagerState extends State<ShellPager> {
 
   @override
   void dispose() {
+    _bars.dispose();
     _pages.dispose();
     super.dispose();
   }
 
+  /// Where each section was last (path), to know if it is on its list.
+  final _lastPath = <int, String>{};
+
   void _onPageChanged(int page) {
     if (_sliding) return;
     final branch = kPrimaryBranches[page];
-    // Keeps the section's own stack (like WhatsApp keeps each tab's state).
-    if (branch != widget.shell.currentIndex) widget.shell.goBranch(branch);
+    if (branch == widget.shell.currentIndex) return;
+    // A swipe always lands on the section's list (03-AppFlow §3.1). It
+    // normally is already (AppShell resets a section left on an inner page);
+    // e.g. after the browser's back button it may not be.
+    final onList =
+        (_lastPath[branch] ?? kNavItems[branch].path) == kNavItems[branch].path;
+    widget.shell.goBranch(branch, initialLocation: !onList);
   }
 
   /// The current section is on its own first screen (not a detail / form).
@@ -89,6 +103,7 @@ class _ShellPagerState extends State<ShellPager> {
   @override
   Widget build(BuildContext context) {
     final current = widget.shell.currentIndex;
+    _lastPath[current] = GoRouter.of(context).state.uri.path;
     final desktop = MediaQuery.sizeOf(context).width >= Breakpoints.expanded;
 
     if (desktop) {
@@ -113,29 +128,98 @@ class _ShellPagerState extends State<ShellPager> {
       children: [
         _branch(
           active: page != null,
-          PageView(
-            key: const Key('shellPager'),
-            controller: _pages,
-            // Builds the sections next to the current one ahead of time, so
-            // their content (not a skeleton) shows while the finger moves.
-            allowImplicitScrolling: true,
-            onPageChanged: _onPageChanged,
-            physics: swipe
-                ? const PageScrollPhysics()
-                : const NeverScrollableScrollPhysics(),
-            children: [
-              for (final b in kPrimaryBranches)
-                _KeepAlive(
-                  child: TickerMode(
-                    enabled: b == current,
-                    child: widget.children[b],
+          _withFixedBar(
+            context,
+            showBars: swipe,
+            PageView(
+              key: const Key('shellPager'),
+              controller: _pages,
+              // Builds the sections next to the current one ahead of time, so
+              // their content (not a skeleton) shows while the finger moves.
+              allowImplicitScrolling: true,
+              onPageChanged: _onPageChanged,
+              physics: swipe
+                  ? const PageScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
+              children: [
+                for (final (i, b) in kPrimaryBranches.indexed)
+                  _KeepAlive(
+                    child: ShellPagerSlot(
+                      index: i,
+                      controller: _pages,
+                      bars: _bars,
+                      child: TickerMode(
+                        enabled: b == current,
+                        child: widget.children[b],
+                      ),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
         for (final b in drawerBranches)
           _branch(widget.children[b], active: b == current),
+      ],
+    );
+  }
+
+  /// The page background and one fixed app bar (with its shadow) behind the
+  /// pager: the sections' own bars are see-through and only their titles and
+  /// buttons move (SectionAppBar).
+  /// [showBars]: the section is on its first screen. On a detail page or
+  /// form (pushed inside the section) that page's own app bar shows, so the
+  /// pager's bar and titles step aside.
+  Widget _withFixedBar(
+    BuildContext context,
+    Widget pager, {
+    required bool showBars,
+  }) {
+    final theme = Theme.of(context);
+    final barHeight = MediaQuery.paddingOf(context).top + kToolbarHeight;
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: ColoredBox(color: theme.scaffoldBackgroundColor),
+        ),
+        // Hidden, not removed, off a section's first screen: removing them
+        // would move the pager in the tree and reset it to the first page.
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: barHeight,
+          child: Offstage(
+            offstage: !showBars,
+            child: DecoratedBox(
+              key: const Key('shellFixedBar'),
+              decoration: BoxDecoration(
+                color: theme.appBarTheme.backgroundColor,
+                boxShadow: kBarShadow,
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(child: pager),
+        // The sections' titles and buttons, fading as the pages slide.
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Offstage(
+            offstage: !showBars,
+            child: ListenableBuilder(
+              listenable: _bars,
+              builder: (context, _) => Stack(
+                children: [
+                  SizedBox(height: barHeight, width: double.infinity),
+                  for (final MapEntry(key: i, value: bar) in _bars.bars.entries)
+                    PagerSectionBar(index: i, bar: bar, controller: _pages),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

@@ -8,6 +8,16 @@ import 'app_typography.dart';
 
 /// The phone's status bar (time, battery, notifications): black with light
 /// icons in every theme.
+/// Soft shadow under app bars and above the bottom bar (04-UI-UX §7.3).
+const kBarShadow = [
+  BoxShadow(color: Color(0x1F000000), blurRadius: 6, offset: Offset(0, 2)),
+];
+
+/// The same shadow, upwards, above the bottom bar.
+const kBottomBarShadow = [
+  BoxShadow(color: Color(0x1F000000), blurRadius: 6, offset: Offset(0, -2)),
+];
+
 const kStatusBarStyle = SystemUiOverlayStyle(
   statusBarColor: Colors.black,
   statusBarIconBrightness: Brightness.light, // Android
@@ -85,8 +95,10 @@ abstract final class AppTheme {
         foregroundColor: t.textPrimary,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: kStatusBarStyle,
-        elevation: 0,
-        scrolledUnderElevation: 0,
+        // A soft shadow separates the bar from the page.
+        elevation: 2,
+        scrolledUnderElevation: 2,
+        shadowColor: const Color(0x55000000),
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge,
       ),

@@ -270,8 +270,10 @@ test.group('Sales: bookings', (group) => {
     const row = upcoming.body().data.items.find((s: any) => s.id === sale.id)
     assert.isFalse(row.is_overdue)
 
+    // An open booking's due counts for the customer (owed on delivery)
     let cust = await client.get(`${API}/customers/${customer.id}`).loginAs(user)
-    assert.equal(cust.body().data.total_due, '0.00')
+    assert.equal(cust.body().data.total_due, '4500.00')
+    assert.equal(cust.body().data.sales_count, 1)
 
     const cancel = await client.post(`${API}/sales/${sale.id}/cancel`).loginAs(user)
     cancel.assertStatus(400) // has payments

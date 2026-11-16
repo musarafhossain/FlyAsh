@@ -15,6 +15,7 @@ import '../theme/theme_controller.dart';
 import '../widgets/list_items.dart';
 import 'app_bar_actions.dart';
 import 'back_guard.dart';
+import 'section_events.dart';
 import 'nav_items.dart';
 
 /// Responsive app frame (04-UI-UX §11, 03-AppFlow §3):
@@ -56,11 +57,39 @@ class _AppShellState extends State<AppShell> {
 
   int get _index => widget.shell.currentIndex;
 
+  @override
+  void didUpdateWidget(AppShell old) {
+    super.didUpdateWidget(old);
+    final left = old.shell.currentIndex;
+    if (left != widget.shell.currentIndex) {
+      // Lists of the section left behind clear their search (after this
+      // frame: providers must not change while the tree builds).
+      final container = ProviderScope.containerOf(context, listen: false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        container.read(sectionLeftProvider.notifier).left(kNavItems[left].path);
+      });
+    }
+  }
+
   void _go(int index) {
+    final router = GoRouter.of(context);
+    final current = _index;
+    final atRoot = router.state.uri.path == kNavItems[current].path;
+    _scaffoldKey.currentState?.closeDrawer();
+    if (index == current && atRoot) return; // already there: no extra entry
     // A section always opens on its first screen (the list), also when a
     // detail page of it was left open earlier.
+    if (index != current && !atRoot && kPrimaryBranches.contains(current)) {
+      // Leaving a bottom-bar section on an inner page (Upcoming deliveries,
+      // a form …): put it back on its list first, so swiping to it later
+      // shows the list (and swiping works there).
+      widget.shell.goBranch(current, initialLocation: true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.shell.goBranch(index, initialLocation: true);
+      });
+      return;
+    }
     widget.shell.goBranch(index, initialLocation: true);
-    _scaffoldKey.currentState?.closeDrawer();
   }
 
   void _openDrawer() => _scaffoldKey.currentState?.openDrawer();
@@ -152,7 +181,7 @@ class _AppShellState extends State<AppShell> {
     // NavigationBar always needs a selected index; when a drawer section is
     // open the selection is drawn as unselected.
     final t = context.tokens;
-    final bar = NavigationBar(
+    final navigation = NavigationBar(
       selectedIndex: inDrawerSection ? 0 : selectedPrimary,
       onDestinationSelected: onTap,
       destinations: [
@@ -165,6 +194,13 @@ class _AppShellState extends State<AppShell> {
             label: kNavItems[i].text(context.l10n),
           ),
       ],
+    );
+
+    // A soft shadow above the bottom bar (04-UI-UX §7.3).
+    final bar = DecoratedBox(
+      key: const Key('bottomBarShadow'),
+      decoration: const BoxDecoration(boxShadow: kBottomBarShadow),
+      child: navigation,
     );
 
     return Scaffold(

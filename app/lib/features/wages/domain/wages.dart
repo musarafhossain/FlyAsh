@@ -136,9 +136,13 @@ class WageDetail {
     required this.month,
     this.days = const [],
     this.payments = const [],
+    this.lifetime,
   });
 
   final WageRow row;
+
+  /// All time for this labour (null when the server did not send it).
+  final WageTotals? lifetime;
   final String month;
   final List<WageDay> days;
   final List<WagePayment> payments;
@@ -155,6 +159,9 @@ class WageDetail {
         for (final p in (json['payments'] as List<Object?>? ?? const []))
           WagePayment.fromJson(p! as Json),
       ],
+      lifetime: json['lifetime'] is Json
+          ? WageTotals.fromJson(json['lifetime'] as Json)
+          : null,
     );
   }
 }

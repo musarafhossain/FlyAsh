@@ -31,6 +31,7 @@ import '../labour_labels.dart';
 import '../../../../core/widgets/skeletons.dart';
 import '../../../../core/widgets/action_menu.dart';
 import '../../../wages/presentation/widgets/wage_sheets.dart';
+import '../../../wages/presentation/widgets/lifetime_wage_card.dart';
 import '../widgets/labours_tab.dart' show TodayPill;
 
 /// Labour detail (03-AppFlow §7.1): info, Call / WhatsApp, the month's
@@ -282,6 +283,12 @@ class _LabourDetailPageState extends ConsumerState<LabourDetailPage> {
                   onWhatsApp: () => _contact(ContactLauncher.whatsApp),
                 ),
                 if (_wage != null) _WageStats(row: _wage!, onOpen: _openWages),
+                const SizedBox(height: Space.s3),
+                LifetimeWageCard(
+                  earned: lb.totalEarned,
+                  paid: lb.totalPaid,
+                  balance: lb.totalBalance,
+                ),
                 const SizedBox(height: Space.s4),
                 SectionHeader(l.attendanceThisMonth),
                 PeriodSelector(
@@ -586,7 +593,10 @@ class _LeavingDateDialogState extends State<LeavingDateDialog> {
     final t = context.tokens;
     final joined = widget.labour.joiningDate;
     return AlertDialog(
-      title: Text(l.deactivateLabourTitle(widget.labour.name)),
+      title: Text(
+        l.deactivateLabourTitle(widget.labour.name),
+        style: dialogTitleStyle(context),
+      ),
       content: SizedBox(
         width: 400,
         child: Column(
@@ -610,13 +620,16 @@ class _LeavingDateDialogState extends State<LeavingDateDialog> {
       ),
       actions: [
         OutlinedButton(
+          style: dialogButtonStyle(context),
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l.cancel),
         ),
         FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: t.error,
-            foregroundColor: t.surface,
+          style: dialogButtonStyle(context).merge(
+            FilledButton.styleFrom(
+              backgroundColor: t.error,
+              foregroundColor: t.surface,
+            ),
           ),
           onPressed: () => Navigator.of(context).pop(_date),
           child: Text(l.deactivate),
@@ -665,6 +678,13 @@ class _WageStats extends StatelessWidget {
               label: l.balance,
               value: Fmt.money(row.balance),
               tint: row.hasBalance ? KpiTint.rose : KpiTint.green,
+              onTap: onOpen,
+            ),
+            KpiChip(
+              icon: Icons.event_available_outlined,
+              label: l.daysPresent,
+              value: '${row.presentDays}',
+              tint: KpiTint.amber,
               onTap: onOpen,
             ),
           ],

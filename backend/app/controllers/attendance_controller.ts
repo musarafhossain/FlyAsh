@@ -113,15 +113,16 @@ export default class AttendanceController {
       )
     const rowOf = new Map(rows.map((r) => [r.labourId, r]))
 
-    // day_wage: the saved day's wage when present, else the labour's wage
-    // for one day (monthly ÷ days in that month).
+    // day_wage: the saved day's wage when present, else default_day_wage
+    // (the labour's wage for one day; monthly ÷ days in that month).
     const items = labours.map((labour) => {
       const row = rowOf.get(labour.id)
-      const dayPaise = row
-        ? earnedPaise(row)
-        : labour.wageType === 'daily'
+      // The labour's usual wage for one day (monthly ÷ days in the month).
+      const defaultPaise =
+        labour.wageType === 'daily'
           ? toPaise(labour.wageAmount)
           : toPaise(labour.wageAmount) / daysInMonthOf(date)
+      const dayPaise = row ? earnedPaise(row) : defaultPaise
       return {
         labour_id: labour.id,
         name: labour.name,
@@ -129,6 +130,7 @@ export default class AttendanceController {
         wage_amount: labour.wageAmount,
         present: row !== undefined,
         day_wage: fromPaise(Math.round(dayPaise)),
+        default_day_wage: fromPaise(Math.round(defaultPaise)),
       }
     })
 

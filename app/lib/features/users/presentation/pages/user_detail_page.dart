@@ -12,6 +12,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/action_menu.dart';
 import '../../../../core/widgets/cards.dart';
 import '../../../../core/widgets/form_fields.dart';
 import '../../../../core/widgets/form_submit.dart';
@@ -51,7 +52,6 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
   }
 
   Object? _error;
-  bool _busy = false;
 
   @override
   void initState() {
@@ -81,6 +81,8 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
     final user = _user!;
     final l = context.l10n;
     final deactivate = user.isActive;
+    String? message;
+    // The dialog waits for the server (buttons off, spinner).
     final ok = await showConfirmDialog(
       context,
       title: deactivate
@@ -89,21 +91,20 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
       message: deactivate ? l.deactivateUserMessage : l.activateUserMessage,
       confirmLabel: deactivate ? l.deactivate : l.activate,
       destructive: deactivate,
+      onConfirm: () async {
+        try {
+          final (updated, done) = await ref
+              .read(usersRepositoryProvider)
+              .setActive(user.id, !deactivate);
+          if (mounted) setState(() => _show(updated));
+          message = done;
+          return null;
+        } on Failure catch (f) {
+          return mounted ? failureText(context, f) : f.message;
+        }
+      },
     );
-    if (!ok || !mounted) return;
-    setState(() => _busy = true);
-    try {
-      final (updated, message) = await ref
-          .read(usersRepositoryProvider)
-          .setActive(user.id, !deactivate);
-      if (!mounted) return;
-      setState(() => _show(updated));
-      showMessage(context, message);
-    } on Failure catch (f) {
-      if (mounted) showMessage(context, failureText(context, f));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
+    if (ok && message != null && mounted) showMessage(context, message!);
   }
 
   Future<void> _resetPassword() async {
@@ -125,12 +126,36 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
       appBar: AppBar(
         title: Text(user?.name ?? l.userDetails),
         actions: [
-          if (user != null)
+          if (user != null) ...[
             IconButton(
               tooltip: l.edit,
               onPressed: _edit,
               icon: const Icon(Icons.edit_outlined),
             ),
+            // Other actions in ⋮, like every detail page (03-AppFlow §13).
+            ActionMenuButton(
+              tooltip: l.moreActions,
+              groups: [
+                [
+                  ActionMenuItem(
+                    icon: Icons.lock_reset,
+                    label: l.resetPassword,
+                    onSelected: _resetPassword,
+                  ),
+                ],
+                [
+                  ActionMenuItem(
+                    icon: user.isActive
+                        ? Icons.block
+                        : Icons.check_circle_outline,
+                    label: user.isActive ? l.deactivate : l.activate,
+                    destructive: user.isActive,
+                    onSelected: _toggleActive,
+                  ),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
       body: user == null
@@ -184,32 +209,6 @@ class _UserDetailPageState extends ConsumerState<UserDetailPage> {
                     ),
                   ),
                 ],
-                const SizedBox(height: Space.s4),
-                MenuGroup(
-                  children: [
-                    MenuRow(
-                      icon: Icons.edit_outlined,
-                      title: l.editUser,
-                      onTap: _edit,
-                    ),
-                    MenuRow(
-                      icon: Icons.lock_reset,
-                      title: l.resetPassword,
-                      subtitle: l.resetUserPasswordHint,
-                      onTap: _resetPassword,
-                    ),
-                    MenuRow(
-                      icon: user.isActive
-                          ? Icons.block
-                          : Icons.check_circle_outline,
-                      title: user.isActive ? l.deactivate : l.activate,
-                      subtitle: user.isActive ? l.deactivateUserMessage : null,
-                      color: user.isActive ? context.tokens.error : null,
-                      onTap: _busy ? null : _toggleActive,
-                      showChevron: false,
-                    ),
-                  ],
-                ),
               ],
             ),
     );
@@ -295,7 +294,10 @@ class _ResetPasswordDialogState extends ConsumerState<ResetPasswordDialog>
     final l = context.l10n;
     final v = Validators.of(context);
     return AlertDialog(
-      title: Text(l.resetPasswordFor(widget.user.name)),
+      title: Text(
+        l.resetPasswordFor(widget.user.name),
+        style: dialogTitleStyle(context),
+      ),
       content: SizedBox(
         width: 400,
         child: Form(
@@ -339,6 +341,7 @@ class _ResetPasswordDialogState extends ConsumerState<ResetPasswordDialog>
       ),
       actions: [
         OutlinedButton(
+          style: dialogButtonStyle(context),
           onPressed: busy ? null : () => Navigator.of(context).pop(),
           child: Text(l.cancel),
         ),

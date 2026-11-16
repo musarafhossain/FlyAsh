@@ -49,9 +49,11 @@ class PagedList<T> extends ConsumerStatefulWidget {
     this.controller,
     this.header,
     this.maxWidth = 1200,
-    this.showCount = true,
+    this.showCount = false,
     this.onRefresh,
     this.itemId,
+    this.skeleton,
+    this.headerGap = Space.s3,
   });
 
   final Future<Paginated<T>> Function(int page) fetch;
@@ -71,6 +73,13 @@ class PagedList<T> extends ConsumerStatefulWidget {
 
   /// Also run on pull to refresh (e.g. a detail page reloads its header).
   final Future<void> Function()? onRefresh;
+
+  /// Space between [header] and the rows.
+  final double headerGap;
+
+  /// Placeholder rows while page 1 loads on phones / tablets, shaped like
+  /// this list's rows (default: generic rows). Desktop shows a table.
+  final Widget? skeleton;
 
   /// The item's id, to apply optimistic patches.
   final String Function(T item)? itemId;
@@ -212,7 +221,7 @@ class _PagedListState<T> extends ConsumerState<PagedList<T>> {
       // Desktop lists are tables; phones and tablets show rows.
       content = MediaQuery.sizeOf(context).width >= Breakpoints.expanded
           ? const SkeletonTable()
-          : const SkeletonList();
+          : widget.skeleton ?? const SkeletonList();
     } else if (firstLoad && _error != null) {
       content = ErrorState(
         message: failureText(context, _error!),
@@ -260,7 +269,7 @@ class _PagedListState<T> extends ConsumerState<PagedList<T>> {
                   children: [
                     if (widget.header != null) ...[
                       widget.header!,
-                      const SizedBox(height: Space.s3),
+                      SizedBox(height: widget.headerGap),
                     ],
                     content,
                   ],

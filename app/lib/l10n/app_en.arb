@@ -721,5 +721,28 @@
     }
   },
   "dayWageLocked": "Already present: mark absent to change the wage",
-  "wageEdited": "edited"
+  "wageEdited": "edited",
+  "keepThis": "Keep this",
+  "yesDelete": "Yes, delete",
+  "resetDayWage": "Back to the usual wage",
+  "salesCountLabel": "Sales",
+  "totalWageAllTime": "Total wage (all time)",
+  "daysPresent": "Days present",
+  "paidShort": "Paid {amount}",
+  "balanceShort": "Bal {amount}",
+  "@paidShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@balanceShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "removeTax": "Remove tax"
 }

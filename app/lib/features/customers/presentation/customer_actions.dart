@@ -118,24 +118,11 @@ Future<bool> deleteCustomer(
   Customer c,
 ) async {
   final l = context.l10n;
-  final ok = await showConfirmDialog(
+  // The dialog waits for the server; the row goes when it is really gone.
+  return confirmDelete(
     context,
     title: l.deleteCustomerTitle(c.name),
     message: l.deleteCustomerMessage,
-    confirmLabel: l.delete,
-    destructive: true,
+    delete: () => ref.read(customersRepositoryProvider).delete(c.id),
   );
-  if (!ok || !context.mounted) return false;
-  try {
-    // Optimistic: the row disappears at once and comes back on failure.
-    final message = await ref.optimisticRemove(
-      c.id,
-      () => ref.read(customersRepositoryProvider).delete(c.id),
-    );
-    if (context.mounted) showMessage(context, message);
-    return true;
-  } on Failure catch (f) {
-    if (context.mounted) showMessage(context, failureText(context, f));
-    return false;
-  }
 }

@@ -459,7 +459,7 @@ void main() {
 
     await tester.enterText(field('Quantity'), '5000');
     await tester.pumpAndSettle();
-    expect(find.text('₹32,500.00'), findsWidgets); // line total
+    expect(find.text('₹32,500'), findsWidgets); // line total
     await tester.enterText(field('Transport'), '1500');
     await tester.enterText(field('Discount'), '500');
     await tester.pumpAndSettle();
@@ -471,7 +471,7 @@ void main() {
     await tester.enterText(field('Amount (optional)'), '40000');
     await tester.tap(find.widgetWithText(FilledButton, 'Save sale'));
     await tester.pumpAndSettle();
-    expect(find.text('Cannot be more than total ₹33,500.00'), findsOneWidget);
+    expect(find.text('Cannot be more than total ₹33,500'), findsOneWidget);
 
     await tester.enterText(field('Amount (optional)'), '10000');
     await tapVisible(tester, find.widgetWithText(ChoiceChip, 'UPI'));
@@ -655,7 +655,7 @@ void main() {
     });
     expect(currentPath(), '/sales/104');
     expect(find.text('Sale updated successfully'), findsOneWidget);
-    expect(find.text('₹39,000'), findsOneWidget); // new line total
+    expect(find.text('₹39,000'), findsWidgets); // new line total + total
   });
 
   for (final size in const [Size(360, 800), Size(800, 1000), Size(1440, 900)]) {

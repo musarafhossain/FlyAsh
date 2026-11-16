@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flyash/app.dart';
+import 'package:flyash/features/users/presentation/pages/users_list_page.dart';
 import 'package:flyash/core/router/app_router.dart';
 import 'package:flyash/core/widgets/data_table_card.dart';
-import 'package:flyash/core/widgets/list_items.dart';
 
 import '../fake_api.dart';
 import '../helpers.dart';
@@ -193,15 +193,14 @@ void main() {
     expect(find.byType(AlertDialog), findsOneWidget);
   });
 
-  testWidgets('phone: users are cards with status and last login', (
-    tester,
-  ) async {
+  testWidgets('phone: users are rows like customers; Inactive shown, no '
+      'last login', (tester) async {
     await openUsers(tester);
-    expect(find.byType(EntityListTile), findsNWidgets(2));
+    expect(find.byType(UserTile), findsNWidgets(2));
     expect(find.text('Munshi Kalam'), findsOneWidget);
-    expect(find.text('Active'), findsOneWidget);
+    expect(find.text('Active'), findsNothing, reason: 'only Inactive shows');
     expect(find.text('Inactive'), findsOneWidget);
-    expect(find.text('Last login: Never'), findsOneWidget);
+    expect(find.textContaining('Last login'), findsNothing);
     expect(find.textContaining('Showing'), findsNothing);
     expect(find.byType(DataTableCard), findsNothing);
   });
@@ -209,7 +208,7 @@ void main() {
   testWidgets('desktop: users are a table', (tester) async {
     await openUsers(tester, size: const Size(1440, 900));
     expect(find.byType(DataTableCard), findsOneWidget);
-    expect(find.text('Last login'), findsOneWidget); // column header
+    expect(find.text('Last login'), findsNothing, reason: 'no column');
     expect(find.text('munshi@test.com'), findsOneWidget);
   });
 
@@ -227,7 +226,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(api.requests.last.queryParameters['search'], 'rafiq');
-    expect(find.byType(EntityListTile), findsOneWidget);
+    expect(find.byType(UserTile), findsOneWidget);
 
     await tester.enterText(find.byType(TextField).first, 'nobody');
     await tester.pump(const Duration(milliseconds: 400));
@@ -301,6 +300,9 @@ void main() {
 
   testWidgets('deactivate asks first, then shows Inactive', (tester) async {
     final api = await openUsers(tester, location: '/users/6');
+    // Actions are in the app bar's ⋮ menu
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Deactivate'));
     await tester.pumpAndSettle();
     expect(find.text('Deactivate Munshi Kalam?'), findsOneWidget);
@@ -311,11 +313,15 @@ void main() {
     expect(body(patch), {'is_active': false});
     expect(find.text('User deactivated'), findsOneWidget);
     expect(find.text('Inactive'), findsOneWidget);
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
     expect(find.text('Activate'), findsOneWidget);
   });
 
   testWidgets('reset password for another user', (tester) async {
     final api = await openUsers(tester, location: '/users/6');
+    await tester.tap(find.byTooltip('More actions'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Reset password'));
     await tester.pumpAndSettle();
 
