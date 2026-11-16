@@ -97,6 +97,8 @@ Any API call returning **401** → clear the token → Login with the toast "Ses
 - Web URLs have no `#`: `/expenses`, `/sales/<uuid>` (path URL strategy; Nginx serves `index.html` for unknown paths).
 - **Every screen has its own URL**, also screens opened with `push()` (forgot password, OTP, new password, galleries) — `GoRouter.optionURLReflectsImperativeAPIs = true`. Private values (email, reset token) travel in `extra`, never in the URL; refreshing `/forgot-password/verify` or `/reset` returns to `/forgot-password`.
 - Each bottom tab keeps its own navigation stack (go_router `StatefulShellRoute`). Opening a section from the bottom nav, rail or drawer **always shows its list** (`goBranch(index, initialLocation: true)`), even if a detail page was left open there before.
+- **The app bar stays still while swiping:** the pager draws one fixed bar (with a shadow); only the title and buttons cross-fade. The bottom bar has a shadow too.
+- **A section left on an inner page** (Upcoming deliveries, a form …) through the bottom bar or drawer is put back on its list, so a later swipe to it shows the list and swiping keeps working.
 - **Swipe between tabs (phone and tablet), like WhatsApp:** on the first screen of Home, Sales, Attendance or Expenses, swipe left / right to go to the next / previous bottom-bar section; the page follows the finger and a short drag springs back. A bottom-bar tap slides there too. Swiping does not work on detail pages and forms (their own horizontal gestures stay theirs), in drawer sections, or on desktop. Each section keeps its own state and scroll position while you swipe.
 - The system status bar (clock, battery) is black on every screen.
 - **Back button — what is open on top closes first:** the drawer, a dialog, a bottom sheet or a ⋮ / long-press menu. Only when nothing is open does back change the page.
@@ -218,9 +220,10 @@ A list of `booked` sales sorted by `delivery_date`. Overdue rows are on top with
 
 ```
 Customers list ─ search / "Has due" chip ─ FAB → Customer form (name, phone optional, address) → Save → back to the list
-Customer row   ─ tap → detail · long press → View · Edit | Call · WhatsApp (if phone) | Deactivate/Activate | Delete
+Customer row   ─ name · phone ("-" when none) · due; no address
+               ─ tap → detail · long press → View · Edit | Call · WhatsApp (if phone) | Deactivate/Activate | Delete
 Customer detail ─ ✏ Edit · ⋮ (same actions)
-                └─ Stat cards (Purchases · Paid · Due, same design as Home) → Sales list (paginated) → Sale detail
+                └─ Stat cards 2 × 2 (Purchases · Paid · Due · Sales; open bookings count) → "Sales" + a line → Sales list (paginated) → Sale detail
 
 Products list ─ search / Active-Inactive toggle ─ FAB → Product form (name, price, notes) → Save → back to the list
 Product row   ─ tap → Product detail · long press → View · Edit | Deactivate/Activate | Delete
@@ -241,8 +244,10 @@ Labours section = 2 tabs: Labours (/labours) · Wages (/labours/wages)
 
 Labours list ─ search ─ FAB → Labour form: name, phone, address,
                                wage type Daily/Monthly + wage amount (both required), joining date
-Labour row   ─ tap → detail · long press → View · Edit | Call | Deactivate/Activate
-Labour detail ─ Info · Stat cards for this month (Earned · Paid · Balance) · attendance (mini calendar)
+Labour row   ─ name · wage | all-time earned · "Paid ₹…" · "Bal ₹…" (no present / absent)
+             ─ tap → detail · long press → View · Edit | Call | Deactivate/Activate
+Labour detail ─ Info · Stat cards 2 × 2 for this month (Earned · Paid · Balance · Days present)
+             · Total wage (all time): earned · paid · balance · attendance (mini calendar)
              ─ ✏ Edit · ⋮ → Pay wage · Wage details · Deactivate (asks for the leaving date)
 ```
 
@@ -264,7 +269,8 @@ flowchart TD
 - Future dates are disabled in the picker and on the › arrow.
 - The list has a search box.
 - Each row shows the **day wage** (`₹450 / day`): the saved wage when present, the usual wage for one day when absent (monthly ÷ days in the month).
-- ✏ next to the switch (enabled only while **absent**) opens "Day wage for <name>" with the amount → Save. The row then shows `₹520 / day · edited`, and that wage is sent with the next switch-on (`PUT /attendance` `wage`). Switching to absent drops the saved wage; the usual wage shows again. While present, ✏ is disabled.
+- ✏ sits right next to the wage (not next to the switch) and works only while the labour is **absent**: it opens "Day wage for <name>" (compact dialog) → Save. The row shows the new wage like any wage (no "edited" label) and ↺ appears next to ✏; ↺ goes back to the usual wage (shown only when the wage is not the usual one; off while present, like ✏). The wage is sent with the next switch-on and **kept while the list is open**, also after switching back to absent (a 300 stays 300). Changing the date clears it.
+- Only the switch marks attendance; tapping the row does nothing.
 
 ### 7.3 Wages (tab inside Labours)
 
@@ -308,7 +314,8 @@ Dues report rows → Customer detail
 
 ```
 Users list (current user hidden) ─ search ─ FAB → Add user form (name, phone, email, password)
-User detail ─ Edit · Reset password (sheet: new + confirm) · Deactivate / Activate (confirm)
+User row ─ like a customer row: name · phone ("-" when none) · "Inactive" when deactivated; no last login
+User detail ─ ✏ Edit · ⋮ → Reset password (dialog: new + confirm) · Deactivate / Activate (confirm)
 Empty list → "Only you so far · Add user"
 
 Desktop: the list is a table (name, phone, email, last login, status); phone/tablet: cards.
@@ -362,7 +369,13 @@ flowchart TD
 | Cache | A screen opened again within 60 s (tab switch, back, same filter) shows at once from the in-memory cache |
 | After a change | Only the screens showing the changed data reload, **in the background** (rows stay, no skeleton). E.g. a new sale reloads Sales, Customers and Home, not Products (02-TRD §7.5) |
 | Optimistic updates | Deactivate / activate, delete (rows and payments) and attendance switches change the screen at once; if the server refuses, the change is undone and its message is shown |
-| Pagination | Endless scroll: load the next page at 80% scroll, with a footer spinner. No "Showing x of y" line |
+| Pagination | Endless scroll: load the next page at 80% scroll, with a footer spinner. No "Showing x of y" line anywhere (lists and picker sheets) |
+| Search | Every search box has an ✕ to clear it. Leaving a section clears its search, so a section opened again shows everything |
+| Deletes | "Keep this" / "Yes, delete". The dialog waits for the server (buttons off, spinner next to "Yes, delete"); deleted → it closes and the row goes; refused → the message shows in the dialog and as a toast, the dialog stays open until the user closes it. Rows are never removed before the server confirms |
+| Dialogs | Compact on phones: 15 px title, 40 px buttons |
+| Money | `₹450` for whole amounts, `₹0.11` / `₹800.50` when there are paise (everywhere: lists, details, forms) |
+| Skeletons | Shaped like each screen's own rows; fixed texts (titles, labels such as "present · absent", quick actions) show as text, only values are placeholders |
+| Numbers | Home and stat-card numbers count up when they appear |
 | List rows | Flat (no border, no own background). Tap opens the item; **long press opens its action menu** (a popup next to the row) |
 | After save | Create → back to the list. Edit → back to where it was opened from (list or detail). Forms are popped, so no extra screens stay in the stack |
 | Detail actions | ✏ Edit in the app bar; other actions in the ⋮ menu |

@@ -128,6 +128,7 @@ class _ShellPagerState extends State<ShellPager> {
       children: [
         _branch(
           active: page != null,
+          keepTicking: true,
           _withFixedBar(
             context,
             showBars: swipe,
@@ -148,10 +149,11 @@ class _ShellPagerState extends State<ShellPager> {
                       index: i,
                       controller: _pages,
                       bars: _bars,
-                      child: TickerMode(
-                        enabled: b == current,
-                        child: widget.children[b],
-                      ),
+                      // Animations keep running in sections that are not
+                      // shown: a card's press highlight that is fading
+                      // when the user leaves would otherwise freeze and
+                      // still show when they come back.
+                      child: widget.children[b],
                     ),
                   ),
               ],
@@ -225,9 +227,15 @@ class _ShellPagerState extends State<ShellPager> {
   }
 
   /// A section that is not shown: hidden from layout, paint and tickers.
-  Widget _branch(Widget child, {required bool active}) => Offstage(
+  /// [keepTicking]: animations run on while hidden (the bottom-bar
+  /// sections, see above).
+  Widget _branch(
+    Widget child, {
+    required bool active,
+    bool keepTicking = false,
+  }) => Offstage(
     offstage: !active,
-    child: TickerMode(enabled: active, child: child),
+    child: TickerMode(enabled: active || keepTicking, child: child),
   );
 }
 

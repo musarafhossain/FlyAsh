@@ -203,6 +203,23 @@ void main() {
       expect(find.byType(SectionAppBar), findsWidgets);
     });
 
+    testWidgets('Home keeps animating while another section is open, so a '
+        'card highlight never freezes and shows on return', (tester) async {
+      await openApp(tester);
+      final card = find.byType(KpiChip).first;
+      testContainer.read(routerProvider).go('/customers');
+      await tester.pumpAndSettle();
+      expect(
+        TickerMode.valuesOf(
+          tester.element(find.byType(KpiChip, skipOffstage: false).first),
+        ).enabled,
+        isTrue,
+      );
+      testContainer.read(routerProvider).go('/home');
+      await tester.pumpAndSettle();
+      expect(card, findsOneWidget);
+    });
+
     testWidgets('leaving a section clears its search', (tester) async {
       await openApp(tester);
       testContainer.read(routerProvider).go('/expenses');

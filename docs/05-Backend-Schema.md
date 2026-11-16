@@ -136,7 +136,7 @@ The row is deleted after a successful reset, so the reset token is single use. O
 | created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
-Customer totals (`total_sales`, `total_paid`, `total_due`) are **calculated** from `sales` in queries, not stored.
+Customer totals (`total_sales`, `total_paid`, `total_due`, `sales_count`) are **calculated** from `sales` in queries, not stored: delivered sales and open bookings (see 4.4).
 
 ### 3.7 `sales`
 
@@ -325,7 +325,16 @@ net_profit   = sales − expenses − wages
 ### 4.4 Customer due
 
 ```
-total_due = Σ sales.due_amount WHERE customer_id = :id AND status='delivered' AND deleted_at IS NULL
+total_due   = Σ sales.due_amount WHERE customer_id = :id AND status IN ('delivered','booked') AND deleted_at IS NULL
+sales_count = COUNT(sales)       with the same filter
+-- open bookings count (their due is owed on delivery); cancelled and deleted sales do not.
+-- The same rule is used for the dashboard's total_due and the dues report.
+
+-- Labour lifetime wage (GET /labours, /labours/:id: total_earned / total_paid / total_balance;
+-- GET /labours/:id/wages: lifetime { earned, paid, balance }):
+earned = Σ attendances (daily: wage_amount; monthly: wage_amount ÷ days in that month)
+paid   = Σ wage_payments.amount
+balance = earned − paid
 ```
 
 ---
@@ -476,6 +485,7 @@ All responses use the envelope from 02-TRD §4.2: `{ success, status_code, messa
                "present": true, "day_wage": "600.00" },
              { "labour_id": "01a2…", "name": "Sujit Das", "wage_type": "monthly", "wage_amount": "15000.00",
                "present": false, "day_wage": "500.00" } ] }
+// default_day_wage: always the labour's usual wage for one day (the app shows ↺ when they differ).
 // day_wage: the saved day's wage when present; else the labour's wage for one day (monthly ÷ days in month).
 // PUT /attendance { "date": "2026-11-08", "records": [ { "labour_id": "01a1…", "present": true, "wage": 600 } ] }
 // present → row saved (wage snapshot; with `wage` it is saved as wage_type daily + that amount);

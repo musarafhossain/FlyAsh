@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Document** | Complete REST API reference (every endpoint, payload and response case) |
-| **Version** | 1.6 (attendance `day_wage` / `wage`; forgiving phone input; UUID ids; products without unit / cost; sales tax; optional customer phone; attendance present / absent; no advances; free-text expense category) |
+| **Version** | 1.7 (customer totals include open bookings + `sales_count`; labour all-time totals; wage `lifetime`; attendance `default_day_wage`; attendance `day_wage` / `wage`; forgiving phone input; UUID ids; products without unit / cost; sales tax; optional customer phone; attendance present / absent; no advances; free-text expense category) |
 | **Date** | 2026-11-15 |
 | **Source** | Every response below was captured from the running API (`backend/`); long lists are shortened to 2 items |
 | **Related docs** | 02-TRD §4 (API standards) · 05-Backend-Schema (tables, calculations) |
@@ -1873,7 +1873,7 @@ Only if the product was never used in a sale.
 
 ## 8. Customers
 
-Every customer response includes `total_sales`, `total_paid` and `total_due` (delivered, not deleted sales). The phone is optional.
+Every customer response includes `total_sales`, `total_paid`, `total_due` and `sales_count`: delivered sales **and open bookings** (a booking's due is owed on delivery); cancelled and deleted sales do not count. `has_due=true` uses the same rule. The phone is optional.
 
 ### GET /customers
 
@@ -3835,7 +3835,7 @@ GET /api/v1/sales/upcoming-deliveries?page=1&limit=2
 
 **List labours** · 🔒 Bearer token
 
-Each item includes `present_today` (true / false).
+Each item includes `present_today` (true / false) and the all-time wage: `total_earned` (every present day at its saved wage), `total_paid` (all wage payments) and `total_balance`. `GET /labours/:id` returns the same fields.
 
 **Query parameters**
 
@@ -4196,7 +4196,7 @@ A labour is either **present** (a row is stored for that day) or **absent** (no 
 
 **Attendance for a day** · 🔒 Bearer token
 
-All labours employed on that date, each with `present` and `day_wage`, plus a `summary` (total · present · absent). `day_wage` = the saved wage of that day when present, else the labour's wage for one day (monthly ÷ days in that month).
+All labours employed on that date, each with `present`, `day_wage` and `default_day_wage` (always the usual wage for one day, so the app can offer ↺ when they differ), plus a `summary` (total · present · absent). `day_wage` = the saved wage of that day when present, else the labour's wage for one day (monthly ÷ days in that month).
 
 **Query parameters**
 
@@ -4514,7 +4514,7 @@ GET /api/v1/wages?month=2026-10&page=1&limit=2
 
 **A labour's wage detail** · 🔒 Bearer token
 
-Wage row + `days` (each with `earned`) and `payments` of the month.
+Wage row + `days` (each with `earned`) and `payments` of the month, plus `lifetime: { earned, paid, balance }` for all time.
 
 **Query parameters**
 
@@ -4985,7 +4985,7 @@ Sales count on the **delivered date**; collections on the **payment date**. `fro
 
 **Dashboard** · 🔒 Bearer token
 
-Every home-screen number in one call. `recent_sales` = last 5 sales. There is no profit figure.
+Every home-screen number in one call. `total_due` counts delivered sales and open bookings (like the customer list). `recent_sales` = last 5 sales. There is no profit figure.
 
 **Responses**
 
@@ -5159,7 +5159,7 @@ GET /api/v1/reports/sales?from=2026-11-01&to=2026-11-15
 
 **Dues report** · 🔒 Bearer token
 
-Customers with dues on delivered sales, highest first, plus `grand_total`.
+Customers with dues on delivered sales and open bookings, highest first, plus `grand_total`.
 
 **Query parameters**
 

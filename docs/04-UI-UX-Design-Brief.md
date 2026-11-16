@@ -296,7 +296,7 @@ Each component lists its anatomy, its variants and the reference screen it comes
 ### 9.2 Hero stat card
 
 - `radius.lg`, padding 20, background `primaryContainer` with a thin `primary` (18% alpha) border, text in `onPrimaryContainer`, in both modes.
-- Leading icon in a 44 dp `primary` square. Label (`caption`), value (`display`), and a trend line ("↑ 8% vs yesterday", `caption`, `success` / `error` with arrow). A trailing chevron › makes it tappable.
+- Label (`caption`), value (`display`, counts up) and caption on the left. The 40 dp `primary` icon square sits **top right**; when tappable an arrow → sits **bottom right**. No icon on the left.
 - One hero card per screen at most. Used on Home (Today's Sales), Expenses (Spent) and Wages (Earned).
 - While loading it shows a skeleton of the same size.
 
@@ -307,8 +307,8 @@ Each component lists its anatomy, its variants and the reference screen it comes
 
 ### 9.4 Quick action tile
 
-- 2-column grid, `radius.md`, `surface` with a `border`, height 64. It contains a 36 dp icon in a `primaryContainer` circle and a label (`label`).
-- Pressed: `surfaceVariant` background.
+- Like app icons on a phone's home screen: 4 in a row, each a 56 dp rounded square (16 radius) in its own tint (`tint.sky`, `tint.rose`, `tint.green`, `tint.amber`, the KPI tints) with a 26 dp icon, the label (`caption`, 2 lines max) centred below.
+- Pressed: the tile squashes (0.94) with a ripple.
 
 ### 9.5 Search and filter bar
 
@@ -391,7 +391,7 @@ States: default, pressed, focused (ring), disabled (38% opacity), loading (spinn
 | Error | Inline card with an `error` icon, a message and a "Retry" button |
 | Offline | Thin `warning` banner at the top: "Offline: changes will sync when connected". Unsynced records show a small cloud-off icon |
 | Success | Toast / snackbar at the bottom, 3 s, with an optional "Undo". Phones: full width with side margins. Tablet/desktop (≥ 600 px): max **400 px** wide, centered. A new message replaces the visible one (no queue) |
-| Destructive confirm | Dialog: title, consequence text, Cancel (outline) + Delete (destructive) |
+| Destructive confirm | Compact dialog (15 px title, 40 px buttons). Deletes: "Keep this" (outline) + "Yes, delete" (red). The dialog waits for the server: both buttons off and a spinner next to "Yes, delete"; deleted → closes; refused → the server message in red in the dialog and a toast, dialog stays open. Older wording: Cancel (outline) + Delete (destructive) |
 | Badge | Red dot or count on the bell and nav icons |
 
 ### 9.16 Navigation components
@@ -434,14 +434,14 @@ Drawer (☰):
 | **New / Edit Sale (form)** | Type toggle (Instant / Booking) → customer picker (search sheet with "+ New customer" inline) → item cards (product select, quantity stepper, price pre-filled and editable) + "Add item" → transport, discount and tax % → payment received + method → booking: delivery date and address → **sticky summary bar** (Total · Due) + primary "Save" |
 | **Sale detail** | Header with invoice no. + status pills → customer card (call / WhatsApp) → items → line-item summary card (subtotal, transport, discount, tax, **total**, paid, **due** in `error`) → payments list. App bar: ✏ Edit · ⋮ → Add payment · Mark delivered · Cancel booking · Delete (Share receipt in F17) |
 | **Upcoming deliveries** | List of booked sales by delivery date. Overdue rows get an `error` "Overdue" pill. Each row has a "Mark delivered" action |
-| **Customers** | Search, "Has due" filter chip. Row: initials avatar, name, phone (optional), due ₹ on the right (`error` when > 0). Detail: contact card, stat cards (Purchases · Paid · Due, the Home KPI tile), sales list |
+| **Customers** | Search (with ✕), "Has due" chip. Row: initials avatar, name, phone ("-" when none), due ₹ on the right (`error` when > 0); no address. Detail: contact card, stat cards 2 × 2 (Purchases · Paid · Due · Sales), "Sales" title with a divider, sales list. ⋮ is the standard action menu |
 | **Products** | List rows: tinted brick icon, name, price. Inactive products are dimmed with an "Inactive" pill. Detail (read only): icon, name, price, status pill, notes; ✏ Edit · ⋮ → Deactivate / Activate · Delete. Form: name, price, notes (no unit, no cost) |
-| **Labours** | Search. Row: avatar, name, wage ("₹500 / day" or "₹15,000 / month"), today's status pill. Form: name, phone, address, wage type toggle, amount, joining date |
+| **Labours** | Search. Row: avatar, name, wage ("₹500 / day" or "₹15,000 / month") and on the right the all-time earned (bold), "Paid ₹…" (`success`) and "Bal ₹…" (`error` when > 0); no present / absent. Detail: stat cards 2 × 2 + "Total wage (all time)" card. Form: name, phone, address, wage type toggle, amount, joining date |
 | **Attendance** | Adapted from the reference: date selector (‹ Today, 08 Nov ›, future dates disabled) → count line ("12 present · 5 absent") → search → flat list: name, day wage ("₹450 / day"; edited wages in `primary` with "· edited"), a ✏ icon button (`primary`, disabled and faded while present) that opens a small dialog with a money field, and a **switch per labour** (on = Present, off = Absent). Each switch saves at once: no half day, no "Mark all present", no Save button |
 | **Wages** (tab inside Labours) | Month selector → hero card (total earned this month) → summary strip (Paid · Balance) → list per labour: days present, earned, balance, pill (*Paid / Partial / Due*). Detail: calculation breakdown card (present days × rate, − paid = balance), payments list; ⋮ → Pay wage. No advances |
 | **Expenses** | "Spent" hero (total for the filter) → search + filter button (sheet: period, category) → expense rows (category icon, note, date, ₹) → FAB "Add expense". Form: date, category as free text with suggestion chips (one compact row, height 32, scrolls sideways; mouse drag on desktop), amount, note |
 | **Reports** | Tiles grid: Sales · Dues · Expenses · Wages · **Net Profit** · Collections. Each opens a period selector + chart + table + export (PDF / Excel) |
-| **Users** | Search. Row: initials avatar, name, phone, last login, pill (*Active* `success` / *Inactive* `neutral`). **The logged-in user is not listed.** FAB "Add user". Form: name, phone, email, password (on create only). Detail actions: Edit · Reset password · Deactivate/Activate. Empty state: "Only you so far · Add user" |
+| **Users** | Search (with ✕). Row like a customer row: avatar, name, phone ("-" when none), "Inactive" pill only when deactivated; no last login (also not in the desktop table). Detail: ✏ and ⋮ (Reset password · Deactivate) in the app bar |
 | **My Profile** | Avatar with initials, name, phone, email, last login → "Edit profile" (name, phone, email) and "Change password" (old + new + confirm) |
 | **Settings** | Groups: My profile · Factory profile · Appearance (§8.1) · Language · Change password · About & Updates (version, "Check for updates") · Logout |
 | **Update dialog / screen** | Optional: dialog with version, release notes, "Later" / "Update now", and a download progress bar. Forced: full-screen blocking page with an illustration and a single "Update" button |

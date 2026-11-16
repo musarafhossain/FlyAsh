@@ -119,10 +119,10 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 
 | ID | Requirement | Priority |
 |---|---|---|
-| DASH-1 | Hero card: **today's sales amount** and number of sales (no greeting, name or date line above it) | P0 |
+| DASH-1 | Hero card: **today's sales amount** and number of sales; the icon sits top right and the arrow bottom right (no icon on the left; no greeting, name or date line above it). The numbers count up when they appear | P0 |
 | DASH-2 | ~~Today's profit~~ removed: products have no cost, so a sale has no profit (see 6.1) | — |
 | DASH-3 | KPI cards: **Total due** (all customers) · **Deliveries today** (bookings due today) · **Labours present today** · **This month's expenses** | P0 |
-| DASH-4 | Quick actions: New Sale · New Booking · Take Attendance · Add Expense | P0 |
+| DASH-4 | Quick actions like app icons on a phone: New Sale · New Booking · Take Attendance · Add Expense, each in its own colour (the KPI tile colours) | P0 |
 | DASH-5 | The 5 most recent sales | P1 |
 | DASH-6 | Pull to refresh | P0 |
 | DASH-8 | The back button (Android and the browser's) first closes what is open on top — the drawer, a dialog, a bottom sheet or a menu — and only then changes the page. On web, after Save on a form or ← on a page, browser back does not reopen the closed page | P0 |
@@ -143,9 +143,10 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | ID | Requirement | Priority |
 |---|---|---|
 | CUST-1 | Customer fields: **name** (required), **phone** (optional, 10 digits, unique when given; `+91`, spaces, dashes and a leading 0 are accepted and removed), **address** (optional) | P0 |
-| CUST-2 | Customer list with search (name or phone) and a **due amount** shown on each row | P0 |
+| CUST-2 | Customer list with search (name or phone): name, phone ("-" when none) and the **due amount** on each row; no address | P0 |
 | CUST-3 | Add, edit and view customers | P0 |
 | CUST-4 | Adding a phone number that already exists is **blocked**, and the app offers to open the existing customer | P0 |
+| CUST-7 | Customer detail: 4 stat cards in a 2 × 2 grid (Purchases · Paid · Due · Sales). Totals include **open bookings** (their due is owed on delivery); cancelled sales do not count | P0 |
 | CUST-5 | Customer detail: contact info, **total purchases, total paid, total due**, and the list of their sales | P0 |
 | CUST-6 | One-tap **Call** and **WhatsApp** buttons (only when the customer has a phone) | P1 |
 | CUST-7 | A customer can be deleted only if they have no sales. Otherwise they can be deactivated | P1 |
@@ -159,7 +160,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | SALE-2 | **Customer:** search and select an existing customer, **or add a new customer inline** (name, phone optional, address) without leaving the form | P0 |
 | SALE-3 | **Items:** one or more lines, each with product, quantity and **price**. The price pre-fills from the product and can be edited (no cost) | P0 |
 | SALE-4 | **Transport charge** (added), **discount** (subtracted) and **tax %** (added on subtotal + transport − discount), all optional | P0 |
-| SALE-5 | The app shows the subtotal, tax, total and due amount live while the owner types | P0 |
+| SALE-5 | The app shows the subtotal, tax, total, paid and due amount live while the owner types (bottom bar: Total · Paid · Due). Tax has quick chips 5 % · 12 % · 18 % and an ✕ to remove it | P0 |
 | SALE-6 | **Payment at the time of sale:** amount received now (for bookings this is the **advance**), plus the payment method (Cash / UPI / Bank / Other) | P0 |
 | SALE-7 | **Add a later payment** to any sale (date, amount, method, note). Payments are listed on the sale with dates | P0 |
 | SALE-8 | Payment status is automatic: **Paid / Partial / Due** | P0 |
@@ -179,10 +180,10 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | ID | Requirement | Priority |
 |---|---|---|
 | LAB-1 | Labour fields: **name** (required), **phone** (optional), **address** (optional), **wage type** (Daily / Monthly, required), **wage amount** ₹ (required), **joining date** (default today) | P0 |
-| LAB-2 | Labour list with search, showing wage type and amount, and today's attendance (Present / Absent) | P0 |
+| LAB-2 | Labour list with search: wage type and amount, and on the right the **all-time** wage earned, paid and balance (no present / absent) | P0 |
 | LAB-3 | Add, edit and view labours | P0 |
 | LAB-4 | **Deactivate** a labour who has left (with a leaving date). Inactive labours are hidden from attendance after that date, and their history stays | P0 |
-| LAB-5 | Labour detail: info, wage this month as stat cards (Earned · Paid · Balance), attendance calendar; ⋮ → Pay wage · Wage details · Deactivate | P0 |
+| LAB-5 | Labour detail: info, this month as stat cards in a 2 × 2 grid (Earned · Paid · Balance · Days present), a **Total wage (all time)** card (earned · paid · balance), attendance calendar; ⋮ → Pay wage · Wage details · Deactivate | P0 |
 
 ### 5.7 Attendance (ATT)
 
@@ -193,8 +194,8 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | ATT-3 | ~~"Mark all present"~~ removed | — |
 | ATT-4 | A line at the top: "12 present · 5 absent" | P0 |
 | ATT-5 | **Each switch saves at once** (no Save button). Present saves a row; absent removes it. A failed save puts the switch back | P0 |
-| ATT-6 | Each row shows the **day wage**: the saved wage of that day when present, else the labour's usual wage for one day (monthly ÷ days in the month). A ✏ button (enabled only while **absent**) opens a dialog to change that day's wage; the edited wage (marked "edited") is saved when the labour is switched to present. While present, ✏ is disabled: switch to absent first to change it | P0 |
-| ATT-6 | Monthly attendance view per labour (calendar with colored days) | P1 |
+| ATT-6 | Each row shows the **day wage** with ✏ right next to it (and ↺ when the wage is not the usual one). ✏ and ↺ work only while the labour is **absent**; ✏ opens a small dialog to set that day's wage, ↺ goes back to the usual wage. The wage set with ✏ is saved when the switch goes on and is **kept while the list is open**, also after switching back to absent. Only the switch marks attendance (tapping the row does nothing) | P0 |
+| ATT-7 | Monthly attendance view per labour (calendar with colored days) | P1 |
 
 ### 5.8 Wages (WAGE)
 
@@ -204,7 +205,7 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | WAGE-2 | ~~Advances~~ removed: money given before the month ends is simply a wage payment | — |
 | WAGE-3 | **Wage payments:** record a payment to a labour for a month (date, amount, method, note). Partial payments are allowed | P0 |
 | WAGE-4 | Status per labour per month: **Paid / Partial / Due** | P0 |
-| WAGE-5 | Labour wage detail per month: day-by-day attendance, calculation breakdown and payments; ⋮ → Pay wage | P1 |
+| WAGE-5 | Labour wage detail per month: calculation breakdown, payments, "Day by day" (slides open, the arrow turns) and the all-time total; ⋮ → Pay wage | P1 |
 | WAGE-6 | Delete a wrong payment (long press → Delete, with confirmation) | P0 |
 
 ### 5.9 Expenses (EXP)
@@ -276,7 +277,7 @@ All users have the same access. There are no roles.
 
 | ID | Requirement | Priority |
 |---|---|---|
-| USER-1 | User list with search, showing name, phone, status (*Active* / *Inactive*) and last login. **The logged-in user is not shown in this list**; they manage their own details in **My Profile** (AUTH-7, AUTH-4) | P0 |
+| USER-1 | User list with search, rows like the customer list: name and phone ("-" when none), "Inactive" when deactivated; no last login. **The logged-in user is not in the list** (they edit themselves in My profile) | P0 |
 | USER-2 | **Add user:** name, phone, email, password, language (optional, default English). The new user can log in right away | P0 |
 | USER-3 | Edit another user's name, phone and email | P0 |
 | USER-4 | **Reset password** for another user (sets a new password and logs that user out of all devices) | P0 |
@@ -356,6 +357,8 @@ All calculations are done **on the server**. The app only displays the results. 
 | **Connectivity** | Online only in v1. Without internet the app shows a clear "No internet" state with Retry and never loses typed form data |
 | **Security** | HTTPS only, hashed passwords, token auth, login rate limit, token stored in secure storage |
 | **Reliability** | Daily automatic database backup on the server, keeping 30 days |
+| **Deletes** | A delete always asks ("Keep this" / "Yes, delete"). The dialog stays open with a spinner until the server answers; it closes when deleted, and shows the server's message (dialog + toast) when refused. Nothing disappears before the server confirms |
+| **Money display** | Whole amounts without paise (`₹450`), otherwise both digits (`₹0.11`, `₹800.50`), rounded half up to paise |
 | **Usability** | Follows 04-UI-UX-Design-Brief: touch targets of at least 48 dp, light/dark themes, Bengali support, and the 40 design terms and principles in its §14 (motion, shared element transition, optimistic updates, forgiving input …). "Reduce motion" in the system settings is respected |
 | **Responsiveness** | The app reacts in under 400 ms: cached screens show at once, a detail page opens with the row's data, quick actions are optimistic |
 | **Localization** | English and Bengali UI. ₹ with Indian grouping (`₹1,00,000`). Dates as `08 Nov 2026` |
