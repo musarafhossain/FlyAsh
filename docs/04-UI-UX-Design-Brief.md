@@ -527,6 +527,7 @@ Where each term is handled in the app. "Platform" = Flutter does it by itself; "
 | 17 | Combobox | Expense category (type or pick a chip), customer / product search pickers |
 | 18 | Interruptible animation | All motion uses implicit animations or controllers that continue from the current value (press, switches, segmented-tab pill, theme change, page transitions with back gesture) |
 | 19 | Progressive disclosure | Filters in a sheet, actions in ⋮ / long-press menus, optional fields last |
+| 19b | Page change | Every page change is a quick cross-fade (≈210 ms, ease-out); the page underneath is never faded, so the app bar looks like one bar whose title and buttons update, and no background flashes (`AppPageTransitionsBuilder`) |
 | 20 | Shared element transition | The avatar / product icon flies from the list row to the detail header (`Hero`, tags `product-<id>`, `customer-<id>`, `labour-<id>`, `user-<id>`); the detail page shows the row's data at once, then refreshes |
 
 ### 14.2 UX and animation principles

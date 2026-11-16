@@ -5,6 +5,8 @@ import '../theme/app_spacing.dart';
 import 'nav_items.dart';
 import 'section_app_bar.dart';
 import '../theme/app_theme.dart' show kBarShadow;
+import '../theme/page_transitions.dart';
+import '../widgets/motion.dart';
 
 /// Holds the section navigators of the app shell (03-AppFlow §3.1).
 ///
@@ -184,21 +186,19 @@ class _ShellPagerState extends State<ShellPager> {
         Positioned.fill(
           child: ColoredBox(color: theme.scaffoldBackgroundColor),
         ),
-        // Hidden, not removed, off a section's first screen: removing them
-        // would move the pager in the tree and reset it to the first page.
+        // The bar's background is always drawn (under the pages): a detail
+        // page covers it with its own, identical bar, so while pages fade
+        // the bar never disappears.
         Positioned(
           top: 0,
           left: 0,
           right: 0,
           height: barHeight,
-          child: Offstage(
-            offstage: !showBars,
-            child: DecoratedBox(
-              key: const Key('shellFixedBar'),
-              decoration: BoxDecoration(
-                color: theme.appBarTheme.backgroundColor,
-                boxShadow: kBarShadow,
-              ),
+          child: DecoratedBox(
+            key: const Key('shellFixedBar'),
+            decoration: BoxDecoration(
+              color: theme.appBarTheme.backgroundColor,
+              boxShadow: kBarShadow,
             ),
           ),
         ),
@@ -208,16 +208,27 @@ class _ShellPagerState extends State<ShellPager> {
           top: 0,
           left: 0,
           right: 0,
-          child: Offstage(
-            offstage: !showBars,
-            child: ListenableBuilder(
-              listenable: _bars,
-              builder: (context, _) => Stack(
-                children: [
-                  SizedBox(height: barHeight, width: double.infinity),
-                  for (final MapEntry(key: i, value: bar) in _bars.bars.entries)
-                    PagerSectionBar(index: i, bar: bar, controller: _pages),
-                ],
+          // On a detail page they fade out together with the page fading
+          // in (and back in when it closes), instead of jumping; kept in
+          // the tree so the pager keeps its place.
+          child: IgnorePointer(
+            ignoring: !showBars,
+            child: AnimatedOpacity(
+              opacity: showBars ? 1 : 0,
+              duration: Motion.reduced(context)
+                  ? Duration.zero
+                  : AppPageTransitionsBuilder.duration,
+              curve: Curves.easeOut,
+              child: ListenableBuilder(
+                listenable: _bars,
+                builder: (context, _) => Stack(
+                  children: [
+                    SizedBox(height: barHeight, width: double.infinity),
+                    for (final MapEntry(key: i, value: bar)
+                        in _bars.bars.entries)
+                      PagerSectionBar(index: i, bar: bar, controller: _pages),
+                  ],
+                ),
               ),
             ),
           ),

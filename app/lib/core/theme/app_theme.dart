@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_tokens.dart';
+import 'page_transitions.dart';
 import 'app_typography.dart';
 
 /// The phone's status bar (time, battery, notifications): black with light
@@ -89,6 +90,8 @@ abstract final class AppTheme {
       fontFamilyFallback: AppTypography.fallback,
       textTheme: textTheme,
       extensions: [t],
+      // One page change everywhere: a quick cross-fade (page_transitions.dart).
+      pageTransitionsTheme: appPageTransitionsTheme,
       dividerTheme: DividerThemeData(color: t.border, thickness: 1, space: 1),
       appBarTheme: AppBarTheme(
         backgroundColor: t.surface,

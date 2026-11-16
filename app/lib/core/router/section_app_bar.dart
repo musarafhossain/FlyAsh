@@ -103,7 +103,11 @@ class PagerSectionBar extends StatelessWidget {
       builder: (context, child) {
         final ready =
             controller.hasClients && controller.position.haveDimensions;
-        final page = ready ? controller.page! : controller.initialPage * 1.0;
+        // Not measured for a moment (e.g. the frame a detail page opens):
+        // keep the last real position, not the first page (Home).
+        final page = ready
+            ? (_lastPage[controller] = controller.page!)
+            : (_lastPage[controller] ?? controller.initialPage * 1.0);
         final distance = (page - index).abs();
         if (distance >= 1) return const SizedBox.shrink();
         final away = distance >= 0.5;
@@ -129,3 +133,6 @@ class PagerSectionBar extends StatelessWidget {
     );
   }
 }
+
+/// The last measured page of each pager (see [PagerSectionBar]).
+final _lastPage = Expando<double>('lastPage');
