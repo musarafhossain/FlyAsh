@@ -63,7 +63,9 @@ The first APK with the updater (1.1.0+2) is installed by hand once. The test APK
 
 `flyash_test` is a copy of `flyash` (made on 2026-11-16) with everything emptied except `users`, `auth_access_tokens`, `factory_settings` (invoice counter reset to 0) and `app_versions`, then filled with 6 months of fake data. The live API keeps using `flyash`; `flyash_test` is only for trying things (point a test API at it with `DB_DATABASE=flyash_test`).
 
-Re-create it (as root on the VPS):
+Re-fill it with fresh fake data (empties it again first; keeps users, tokens, factory profile, app versions): `bash /root/flyash_test_reset.sh` on the VPS (a copy of the steps below, without the copy from `flyash`).
+
+Re-create it from the live data (as root on the VPS):
 
 ```bash
 F=/root/flyash-backup-$(date +%Y%m%d-%H%M%S).sql.gz; mysqldump --single-transaction flyash | gzip > $F
