@@ -21,8 +21,6 @@
 
 Port 3333 is used by another app on this VPS, so FlyAsh uses **3334**.
 
-Other things on this VPS: the HisaabChat app (PM2 `hisaabchat-api`, DB `hisaabchat`), the mtbalameenmission static site, and the `default` Nginx site: **opening the server by its IP (http or https) shows the portfolio** (`/var/www/musaraf.org.in`, the same files as musaraf.org.in; https by IP shows a certificate warning first because certificates are for names; phpMyAdmin is also at `http(s)://162.35.162.221/phpmyadmin`, like on musaraf.org.in). The domain musaraf.org.in is on Cloudflare DNS and should point (A record) to 162.35.162.221. `ilvi-admin.musaraf.org.in` (Nginx site + certificate, nothing running) was removed on 2026-11-17; a backup of the whole Nginx config is in `/root/nginx-backup-*.tgz`. The old "Fly-Ash-Backend" project (PM2 `fly-ash-api`, folder `/var/www/workspace/fly-ash-backend`, DBs `fly_ash_prod` / `fly_ash_dev`) was removed on 2026-11-16; copies of its two databases are in `/root/old-fly_ash_*.sql.gz`.
-
 **Backups:** a `mysqldump` of `flyash` (and `flyash_test`) is taken into `/root/*-backup-<date>.sql.gz` before every deploy and data change. A nightly backup cron is not set up yet.
 
 ## Update the backend
