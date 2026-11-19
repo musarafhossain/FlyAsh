@@ -16,6 +16,7 @@ class Customer {
     this.totalSales = '0.00',
     this.totalPaid = '0.00',
     this.totalDue = '0.00',
+    this.bookingDue = '0.00',
     this.salesCount = 0,
   });
 
@@ -30,6 +31,9 @@ class Customer {
   final String totalPaid;
   final String totalDue;
 
+  /// The part of [totalDue] on open bookings (not delivered yet).
+  final String bookingDue;
+
   /// Delivered sales and open bookings.
   final int salesCount;
 
@@ -37,6 +41,9 @@ class Customer {
 
   bool get hasDue =>
       (Decimal.tryParse(totalDue) ?? Decimal.zero) > Decimal.zero;
+
+  bool get hasBookingDue =>
+      (Decimal.tryParse(bookingDue) ?? Decimal.zero) > Decimal.zero;
 
   /// A copy with another active state (for optimistic updates).
   Customer withActive(bool active) => Customer(
@@ -48,6 +55,7 @@ class Customer {
     totalSales: totalSales,
     totalPaid: totalPaid,
     totalDue: totalDue,
+    bookingDue: bookingDue,
     salesCount: salesCount,
   );
 
@@ -60,6 +68,7 @@ class Customer {
     totalSales: '${json['total_sales'] ?? '0.00'}',
     totalPaid: '${json['total_paid'] ?? '0.00'}',
     totalDue: '${json['total_due'] ?? '0.00'}',
+    bookingDue: '${json['booking_due'] ?? '0.00'}',
     salesCount: (json['sales_count'] as num?)?.toInt() ?? 0,
   );
 }

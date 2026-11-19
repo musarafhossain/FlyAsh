@@ -143,10 +143,10 @@ Priority: **P0** = must have for launch · **P1** = should have for launch · **
 | ID | Requirement | Priority |
 |---|---|---|
 | CUST-1 | Customer fields: **name** (required), **phone** (optional, 10 digits, unique when given; `+91`, spaces, dashes and a leading 0 are accepted and removed), **address** (optional) | P0 |
-| CUST-2 | Customer list with search (name or phone): name, phone ("-" when none) and the **due amount** on each row; no address | P0 |
+| CUST-2 | Customer list with search (name or phone): name, phone ("-" when none) and the **due amount** on each row, with the part on open bookings under it ("Booking ₹X") when there is one; no address | P0 |
 | CUST-3 | Add, edit and view customers | P0 |
 | CUST-4 | Adding a phone number that already exists is **blocked**, and the app offers to open the existing customer | P0 |
-| CUST-7 | Customer detail: 4 stat cards in a 2 × 2 grid (Purchases · Paid · Due · Sales). Totals include **open bookings** (their due is owed on delivery); cancelled sales do not count | P0 |
+| CUST-7 | Customer detail: 4 stat cards in a 2 × 2 grid (Purchases · Paid · Total due · Sales), plus a **Booking due** card when part of the due is on open bookings. Totals include **open bookings** (their due is owed on delivery); cancelled sales do not count | P0 |
 | CUST-5 | Customer detail: contact info, **total purchases, total paid, total due**, and the list of their sales | P0 |
 | CUST-6 | One-tap **Call** and **WhatsApp** buttons (only when the customer has a phone) | P1 |
 | CUST-7 | A customer can be deleted only if they have no sales. Otherwise they can be deactivated | P1 |

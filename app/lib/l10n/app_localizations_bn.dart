@@ -1614,4 +1614,12 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get export => 'এক্সপোর্ট';
+
+  @override
+  String get bookingDue => 'বুকিংয়ের বাকি';
+
+  @override
+  String bookingDueAmount(String amount) {
+    return 'বুকিং $amount';
+  }
 }

@@ -489,5 +489,7 @@
   "salesWithTax": "বিক্রি (ট্যাক্স সহ)",
   "wagesPaid": "মজুরি দেওয়া",
   "presetLast7Days": "গত ৭ দিন",
-  "export": "এক্সপোর্ট"
+  "export": "এক্সপোর্ট",
+  "bookingDue": "বুকিংয়ের বাকি",
+  "bookingDueAmount": "বুকিং {amount}"
 }

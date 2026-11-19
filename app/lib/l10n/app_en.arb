@@ -836,5 +836,8 @@
   "salesWithTax": "Sales (with tax)",
   "wagesPaid": "Wages paid",
   "presetLast7Days": "Last 7 days",
-  "export": "Export"
+  "export": "Export",
+  "bookingDue": "Booking due",
+  "bookingDueAmount": "Booking {amount}",
+  "@bookingDueAmount": {"placeholders": {"amount": {"type": "String"}}}
 }

@@ -16,7 +16,8 @@ export default class Customer extends compose(CustomerSchema, withUuid) {
   /**
    * Adds total_sales / total_paid / total_due and sales_count to the query
    * as extras: delivered sales and open bookings (a booking's due is owed
-   * too); cancelled and deleted sales do not count.
+   * too); cancelled and deleted sales do not count. booking_due is the part
+   * of total_due that is on open bookings (not delivered yet).
    */
   static withTotals(query: ModelQueryBuilderContract<typeof Customer>) {
     const sum = (column: string, alias: string) =>
@@ -31,6 +32,14 @@ export default class Customer extends compose(CustomerSchema, withUuid) {
       .select(sum('total', 'total_sales'))
       .select(sum('paid_amount', 'total_paid'))
       .select(sum('due_amount', 'total_due'))
+      .select(
+        db.raw(
+          `(SELECT COALESCE(SUM(s.due_amount), 0) FROM sales s
+            WHERE s.customer_id = customers.id
+            AND s.status = 'booked'
+            AND s.deleted_at IS NULL) AS booking_due`
+        )
+      )
       .select(
         db.raw(
           `(SELECT COUNT(*) FROM sales s WHERE s.customer_id = customers.id
@@ -71,6 +80,7 @@ export default class Customer extends compose(CustomerSchema, withUuid) {
       total_sales: money(this.$extras.total_sales),
       total_paid: money(this.$extras.total_paid),
       total_due: money(this.$extras.total_due),
+      booking_due: money(this.$extras.booking_due),
       sales_count: Number(this.$extras.sales_count ?? 0),
     }
   }

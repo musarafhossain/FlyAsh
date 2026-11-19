@@ -272,8 +272,11 @@ test.group('Sales: bookings', (group) => {
 
     // An open booking's due counts for the customer (owed on delivery)
     let cust = await client.get(`${API}/customers/${customer.id}`).loginAs(user)
-    assert.equal(cust.body().data.total_due, '4500.00')
-    assert.equal(cust.body().data.sales_count, 1)
+    assert.containsSubset(cust.body().data, {
+      total_due: '4500.00',
+      booking_due: '4500.00',
+      sales_count: 1,
+    })
 
     const cancel = await client.post(`${API}/sales/${sale.id}/cancel`).loginAs(user)
     cancel.assertStatus(400) // has payments
@@ -281,8 +284,12 @@ test.group('Sales: bookings', (group) => {
     const deliver = await client.post(`${API}/sales/${sale.id}/deliver`).loginAs(user).json({})
     assert.containsSubset(deliver.body().data, { status: 'delivered', delivered_date: today() })
 
+    // Delivered: still owed, but no longer a booking due
     cust = await client.get(`${API}/customers/${customer.id}`).loginAs(user)
-    assert.equal(cust.body().data.total_due, '4500.00')
+    assert.containsSubset(cust.body().data, { total_due: '4500.00', booking_due: '0.00' })
+    const listed = await client.get(`${API}/customers?has_due=true`).loginAs(user)
+    const inList = listed.body().data.items.find((c: any) => c.id === customer.id)
+    assert.containsSubset(inList, { total_due: '4500.00', booking_due: '0.00' })
   })
 
   test('a booking without payments can be cancelled', async ({ client }) => {

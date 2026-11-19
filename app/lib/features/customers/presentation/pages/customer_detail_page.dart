@@ -239,10 +239,17 @@ class _CustomerDetailPageState extends ConsumerState<CustomerDetailPage> {
                       ),
                       KpiChip(
                         icon: Icons.account_balance_wallet_outlined,
-                        label: l.due,
+                        label: l.totalDue,
                         value: Fmt.money(c.totalDue),
                         tint: c.hasDue ? KpiTint.rose : KpiTint.sky,
                       ),
+                      if (c.hasBookingDue)
+                        KpiChip(
+                          icon: Icons.event_outlined,
+                          label: l.bookingDue,
+                          value: Fmt.money(c.bookingDue),
+                          tint: KpiTint.sky,
+                        ),
                       KpiChip(
                         icon: Icons.receipt_long_outlined,
                         label: l.salesCountLabel,

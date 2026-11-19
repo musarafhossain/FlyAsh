@@ -3042,6 +3042,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export'**
   String get export;
+
+  /// No description provided for @bookingDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking due'**
+  String get bookingDue;
+
+  /// No description provided for @bookingDueAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking {amount}'**
+  String bookingDueAmount(String amount);
 }
 
 class _AppLocalizationsDelegate

@@ -1875,7 +1875,7 @@ Only if the product was never used in a sale.
 
 ## 8. Customers
 
-Every customer response includes `total_sales`, `total_paid`, `total_due` and `sales_count`: delivered sales **and open bookings** (a booking's due is owed on delivery); cancelled and deleted sales do not count. `has_due=true` uses the same rule. The phone is optional.
+Every customer response includes `total_sales`, `total_paid`, `total_due`, `booking_due` and `sales_count`: delivered sales **and open bookings** (a booking's due is owed on delivery); cancelled and deleted sales do not count. `booking_due` is the part of `total_due` on open (not yet delivered) bookings; the due on delivered sales is `total_due − booking_due`. `has_due=true` uses the same rule. The phone is optional.
 
 ### GET /customers
 
@@ -1932,7 +1932,8 @@ GET /api/v1/customers?page=1&limit=20&search=Traders
         "updated_at": "2026-11-15T11:36:12.000Z",
         "total_sales": "33098.00",
         "total_paid": "0.00",
-        "total_due": "33098.00"
+        "total_due": "33098.00",
+        "booking_due": "0.00"
       }
     ],
     "page": 1,

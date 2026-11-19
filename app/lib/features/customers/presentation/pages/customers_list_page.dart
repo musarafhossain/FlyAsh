@@ -282,7 +282,9 @@ class CustomerTile extends StatelessWidget {
                 DueText(customer: c),
                 if (c.hasDue)
                   Text(
-                    l.due,
+                    c.hasBookingDue
+                        ? l.bookingDueAmount(Fmt.money(c.bookingDue))
+                        : l.due,
                     style: AppTypography.micro.copyWith(color: t.textTertiary),
                   ),
               ],

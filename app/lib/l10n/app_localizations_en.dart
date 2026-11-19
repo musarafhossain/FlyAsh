@@ -1620,4 +1620,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get export => 'Export';
+
+  @override
+  String get bookingDue => 'Booking due';
+
+  @override
+  String bookingDueAmount(String amount) {
+    return 'Booking $amount';
+  }
 }

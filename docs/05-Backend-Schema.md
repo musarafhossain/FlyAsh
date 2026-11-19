@@ -137,7 +137,7 @@ The row is deleted after a successful reset, so the reset token is single use. O
 | created_by | CHAR(36) FK → users.id | yes | NULL | |
 | created_at / updated_at | DATETIME | no | | |
 
-Customer totals (`total_sales`, `total_paid`, `total_due`, `sales_count`) are **calculated** from `sales` in queries, not stored: delivered sales and open bookings (see 4.4).
+Customer totals (`total_sales`, `total_paid`, `total_due`, `booking_due`, `sales_count`) are **calculated** from `sales` in queries, not stored: delivered sales and open bookings (see 4.4).
 
 ### 3.7 `sales`
 
@@ -336,6 +336,8 @@ net_profit   = sales − expenses − wages_paid
 
 ```
 total_due   = Σ sales.due_amount WHERE customer_id = :id AND status IN ('delivered','booked') AND deleted_at IS NULL
+booking_due = Σ sales.due_amount WHERE customer_id = :id AND status = 'booked' AND deleted_at IS NULL
+              -- the part of total_due on open bookings (delivered due = total_due − booking_due)
 sales_count = COUNT(sales)       with the same filter
 -- open bookings count (their due is owed on delivery); cancelled and deleted sales do not.
 -- The same rule is used for the dashboard's total_due and the dues report.

@@ -26,6 +26,7 @@ Map<String, Object?> customer(
   String sales = '0.00',
   String paid = '0.00',
   String due = '0.00',
+  String booking = '0.00',
   bool active = true,
 }) => {
   'id': id,
@@ -36,6 +37,7 @@ Map<String, Object?> customer(
   'total_sales': sales,
   'total_paid': paid,
   'total_due': due,
+  'booking_due': booking,
 };
 
 Map<String, Object?> sale(
@@ -174,6 +176,7 @@ FakeCustomers sampleCustomers() => FakeCustomers(
       sales: '222000.00',
       paid: '100000.00',
       due: '122000.00',
+      booking: '30500.00',
     ),
     customer(
       2,
@@ -359,6 +362,11 @@ void main() {
       reason: 'no address in the list',
     );
     expect(find.text('₹1,22,000'), findsOneWidget);
+    expect(
+      find.text('Booking ₹30,500'),
+      findsOneWidget,
+      reason: 'the part of the due on open bookings',
+    );
     expect(find.text('No due'), findsNWidgets(2));
     expect(find.text('Inactive'), findsWidgets);
     expect(find.byType(DataTableCard), findsNothing);
@@ -470,7 +478,9 @@ void main() {
 
     expect(find.text('₹2,22,000'), findsOneWidget); // purchases
     expect(find.text('₹1,00,000'), findsOneWidget); // paid
-    expect(find.text('₹1,22,000'), findsOneWidget); // due
+    expect(find.text('₹1,22,000'), findsOneWidget); // total due
+    expect(find.text('Booking due'), findsOneWidget);
+    expect(find.text('₹30,500'), findsOneWidget); // of it on bookings
     await tester.ensureVisible(find.text('INV-000095'));
     expect(find.byType(SaleTile), findsNWidgets(4));
     expect(find.text('Partial'), findsOneWidget);
