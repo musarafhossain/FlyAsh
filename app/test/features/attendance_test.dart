@@ -401,6 +401,25 @@ void main() {
     expect(find.text('4 present · 41 absent'), findsOneWidget);
   });
 
+  testWidgets('pull to refresh loads the day again (few rows too)', (
+    tester,
+  ) async {
+    await openAttendance(tester);
+    final before = api.requests
+        .where((r) => r.method == 'GET' && r.path == '/attendance')
+        .length;
+    // Someone else marks Asit present; a pull shows it.
+    api.present['2026-11-09'] = {...?api.present['2026-11-09'], '12'};
+    await tester.fling(find.text('Abdul Karim'), const Offset(0, 400), 1000);
+    await tester.pumpAndSettle();
+    final after = api.requests
+        .where((r) => r.method == 'GET' && r.path == '/attendance')
+        .length;
+    expect(after, before + 1);
+    expect(lastGet().queryParameters['date'], '2026-11-09');
+    expect(isOn(tester, 'Asit Roy'), isTrue);
+  });
+
   testWidgets('search filters the names', (tester) async {
     await openAttendance(tester);
     await tester.enterText(find.byType(TextField), 'kart');

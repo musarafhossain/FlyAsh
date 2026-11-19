@@ -260,11 +260,12 @@ void main() {
     });
   });
 
-  testWidgets('customer page: 4 stat cards (2 × 2) and a line under Sales', (
-    tester,
-  ) async {
+  testWidgets('customer page: stat cards 2 a row (+ Booking due when owed) '
+      'and a line under Sales', (tester) async {
     await customers.openCustomers(tester, location: '/customers/1');
-    expect(find.byType(KpiChip), findsNWidgets(4));
+    // Purchases · Paid · Total due · Booking due · Sales (customer 1 has a
+    // booking due; without one there are 4)
+    expect(find.byType(KpiChip), findsNWidgets(5));
     final chips = tester.widgetList(find.byType(KpiChip)).toList();
     final first = tester.getTopLeft(find.byWidget(chips[0]));
     final third = tester.getTopLeft(find.byWidget(chips[2]));

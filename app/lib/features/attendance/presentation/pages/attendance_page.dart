@@ -335,9 +335,12 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
         actions: const [AppBarActions()],
       ),
       body: RefreshIndicator(
-        onRefresh: () => QueryCache.fresh(_load),
+        // Keep the rows on screen while refreshing (no skeleton flash).
+        onRefresh: () => QueryCache.fresh(() => _load(keep: true)),
         child: ListView(
           controller: _scroll,
+          // Pull works even when the rows do not fill the screen.
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(vertical: gutter),
           children: [
             Center(
