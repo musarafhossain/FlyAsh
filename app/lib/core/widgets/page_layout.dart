@@ -8,6 +8,7 @@ import '../network/query_cache.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
+import 'app_refresh_indicator.dart';
 
 /// Scrollable page body: screen-size side padding and a centered column no
 /// wider than [maxWidth] (forms 560, detail pages 720 — 04-UI-UX §11).
@@ -48,7 +49,7 @@ class PageBody extends StatelessWidget {
     );
     return onRefresh == null
         ? body
-        : RefreshIndicator(
+        : AppRefreshIndicator(
             onRefresh: () => QueryCache.fresh(onRefresh!),
             child: body,
           );

@@ -385,7 +385,7 @@ States: default, pressed, focused (ring), disabled (38% opacity), loading (spinn
 | State | Pattern |
 |---|---|
 | Loading (first load) | Skeleton shimmer in the screen's shape (no full-screen spinners): list skeleton (search box + rows, a table on desktop), detail skeleton and form skeleton |
-| Loading (refresh) | Pull-to-refresh indicator in `primary`, on lists, detail pages and Home. A reload after a change happens silently: the rows stay and are swapped in place |
+| Loading (refresh) | Pull-to-refresh indicator in `primary` on a `surfaceElevated` circle with a clear shadow (elevation 6, 35 % black), on lists, detail pages and Home. A reload after a change happens silently: the rows stay and are swapped in place |
 | Optimistic change | Deactivate / delete / attendance show their result at once (pill changes, row disappears). On failure the old state comes back with a snackbar carrying the server's message |
 | Empty | Illustration (48–120 dp), `h3` title, one-line hint, primary action ("No sales yet · Create first sale") |
 | Error | Inline card with an `error` icon, a message and a "Retry" button |

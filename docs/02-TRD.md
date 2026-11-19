@@ -512,7 +512,7 @@ All server data goes through `ApiClient`, so caching is done there once for ever
 
 Screens listen only to their own tags: `ref.onDataChanged({DataTag.sales}, list.revalidate)`. For example, a new expense reloads the expense list and Home, but not the product list.
 
-**Skipping the cache.** Pull to refresh (`PagedList`, `PageBody`, Home, Sale detail, Attendance) and Retry run inside `QueryCache.fresh(...)`: every GET inside goes to the server and refreshes the cache. Changes made by **other users** show after a pull to refresh or once the 60 s are over.
+**Skipping the cache.** Pull to refresh (`AppRefreshIndicator` everywhere, never a bare `RefreshIndicator`: `PagedList`, `PageBody`, Home, Sale detail, Attendance) and Retry run inside `QueryCache.fresh(...)`: every GET inside goes to the server and refreshes the cache. Changes made by **other users** show after a pull to refresh or once the 60 s are over.
 
 **Optimistic updates.** Quick actions change the screen first and roll back if the server refuses:
 

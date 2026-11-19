@@ -10,6 +10,7 @@ import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import 'state_views.dart';
 import 'skeletons.dart';
+import 'app_refresh_indicator.dart';
 
 /// Tells a [PagedList] to load again.
 class PagedListController extends ChangeNotifier {
@@ -248,7 +249,7 @@ class _PagedListState<T> extends ConsumerState<PagedList<T>> {
       );
     }
 
-    return RefreshIndicator(
+    return AppRefreshIndicator(
       onRefresh: () => QueryCache.fresh(
         () => Future.wait([
           _reload(),

@@ -33,6 +33,7 @@ import '../receipt_pdf.dart';
 import '../sale_labels.dart';
 import '../widgets/sale_action_sheets.dart';
 import '../../../../core/widgets/skeletons.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 
 /// Sale detail (04-UI-UX "Sale detail"): invoice no. and status pills →
 /// customer card (Call / WhatsApp, opens the customer) → items → money
@@ -322,7 +323,7 @@ class _SaleDetailPageState extends ConsumerState<SaleDetailPage> {
                     onRetry: _load,
                   )
                 : const SaleDetailSkeleton())
-          : RefreshIndicator(
+          : AppRefreshIndicator(
               onRefresh: () => QueryCache.fresh(_load),
               child: wide ? _wide(sale) : _narrow(sale),
             ),

@@ -22,6 +22,7 @@ import '../../../../core/widgets/state_views.dart';
 import '../../../sales/presentation/widgets/sale_list_items.dart';
 import '../../data/dashboard_repository_impl.dart';
 import '../../domain/dashboard.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 
 /// Home (03-AppFlow §4, 04-UI-UX "Dashboard"): greeting, Today's sales
 /// (count), Total due · Deliveries today · Present today · Month
@@ -98,7 +99,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           const AppBarActions(),
         ],
       ),
-      body: RefreshIndicator(
+      body: AppRefreshIndicator(
         onRefresh: () => QueryCache.fresh(_load),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),

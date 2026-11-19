@@ -28,6 +28,7 @@ import '../../domain/attendance.dart';
 import '../../../../core/widgets/search_field.dart';
 import '../../../../core/router/section_events.dart';
 import '../../../../core/widgets/skeletons.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 
 /// Attendance for a day: ‹ date › (no future), search, and one row per
 /// labour with a switch. Turning a switch on marks the labour present (a row
@@ -334,7 +335,7 @@ class _AttendancePageState extends ConsumerState<AttendancePage> {
         title: Text(l.navAttendance),
         actions: const [AppBarActions()],
       ),
-      body: RefreshIndicator(
+      body: AppRefreshIndicator(
         // Keep the rows on screen while refreshing (no skeleton flash).
         onRefresh: () => QueryCache.fresh(() => _load(keep: true)),
         child: ListView(
