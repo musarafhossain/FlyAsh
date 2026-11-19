@@ -172,7 +172,7 @@ S = about 1–2 days, M = about 3–4 days, L = about 5–7 days (one developer)
 - [x] Deploy the API (`deploy/deploy.sh`: build, migrations, PM2 reload), users created
 - [x] Web build on the same domain, `/downloads` set up (Nginx)
 - [ ] Nightly backup cron (DB, 30 days) **and one test restore** — waiting for the owner's go-ahead (manual backups are taken before each deploy)
-- [x] Releases with `deploy/publish-app.sh`: APK (64-bit) + web, `node ace app:release`; latest 1.1.3+5 (2026-11-16). Windows installer: not now (APK only)
+- [x] Releases with `deploy/publish-app.sh`: APK (64-bit) + web, `node ace app:release`; latest 1.1.4+6 (2026-11-20). Windows installer: not now (APK only)
 - [x] Installed on the owner's phone; the real database `flyash` started clean on 2026-11-16 (users, tokens and factory profile kept)
 
 ---
